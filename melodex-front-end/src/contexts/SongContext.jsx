@@ -171,7 +171,7 @@ export const SongProvider = ({ children }) => {
 
 
 /*
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const SongContext = createContext();
 export const useSongContext = () => useContext(SongContext);
@@ -183,6 +183,7 @@ export const SongProvider = ({ children }) => {
   const [currentPair, setCurrentPair] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
+  const [rankedSongs, setRankedSongs] = useState([]);
 
   // Fetch seen songs (new mode only)
   const fetchSeenSongs = async () => {
@@ -238,6 +239,23 @@ export const SongProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+  // Fetch ranked songs
+  const fetchRankedSongs = useCallback(async (userId) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/ranked-songs', {
+        method: 'POST',
+        body: JSON.stringify({ userId }),
+      });
+      const ranked = await response.json();
+      setRankedSongs(ranked);
+    } catch (err) {
+      console.error('Failed to fetch ranked songs:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   // Get next pair of songs
   const getNextPair = async (list = songList) => {
@@ -359,6 +377,8 @@ export const SongProvider = ({ children }) => {
     skipSong,
     skipBothSongs,
     toggleMode,
+    rankedSongs,
+    fetchRankedSongs,
   };
 
   return <SongContext.Provider value={value}>{children}</SongContext.Provider>;
