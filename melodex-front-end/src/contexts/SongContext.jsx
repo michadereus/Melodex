@@ -5,17 +5,16 @@ const SongContext = createContext();
 export const useSongContext = () => useContext(SongContext);
 
 export const SongProvider = ({ children }) => {
-  const [seenSongs, setSeenSongs] = useState([]); // Array of deezerIDs
-  const [songList, setSongList] = useState([]); // Array of song objects
-  const [currentPair, setCurrentPair] = useState([]); // Array of two song objects
+  const [seenSongs, setSeenSongs] = useState([]);
+  const [songList, setSongList] = useState([]);
+  const [currentPair, setCurrentPair] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
-  const [rankedSongs, setRankedSongs] = useState([]); // Array of ranked song objects
+  const [rankedSongs, setRankedSongs] = useState([]);
 
-  const API_BASE_URL = 'http://localhost:3000/api'; // Backend URL
-  const userId = 'testUser'; // Hardcoded for now—replace with auth later
+  const API_BASE_URL = 'http://localhost:3000/api';
+  const userId = 'testUser';
 
-  // Fetch seen songs (new mode only)
   const fetchSeenSongs = async () => {
     if (mode === 'rerank') return;
     setLoading(true);
@@ -25,9 +24,13 @@ export const SongProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uID: userId }),
       });
-      if (!response.ok) throw new Error('Failed to fetch seen songs');
+      if (!response.ok) {
+        console.log('Fetch seen songs failed with status:', response.status, await response.text());
+        throw new Error('Failed to fetch seen songs');
+      }
       const data = await response.json();
-      setSeenSongs(data.titles || []); // Backend returns { titles: [...] }
+      console.log('Seen songs data:', data); // Debug
+      setSeenSongs(data.titles || []);
     } catch (error) {
       console.error('Failed to fetch seen songs:', error);
     } finally {
@@ -35,7 +38,6 @@ export const SongProvider = ({ children }) => {
     }
   };
 
-  // Generate new songs (new mode only)
   const generateNewSongs = async () => {
     if (mode === 'rerank') return;
     setLoading(true);
@@ -47,6 +49,7 @@ export const SongProvider = ({ children }) => {
       });
       if (!response.ok) throw new Error('Failed to generate songs');
       const newSongs = await response.json();
+      console.log('Generated songs:', newSongs); // Debug
       setSongList(prev => [...prev, ...newSongs]);
       return newSongs;
     } catch (error) {
@@ -57,6 +60,7 @@ export const SongProvider = ({ children }) => {
     }
   };
 
+  // ... rest of your SongContext (unchanged) ...
   // Fetch re-ranking data (rerank mode only)
   const fetchReRankingData = async () => {
     if (mode === 'new') return;
