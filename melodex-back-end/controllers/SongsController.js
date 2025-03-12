@@ -1,13 +1,9 @@
-// SongsController.js
-// Handles direct MongoDB operations for the 'songs' collection
-
+// backend/controllers/SongsController.js
 class SongsController {
-  // GET /api/all-songs
-  // Retrieves all songs from the songs collection
   static async getAllSongs(req, res) {
+    const db = req.app.locals.db;
     try {
-      // TODO: Implement MongoDB query to fetch all songs
-      const songs = []; // Placeholder: Replace with actual query result
+      const songs = await db.collection('songs').find().toArray();
       res.status(200).json(songs);
     } catch (error) {
       console.error('Error fetching all songs:', error);
@@ -15,13 +11,15 @@ class SongsController {
     }
   }
 
-  // POST /api/songs
-  // Adds a new song to the songs collection
   static async addSong(req, res) {
-    const songData = req.body; // { deezerID, title, artist, albumCover, previewLink, genre }
+    const songData = req.body;
+    const db = req.app.locals.db;
     try {
-      // TODO: Check for duplicate deezerID and insert into songs collection
-      // Example: await db.collection('songs').insertOne(songData);
+      const existingSong = await db.collection('songs').findOne({ deezerID: songData.deezerID });
+      if (existingSong) {
+        return res.status(400).json({ error: 'Song with this deezerID already exists' });
+      }
+      await db.collection('songs').insertOne(songData);
       res.status(201).json({ message: 'Song added successfully' });
     } catch (error) {
       console.error('Error adding song:', error);
@@ -29,13 +27,12 @@ class SongsController {
     }
   }
 
-  // Helper function: Fetches songs by an array of deezerIDs
-  // Used by RankedSongsService
-  static async getSongsByDeezerIDs(deezerIDs) {
+  static async getSongsByDeezerIDs(req, deezerIDs) { // Add req parameter
+    const db = req.app.locals.db;
     try {
-      // TODO: Implement MongoDB query to fetch songs where deezerID is in deezerIDs array
-      // Example: await db.collection('songs').find({ deezerID: { $in: deezerIDs } }).toArray();
-      const songs = []; // Placeholder: Replace with actual query result
+      const songs = await db.collection('songs')
+        .find({ deezerID: { $in: deezerIDs } })
+        .toArray();
       return songs;
     } catch (error) {
       console.error('Error fetching songs by deezerIDs:', error);

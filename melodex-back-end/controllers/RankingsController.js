@@ -1,17 +1,15 @@
-// RankingsController.js
-// Handles direct MongoDB operations for the 'rankings' collection
-
+// backend/controllers/RankingsController.js
 class RankingsController {
-  // POST /api/rankings
-  // Creates or updates a ranking for a song
   static async upsertRanking(req, res) {
     const { uID, deezerID, rating } = req.body;
+    const db = req.app.locals.db;
     try {
-      // TODO: Implement MongoDB upsert to update or insert ranking
-      // Example: await db.collection('rankings').updateOne(
-      //   { uID, deezerID }, { $set: { rating } }, { upsert: true }
-      // );
-      const message = /* Check if updated or inserted */ 'Ranking updated'; // Placeholder logic
+      const result = await db.collection('rankings').updateOne(
+        { uID, deezerID },
+        { $set: { rating } },
+        { upsert: true }
+      );
+      const message = result.matchedCount > 0 ? 'Ranking updated' : 'Ranking created';
       res.status(200).json({ message });
     } catch (error) {
       console.error('Error upserting ranking:', error);
@@ -19,13 +17,14 @@ class RankingsController {
     }
   }
 
-  // Helper function: Fetches ranked deezerIDs and ratings for a user
-  // Used by RankedSongsService
-  static async getRankedDeezerIDs(uID) {
+  static async getRankedDeezerIDs(req, uID) { // Add req parameter
+    const db = req.app.locals.db;
     try {
-      // TODO: Implement MongoDB query to fetch deezerID and rating for uID
-      // Example: await db.collection('rankings').find({ uID }).toArray();
-      return []; // Placeholder: Replace with [{ deezerID, rating }, ...]
+      const rankedSongs = await db.collection('rankings')
+        .find({ uID })
+        .project({ deezerID: 1, rating: 1, _id: 0 })
+        .toArray();
+      return rankedSongs;
     } catch (error) {
       console.error('Error fetching ranked deezerIDs:', error);
       throw error;

@@ -1,16 +1,18 @@
-// SeenSongsController.js
-// Handles direct MongoDB operations for the 'seen_songs' collection
-
+// backend/controllers/SeenSongsController.js
 class SeenSongsController {
-  // POST /api/seen-songs
-  // Updates or creates the list of seen song titles for a user
   static async updateSeenSongs(req, res) {
-    const { uID, titles } = req.body;
+    const { uID, titles, genreField } = req.body;
+    const db = req.app.locals.db;
     try {
-      // TODO: Implement MongoDB update to replace titles array for uID
-      // Example: await db.collection('seen_songs').updateOne(
-      //   { uID }, { $set: { titles } }, { upsert: true }
-      // );
+      const updateObj = { $push: { titles: { $each: titles } } };
+      if (genreField) {
+        updateObj.$push[genreField] = { $each: titles };
+      }
+      await db.collection('seen_songs').updateOne(
+        { uID },
+        updateObj,
+        { upsert: true }
+      );
       res.status(200).json({ message: 'Seen songs updated' });
     } catch (error) {
       console.error('Error updating seen songs:', error);
@@ -18,14 +20,11 @@ class SeenSongsController {
     }
   }
 
-  // Helper function: Fetches seen song titles for a user
-  // Used by SongGenerationService
-  static async getSeenSongTitles(uID) {
+  static async getSeenSongTitles(req, uID) { // Add req parameter
+    const db = req.app.locals.db;
     try {
-      // TODO: Implement MongoDB query to fetch titles array for uID
-      // Example: const result = await db.collection('seen_songs').findOne({ uID });
-      // return result ? result.titles : [];
-      return []; // Placeholder: Replace with actual query result
+      const result = await db.collection('seen_songs').findOne({ uID });
+      return result ? result.titles || [] : [];
     } catch (error) {
       console.error('Error fetching seen song titles:', error);
       throw error;
