@@ -7,8 +7,8 @@ const router = express.Router();
 const SongsController = require('../controllers/SongsController');
 const SeenSongsController = require('../controllers/SeenSongsController');
 const RankingsController = require('../controllers/RankingsController');
-const SongGenerationService = require('../SongGenerationService');
-const RankedSongsService = require('../RankedSongsService');
+const SongGenerationService = require('../services/SongGenerationService');
+const RankedSongsService = require('../services/RankedSongsService');
 
 // Songs routes
 router.get('/all-songs', SongsController.getAllSongs);
