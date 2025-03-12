@@ -23,5 +23,6 @@ router.post('/rankings', RankingsController.upsertRanking);
 // Service routes
 router.post('/generate-songs', SongGenerationService.generateNewSongs);
 router.post('/ranked-songs', RankedSongsService.getRankedSongs);
+router.post('/songs-by-deezer-ids', SongsController.getSongsByDeezerIDsRoute);
 
 module.exports = router;

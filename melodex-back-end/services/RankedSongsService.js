@@ -6,9 +6,9 @@ class RankedSongsService {
   static async getRankedSongs(req, res) {
     const { uID } = req.body;
     try {
-      const rankedData = await RankingsController.getRankedDeezerIDs(req, uID); // Pass req
+      const rankedData = await RankingsController.getRankedDeezerIDs(req, uID);
       const deezerIDs = rankedData.map(item => item.deezerID);
-      const songs = await SongsController.getSongsByDeezerIDs(req, deezerIDs); // Pass req
+      const songs = await SongsController.getSongsByDeezerIDs(req, deezerIDs); // Helper call
       const rankedSongs = songs.map(song => {
         const ranking = rankedData.find(r => r.deezerID === song.deezerID);
         return { ...song, rating: ranking ? ranking.rating : null };

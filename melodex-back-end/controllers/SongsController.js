@@ -27,9 +27,10 @@ class SongsController {
     }
   }
 
-  static async getSongsByDeezerIDs(req, deezerIDs) { // Add req parameter
+  static async getSongsByDeezerIDs(req, deezerIDs) { // Helper, not route
     const db = req.app.locals.db;
     try {
+      if (!Array.isArray(deezerIDs)) throw new Error('deezerIDs must be an array');
       const songs = await db.collection('songs')
         .find({ deezerID: { $in: deezerIDs } })
         .toArray();
@@ -37,6 +38,17 @@ class SongsController {
     } catch (error) {
       console.error('Error fetching songs by deezerIDs:', error);
       throw error;
+    }
+  }
+
+  static async getSongsByDeezerIDsRoute(req, res) { // New route handler
+    const { deezerIDs } = req.body;
+    try {
+      const songs = await SongsController.getSongsByDeezerIDs(req, deezerIDs);
+      res.status(200).json(songs);
+    } catch (error) {
+      console.error('Error in songs-by-deezer-ids route:', error);
+      res.status(500).json({ error: 'Failed to fetch songs' });
     }
   }
 }
