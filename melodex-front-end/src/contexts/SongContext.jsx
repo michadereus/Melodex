@@ -1,200 +1,35 @@
+// frontend/src/contexts/SongContext.js
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const SongContext = createContext();
 export const useSongContext = () => useContext(SongContext);
 
 export const SongProvider = ({ children }) => {
-  const [seenSongs, setSeenSongs] = useState([]);
-  const [songList, setSongList] = useState([]);
-  const [currentPair, setCurrentPair] = useState([]);
+  const [seenSongs, setSeenSongs] = useState([]); // Array of deezerIDs
+  const [songList, setSongList] = useState([]); // Array of song objects
+  const [currentPair, setCurrentPair] = useState([]); // Array of two song objects
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
-  const [rankedSongs, setRankedSongs] = useState([]);
+  const [rankedSongs, setRankedSongs] = useState([]); // Array of ranked song objects
 
-  const mockSongs = [
-    { id: 1, name: 'Song A', rating: 1500 },
-    { id: 2, name: 'Song B', rating: 1400 },
-    { id: 3, name: 'Song C', rating: 1300 },
-    { id: 4, name: 'Song D', rating: 1200 },
-  ];
-
-  const fetchSeenSongs = async () => {
-    if (mode === 'rerank') return;
-    console.log('fetchSeenSongs called');
-    setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    setSeenSongs([1, 2]);
-    setLoading(false);
-  };
-
-  const generateNewSongs = async () => {
-    if (mode === 'rerank') return;
-    console.log('generateNewSongs called');
-    setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const newSongs = mockSongs.filter(song => !seenSongs.includes(song.id));
-    setSongList(prev => [...prev, ...newSongs]);
-    setLoading(false);
-    return newSongs;
-  };
-
-  const fetchReRankingData = async () => {
-    if (mode === 'new') return;
-    console.log('fetchReRankingData called');
-    setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const songs = mockSongs.slice(2);
-    setSongList(songs);
-    await getNextPair(songs);
-    setLoading(false);
-  };
-
-  const fetchRankedSongs = useCallback(async (userId) => {
-    console.log('fetchRankedSongs called');
-    setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const mockRanked = mockSongs.map(song => ({
-      ...song,
-      rating: song.rating + (seenSongs.includes(song.id) ? 0 : Math.floor(Math.random() * 100) - 50),
-    })).sort((a, b) => b.rating - a.rating);
-    setRankedSongs(mockRanked);
-    setLoading(false);
-  }, [seenSongs]);
-
-  const getNextPair = async (list = songList) => {
-    console.log('getNextPair called');
-    if (mode === 'new' && list.length < 2) {
-      const newSongs = await generateNewSongs();
-      if (newSongs.length >= 2) {
-        setCurrentPair(newSongs.slice(0, 2));
-        setSongList(newSongs.slice(2));
-      } else if (newSongs.length === 1) {
-        setCurrentPair([newSongs[0]]);
-        setSongList([]);
-      } else {
-        setCurrentPair([]);
-      }
-    } else if (mode === 'rerank' && list.length < 2) {
-      setCurrentPair(list);
-      setSongList([]);
-    } else {
-      const nextTwo = list.slice(0, 2);
-      setCurrentPair(nextTwo);
-      setSongList(list.slice(2));
-    }
-  };
-
-  const selectSong = async (winnerId, loserId) => {
-    console.log('selectSong called');
-    const winner = currentPair.find(s => s.id === winnerId);
-    const loser = currentPair.find(s => s.id !== winnerId);
-    if (mode === 'new') {
-      const newSeen = [winner.id];
-      if (loser) newSeen.push(loser.id);
-      setSeenSongs(prev => [...prev, ...newSeen]);
-    }
-    setRankedSongs(prev =>
-      prev.map(song => {
-        if (song.id === winnerId) return { ...song, rating: song.rating + 50 };
-        if (song.id === loserId) return { ...song, rating: song.rating - 50 };
-        return song;
-      }).sort((a, b) => b.rating - a.rating)
-    );
-    await getNextPair();
-  };
-
-  const skipSong = async (songId) => {
-    console.log('skipSong called');
-    if (mode === 'new') {
-      setSeenSongs(prev => [...prev, songId]);
-    }
-    const remainingSong = currentPair.find(s => s.id !== songId);
-    if (songList.length === 0 && mode === 'new') {
-      const newSongs = await generateNewSongs();
-      if (newSongs.length > 0) {
-        setCurrentPair([remainingSong, newSongs[0]]);
-        setSongList(newSongs.slice(1));
-      } else {
-        setCurrentPair([remainingSong]);
-      }
-    } else if (songList.length === 0 && mode === 'rerank') {
-      setCurrentPair([remainingSong]);
-    } else {
-      setCurrentPair([remainingSong, songList[0]]);
-      setSongList(songList.slice(1));
-    }
-  };
-
-  const skipBothSongs = async () => {
-    console.log('skipBothSongs called');
-    if (mode === 'new') {
-      setSeenSongs(prev => [...prev, ...currentPair.map(s => s.id)]);
-    }
-    await getNextPair();
-  };
-
-  useEffect(() => {
-    const loadInitialData = async () => {
-      console.log('Context useEffect triggered, mode:', mode);
-      setLoading(true);
-      if (mode === 'new') {
-        await fetchSeenSongs();
-        await generateNewSongs();
-        await getNextPair();
-      } else if (mode === 'rerank') {
-        await fetchReRankingData();
-      }
-      setLoading(false);
-    };
-    loadInitialData();
-  }, [mode]);
-
-  const value = {
-    seenSongs,
-    songList,
-    currentPair,
-    loading,
-    mode,
-    setMode,
-    fetchSeenSongs,
-    generateNewSongs,
-    fetchReRankingData,
-    selectSong,
-    skipSong,
-    skipBothSongs,
-    rankedSongs,
-    fetchRankedSongs,
-  };
-
-  return <SongContext.Provider value={value}>{children}</SongContext.Provider>;
-};
-
-
-/*
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-
-const SongContext = createContext();
-export const useSongContext = () => useContext(SongContext);
-
-export const SongProvider = ({ children }) => {
-  // State setup
-  const [seenSongs, setSeenSongs] = useState([]);
-  const [songList, setSongList] = useState([]);
-  const [currentPair, setCurrentPair] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [mode, setMode] = useState('new');
-  const [rankedSongs, setRankedSongs] = useState([]);
+  const API_BASE_URL = 'http://localhost:3000/api'; // Backend URL
+  const userId = 'testUser'; // Hardcoded for now—replace with auth later
 
   // Fetch seen songs (new mode only)
   const fetchSeenSongs = async () => {
     if (mode === 'rerank') return;
     setLoading(true);
     try {
-      const response = await fetch('/api/seen-songs');
+      const response = await fetch(`${API_BASE_URL}/seen-songs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uID: userId }),
+      });
+      if (!response.ok) throw new Error('Failed to fetch seen songs');
       const data = await response.json();
-      setSeenSongs(data);
-    } catch (err) {
-      console.error('Failed to fetch seen songs:', err);
+      setSeenSongs(data.titles || []); // Backend returns { titles: [...] }
+    } catch (error) {
+      console.error('Failed to fetch seen songs:', error);
     } finally {
       setLoading(false);
     }
@@ -205,15 +40,17 @@ export const SongProvider = ({ children }) => {
     if (mode === 'rerank') return;
     setLoading(true);
     try {
-      const response = await fetch('/api/generate-songs', {
+      const response = await fetch(`${API_BASE_URL}/generate-songs`, {
         method: 'POST',
-        body: JSON.stringify({ seenSongs }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uID: userId }),
       });
+      if (!response.ok) throw new Error('Failed to generate songs');
       const newSongs = await response.json();
       setSongList(prev => [...prev, ...newSongs]);
       return newSongs;
-    } catch (err) {
-      console.error('Failed to generate new songs:', err);
+    } catch (error) {
+      console.error('Failed to generate new songs:', error);
       return [];
     } finally {
       setLoading(false);
@@ -221,37 +58,40 @@ export const SongProvider = ({ children }) => {
   };
 
   // Fetch re-ranking data (rerank mode only)
-  const fetchReRankingData = async (userId) => {
+  const fetchReRankingData = async () => {
     if (mode === 'new') return;
     setLoading(true);
     try {
-      const response = await fetch('https://your-app-services-url/get-songs-by-ratings', {
+      const response = await fetch(`${API_BASE_URL}/ranked-songs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ uID: userId }),
       });
+      if (!response.ok) throw new Error('Failed to fetch re-ranking data');
       const songs = await response.json();
       setSongList(songs);
       await getNextPair(songs);
-    } catch (err) {
-      console.error('Failed to fetch re-ranking data:', err);
+    } catch (error) {
+      console.error('Failed to fetch re-ranking data:', error);
     } finally {
       setLoading(false);
     }
   };
 
   // Fetch ranked songs
-  const fetchRankedSongs = useCallback(async (userId) => {
+  const fetchRankedSongs = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/ranked-songs', {
+      const response = await fetch(`${API_BASE_URL}/ranked-songs`, {
         method: 'POST',
-        body: JSON.stringify({ userId }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uID: userId }),
       });
+      if (!response.ok) throw new Error('Failed to fetch ranked songs');
       const ranked = await response.json();
       setRankedSongs(ranked);
-    } catch (err) {
-      console.error('Failed to fetch ranked songs:', err);
+    } catch (error) {
+      console.error('Failed to fetch ranked songs:', error);
     } finally {
       setLoading(false);
     }
@@ -282,105 +122,144 @@ export const SongProvider = ({ children }) => {
 
   // Handle song selection
   const selectSong = async (winnerId, loserId) => {
-    const winner = currentPair.find(s => s.id === winnerId);
-    const loser = currentPair.find(s => s.id !== winnerId);
-    if (mode === 'new') {
-      await Promise.all([
-        fetch('/api/songs', { method: 'POST', body: JSON.stringify(winner) }),
-        loser && fetch('/api/songs', { method: 'POST', body: JSON.stringify(loser) }),
-      ]);
-      const newSeen = [winner.id];
-      if (loser) newSeen.push(loser.id);
-      setSeenSongs(prev => [...prev, ...newSeen]);
+    setLoading(true);
+    try {
+      // Update rankings
+      await fetch(`${API_BASE_URL}/rankings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uID: userId, deezerID: winnerId, rating: 1550 }), // Example adjustment
+      });
+      if (loserId) {
+        await fetch(`${API_BASE_URL}/rankings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uID: userId, deezerID: loserId, rating: 1450 }),
+        });
+      }
+
+      // Update seen songs in 'new' mode
+      if (mode === 'new') {
+        const newSeen = [winnerId];
+        if (loserId) newSeen.push(loserId);
+        await fetch(`${API_BASE_URL}/seen-songs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uID: userId, titles: newSeen, genreField: 'rock90' }), // Adjust genreField dynamically later
+        });
+        setSeenSongs(prev => [...prev, ...newSeen]);
+      }
+
+      // Update local rankedSongs (optional, or refetch)
+      setRankedSongs(prev =>
+        prev.map(song => {
+          if (song.deezerID === winnerId) return { ...song, rating: 1550 };
+          if (song.deezerID === loserId) return { ...song, rating: 1450 };
+          return song;
+        }).sort((a, b) => b.rating - a.rating)
+      );
+
+      await getNextPair();
+    } catch (error) {
+      console.error('Failed to select song:', error);
+    } finally {
+      setLoading(false);
     }
-    await fetch('/api/ratings', {
-      method: 'POST',
-      body: JSON.stringify({ winnerId, loserId: loser?.id }),
-    });
-    await getNextPair();
   };
 
   // Skip one song
   const skipSong = async (songId) => {
-    if (mode === 'new') {
-      setSeenSongs(prev => [...prev, songId]);
-    }
-    const remainingSong = currentPair.find(s => s.id !== songId);
-    if (songList.length === 0 && mode === 'new') {
-      const newSongs = await generateNewSongs();
-      if (newSongs.length > 0) {
-        setCurrentPair([remainingSong, newSongs[0]]);
-        setSongList(newSongs.slice(1));
-      } else {
-        setCurrentPair([remainingSong]);
+    setLoading(true);
+    try {
+      if (mode === 'new') {
+        await fetch(`${API_BASE_URL}/seen-songs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uID: userId, titles: [songId], genreField: 'rock90' }),
+        });
+        setSeenSongs(prev => [...prev, songId]);
       }
-    } else if (songList.length === 0 && mode === 'rerank') {
-      setCurrentPair([remainingSong]);
-    } else {
-      setCurrentPair([remainingSong, songList[0]]);
-      setSongList(songList.slice(1));
+
+      const remainingSong = currentPair.find(s => s.deezerID !== songId);
+      if (songList.length === 0 && mode === 'new') {
+        const newSongs = await generateNewSongs();
+        if (newSongs.length > 0) {
+          setCurrentPair([remainingSong, newSongs[0]]);
+          setSongList(newSongs.slice(1));
+        } else {
+          setCurrentPair([remainingSong]);
+        }
+      } else if (songList.length === 0 && mode === 'rerank') {
+        setCurrentPair([remainingSong]);
+      } else {
+        setCurrentPair([remainingSong, songList[0]]);
+        setSongList(songList.slice(1));
+      }
+    } catch (error) {
+      console.error('Failed to skip song:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Skip both songs
   const skipBothSongs = async () => {
-    if (mode === 'new') {
-      setSeenSongs(prev => [...prev, ...currentPair.map(s => s.id)]);
-    }
-    await getNextPair();
-  };
-
-  // Toggle modes
-  const toggleMode = async (userId = 'temp') => {
-    const newMode = mode === 'new' ? 'rerank' : 'new';
-    setMode(newMode);
-    setSongList([]);
-    setCurrentPair([]);
     setLoading(true);
-    if (newMode === 'rerank') {
-      await fetchReRankingData(userId);
-    } else {
-      await fetchSeenSongs();
-      await generateNewSongs();
+    try {
+      if (mode === 'new') {
+        const songIds = currentPair.map(s => s.deezerID);
+        await fetch(`${API_BASE_URL}/seen-songs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uID: userId, titles: songIds, genreField: 'rock90' }),
+        });
+        setSeenSongs(prev => [...prev, ...songIds]);
+      }
       await getNextPair();
+    } catch (error) {
+      console.error('Failed to skip both songs:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  // Initial data load on mount
+  // Initial data load
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
-      if (mode === 'new') {
-        await fetchSeenSongs();
-        await generateNewSongs();
-        await getNextPair();
-      } else {
-        await fetchReRankingData('temp');
+      try {
+        if (mode === 'new') {
+          await fetchSeenSongs();
+          await generateNewSongs();
+          await getNextPair();
+        } else {
+          await fetchReRankingData();
+        }
+      } catch (error) {
+        console.error('Failed to load initial data:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadInitialData();
-  }, []); // Empty dependency array ensures it runs only once on mount
+  }, [mode]);
 
-  // Context value
   const value = {
     seenSongs,
     songList,
     currentPair,
     loading,
     mode,
+    setMode,
     fetchSeenSongs,
     generateNewSongs,
     fetchReRankingData,
     selectSong,
     skipSong,
     skipBothSongs,
-    toggleMode,
     rankedSongs,
     fetchRankedSongs,
   };
 
   return <SongContext.Provider value={value}>{children}</SongContext.Provider>;
 };
-*/

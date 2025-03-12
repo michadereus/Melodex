@@ -16,20 +16,17 @@ function SongRanker({ mode }) {
       <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
         {currentPair.map(song => (
-          <div key={song.id} style={{ textAlign: 'center' }}>
-            <p>{song.name}</p>
-            <button
-              onClick={() => selectSong(song.id, currentPair.find(s => s.id !== song.id)?.id)}
-              style={{ margin: '5px' }}
-            >
+          <div key={song.deezerID} style={{ textAlign: 'center' }}>
+            <p>{song.title}</p>
+            <button onClick={() => selectSong(song.deezerID, currentPair.find(s => s.deezerID !== song.deezerID)?.deezerID)}>
               Pick
             </button>
-            <button onClick={() => skipSong(song.id)} style={{ margin: '5px' }}>
+            <button onClick={() => skipSong(song.deezerID)}>
               Skip
             </button>
           </div>
-        ))}
-      </div>
+              ))}
+            </div>
       {currentPair.length === 2 && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <button onClick={skipBothSongs}>Skip Both</button>
