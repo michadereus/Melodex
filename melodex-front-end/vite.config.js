@@ -9,4 +9,7 @@ export default defineConfig({
   esbuild: {
     sourcemap: false, // Disable in dev mode
   },
+  server: {
+    port: process.env.VITE_PORT || 3001, // Use VITE_PORT or fallback to 3001
+  },
 });
