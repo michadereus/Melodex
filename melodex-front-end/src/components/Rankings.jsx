@@ -1,17 +1,11 @@
-// frontend/src/components/Rankings.js
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 
-function Rankings() {
+const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
-  const userId = 'testUser'; // Match SongProvider
-  const hasFetched = useRef(false);
 
   useEffect(() => {
-    if (!hasFetched.current) {
-      fetchRankedSongs(); // No userId param needed—handled in SongProvider
-      hasFetched.current = true;
-    }
+    fetchRankedSongs();
   }, [fetchRankedSongs]);
 
   if (loading) return <p>Loading rankings...</p>;
@@ -19,16 +13,16 @@ function Rankings() {
 
   return (
     <div>
-      <h2>Rankings</h2>
+      <h2>Your Song Rankings</h2>
       <ul>
-        {rankedSongs.map(song => (
+        {rankedSongs.map((song) => (
           <li key={song.deezerID}>
-            {song.title} by {song.artist} - Rating: {song.rating}
+            {song.songName} by {song.artist} - Ranking: {song.ranking}
           </li>
         ))}
       </ul>
     </div>
   );
-}
+};
 
 export default Rankings;
