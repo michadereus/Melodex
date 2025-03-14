@@ -17,8 +17,19 @@ async function connectDB() {
     client = new MongoClient(uri);
     await client.connect();
     console.log('Connected to MongoDB Atlas');
+    
+    // Check and create user_songs collection
+    const db = client.db('melodex');
+    const collections = await db.listCollections().toArray();
+    const collectionNames = collections.map(col => col.name);
+    if (!collectionNames.includes('user_songs')) {
+      await db.createCollection('user_songs');
+      console.log('Created user_songs collection');
+    } else {
+      console.log('user_songs collection already exists');
+    }
   } catch (error) {
-    console.error('Failed to connect to MongoDB Atlas:', error);
+    console.error('Failed to connect to MongoDB Atlas or create collection:', error);
     process.exit(1);
   }
 }

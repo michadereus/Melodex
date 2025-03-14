@@ -2,14 +2,16 @@ import React, { useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 
 const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, skipBothSongs, loading, setMode } = useSongContext();
+  const { currentPair, selectSong, skipSong, loading, setMode } = useSongContext();
 
   useEffect(() => {
     setMode(mode);
   }, [mode, setMode]);
 
+  console.log('SongRanker render, currentPair:', currentPair);
+
   if (loading) return <p>Loading...</p>;
-  if (currentPair.length === 0) return <p>No songs to rank</p>;
+  if (currentPair.length === 0) return <p>No more songs to rank</p>;
 
   return (
     <div>
@@ -36,11 +38,6 @@ const SongRanker = ({ mode }) => {
           </div>
         ))}
       </div>
-      {mode === 'new' && currentPair.length === 2 && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={skipBothSongs}>Skip Both</button>
-        </div>
-      )}
     </div>
   );
 };
