@@ -31,7 +31,7 @@ class UserSongsController {
     try {
       console.log('Fetching user songs for:', userID);
       const userSongs = await db.collection('user_songs')
-        .find({ userID }) // Include all songs (ranked or skipped)
+        .find({ userID })
         .toArray();
       console.log('User songs from DB:', userSongs);
       const userDeezerIDs = userSongs.map(song => song.deezerID);
@@ -52,14 +52,14 @@ class UserSongsController {
       const rankedSongs = await db.collection('user_songs')
         .find({ userID, skipped: false })
         .toArray();
+      console.log('Ranked songs for rerank:', rankedSongs);
       if (rankedSongs.length < 2) {
-        res.status(200).json([]); // Not enough songs to re-rank
+        res.status(200).json([]);
       } else {
-        // Shuffle the array and pick the first two songs
         const shuffled = rankedSongs.sort(() => 0.5 - Math.random());
         const randomPair = shuffled.slice(0, 2);
-        console.log('Returning random pair:', randomPair.map(s => s.songName));
-        res.status(200).json(randomPair); // Return only 2 songs
+        console.log('Random pair for rerank:', randomPair);
+        res.status(200).json(randomPair);
       }
     } catch (error) {
       console.error('Error fetching rerank songs:', error);
@@ -68,27 +68,106 @@ class UserSongsController {
   }
 
   static async upsertUserSong(req, res) {
-    const { userID, deezerID, ranking, skipped, songName, artist, genre, albumCover, previewURL } = req.body;
-    const db = req.app.locals.db;
-
-    const userSongData = {
+    const {
       userID,
       deezerID,
-      songName: songName || "Unknown Song",
-      artist: artist || "Unknown Artist",
-      genre: genre || "unknown",
-      albumCover: albumCover || "",
-      previewURL: previewURL || "",
-      ranking,
-      skipped,
-    };
+      opponentDeezerID,
+      result,
+      winnerSongName,
+      winnerArtist,
+      winnerGenre,
+      winnerAlbumCover,
+      winnerPreviewURL,
+      loserSongName,
+      loserArtist,
+      loserGenre,
+      loserAlbumCover,
+      loserPreviewURL,
+    } = req.body;
+    const db = req.app.locals.db;
+    const K = 32;
 
-    await db.collection('user_songs').updateOne(
-      { userID, deezerID },
-      { $set: userSongData },
-      { upsert: true }
-    );
-    res.status(200).json({ message: 'User song updated' });
+    try {
+      // Handle winner song
+      let song = await db.collection('user_songs').findOne({ userID, deezerID });
+      if (!song) {
+        song = {
+          userID,
+          deezerID,
+          songName: winnerSongName || 'Unknown Song',
+          artist: winnerArtist || 'Unknown Artist',
+          genre: winnerGenre || 'unknown',
+          albumCover: winnerAlbumCover || '',
+          previewURL: winnerPreviewURL || '',
+          ranking: 1200,
+          skipped: false,
+        };
+      } else {
+        // Update metadata if provided
+        if (winnerSongName) song.songName = winnerSongName;
+        if (winnerArtist) song.artist = winnerArtist;
+        if (winnerGenre) song.genre = winnerGenre;
+        if (winnerAlbumCover) song.albumCover = winnerAlbumCover;
+        if (winnerPreviewURL) song.previewURL = winnerPreviewURL;
+      }
+
+      // Handle loser song
+      let opponent = await db.collection('user_songs').findOne({ userID, deezerID: opponentDeezerID });
+      if (!opponent) {
+        opponent = {
+          userID,
+          deezerID: opponentDeezerID,
+          songName: loserSongName || 'Unknown Song',
+          artist: loserArtist || 'Unknown Artist',
+          genre: loserGenre || 'unknown',
+          albumCover: loserAlbumCover || '',
+          previewURL: loserPreviewURL || '',
+          ranking: 1200,
+          skipped: false,
+        };
+      } else {
+        // Update metadata if provided
+        if (loserSongName) opponent.songName = loserSongName;
+        if (loserArtist) opponent.artist = loserArtist;
+        if (loserGenre) opponent.genre = loserGenre;
+        if (loserAlbumCover) opponent.albumCover = loserAlbumCover;
+        if (loserPreviewURL) opponent.previewURL = loserPreviewURL;
+      }
+
+      if (result && opponentDeezerID) {
+        const R_A = song.ranking || 1200;
+        const R_B = opponent.ranking || 1200;
+        const E_A = 1 / (1 + Math.pow(10, (R_B - R_A) / 400));
+        const E_B = 1 / (1 + Math.pow(10, (R_A - R_B) / 400));
+        const S_A = result === 'win' ? 1 : 0;
+        const S_B = result === 'win' ? 0 : 1;
+
+        const newRatingA = Math.round(R_A + K * (S_A - E_A));
+        const newRatingB = Math.round(R_B + K * (S_B - E_B));
+
+        song.ranking = newRatingA;
+        opponent.ranking = newRatingB;
+
+        // Save both songs
+        await db.collection('user_songs').updateOne(
+          { userID, deezerID },
+          { $set: song },
+          { upsert: true }
+        );
+        await db.collection('user_songs').updateOne(
+          { userID, deezerID: opponentDeezerID },
+          { $set: opponent },
+          { upsert: true }
+        );
+
+        res.status(200).json({ message: 'User song ratings updated', newRatingA, newRatingB });
+      } else {
+        res.status(400).json({ error: 'Missing result or opponentDeezerID' });
+      }
+    } catch (error) {
+      console.error('Error upserting user song:', error);
+      res.status(500).json({ error: 'Failed to upsert user song' });
+    }
   }
 
   static async getRankedSongsForUser(req, res) {

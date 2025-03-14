@@ -59,8 +59,8 @@ export const SongProvider = ({ children }) => {
       });
       if (!response.ok) throw new Error('Failed to fetch re-ranking data');
       const reRankSongs = await response.json();
-      console.log('fetchReRankingData: reRankSongs (should be 2):', reRankSongs);
-      return reRankSongs; // Expecting exactly 2 songs
+      console.log('fetchReRankingData: reRankSongs:', reRankSongs);
+      return reRankSongs;
     } catch (error) {
       console.error('Failed to fetch re-ranking data:', error);
       return [];
@@ -72,47 +72,57 @@ export const SongProvider = ({ children }) => {
   const selectSong = async (winnerId, loserId) => {
     setLoading(true);
     try {
-      if (!loserId) return;
+      if (!loserId) {
+        console.log('No loserId provided, aborting');
+        return;
+      }
       const winnerSong = currentPair.find(s => s.deezerID === winnerId);
       const loserSong = currentPair.find(s => s.deezerID === loserId);
-      console.log('Picking winner:', winnerSong, 'loser:', loserSong);
-      await fetch(`${API_BASE_URL}/user-songs/upsert`, {
+      console.log('Winner song:', winnerSong);
+      console.log('Loser song:', loserSong);
+
+      if (!winnerSong || !loserSong) {
+        console.error('Winner or loser song not found in currentPair');
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userID, 
-          deezerID: winnerId, 
-          ranking: 1200, 
-          skipped: false, 
-          songName: winnerSong.songName, 
-          artist: winnerSong.artist,
-          albumCover: winnerSong.albumCover,
-          previewURL: winnerSong.previewURL,
+        body: JSON.stringify({
+          userID,
+          deezerID: winnerSong.deezerID,
+          opponentDeezerID: loserSong.deezerID,
+          result: 'win',
+          winnerSongName: winnerSong.songName,
+          winnerArtist: winnerSong.artist,
+          winnerGenre: winnerSong.genre,
+          winnerAlbumCover: winnerSong.albumCover,
+          winnerPreviewURL: winnerSong.previewURL,
+          loserSongName: loserSong.songName,
+          loserArtist: loserSong.artist,
+          loserGenre: loserSong.genre,
+          loserAlbumCover: loserSong.albumCover,
+          loserPreviewURL: loserSong.previewURL,
         }),
       });
-      await fetch(`${API_BASE_URL}/user-songs/upsert`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          userID, 
-          deezerID: loserId, 
-          ranking: 1199, 
-          skipped: false, 
-          songName: loserSong.songName, 
-          artist: loserSong.artist,
-          albumCover: loserSong.albumCover,
-          previewURL: loserSong.previewURL,
-        }),
-      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to update song ratings: ${errorText}`);
+      }
+
+      const { newRatingA, newRatingB } = await response.json();
+      console.log(`Updated ratings - Winner: ${newRatingA}, Loser: ${newRatingB}`);
+
       if (mode === 'new') {
         const updatedList = songList.filter(song => song.deezerID !== winnerId && song.deezerID !== loserId);
         setSongList(updatedList);
         getNextPair(updatedList);
       } else if (mode === 'rerank') {
         const newPair = await fetchReRankingData();
-        console.log('New pair after pick:', newPair);
         setCurrentPair(newPair.length >= 2 ? newPair : []);
-        setSongList([]); // Ensure songList stays empty in rerank mode
+        setSongList([]);
       }
     } catch (error) {
       console.error('Failed to select song:', error);
@@ -167,7 +177,13 @@ export const SongProvider = ({ children }) => {
       });
       if (!response.ok) throw new Error('Failed to fetch ranked songs');
       const ranked = await response.json();
-      setRankedSongs(ranked);
+      // Deduplicate by deezerID, keeping the latest entry
+      const uniqueRanked = ranked.reduce((acc, song) => {
+        acc[song.deezerID] = song;
+        return acc;
+      }, {});
+      setRankedSongs(Object.values(uniqueRanked));
+      console.log('fetchRankedSongs: rankedSongs:', Object.values(uniqueRanked));
     } catch (error) {
       console.error('Failed to fetch ranked songs:', error);
     } finally {

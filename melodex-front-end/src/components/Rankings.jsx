@@ -9,18 +9,27 @@ const Rankings = () => {
   }, [fetchRankedSongs]);
 
   if (loading) return <p>Loading rankings...</p>;
-  if (rankedSongs.length === 0) return <p>No ranked songs yet.</p>;
+
+  // Sort rankedSongs by ranking in descending order
+  const sortedRankedSongs = [...rankedSongs].sort((a, b) => b.ranking - a.ranking);
 
   return (
     <div>
       <h2>Your Song Rankings</h2>
-      <ul>
-        {rankedSongs.map((song) => (
-          <li key={song.deezerID}>
-            {song.songName} by {song.artist} - Ranking: {song.ranking}
-          </li>
-        ))}
-      </ul>
+      {sortedRankedSongs.length === 0 ? (
+        <p>No ranked songs yet.</p>
+      ) : (
+        <ul>
+          {sortedRankedSongs.map((song) => (
+            <li key={song.deezerID}>
+              {song.songName} by {song.artist} - Ranking: {song.ranking}
+              <br />
+              <img src={song.albumCover} alt="Album Cover" style={{ width: '50px', height: '50px' }} />
+              <audio controls src={song.previewURL} style={{ margin: '5px' }} />
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
