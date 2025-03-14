@@ -8,5 +8,6 @@ router.post('/user-songs/new', UserSongsController.getNewSongsForUser);
 router.post('/user-songs/rerank', UserSongsController.getReRankSongsForUser);
 router.post('/user-songs/upsert', UserSongsController.upsertUserSong);
 router.post('/user-songs/ranked', UserSongsController.getRankedSongsForUser);
+router.post('/user-songs/deezer-info', UserSongsController.getDeezerInfo); // New endpoint
 
 module.exports = router;

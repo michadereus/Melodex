@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 
 const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, skipBothSongs, loading } = useSongContext();
+  const { currentPair, selectSong, skipSong, skipBothSongs, loading, setMode } = useSongContext();
+
+  useEffect(() => {
+    setMode(mode);
+  }, [mode, setMode]);
 
   if (loading) return <p>Loading...</p>;
   if (currentPair.length === 0) return <p>No songs to rank</p>;
@@ -13,9 +17,9 @@ const SongRanker = ({ mode }) => {
       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
         {currentPair.map((song) => (
           <div key={song.deezerID} style={{ textAlign: 'center' }}>
-            <p>
-              {song.songName} by {song.artist}
-            </p>
+            <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
+            <p>{song.songName} by {song.artist}</p>
+            <audio controls src={song.previewURL} style={{ margin: '5px' }} />
             <button
               onClick={() =>
                 selectSong(song.deezerID, currentPair.find((s) => s.deezerID !== song.deezerID)?.deezerID)
