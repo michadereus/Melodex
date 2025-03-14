@@ -1,7 +1,4 @@
 class UserSongsController {
-  static async getGlobalSongs(req, res) {
-    res.status(410).json({ message: 'Deprecated endpoint' });
-  }
 
   static async getNewSongsForUser(req, res) {
     const { userID } = req.body;

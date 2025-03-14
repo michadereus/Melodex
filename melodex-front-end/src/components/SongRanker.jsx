@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 
 const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, loading, setMode } = useSongContext();
+  const { currentPair, selectSong, skipSong, loading, setMode, refreshPair } = useSongContext();
 
   useEffect(() => {
     setMode(mode);
@@ -38,6 +38,13 @@ const SongRanker = ({ mode }) => {
           </div>
         ))}
       </div>
+      {mode === 'new' && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <button onClick={refreshPair} style={{ padding: '10px 20px' }}>
+            Skip Both
+          </button>
+        </div>
+      )}
     </div>
   );
 };

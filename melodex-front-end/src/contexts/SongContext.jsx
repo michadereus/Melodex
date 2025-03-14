@@ -18,13 +18,10 @@ export const SongProvider = ({ children }) => {
       setCurrentPair(newPair);
       setSongList(songsToUse.slice(2));
       console.log('currentPair set to:', newPair);
-    } else if (songsToUse.length === 1) {
-      setCurrentPair([songsToUse[0]]);
-      setSongList([]);
-      console.log('currentPair set to single song:', [songsToUse[0]]);
     } else {
       setCurrentPair([]);
-      console.log('currentPair set to empty: no songs available');
+      setSongList([]);
+      console.log('currentPair set to empty: fewer than 2 songs available');
     }
   }, [songList]);
 
@@ -115,6 +112,19 @@ export const SongProvider = ({ children }) => {
       const { newRatingA, newRatingB } = await response.json();
       console.log(`Updated ratings - Winner: ${newRatingA}, Loser: ${newRatingB}`);
 
+      setCurrentPair([]);
+
+      setRankedSongs(prevRanked => {
+        const updated = prevRanked.filter(song => 
+          song.deezerID !== winnerSong.deezerID && song.deezerID !== loserSong.deezerID
+        );
+        return [
+          ...updated,
+          { ...winnerSong, ranking: newRatingA },
+          { ...loserSong, ranking: newRatingB }
+        ];
+      });
+
       if (mode === 'new') {
         const updatedList = songList.filter(song => song.deezerID !== winnerId && song.deezerID !== loserId);
         setSongList(updatedList);
@@ -149,17 +159,10 @@ export const SongProvider = ({ children }) => {
           previewURL: skippedSong.previewURL,
         }),
       });
+      setCurrentPair([]);
       const updatedList = songList.filter(song => song.deezerID !== songId);
       setSongList(updatedList);
-      const remainingSong = currentPair.find(song => song.deezerID !== songId);
-      if (remainingSong && updatedList.length > 0) {
-        setCurrentPair([remainingSong, updatedList[0]]);
-        setSongList(updatedList.slice(1));
-      } else if (remainingSong) {
-        setCurrentPair([remainingSong]);
-      } else {
-        getNextPair(updatedList);
-      }
+      getNextPair(updatedList);
     } catch (error) {
       console.error('Failed to skip song:', error);
     } finally {
@@ -177,7 +180,6 @@ export const SongProvider = ({ children }) => {
       });
       if (!response.ok) throw new Error('Failed to fetch ranked songs');
       const ranked = await response.json();
-      // Deduplicate by deezerID, keeping the latest entry
       const uniqueRanked = ranked.reduce((acc, song) => {
         acc[song.deezerID] = song;
         return acc;
@@ -190,6 +192,29 @@ export const SongProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  const refreshPair = useCallback(async () => {
+    setLoading(true);
+    try {
+      if (mode === 'new' && currentPair.length === 2) {
+        // Skip both songs in currentPair
+        await Promise.all([
+          skipSong(currentPair[0].deezerID),
+          skipSong(currentPair[1].deezerID),
+        ]);
+        // currentPair is already cleared by skipSong, so just fetch next pair
+        getNextPair(songList);
+      } else if (mode === 'rerank') {
+        const newPair = await fetchReRankingData();
+        setCurrentPair(newPair.length >= 2 ? newPair : []);
+      }
+    } catch (error) {
+      console.error('Failed to refresh pair:', error);
+      setCurrentPair([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
 
   useEffect(() => {
     console.log('useEffect triggered');
@@ -225,6 +250,7 @@ export const SongProvider = ({ children }) => {
         selectSong,
         skipSong,
         fetchRankedSongs,
+        refreshPair,
       }}
     >
       {children}
