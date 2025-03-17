@@ -1,31 +1,15 @@
 // melodex-back-end/controllers/UserSongsController.js
+const axios = require('axios');
+
 class UserSongsController {
   static async getNewSongsForUser(req, res) {
     const { userID } = req.body;
     const db = req.app.locals.db;
-    const hardcodedSongs = [
-      { songName: "Bohemian Rhapsody", artist: "Queen", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Shape of You", artist: "Ed Sheeran", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Bohemian Rhapsody", artist: "Queen", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Billie Jean", artist: "Michael Jackson", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Sweet Child O' Mine", artist: "Guns N' Roses", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Rolling in the Deep", artist: "Adele", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Uptown Funk", artist: "Mark Ronson ft. Bruno Mars", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Imagine", artist: "John Lennon", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Smells Like Teen Spirit", artist: "Nirvana", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Bad Guy", artist: "Billie Eilish", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Hotel California", artist: "Eagles", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Blinding Lights", artist: "The Weeknd", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Stairway to Heaven", artist: "Led Zeppelin", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Dancing Queen", artist: "ABBA", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Lose Yourself", artist: "Eminem", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Hey Jude", artist: "The Beatles", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Viva La Vida", artist: "Coldplay", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Thriller", artist: "Michael Jackson", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Someone Like You", artist: "Adele", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Wonderwall", artist: "Oasis", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-      { songName: "Shake It Off", artist: "Taylor Swift", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
-    ];
+    const genre = 'pop';
+    const startYear = 2000;
+    const endYear = 2020;
+    const numSongs = 20;
+
     try {
       console.log('START getNewSongsForUser for userID:', userID);
       console.log('Fetching user songs from DB...');
@@ -34,8 +18,56 @@ class UserSongsController {
       const userDeezerIDs = userSongs.map(song => song.deezerID);
       console.log('User deezerIDs:', userDeezerIDs);
 
-      const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(hardcodedSongs);
+      const seenSongs = userSongs.map(song => `${song.songName}, ${song.artist}`);
+      const songsString = seenSongs.length > 0 ? seenSongs.join(', ') : 'None';
+
+      const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${genre} genre, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
+
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 500,
+          temperature: 0.9,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          },
+        }
+      );
+
+      const songList = response.data.choices[0].message.content
+        .trim()
+        .split('\n')
+        .map(line => line.trim());
+
+      if (songList.length !== numSongs) {
+        console.warn(`OpenAI returned ${songList.length} songs instead of ${numSongs}`);
+      }
+
+      const transformedSongs = songList.map(songString => {
+        const parts = songString.split(/,\s*/);
+        const songNameRaw = parts[0];
+        const artistRaw = parts.slice(1).join(', ');
+        const songName = songNameRaw.replace(/^\d+\.\s*"?(.*?)"?$/, '$1').trim();
+        const artist = artistRaw.replace(/^"?(.*?)"?$/, '$1').trim();
+        return {
+          songName,
+          artist,
+          genre: genre,
+          albumCover: '',
+          previewURL: '',
+          ranking: null,
+          skipped: false,
+        };
+      });
+
+      const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(transformedSongs);
       console.log('Enriched songs before filter:', enrichedSongs);
+
       const newSongs = enrichedSongs.filter(song => !userDeezerIDs.includes(song.deezerID));
       console.log('New songs after filter:', newSongs);
 
@@ -146,7 +178,7 @@ class UserSongsController {
           artist: loserArtist || 'Unknown Artist',
           genre: loserGenre || 'unknown',
           albumCover: loserAlbumCover || '',
-          previewURL: loserPreviewURL || '',
+          previewURL: loserPreviewURL || '', // Fixed typo from 'voitPreviewURL'
           ranking: 1200,
           skipped: false,
         };
@@ -162,7 +194,7 @@ class UserSongsController {
 
       if (result) {
         const R_A = song.ranking || 1200;
-        const R_B = opponent.ranking || 1200;
+        const R_B = opponent.rankingLuke || 1200;
         const E_A = 1 / (1 + Math.pow(10, (R_B - R_A) / 400));
         const E_B = 1 / (1 + Math.pow(10, (R_A - R_B) / 400));
         const S_A = result === 'win' ? 1 : 0;

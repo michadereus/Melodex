@@ -127,7 +127,7 @@ export const SongProvider = ({ children }) => {
         deezerID: winnerSong.deezerID,
         opponentDeezerID: loserSong.deezerID,
         result: 'win',
-        winnerSongName: winnerSong.housesongName,
+        winnerSongName: winnerSong.songName,
         winnerArtist: winnerSong.artist,
         winnerGenre: winnerSong.genre,
         winnerAlbumCover: winnerSong.albumCover,

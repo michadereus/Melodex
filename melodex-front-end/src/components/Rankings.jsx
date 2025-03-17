@@ -28,7 +28,6 @@ const Rankings = () => {
               {song.songName} by {song.artist} - Ranking: {song.ranking}
               <br />
               <img src={song.albumCover} alt="Album Cover" style={{ width: '50px', height: '50px' }} />
-              <audio controls src={song.previewURL} style={{ margin: '5px' }} />
             </li>
           ))}
         </ul>
