@@ -23,16 +23,38 @@ export const SongProvider = ({ children }) => {
   const getNextPair = useCallback((songsToUse = songList) => {
     console.log('getNextPair called, songsToUse:', songsToUse);
     const validSongs = songsToUse.filter(song => song && song.deezerID);
-    if (validSongs.length >= 2) {
-      const newPair = [validSongs[0], validSongs[1]];
-      setCurrentPair(newPair);
-      setSongList(validSongs.slice(2));
-      console.log('currentPair set to:', newPair);
-    } else {
+    
+    if (validSongs.length < 2) {
       setCurrentPair([]);
       setSongList([]);
       console.log('currentPair set to empty: fewer than 2 valid songs available', validSongs);
+      return;
     }
+
+    // Select the first song
+    const song1 = validSongs[0];
+    // Find a second song with a different deezerID
+    const song2 = validSongs.find(song => song.deezerID !== song1.deezerID);
+
+    if (!song2) {
+      console.log('No distinct second song found, removing all duplicates of', song1.deezerID);
+      // Remove all songs with the same deezerID as song1
+      const updatedList = validSongs.filter(song => song.deezerID !== song1.deezerID);
+      setSongList(updatedList);
+      // Recursively try again with the updated list
+      getNextPair(updatedList);
+      return;
+    }
+
+    // Set the pair with distinct songs
+    const newPair = [song1, song2];
+    setCurrentPair(newPair);
+    // Update songList by removing the used songs
+    const updatedList = validSongs.filter(
+      song => song.deezerID !== song1.deezerID && song.deezerID !== song2.deezerID
+    );
+    setSongList(updatedList);
+    console.log('currentPair set to:', newPair);
   }, [songList]);
 
   const generateNewSongs = async () => {
@@ -166,16 +188,22 @@ export const SongProvider = ({ children }) => {
     }
   };
 
+  // In SongContext.jsx
   const skipSong = async (songId) => {
     setLoading(true);
     try {
       console.log('skipSong called with songId:', songId, 'currentPair:', currentPair);
+      // Find the song to skip and the song to keep
       const skippedSong = currentPair.find(s => s.deezerID === songId);
-      if (!skippedSong) {
-        console.error('Skipped song not found in currentPair:', { songId, currentPair });
+      const keptSong = currentPair.find(s => s.deezerID !== songId);
+      
+      // Ensure both songs are found
+      if (!skippedSong || !keptSong) {
+        console.error('Skipped song or kept song not found in currentPair:', { songId, currentPair });
         return;
       }
 
+      // Prepare payload to mark the song as skipped
       const payload = {
         userID,
         deezerID: songId,
@@ -188,6 +216,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
+      // Send skip request to the backend
       const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -200,10 +229,18 @@ export const SongProvider = ({ children }) => {
       }
 
       console.log('Song skipped successfully:', songId);
-      setCurrentPair([]);
-      const updatedList = songList.filter(song => song.deezerID !== songId);
-      setSongList(updatedList);
-      getNextPair(updatedList);
+
+      // Replace the skipped song with a new one from songList
+      if (songList.length > 0) {
+        const nextSong = songList[0];
+        // Set new currentPair with the next song and the kept song
+        setCurrentPair([nextSong, keptSong]);
+        // Remove the used song from songList
+        setSongList(songList.slice(1));
+      } else {
+        // If no songs are left, clear currentPair
+        setCurrentPair([]);
+      }
     } catch (error) {
       console.error('Failed to skip song:', error.message, { songId, currentPair });
     } finally {

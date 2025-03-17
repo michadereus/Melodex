@@ -10,6 +10,16 @@ export const SongRanker = ({ mode }) => {
     setMode(mode);
   }, [mode, setMode]);
 
+  useEffect(() => {
+    if (currentPair.length === 2) {
+      if (currentPair[0].deezerID === currentPair[1].deezerID) {
+        console.log('Duplicate songs detected in currentPair:', currentPair);
+        // Skip both songs and fetch a new pair
+        refreshPair();
+      }
+    }
+  }, [currentPair, refreshPair]);
+
   console.log('SongRanker render, currentPair:', currentPair);
 
   if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em' }}>Loading...</p>;
@@ -26,17 +36,24 @@ export const SongRanker = ({ mode }) => {
     const loserSong = currentPair.find((s) => s.deezerID !== winnerId);
     if (!loserSong || !loserSong.deezerID) {
       console.error('No valid loser song found in currentPair:', currentPair);
+      // If no valid loser due to duplicates or other issues, skip and refresh
+      refreshPair();
       return;
     }
     console.log('Calling selectSong with winnerId:', winnerId, 'loserId:', loserSong.deezerID);
     selectSong(winnerId, loserSong.deezerID);
   };
 
+  // Deduplicate currentPair for rendering to avoid key errors
+  const uniqueCurrentPair = Array.from(
+    new Map(currentPair.map(song => [song.deezerID, song])).values()
+  );
+
   return (
     <div>
       <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
-        {currentPair.map((song) => (
+        {uniqueCurrentPair.map((song) => (
           <div key={song.deezerID} style={{ textAlign: 'center' }}>
             <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
             <p>{song.songName} by {song.artist}</p>

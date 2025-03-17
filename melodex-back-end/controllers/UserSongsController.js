@@ -6,6 +6,7 @@ class UserSongsController {
     const hardcodedSongs = [
       { songName: "Bohemian Rhapsody", artist: "Queen", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
       { songName: "Shape of You", artist: "Ed Sheeran", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Bohemian Rhapsody", artist: "Queen", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
       { songName: "Billie Jean", artist: "Michael Jackson", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
       { songName: "Sweet Child O' Mine", artist: "Guns N' Roses", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
       { songName: "Rolling in the Deep", artist: "Adele", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
