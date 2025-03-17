@@ -84,26 +84,32 @@ export const SongProvider = ({ children }) => {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userID,
-          deezerID: winnerSong.deezerID,
-          opponentDeezerID: loserSong.deezerID,
-          result: 'win',
-          winnerSongName: winnerSong.songName,
-          winnerArtist: winnerSong.artist,
-          winnerGenre: winnerSong.genre,
-          winnerAlbumCover: winnerSong.albumCover,
-          winnerPreviewURL: winnerSong.previewURL,
-          loserSongName: loserSong.songName,
-          loserArtist: loserSong.artist,
-          loserGenre: loserSong.genre,
-          loserAlbumCover: loserSong.albumCover,
-          loserPreviewURL: loserSong.previewURL,
+      // Add timeout to the fetch request
+      const response = await Promise.race([
+        fetch(`${API_BASE_URL}/user-songs/upsert`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userID,
+            deezerID: winnerSong.deezerID,
+            opponentDeezerID: loserSong.deezerID,
+            result: 'win',
+            winnerSongName: winnerSong.songName,
+            winnerArtist: winnerSong.artist,
+            winnerGenre: winnerSong.genre,
+            winnerAlbumCover: winnerSong.albumCover,
+            winnerPreviewURL: winnerSong.previewURL,
+            loserSongName: loserSong.songName,
+            loserArtist: loserSong.artist,
+            loserGenre: loserSong.genre,
+            loserAlbumCover: loserSong.albumCover,
+            loserPreviewURL: loserSong.previewURL,
+          }),
         }),
-      });
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000)
+        ),
+      ]);
 
       if (!response.ok) {
         const errorText = await response.text();

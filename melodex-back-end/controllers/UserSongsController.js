@@ -69,6 +69,7 @@ class UserSongsController {
   }
 
   static async upsertUserSong(req, res) {
+    console.log('Received body at /api/user-songs/upsert:', req.body);
     const {
       userID,
       deezerID,
@@ -89,7 +90,12 @@ class UserSongsController {
     const K = 32;
 
     try {
+      console.log('Starting upsertUserSong for userID:', userID);
+
+      // Fetch winner song
+      console.log('Fetching song with userID:', userID, 'deezerID:', deezerID);
       let song = await db.collection('user_songs').findOne({ userID, deezerID });
+      console.log('Found song:', song);
       if (!song) {
         song = {
           userID,
@@ -102,15 +108,20 @@ class UserSongsController {
           ranking: 1200,
           skipped: false,
         };
+        console.log('Created new song entry:', song);
       } else {
         if (winnerSongName) song.songName = winnerSongName;
         if (winnerArtist) song.artist = winnerArtist;
         if (winnerGenre) song.genre = winnerGenre;
         if (winnerAlbumCover) song.albumCover = winnerAlbumCover;
         if (winnerPreviewURL) song.previewURL = winnerPreviewURL;
+        console.log('Updated existing song:', song);
       }
 
+      // Fetch loser song
+      console.log('Fetching opponent with userID:', userID, 'deezerID:', opponentDeezerID);
       let opponent = await db.collection('user_songs').findOne({ userID, deezerID: opponentDeezerID });
+      console.log('Found opponent:', opponent);
       if (!opponent) {
         opponent = {
           userID,
@@ -123,12 +134,14 @@ class UserSongsController {
           ranking: 1200,
           skipped: false,
         };
+        console.log('Created new opponent entry:', opponent);
       } else {
         if (loserSongName) opponent.songName = loserSongName;
         if (loserArtist) opponent.artist = loserArtist;
         if (loserGenre) opponent.genre = loserGenre;
         if (loserAlbumCover) opponent.albumCover = loserAlbumCover;
         if (loserPreviewURL) opponent.previewURL = loserPreviewURL;
+        console.log('Updated existing opponent:', opponent);
       }
 
       if (result && opponentDeezerID) {
@@ -145,23 +158,32 @@ class UserSongsController {
         song.ranking = newRatingA;
         opponent.ranking = newRatingB;
 
+        console.log('Calculated new ratings:', { newRatingA, newRatingB });
+
+        console.log('Updating winner song in DB:', song);
         await db.collection('user_songs').updateOne(
           { userID, deezerID },
           { $set: song },
           { upsert: true }
         );
+        console.log('Winner song updated');
+
+        console.log('Updating loser song in DB:', opponent);
         await db.collection('user_songs').updateOne(
           { userID, deezerID: opponentDeezerID },
           { $set: opponent },
           { upsert: true }
         );
+        console.log('Loser song updated');
 
+        console.log('Database updates completed');
         res.status(200).json({ message: 'User song ratings updated', newRatingA, newRatingB });
       } else {
+        console.log('Missing result or opponentDeezerID, sending 400');
         res.status(400).json({ error: 'Missing result or opponentDeezerID' });
       }
     } catch (error) {
-      console.error('Error upserting user song:', error);
+      console.error('Error upserting user song:', error.message, error.stack);
       res.status(500).json({ error: 'Failed to upsert user song' });
     }
   }
