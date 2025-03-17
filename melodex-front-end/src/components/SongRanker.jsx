@@ -35,11 +35,6 @@ export const SongRanker = ({ mode }) => {
   return (
     <div>
       <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
-      {loading ? (
-        <p>Loading...</p>
-      ) : currentPair.length === 0 ? (
-        <p>No more songs to rank</p>
-      ) : (
       <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
         {currentPair.map((song) => (
           <div key={song.deezerID} style={{ textAlign: 'center' }}>
