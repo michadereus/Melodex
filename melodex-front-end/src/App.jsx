@@ -3,8 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { SongProvider } from './contexts/SongContext';
 import Navbar from './components/Navbar';
-import SongRanker from './components/SongRanker';
-import Rankings from './components/Rankings';
+import { SongRanker } from './components/SongRanker';
+import Rankings from './components/Rankings'; // Add this import
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
           <Routes>
             <Route path="/rank" element={<SongRanker mode="new" />} />
             <Route path="/rerank" element={<SongRanker mode="rerank" />} />
-            <Route path="/rankings" element={<Rankings />} />
+            <Route path="/rankings" element={<Rankings />} /> {/* Add this route */}
             <Route path="/" element={<SongRanker mode="new" />} />
           </Routes>
         </main>

@@ -1,4 +1,4 @@
-// Melodex/melodex-front-end/src/components/Rankings.js
+// Melodex/melodex-front-end/src/components/Rankings.jsx
 import React, { useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 
@@ -6,19 +6,21 @@ const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
 
   useEffect(() => {
+    console.log('Rankings useEffect: Fetching ranked songs');
     fetchRankedSongs();
   }, [fetchRankedSongs]);
 
-  if (loading) return <p>Loading rankings...</p>;
+  console.log('Rankings render, rankedSongs:', rankedSongs, 'loading:', loading);
 
-  // Sort rankedSongs by ranking in descending order
+  if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em' }}>Loading rankings...</p>;
+
   const sortedRankedSongs = [...rankedSongs].sort((a, b) => b.ranking - a.ranking);
 
   return (
     <div>
       <h2>Your Song Rankings</h2>
       {sortedRankedSongs.length === 0 ? (
-        <p>No ranked songs yet.</p>
+        <p style={{ textAlign: 'center', fontSize: '1.2em' }}>No ranked songs yet.</p>
       ) : (
         <ul>
           {sortedRankedSongs.map((song) => (

@@ -4,26 +4,26 @@ class UserSongsController {
     const { userID } = req.body;
     const db = req.app.locals.db;
     const hardcodedSongs = [
-      { deezerID: "001", songName: "Bohemian Rhapsody", artist: "Queen", genre: "unknown", albumCover: "https://mock.deezer.com/album/001.jpg", previewURL: "https://mock.deezer.com/preview/001.mp3", ranking: null, skipped: false },
-      { deezerID: "002", songName: "Shape of You", artist: "Ed Sheeran", genre: "unknown", albumCover: "https://mock.deezer.com/album/002.jpg", previewURL: "https://mock.deezer.com/preview/002.mp3", ranking: null, skipped: false },
-      { deezerID: "003", songName: "Billie Jean", artist: "Michael Jackson", genre: "unknown", albumCover: "https://mock.deezer.com/album/003.jpg", previewURL: "https://mock.deezer.com/preview/003.mp3", ranking: null, skipped: false },
-      { deezerID: "004", songName: "Sweet Child O' Mine", artist: "Guns N' Roses", genre: "unknown", albumCover: "https://mock.deezer.com/album/004.jpg", previewURL: "https://mock.deezer.com/preview/004.mp3", ranking: null, skipped: false },
-      { deezerID: "005", songName: "Rolling in the Deep", artist: "Adele", genre: "unknown", albumCover: "https://mock.deezer.com/album/005.jpg", previewURL: "https://mock.deezer.com/preview/005.mp3", ranking: null, skipped: false },
-      { deezerID: "006", songName: "Uptown Funk", artist: "Mark Ronson ft. Bruno Mars", genre: "unknown", albumCover: "https://mock.deezer.com/album/006.jpg", previewURL: "https://mock.deezer.com/preview/006.mp3", ranking: null, skipped: false },
-      { deezerID: "007", songName: "Imagine", artist: "John Lennon", genre: "unknown", albumCover: "https://mock.deezer.com/album/007.jpg", previewURL: "https://mock.deezer.com/preview/007.mp3", ranking: null, skipped: false },
-      { deezerID: "008", songName: "Smells Like Teen Spirit", artist: "Nirvana", genre: "unknown", albumCover: "https://mock.deezer.com/album/008.jpg", previewURL: "https://mock.deezer.com/preview/008.mp3", ranking: null, skipped: false },
-      { deezerID: "009", songName: "Bad Guy", artist: "Billie Eilish", genre: "unknown", albumCover: "https://mock.deezer.com/album/009.jpg", previewURL: "https://mock.deezer.com/preview/009.mp3", ranking: null, skipped: false },
-      { deezerID: "010", songName: "Hotel California", artist: "Eagles", genre: "unknown", albumCover: "https://mock.deezer.com/album/010.jpg", previewURL: "https://mock.deezer.com/preview/010.mp3", ranking: null, skipped: false },
-      { deezerID: "011", songName: "Blinding Lights", artist: "The Weeknd", genre: "unknown", albumCover: "https://mock.deezer.com/album/011.jpg", previewURL: "https://mock.deezer.com/preview/011.mp3", ranking: null, skipped: false },
-      { deezerID: "012", songName: "Stairway to Heaven", artist: "Led Zeppelin", genre: "unknown", albumCover: "https://mock.deezer.com/album/012.jpg", previewURL: "https://mock.deezer.com/preview/012.mp3", ranking: null, skipped: false },
-      { deezerID: "013", songName: "Dancing Queen", artist: "ABBA", genre: "unknown", albumCover: "https://mock.deezer.com/album/013.jpg", previewURL: "https://mock.deezer.com/preview/013.mp3", ranking: null, skipped: false },
-      { deezerID: "014", songName: "Lose Yourself", artist: "Eminem", genre: "unknown", albumCover: "https://mock.deezer.com/album/014.jpg", previewURL: "https://mock.deezer.com/preview/014.mp3", ranking: null, skipped: false },
-      { deezerID: "015", songName: "Hey Jude", artist: "The Beatles", genre: "unknown", albumCover: "https://mock.deezer.com/album/015.jpg", previewURL: "https://mock.deezer.com/preview/015.mp3", ranking: null, skipped: false },
-      { deezerID: "016", songName: "Viva La Vida", artist: "Coldplay", genre: "unknown", albumCover: "https://mock.deezer.com/album/016.jpg", previewURL: "https://mock.deezer.com/preview/016.mp3", ranking: null, skipped: false },
-      { deezerID: "017", songName: "Thriller", artist: "Michael Jackson", genre: "unknown", albumCover: "https://mock.deezer.com/album/017.jpg", previewURL: "https://mock.deezer.com/preview/017.mp3", ranking: null, skipped: false },
-      { deezerID: "018", songName: "Someone Like You", artist: "Adele", genre: "unknown", albumCover: "https://mock.deezer.com/album/018.jpg", previewURL: "https://mock.deezer.com/preview/018.mp3", ranking: null, skipped: false },
-      { deezerID: "019", songName: "Wonderwall", artist: "Oasis", genre: "unknown", albumCover: "https://mock.deezer.com/album/019.jpg", previewURL: "https://mock.deezer.com/preview/019.mp3", ranking: null, skipped: false },
-      { deezerID: "020", songName: "Shake It Off", artist: "Taylor Swift", genre: "unknown", albumCover: "https://mock.deezer.com/album/020.jpg", previewURL: "https://mock.deezer.com/preview/020.mp3", ranking: null, skipped: false },
+      { songName: "Bohemian Rhapsody", artist: "Queen", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Shape of You", artist: "Ed Sheeran", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Billie Jean", artist: "Michael Jackson", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Sweet Child O' Mine", artist: "Guns N' Roses", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Rolling in the Deep", artist: "Adele", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Uptown Funk", artist: "Mark Ronson ft. Bruno Mars", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Imagine", artist: "John Lennon", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Smells Like Teen Spirit", artist: "Nirvana", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Bad Guy", artist: "Billie Eilish", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Hotel California", artist: "Eagles", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Blinding Lights", artist: "The Weeknd", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Stairway to Heaven", artist: "Led Zeppelin", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Dancing Queen", artist: "ABBA", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Lose Yourself", artist: "Eminem", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Hey Jude", artist: "The Beatles", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Viva La Vida", artist: "Coldplay", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Thriller", artist: "Michael Jackson", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Someone Like You", artist: "Adele", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Wonderwall", artist: "Oasis", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
+      { songName: "Shake It Off", artist: "Taylor Swift", genre: "unknown", albumCover: "", previewURL: "", ranking: null, skipped: false },
     ];
     try {
       console.log('START getNewSongsForUser for userID:', userID);
@@ -32,14 +32,14 @@ class UserSongsController {
       console.log('User songs from DB:', userSongs);
       const userDeezerIDs = userSongs.map(song => song.deezerID);
       console.log('User deezerIDs:', userDeezerIDs);
-      const newSongs = hardcodedSongs.filter(song => !userDeezerIDs.includes(song.deezerID));
+
+      const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(hardcodedSongs);
+      console.log('Enriched songs before filter:', enrichedSongs);
+      const newSongs = enrichedSongs.filter(song => !userDeezerIDs.includes(song.deezerID));
       console.log('New songs after filter:', newSongs);
 
-      console.log('Calling enrichSongsWithDeezer with', newSongs.length, 'songs...');
-      const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(newSongs);
-      console.log('Enriched songs returned:', enrichedSongs);
-      console.log('END getNewSongsForUser, sending response with', enrichedSongs.length, 'songs...');
-      res.status(200).json(enrichedSongs);
+      console.log('END getNewSongsForUser, sending response with', newSongs.length, 'songs...');
+      res.status(200).json(newSongs);
     } catch (error) {
       console.error('Error in getNewSongsForUser:', error.message, error.stack);
       res.status(500).json({ error: 'Failed to fetch new songs' });
@@ -85,6 +85,8 @@ class UserSongsController {
       loserGenre,
       loserAlbumCover,
       loserPreviewURL,
+      ranking,
+      skipped,
     } = req.body;
     const db = req.app.locals.db;
     const K = 32;
@@ -92,10 +94,10 @@ class UserSongsController {
     try {
       console.log('Starting upsertUserSong for userID:', userID);
 
-      // Fetch winner song
       console.log('Fetching song with userID:', userID, 'deezerID:', deezerID);
       let song = await db.collection('user_songs').findOne({ userID, deezerID });
       console.log('Found song:', song);
+
       if (!song) {
         song = {
           userID,
@@ -105,8 +107,8 @@ class UserSongsController {
           genre: winnerGenre || 'unknown',
           albumCover: winnerAlbumCover || '',
           previewURL: winnerPreviewURL || '',
-          ranking: 1200,
-          skipped: false,
+          ranking: ranking !== undefined ? ranking : 1200,
+          skipped: skipped || false,
         };
         console.log('Created new song entry:', song);
       } else {
@@ -115,10 +117,23 @@ class UserSongsController {
         if (winnerGenre) song.genre = winnerGenre;
         if (winnerAlbumCover) song.albumCover = winnerAlbumCover;
         if (winnerPreviewURL) song.previewURL = winnerPreviewURL;
+        if (ranking !== undefined) song.ranking = ranking;
+        if (skipped !== undefined) song.skipped = skipped;
         console.log('Updated existing song:', song);
       }
 
-      // Fetch loser song
+      if (!opponentDeezerID) {
+        console.log('No opponentDeezerID, performing standalone update');
+        await db.collection('user_songs').updateOne(
+          { userID, deezerID },
+          { $set: song },
+          { upsert: true }
+        );
+        console.log('Standalone song updated');
+        res.status(200).json({ message: 'Song updated', song });
+        return;
+      }
+
       console.log('Fetching opponent with userID:', userID, 'deezerID:', opponentDeezerID);
       let opponent = await db.collection('user_songs').findOne({ userID, deezerID: opponentDeezerID });
       console.log('Found opponent:', opponent);
@@ -144,7 +159,7 @@ class UserSongsController {
         console.log('Updated existing opponent:', opponent);
       }
 
-      if (result && opponentDeezerID) {
+      if (result) {
         const R_A = song.ranking || 1200;
         const R_B = opponent.ranking || 1200;
         const E_A = 1 / (1 + Math.pow(10, (R_B - R_A) / 400));
@@ -179,8 +194,8 @@ class UserSongsController {
         console.log('Database updates completed');
         res.status(200).json({ message: 'User song ratings updated', newRatingA, newRatingB });
       } else {
-        console.log('Missing result or opponentDeezerID, sending 400');
-        res.status(400).json({ error: 'Missing result or opponentDeezerID' });
+        console.log('Missing result, sending 400');
+        res.status(400).json({ error: 'Missing result when opponentDeezerID is provided' });
       }
     } catch (error) {
       console.error('Error upserting user song:', error.message, error.stack);
@@ -247,7 +262,7 @@ class UserSongsController {
         }
       } catch (error) {
         console.error(`Error enriching ${song.songName}: ${error.message}, Stack: ${error.stack}`);
-        return song; // Return original song on error
+        return song;
       } finally {
         console.log(`END processing song: ${song.songName}`);
       }
@@ -260,14 +275,12 @@ class UserSongsController {
   }
 }
 
-// Clean the artist name by removing "featuring", "ft", etc.
 function cleanArtistName(artist) {
   const keywords = ['featuring', 'ft', 'ft.', 'feature'];
   const regex = new RegExp(`\\s+(${keywords.join('|')}).*`, 'i');
   return artist.replace(regex, '').trim();
 }
 
-// Find the first track where the artist matches based on the first two words (or one)
 function findMatchingTrack(tracks, inputArtist) {
   if (!tracks || tracks.length === 0) return null;
 
@@ -279,11 +292,11 @@ function findMatchingTrack(tracks, inputArtist) {
     const trackMatchWords = trackWords.length >= 2 ? trackWords.slice(0, 2).join(' ') : trackWords[0];
 
     if (trackMatchWords === matchWords) {
-      return track; // Return the first match
+      return track;
     }
   }
 
-  return tracks[0]; // Fallback to first track if no match
+  return tracks[0];
 }
 
 module.exports = UserSongsController;

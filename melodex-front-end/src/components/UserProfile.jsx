@@ -1,4 +1,4 @@
-// Melodex/melodex-front-end/src/components/UserProfile.js
+// Melodex/melodex-front-end/src/components/UserProfile.jsx
 import React from 'react';
 import { useSongContext } from '../contexts/SongContext';
 
