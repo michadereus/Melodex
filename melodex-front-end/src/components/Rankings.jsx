@@ -1,16 +1,26 @@
-// Melodex/melodex-front-end/src/components/Rankings.jsx
-import React, { useEffect } from 'react';
+// melodex-front-end/src/components/Rankings.jsx
+import React, { useEffect, useState } from 'react';
 import { useSongContext } from '../contexts/SongContext';
+import SongFilter from './SongFilter';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
+  const [applied, setApplied] = useState(false);
 
   useEffect(() => {
     console.log('Rankings useEffect: Fetching ranked songs');
-    fetchRankedSongs();
-  }, [fetchRankedSongs]);
+    if (applied) {
+      fetchRankedSongs();
+    }
+  }, [fetchRankedSongs, applied]);
 
-  console.log('Rankings render, rankedSongs:', rankedSongs, 'loading:', loading);
+  const handleApply = () => {
+    setApplied(true); // Filters are optional, just proceed
+  };
+
+  if (!applied) {
+    return <SongFilter onApply={handleApply} isRankPage={false} />;
+  }
 
   if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em' }}>Loading rankings...</p>;
 

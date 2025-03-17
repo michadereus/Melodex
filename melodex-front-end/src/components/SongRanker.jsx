@@ -1,29 +1,37 @@
 // Melodex/melodex-front-end/src/components/SongRanker.jsx
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
+import SongFilter from './SongFilter';
 
 export const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, loading, setMode, refreshPair } = useSongContext();
+  const { currentPair, selectSong, skipSong, loading, setMode, refreshPair, generateNewSongs, fetchReRankingData } = useSongContext();
+  const [applied, setApplied] = useState(false);
 
   useEffect(() => {
-    console.log('SongRanker useEffect setting mode:', mode);
+    console.log('SongRanker useEffect setting mode:', mode, 'resetting applied to false');
     setMode(mode);
+    setApplied(false);
   }, [mode, setMode]);
 
-  useEffect(() => {
-    if (currentPair.length === 2) {
-      if (currentPair[0].deezerID === currentPair[1].deezerID) {
-        console.log('Duplicate songs detected in currentPair:', currentPair);
-        // Skip both songs and fetch a new pair
-        refreshPair();
-      }
+  const handleApply = (filters) => {
+    console.log('Handle apply called for mode:', mode, 'with filters:', filters);
+    if (mode === 'new') {
+      generateNewSongs(filters).then(() => setApplied(true));
+    } else if (mode === 'rerank') {
+      fetchReRankingData().then(() => setApplied(true));
     }
-  }, [currentPair, refreshPair]);
+  };
 
-  console.log('SongRanker render, currentPair:', currentPair);
+  console.log('SongRanker render, mode:', mode, 'applied:', applied, 'currentPair:', currentPair);
+
+  if (!applied) {
+    console.log('Rendering SongFilter for mode:', mode);
+    return <SongFilter onApply={handleApply} isRankPage={mode === 'new'} />;
+  }
 
   if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em' }}>Loading...</p>;
   if (currentPair.length === 0) {
+    console.log('No songs available for mode:', mode);
     return (
       <p style={{ textAlign: 'center', fontSize: '1.2em' }}>
         {mode === 'rerank' ? 'No ranked songs available to re-rank yet.' : 'No more songs to rank.'}
@@ -36,7 +44,6 @@ export const SongRanker = ({ mode }) => {
     const loserSong = currentPair.find((s) => s.deezerID !== winnerId);
     if (!loserSong || !loserSong.deezerID) {
       console.error('No valid loser song found in currentPair:', currentPair);
-      // If no valid loser due to duplicates or other issues, skip and refresh
       refreshPair();
       return;
     }
@@ -44,46 +51,49 @@ export const SongRanker = ({ mode }) => {
     selectSong(winnerId, loserSong.deezerID);
   };
 
-  // Deduplicate currentPair for rendering to avoid key errors
   const uniqueCurrentPair = Array.from(
     new Map(currentPair.map(song => [song.deezerID, song])).values()
   );
 
   return (
-    <div>
-      <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
-        {uniqueCurrentPair.map((song) => (
-          <div key={song.deezerID} style={{ textAlign: 'center' }}>
-            <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
-            <p>{song.songName} by {song.artist}</p>
-            <audio controls src={song.previewURL} style={{ margin: '5px' }} />
+  <div>
+    <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
+    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+      {uniqueCurrentPair.map((song) => (
+        <div key={song.deezerID} style={{ textAlign: 'center' }}>
+          <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
+          <p>{song.songName} by {song.artist}</p>
+          <audio
+            controls
+            src={song.previewURL}
+            style={{ margin: '5px' }}
+            onError={(e) => console.warn('Audio preview failed:', e.target.error)}
+          />
+          <button
+            onClick={() => handlePick(song.deezerID)}
+            style={{ margin: '5px' }}
+            disabled={loading}
+          >
+            Pick
+          </button>
+          {mode === 'new' && (
             <button
-              onClick={() => handlePick(song.deezerID)}
+              onClick={() => skipSong(song.deezerID)}
               style={{ margin: '5px' }}
               disabled={loading}
             >
-              Pick
+              Skip
             </button>
-            {mode === 'new' && (
-              <button
-                onClick={() => skipSong(song.deezerID)}
-                style={{ margin: '5px' }}
-                disabled={loading}
-              >
-                Skip
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-      {mode === 'new' && !loading && currentPair.length > 0 && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={refreshPair} style={{ padding: '10px 20px' }} disabled={loading}>
-            Skip Both
-          </button>
+          )}
         </div>
-      )}
+      ))}
     </div>
-  );
-};
+    {mode === 'new' && !loading && currentPair.length > 0 && (
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <button onClick={refreshPair} style={{ padding: '10px 20px' }} disabled={loading}>
+          Skip Both
+        </button>
+      </div>
+    )}
+  </div>
+)};

@@ -3,12 +3,9 @@ const axios = require('axios');
 
 class UserSongsController {
   static async getNewSongsForUser(req, res) {
-    const { userID } = req.body;
+    const { userID, genre = 'pop', subgenre, decade } = req.body; // Default genre to 'pop' if not provided
     const db = req.app.locals.db;
-    const genre = 'pop';
-    const startYear = 2000;
-    const endYear = 2020;
-    const numSongs = 20;
+    const numSongs = 30; // Changed from 20 to 30
 
     try {
       console.log('START getNewSongsForUser for userID:', userID);
@@ -21,7 +18,25 @@ class UserSongsController {
       const seenSongs = userSongs.map(song => `${song.songName}, ${song.artist}`);
       const songsString = seenSongs.length > 0 ? seenSongs.join(', ') : 'None';
 
-      const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${genre} genre, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
+      // Define decade ranges
+      let startYear, endYear;
+      if (decade && decade !== 'all decades') {
+        startYear = parseInt(decade.slice(0, 3)) * 10; // e.g., '2000s' -> 2000
+        endYear = startYear + 9; // e.g., 2009
+      } else {
+        startYear = 1900; // Default wide range if no decade specified
+        endYear = new Date().getFullYear();
+      }
+
+      // Construct genre prompt
+      let promptGenre = genre;
+      if (subgenre && subgenre !== 'all subgenres') {
+        promptGenre = `${genre} with subgenre ${subgenre}`;
+      } else {
+        promptGenre = `${genre} with all subgenres`;
+      }
+
+      const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${promptGenre}, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
 
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
@@ -57,7 +72,7 @@ class UserSongsController {
         return {
           songName,
           artist,
-          genre: genre,
+          genre, // Use the provided genre
           albumCover: '',
           previewURL: '',
           ranking: null,

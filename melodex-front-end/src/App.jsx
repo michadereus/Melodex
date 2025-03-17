@@ -13,10 +13,10 @@ function App() {
         <Navbar />
         <main style={{ padding: '20px' }}>
           <Routes>
-            <Route path="/rank" element={<SongRanker mode="new" />} />
-            <Route path="/rerank" element={<SongRanker mode="rerank" />} />
+            <Route path="/rank" element={<SongRanker mode="new" key="new" />} />
+            <Route path="/rerank" element={<SongRanker mode="rerank" key="rerank" />} />
             <Route path="/rankings" element={<Rankings />} />
-            <Route path="/" element={<SongRanker mode="new" />} />
+            <Route path="/" element={<SongRanker mode="new" key="new-default" />} />
           </Routes>
         </main>
         <footer style={{ background: '#333', color: 'white', padding: '1rem', textAlign: 'center', width: '100%' }}>

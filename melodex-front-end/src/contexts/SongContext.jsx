@@ -19,6 +19,7 @@ export const SongProvider = ({ children }) => {
   const [rankedSongs, setRankedSongs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
+  const [shouldFetchSongs, setShouldFetchSongs] = useState(false);
 
   const getNextPair = useCallback((songsToUse = songList) => {
     console.log('getNextPair called, songsToUse:', songsToUse);
@@ -26,30 +27,23 @@ export const SongProvider = ({ children }) => {
     
     if (validSongs.length < 2) {
       setCurrentPair([]);
-      setSongList([]);
       console.log('currentPair set to empty: fewer than 2 valid songs available', validSongs);
       return;
     }
 
-    // Select the first song
     const song1 = validSongs[0];
-    // Find a second song with a different deezerID
     const song2 = validSongs.find(song => song.deezerID !== song1.deezerID);
 
     if (!song2) {
       console.log('No distinct second song found, removing all duplicates of', song1.deezerID);
-      // Remove all songs with the same deezerID as song1
       const updatedList = validSongs.filter(song => song.deezerID !== song1.deezerID);
       setSongList(updatedList);
-      // Recursively try again with the updated list
       getNextPair(updatedList);
       return;
     }
 
-    // Set the pair with distinct songs
     const newPair = [song1, song2];
     setCurrentPair(newPair);
-    // Update songList by removing the used songs
     const updatedList = validSongs.filter(
       song => song.deezerID !== song1.deezerID && song.deezerID !== song2.deezerID
     );
@@ -57,13 +51,14 @@ export const SongProvider = ({ children }) => {
     console.log('currentPair set to:', newPair);
   }, [songList]);
 
-  const generateNewSongs = async () => {
+  const generateNewSongs = async (filters = {}) => {
     setLoading(true);
     try {
+      const payload = { userID, ...filters };
       const response = await fetch(`${API_BASE_URL}/user-songs/new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID }),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error('Failed to fetch new songs');
       const newSongs = await response.json();
@@ -91,8 +86,8 @@ export const SongProvider = ({ children }) => {
       if (!response.ok) throw new Error('Failed to fetch re-ranking data');
       const reRankSongs = await response.json();
       console.log('fetchReRankingData: reRankSongs:', reRankSongs);
-      setSongList(reRankSongs); // Set songList for rerank mode
-      getNextPair(reRankSongs); // Ensure currentPair updates
+      setSongList(reRankSongs);
+      getNextPair(reRankSongs);
       return reRankSongs;
     } catch (error) {
       console.error('Failed to fetch re-ranking data:', error);
@@ -140,16 +135,11 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending payload to /api/user-songs/upsert:', payload);
 
-      const response = await Promise.race([
-        fetch(`${API_BASE_URL}/user-songs/upsert`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Request timed out after 10 seconds')), 10000)
-        ),
-      ]);
+      const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -183,27 +173,26 @@ export const SongProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Failed to select song:', error.message, { winnerId, loserId, currentPair });
+      if (error.message.includes('403')) {
+        console.warn('Audio preview unavailable due to Deezer API restriction');
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // In SongContext.jsx
   const skipSong = async (songId) => {
     setLoading(true);
     try {
       console.log('skipSong called with songId:', songId, 'currentPair:', currentPair);
-      // Find the song to skip and the song to keep
       const skippedSong = currentPair.find(s => s.deezerID === songId);
       const keptSong = currentPair.find(s => s.deezerID !== songId);
       
-      // Ensure both songs are found
       if (!skippedSong || !keptSong) {
         console.error('Skipped song or kept song not found in currentPair:', { songId, currentPair });
         return;
       }
 
-      // Prepare payload to mark the song as skipped
       const payload = {
         userID,
         deezerID: songId,
@@ -216,7 +205,6 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
-      // Send skip request to the backend
       const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -230,15 +218,11 @@ export const SongProvider = ({ children }) => {
 
       console.log('Song skipped successfully:', songId);
 
-      // Replace the skipped song with a new one from songList
       if (songList.length > 0) {
         const nextSong = songList[0];
-        // Set new currentPair with the next song and the kept song
         setCurrentPair([nextSong, keptSong]);
-        // Remove the used song from songList
         setSongList(songList.slice(1));
       } else {
-        // If no songs are left, clear currentPair
         setCurrentPair([]);
       }
     } catch (error) {
@@ -293,21 +277,9 @@ export const SongProvider = ({ children }) => {
   }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
 
   useEffect(() => {
-    console.log('useEffect triggered with mode:', mode);
-    const loadInitialData = async () => {
-      console.log('loadInitialData started');
-      let newSongs;
-      if (mode === 'new') {
-        newSongs = await generateNewSongs();
-      } else if (mode === 'rerank') {
-        newSongs = await fetchReRankingData();
-      }
-      console.log('loadInitialData: newSongs:', newSongs);
-      getNextPair(newSongs);
-      console.log('loadInitialData completed');
-    };
-    loadInitialData();
-  }, [mode]); // mode is a dependency, so useEffect runs on mode change
+    setSongList([]);
+    setCurrentPair([]);
+  }, [mode]);
 
   return (
     <SongContext.Provider
