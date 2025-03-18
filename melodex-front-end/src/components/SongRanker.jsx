@@ -53,11 +53,10 @@ export const SongRanker = ({ mode }) => {
   }, [currentPair, loading]);
 
   const handleApply = async (filters) => {
-    console.log('Handle apply called for mode:', mode, 'with filters:', filters);
     if (mode === 'new') {
-      setLoading(true); // Set context loading for consistency
+      setLoading(true);
       try {
-        await generateNewSongs(filters);
+        await generateNewSongs(filters); // Assuming this handles filters
         setApplied(true);
       } catch (error) {
         console.error('Error in handleApply:', error);
@@ -65,7 +64,7 @@ export const SongRanker = ({ mode }) => {
         setLoading(false);
       }
     } else if (mode === 'rerank') {
-      await fetchReRankingData();
+      await fetchReRankingData(filters.genre); // Pass the genre filter
       setApplied(true);
     }
   };

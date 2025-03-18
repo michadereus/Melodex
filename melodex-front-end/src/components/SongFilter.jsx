@@ -1,5 +1,6 @@
 // Melodex/melodex-front-end/src/components/SongFilter.jsx
 import React, { useState } from 'react';
+import { useSongContext } from '../contexts/SongContext'; // Add this import
 
 const genres = [
   'Rock', 'Pop', 'Hip-Hop/Rap', 'R&B/Soul', 'Electronic Dance Music (EDM)',
@@ -33,32 +34,35 @@ const decades = {
 };
 
 const SongFilter = ({ onApply, isRankPage }) => {
-  const [selectedGenre, setSelectedGenre] = useState('');
+  const { setSelectedGenre } = useSongContext();
+  const [selectedGenre, setLocalGenre] = useState('');
   const [selectedSubgenre, setSelectedSubgenre] = useState('');
   const [selectedDecade, setSelectedDecade] = useState('');
-  const [isApplying, setIsApplying] = useState(false); // New local loading state
+  const [isApplying, setIsApplying] = useState(false);
 
   const handleGenreChange = (e) => {
-    setSelectedGenre(e.target.value);
+    setLocalGenre(e.target.value);
     setSelectedSubgenre('');
     setSelectedDecade('');
   };
 
   const handleApplyClick = () => {
-    if (isRankPage && !selectedGenre) {
-      alert('Please select a genre');
-      return;
-    }
-    setIsApplying(true); // Set local loading immediately
-    console.log('Set isApplying to true in SongFilter');
+    setIsApplying(true);
+    const genreToApply = selectedGenre || 'any';
+    setSelectedGenre(genreToApply); // Update context
     const filters = {
-      genre: selectedGenre || 'pop',
+      genre: genreToApply,
       subgenre: selectedSubgenre || 'all subgenres',
       decade: selectedDecade || 'all decades',
     };
-    onApply(filters).finally(() => {
-      setIsApplying(false); // Reset when done
-    });
+    if (typeof onApply === 'function') {
+      onApply(filters).finally(() => {
+        setIsApplying(false);
+      });
+    } else {
+      console.error('onApply is not a function');
+      setIsApplying(false);
+    }
   };
 
   return (

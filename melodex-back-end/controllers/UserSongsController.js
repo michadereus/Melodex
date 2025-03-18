@@ -5,7 +5,7 @@ class UserSongsController {
   static async getNewSongsForUser(req, res) {
     const { userID, genre = 'pop', subgenre, decade } = req.body; // Default genre to 'pop' if not provided
     const db = req.app.locals.db;
-    const numSongs = 30; // Changed from 20 to 30
+    const numSongs = 30; 
 
     try {
       console.log('START getNewSongsForUser for userID:', userID);
@@ -95,11 +95,16 @@ class UserSongsController {
   }
 
   static async getReRankSongsForUser(req, res) {
-    const { userID } = req.body;
+    const { userID, genre } = req.body;
     const db = req.app.locals.db;
     try {
+      const query = { userID, skipped: false };
+      if (genre && genre !== 'any') {
+        query.genre = genre; // Case-sensitive match
+      }
+      console.log('getReRankSongsForUser query:', query);
       const rankedSongs = await db.collection('user_songs')
-        .find({ userID, skipped: false })
+        .find(query)
         .toArray();
       console.log('Ranked songs for rerank:', rankedSongs);
       if (rankedSongs.length < 2) {
@@ -252,12 +257,23 @@ class UserSongsController {
   }
 
   static async getRankedSongsForUser(req, res) {
-    const { userID } = req.body;
+    const { userID, genre } = req.body;
     const db = req.app.locals.db;
-    const rankedSongs = await db.collection('user_songs')
-      .find({ userID, skipped: false })
-      .toArray();
-    res.status(200).json(rankedSongs);
+    try {
+      const query = { userID, skipped: false };
+      if (genre && genre !== 'any') {
+        query.genre = genre; // Case-sensitive match
+      }
+      console.log('getRankedSongsForUser query:', query);
+      const rankedSongs = await db.collection('user_songs')
+        .find(query)
+        .toArray();
+      console.log('Fetched ranked songs:', rankedSongs);
+      res.status(200).json(rankedSongs);
+    } catch (error) {
+      console.error('Error fetching ranked songs:', error);
+      res.status(500).json({ error: 'Failed to fetch ranked songs' });
+    }
   }
 
   static async getDeezerInfo(req, res) {

@@ -1,38 +1,42 @@
 // Melodex/melodex-front-end/src/components/Rankings.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 
 const API_BASE_URL = 'http://localhost:3000/api';
 
 const Rankings = () => {
-  const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
+  const { rankedSongs, fetchRankedSongs, loading, selectedGenre } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     console.log('Rankings useEffect: Fetching ranked songs');
-    if (applied) {
-      fetchRankedSongs().then(() => {
-        // Enrich ranked songs after fetching
-        fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ songs: rankedSongs })
-        })
-          .then(response => response.json())
-          .then(freshSongs => {
-            setEnrichedSongs(freshSongs);
-          })
-          .catch(error => {
-            console.error('Failed to enrich ranked songs:', error);
-            setEnrichedSongs(rankedSongs); // Fallback
-          });
-      });
+    if (applied && !hasFetched.current) {
+      hasFetched.current = true;
+      fetchRankedSongs(selectedGenre);
     }
-  }, [fetchRankedSongs, applied, rankedSongs]);
+  }, [fetchRankedSongs, applied, selectedGenre]);
 
-  const handleApply = () => {
+  useEffect(() => {
+    if (applied && rankedSongs.length > 0) {
+      fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songs: rankedSongs })
+      })
+        .then(response => response.json())
+        .then(freshSongs => setEnrichedSongs(freshSongs))
+        .catch(error => {
+          console.error('Failed to enrich ranked songs:', error);
+          setEnrichedSongs(rankedSongs);
+        });
+    }
+  }, [rankedSongs, applied]);
+
+  const handleApply = async (filters) => {
+    hasFetched.current = false; // Reset to refetch with new genre
     setApplied(true);
   };
 
