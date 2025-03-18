@@ -19,8 +19,8 @@ function App() {
           <main style={{
             flex: '1 0 auto',
             padding: '2rem',
-            width: '100%', // Full width to allow grid to expand
-            maxWidth: 'none', // Remove max-width constraint
+            width: '100%',
+            maxWidth: 'none',
             margin: '0 auto'
           }}>
             <Routes>
@@ -31,7 +31,7 @@ function App() {
             </Routes>
           </main>
           <footer style={{
-            background: '#2c3e50',
+            background: '#141820', // Updated color
             color: '#bdc3c7',
             padding: '1rem',
             textAlign: 'center',

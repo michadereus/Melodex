@@ -33,7 +33,7 @@ const decades = {
   'Latin Pop': ['1990', '2000', '2010', '2020'],
 };
 
-const SongFilter = ({ onApply, isRankPage }) => {
+const SongFilter = ({ onApply, isRankPage, onHide }) => {
   const { setSelectedGenre } = useSongContext();
   const [selectedGenre, setLocalGenre] = useState('');
   const [selectedSubgenre, setSelectedSubgenre] = useState('');
@@ -59,6 +59,7 @@ const SongFilter = ({ onApply, isRankPage }) => {
     if (typeof onApply === 'function') {
       onApply(filters).finally(() => {
         setIsApplying(false);
+        if (typeof onHide === 'function') onHide();
       });
     } else {
       console.error('onApply is not a function');
@@ -67,38 +68,33 @@ const SongFilter = ({ onApply, isRankPage }) => {
   };
 
   return (
-    <div style={{ margin: '20px 0', textAlign: 'center' }}>
-      {isApplying && isRankPage ? (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '50vh',
-        }}>
-          <div style={{
-            border: '4px solid #ecf0f1',
-            borderTop: '4px solid #3498db',
-            borderRadius: '50%',
-            width: '40px',
-            height: '40px',
-            animation: 'spin 1s linear infinite',
-          }}></div>
-          <p style={{ 
-            marginTop: '1rem', 
-            fontSize: '1.2em', 
-            color: '#7f8c8d', 
-            fontWeight: '600' 
-          }}>
-            Generating Songs...
-          </p>
+    <div style={{ margin: '5px 0', textAlign: 'center' }}>
+      {isApplying && !isRankPage ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <div style={{ border: '4px solid #ecf0f1', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>Generating Songs...</p>
         </div>
       ) : (
         <>
           <select
             value={selectedGenre}
             onChange={handleGenreChange}
-            style={{ marginRight: '10px', padding: '5px' }}
+            style={{
+              marginRight: '10px',
+              padding: '2px 5px',
+              backgroundColor: '#f4f7fa',
+              border: '1px solid #141820',
+              borderRadius: '8px',
+              color: '#141820',
+              fontSize: '1rem',
+              fontFamily: 'Inter, Arial, sans-serif',
+              cursor: 'pointer',
+              transition: 'border-color 0.3s ease, background-color 0.3s ease',
+            }}
+            onFocus={(e) => (e.target.style.borderColor = '#3498db')}
+            onBlur={(e) => (e.target.style.borderColor = '#141820')}
+            onMouseOver={(e) => (e.target.style.backgroundColor = '#ecf0f1')}
+            onMouseOut={(e) => (e.target.style.backgroundColor = '#f4f7fa')}
           >
             <option value="">Select Genre</option>
             {genres.map(genre => (
@@ -109,7 +105,22 @@ const SongFilter = ({ onApply, isRankPage }) => {
             value={selectedSubgenre}
             onChange={(e) => setSelectedSubgenre(e.target.value)}
             disabled={!selectedGenre}
-            style={{ marginRight: '10px', padding: '5px' }}
+            style={{
+              marginRight: '10px',
+              padding: '2px 5px',
+              backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
+              border: '1px solid #141820',
+              borderRadius: '8px',
+              color: '#141820',
+              fontSize: '1rem',
+              fontFamily: 'Inter, Arial, sans-serif',
+              cursor: selectedGenre ? 'pointer' : 'not-allowed',
+              transition: 'border-color 0.3s ease, background-color 0.3s ease',
+            }}
+            onFocus={(e) => selectedGenre && (e.target.style.borderColor = '#3498db')}
+            onBlur={(e) => (e.target.style.borderColor = '#141820')}
+            onMouseOver={(e) => selectedGenre && (e.target.style.backgroundColor = '#ecf0f1')}
+            onMouseOut={(e) => selectedGenre && (e.target.style.backgroundColor = '#f4f7fa')}
           >
             <option value="">All Subgenres</option>
             {subgenres[selectedGenre]?.map(sub => (
@@ -121,7 +132,22 @@ const SongFilter = ({ onApply, isRankPage }) => {
               value={selectedDecade}
               onChange={(e) => setSelectedDecade(e.target.value)}
               disabled={!selectedGenre}
-              style={{ marginRight: '10px', padding: '5px' }}
+              style={{
+                marginRight: '10px',
+                padding: '2px 5px',
+                backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
+                border: '1px solid #141820',
+                borderRadius: '8px',
+                color: '#141820',
+                fontSize: '1rem',
+                fontFamily: 'Inter, Arial, sans-serif',
+                cursor: selectedGenre ? 'pointer' : 'not-allowed',
+                transition: 'border-color 0.3s ease, background-color 0.3s ease',
+              }}
+              onFocus={(e) => selectedGenre && (e.target.style.borderColor = '#3498db')}
+              onBlur={(e) => (e.target.style.borderColor = '#141820')}
+              onMouseOver={(e) => selectedGenre && (e.target.style.backgroundColor = '#ecf0f1')}
+              onMouseOut={(e) => selectedGenre && (e.target.style.backgroundColor = '#f4f7fa')}
             >
               <option value="">All Decades</option>
               {decades[selectedGenre]?.map(decade => (
@@ -129,7 +155,23 @@ const SongFilter = ({ onApply, isRankPage }) => {
               ))}
             </select>
           )}
-          <button onClick={handleApplyClick} style={{ padding: '5px 10px' }}>
+          <button
+            onClick={handleApplyClick}
+            disabled={isRankPage && !selectedGenre} // Disable only for /rank when no genre
+            style={{
+              padding: '2px 10px',
+              backgroundColor: (isRankPage && !selectedGenre) ? '#bdc3c7' : '#7f8c8d', // Disabled color for /rank
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontFamily: 'Inter, Arial, sans-serif',
+              cursor: (isRankPage && !selectedGenre) ? 'not-allowed' : 'pointer',
+              transition: 'background-color 0.3s ease',
+            }}
+            onMouseOver={(e) => !(isRankPage && !selectedGenre) && (e.target.style.backgroundColor = '#95a5a6')}
+            onMouseOut={(e) => !(isRankPage && !selectedGenre) && (e.target.style.backgroundColor = '#7f8c8d')}
+          >
             Apply
           </button>
         </>

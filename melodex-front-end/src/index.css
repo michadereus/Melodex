@@ -1,5 +1,5 @@
 /* Melodex/melodex-front-end/src/index.css */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500&family=Poppins:wght@400;600&display=swap');
 
 * {
   box-sizing: border-box;
@@ -12,9 +12,9 @@ body {
 }
 
 nav {
-  background: linear-gradient(90deg, #2c3e50, #34495e);
+  background: #141820; /* Changed from gradient */
   color: white;
-  padding: 1.5rem;
+  padding: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -24,30 +24,40 @@ nav {
 
 nav>div:first-child {
   display: flex;
-  gap: 2.5rem;
+  gap: 2rem;
 }
 
 nav a {
   color: #ecf0f1;
   text-decoration: none;
-  font-size: 1.25rem;
-  font-weight: 600;
-  transition: color 0.3s ease, transform 0.2s ease;
+  font-size: 1.1rem;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 nav a:hover {
   color: #3498db;
+  background-color: rgba(20, 24, 32, 0.2); /* Adjusted for #141820 */
   transform: translateY(-2px);
+}
+
+nav a.profile-link {
+  padding: 0;
+  background-color: transparent;
+  box-shadow: none;
+  display: inline-block;
 }
 
 .profile-bubble {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #3498db;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  background: #3498db url('https://cdn-icons-png.flaticon.com/512/149/149071.png') no-repeat center center;
+  background-size: 70%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
 }
@@ -62,11 +72,42 @@ nav>div:last-child {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-  100% {
-    transform: rotate(360deg);
-  }
+.filter-container {
+  overflow: hidden;
+  transition: height 0.3s ease, opacity 0.3s ease;
+}
+
+.toggle-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #3498db;
+  padding: 5px;
+  transform: scaleY(0.5);
+  display: inline-block;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.toggle-button:hover {
+  transform: scaleY(0.5) scale(1.2);
+  color: #2980b9;
+}
+
+h2 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+footer {
+  background: #141820; /* Changed from #2c3e50 */
+  color: #bdc3c7;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }

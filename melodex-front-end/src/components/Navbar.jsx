@@ -11,10 +11,8 @@ function Navbar() {
         <Link to="/rankings">Rankings</Link>
       </div>
       <div>
-        <Link to="/profile">
-          <div className="profile-bubble">
-            <span>👤</span>
-          </div>
+        <Link to="/profile" className="profile-link">
+          <div className="profile-bubble" />
         </Link>
       </div>
     </nav>
