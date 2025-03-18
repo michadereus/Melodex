@@ -95,12 +95,15 @@ class UserSongsController {
   }
 
   static async getReRankSongsForUser(req, res) {
-    const { userID, genre } = req.body;
+    const { userID, genre, subgenre } = req.body;
     const db = req.app.locals.db;
     try {
       const query = { userID, skipped: false };
-      if (genre && genre !== 'any') {
-        query.genre = genre;
+      if (subgenre && subgenre !== 'any') {
+        query.subgenre = subgenre; // Subgenre takes priority
+        if (genre && genre !== 'any') query.genre = genre; // Include genre if specified
+      } else if (genre && genre !== 'any') {
+        query.genre = genre; // Only genre if no subgenre
       }
       console.log('getReRankSongsForUser query:', query);
       const rankedSongs = await db.collection('user_songs')
@@ -269,12 +272,15 @@ class UserSongsController {
   }
 
   static async getRankedSongsForUser(req, res) {
-    const { userID, genre } = req.body;
+    const { userID, genre, subgenre } = req.body;
     const db = req.app.locals.db;
     try {
       const query = { userID, skipped: false };
-      if (genre && genre !== 'any') {
-        query.genre = genre;
+      if (subgenre && subgenre !== 'any') {
+        query.subgenre = subgenre; // Subgenre takes priority
+        if (genre && genre !== 'any') query.genre = genre; // Include genre if specified
+      } else if (genre && genre !== 'any') {
+        query.genre = genre; // Only genre if no subgenre
       }
       console.log('getRankedSongsForUser query:', query);
       const rankedSongs = await db.collection('user_songs')

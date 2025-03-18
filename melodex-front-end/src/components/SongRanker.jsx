@@ -57,7 +57,7 @@ export const SongRanker = ({ mode }) => {
     if (mode === 'new') {
       setLoading(true);
       try {
-        await generateNewSongs(filters); // Pass full filters including subgenre and decade
+        await generateNewSongs(filters);
         setApplied(true);
       } catch (error) {
         console.error('Error in handleApply:', error);
@@ -65,7 +65,7 @@ export const SongRanker = ({ mode }) => {
         setLoading(false);
       }
     } else if (mode === 'rerank') {
-      await fetchReRankingData(filters.genre);
+      await fetchReRankingData(filters.genre, filters.subgenre); // Pass subgenre
       setApplied(true);
     }
   };

@@ -52,9 +52,10 @@ const SongFilter = ({ onApply, isRankPage }) => {
     setSelectedGenre(genreToApply);
     const filters = {
       genre: genreToApply,
-      subgenre: selectedSubgenre || 'all subgenres',
-      decade: isRankPage ? (selectedDecade || 'all decades') : 'all decades', // Only include decade for /rank
+      subgenre: selectedSubgenre || 'any',
+      decade: isRankPage ? (selectedDecade || 'all decades') : 'all decades',
     };
+    console.log('SongFilter applying filters:', filters);
     if (typeof onApply === 'function') {
       onApply(filters).finally(() => {
         setIsApplying(false);
@@ -115,7 +116,7 @@ const SongFilter = ({ onApply, isRankPage }) => {
               <option key={sub} value={sub}>{sub}</option>
             ))}
           </select>
-          {isRankPage && ( // Only show decade field for /rank
+          {isRankPage && (
             <select
               value={selectedDecade}
               onChange={(e) => setSelectedDecade(e.target.value)}

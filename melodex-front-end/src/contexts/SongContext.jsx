@@ -74,14 +74,22 @@ export const SongProvider = ({ children }) => {
     }
   };
 
-  const fetchReRankingData = async (genre = selectedGenre) => {
+  const fetchReRankingData = async (genre = selectedGenre, subgenre = 'any') => {
     setLoading(true);
     try {
-      console.log('fetchReRankingData with genre:', genre);
+      console.log('fetchReRankingData with genre:', genre, 'subgenre:', subgenre);
+      const payload = { userID };
+      if (subgenre !== 'any') {
+        payload.subgenre = subgenre; // Subgenre takes priority
+        if (genre !== 'any') payload.genre = genre; // Include genre if specified
+      } else if (genre !== 'any') {
+        payload.genre = genre; // Only genre if no subgenre
+      }
+      console.log('fetchReRankingData payload:', payload);
       const response = await fetch(`${API_BASE_URL}/user-songs/rerank`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID, genre }),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error('Failed to fetch re-ranking data');
       const reRankSongs = await response.json();
@@ -99,14 +107,22 @@ export const SongProvider = ({ children }) => {
     }
   };
 
-  const fetchRankedSongs = useCallback(async (genre = selectedGenre) => {
+  const fetchRankedSongs = useCallback(async (genre = selectedGenre, subgenre = 'any') => {
     setLoading(true);
     try {
-      console.log('fetchRankedSongs with genre:', genre);
+      console.log('fetchRankedSongs with genre:', genre, 'subgenre:', subgenre);
+      const payload = { userID };
+      if (subgenre !== 'any') {
+        payload.subgenre = subgenre; // Subgenre takes priority
+        if (genre !== 'any') payload.genre = genre; // Include genre if specified
+      } else if (genre !== 'any') {
+        payload.genre = genre; // Only genre if no subgenre
+      }
+      console.log('fetchRankedSongs payload:', payload);
       const response = await fetch(`${API_BASE_URL}/user-songs/ranked`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID, genre }),
+        body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error('Failed to fetch ranked songs');
       const ranked = await response.json();
@@ -147,15 +163,15 @@ export const SongProvider = ({ children }) => {
         winnerSongName: winnerSong.songName,
         winnerArtist: winnerSong.artist,
         winnerGenre: winnerSong.genre,
-        winnerSubgenre: winnerSong.subgenre || null, // Include subgenre
-        winnerDecade: winnerSong.decade || null,     // Include decade
+        winnerSubgenre: winnerSong.subgenre || null,
+        winnerDecade: winnerSong.decade || null,
         winnerAlbumCover: winnerSong.albumCover,
         winnerPreviewURL: winnerSong.previewURL,
         loserSongName: loserSong.songName,
         loserArtist: loserSong.artist,
         loserGenre: loserSong.genre,
-        loserSubgenre: loserSong.subgenre || null,   // Include subgenre
-        loserDecade: loserSong.decade || null,       // Include decade
+        loserSubgenre: loserSong.subgenre || null,
+        loserDecade: loserSong.decade || null,
         loserAlbumCover: loserSong.albumCover,
         loserPreviewURL: loserSong.previewURL,
       };
@@ -223,9 +239,9 @@ export const SongProvider = ({ children }) => {
         skipped: true,
         songName: skippedSong.songName || 'Unknown Song',
         artist: skippedSong.artist || 'Unknown Artist',
-        genre: skippedSong.genre || 'unknown',        // Include genre
-        subgenre: skippedSong.subgenre || null,       // Include subgenre
-        decade: skippedSong.decade || null,           // Include decade
+        genre: skippedSong.genre || 'unknown',
+        subgenre: skippedSong.subgenre || null,
+        decade: skippedSong.decade || null,
         albumCover: skippedSong.albumCover || '',
         previewURL: skippedSong.previewURL || '',
       };
