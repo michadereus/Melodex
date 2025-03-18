@@ -20,7 +20,7 @@ function App() {
           </Routes>
         </main>
         <footer style={{ background: '#333', color: 'white', padding: '1rem', textAlign: 'center', width: '100%' }}>
-          <p>© 2025 Melodex. All rights reserved.</p>
+          <p>michael.dereus@outlook.com</p>
         </footer>
       </Router>
     </SongProvider>

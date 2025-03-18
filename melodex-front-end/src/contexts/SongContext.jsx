@@ -5,6 +5,7 @@ const SongContext = createContext();
 const API_BASE_URL = 'http://localhost:3000/api';
 const userID = 'testUser';
 
+// Define the hook
 export const useSongContext = () => {
   const context = useContext(SongContext);
   if (!context) {
@@ -13,13 +14,17 @@ export const useSongContext = () => {
   return context;
 };
 
+// Define the provider
 export const SongProvider = ({ children }) => {
   const [songList, setSongList] = useState([]);
+  const [songBuffer, setSongBuffer] = useState([]);
   const [currentPair, setCurrentPair] = useState([]);
   const [rankedSongs, setRankedSongs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
-  const [shouldFetchSongs, setShouldFetchSongs] = useState(false);
+  const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
+  const [isFetching, setIsFetching] = useState(false);
+  const [hasAppliedFilters, setHasAppliedFilters] = useState(false);
 
   const getNextPair = useCallback((songsToUse = songList) => {
     console.log('getNextPair called, songsToUse:', songsToUse);
@@ -51,8 +56,8 @@ export const SongProvider = ({ children }) => {
     console.log('currentPair set to:', newPair);
   }, [songList]);
 
-  const generateNewSongs = async (filters = {}) => {
-    setLoading(true);
+  const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
+    if (!isBackground) setLoading(true);
     try {
       const payload = { userID, ...filters };
       const response = await fetch(`${API_BASE_URL}/user-songs/new`, {
@@ -63,14 +68,23 @@ export const SongProvider = ({ children }) => {
       if (!response.ok) throw new Error('Failed to fetch new songs');
       const newSongs = await response.json();
       console.log('generateNewSongs: newSongs:', newSongs);
-      setSongList(newSongs);
-      getNextPair(newSongs);
+
+      if (isBackground) {
+        setSongBuffer(prev => [...prev, ...newSongs]);
+        console.log('Added to songBuffer:', newSongs.length, 'songs');
+      } else {
+        setSongList(prev => [...prev, ...newSongs]);
+        setLastFilters(filters);
+        setHasAppliedFilters(true);
+        getNextPair(newSongs);
+      }
       return newSongs;
     } catch (error) {
       console.error('Failed to generate new songs:', error);
       return [];
     } finally {
-      setLoading(false);
+      if (!isBackground) setLoading(false);
+      if (isBackground) setIsFetching(false);
     }
   };
 
@@ -276,9 +290,38 @@ export const SongProvider = ({ children }) => {
     }
   }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
 
+  const maintainSongBuffer = useCallback(async () => {
+    const MIN_BUFFER_SIZE = 30;
+    const FETCH_THRESHOLD = 20;
+
+    if (mode !== 'new' || !hasAppliedFilters || isFetching || songList.length > FETCH_THRESHOLD) return;
+
+    console.log('Song list:', songList.length, 'checking buffer...');
+    if (songBuffer.length < MIN_BUFFER_SIZE) {
+      console.log('Buffer below', MIN_BUFFER_SIZE, ', fetching more songs in background...');
+      setIsFetching(true);
+      await generateNewSongs(lastFilters, true);
+    }
+
+    if (songList.length < 2 && songBuffer.length > 0) {
+      const songsToMove = songBuffer.slice(0, Math.min(30 - songList.length, songBuffer.length));
+      setSongList(prev => [...prev, ...songsToMove]);
+      setSongBuffer(prev => prev.slice(songsToMove.length));
+      console.log('Moved', songsToMove.length, 'songs from buffer to songList');
+      getNextPair();
+    }
+  }, [songList, songBuffer, mode, lastFilters, isFetching, hasAppliedFilters]);
+
+  useEffect(() => {
+    maintainSongBuffer();
+  }, [songList, maintainSongBuffer]);
+
   useEffect(() => {
     setSongList([]);
     setCurrentPair([]);
+    setSongBuffer([]);
+    setIsFetching(false);
+    setHasAppliedFilters(false);
   }, [mode]);
 
   return (

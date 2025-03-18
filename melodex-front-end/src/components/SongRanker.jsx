@@ -30,7 +30,8 @@ export const SongRanker = ({ mode }) => {
   }
 
   if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em' }}>Loading...</p>;
-  if (currentPair.length === 0) {
+
+  if (currentPair.length === 0 && !loading) {
     console.log('No songs available for mode:', mode);
     return (
       <p style={{ textAlign: 'center', fontSize: '1.2em' }}>
@@ -56,44 +57,45 @@ export const SongRanker = ({ mode }) => {
   );
 
   return (
-  <div>
-    <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
-    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
-      {uniqueCurrentPair.map((song) => (
-        <div key={song.deezerID} style={{ textAlign: 'center' }}>
-          <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
-          <p>{song.songName} by {song.artist}</p>
-          <audio
-            controls
-            src={song.previewURL}
-            style={{ margin: '5px' }}
-            onError={(e) => console.warn('Audio preview failed:', e.target.error)}
-          />
-          <button
-            onClick={() => handlePick(song.deezerID)}
-            style={{ margin: '5px' }}
-            disabled={loading}
-          >
-            Pick
-          </button>
-          {mode === 'new' && (
+    <div>
+      <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+        {uniqueCurrentPair.map((song) => (
+          <div key={song.deezerID} style={{ textAlign: 'center' }}>
+            <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
+            <p>{song.songName} by {song.artist}</p>
+            <audio
+              controls
+              src={song.previewURL}
+              style={{ margin: '5px' }}
+              onError={(e) => console.warn('Audio preview failed:', e.target.error)}
+            />
             <button
-              onClick={() => skipSong(song.deezerID)}
+              onClick={() => handlePick(song.deezerID)}
               style={{ margin: '5px' }}
               disabled={loading}
             >
-              Skip
+              Pick
             </button>
-          )}
-        </div>
-      ))}
-    </div>
-    {mode === 'new' && !loading && currentPair.length > 0 && (
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <button onClick={refreshPair} style={{ padding: '10px 20px' }} disabled={loading}>
-          Skip Both
-        </button>
+            {mode === 'new' && (
+              <button
+                onClick={() => skipSong(song.deezerID)}
+                style={{ margin: '5px' }}
+                disabled={loading}
+              >
+                Skip
+              </button>
+            )}
+          </div>
+        ))}
       </div>
-    )}
-  </div>
-)};
+      {mode === 'new' && !loading && currentPair.length > 0 && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <button onClick={refreshPair} style={{ padding: '10px 20px' }} disabled={loading}>
+            Skip Both
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
