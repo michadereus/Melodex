@@ -27,36 +27,12 @@ nav>div:first-child {
   gap: 2rem;
 }
 
-nav a {
-  color: #ecf0f1;
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 500;
-  font-family: 'Roboto', sans-serif;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-nav a:hover {
-  color: #3498db;
-  background-color: rgba(20, 24, 32, 0.2); /* Adjusted for #141820 */
-  transform: translateY(-2px);
-}
-
-nav a.profile-link {
-  padding: 0;
-  background-color: transparent;
-  box-shadow: none;
-  display: inline-block;
-}
 
 .profile-bubble {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #3498db url('https://cdn-icons-png.flaticon.com/512/149/149071.png') no-repeat center center;
+  background: #bdc3c7 url('https://cdn-icons-png.flaticon.com/512/149/149071.png') no-repeat center center;
   background-size: 70%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
@@ -64,6 +40,7 @@ nav a.profile-link {
 
 .profile-bubble:hover {
   transform: scale(1.1);
+  background-color: #3498db;
 }
 
 nav>div:last-child {
@@ -110,4 +87,72 @@ footer {
   text-align: center;
   font-size: 0.9rem;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Melodex/melodex-front-end/src/index.css */
+nav {
+  background: #141820;
+  color: white;
+  padding: 1.5rem;
+  /* Increased from 1rem */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+nav>div:first-child {
+  display: flex;
+  gap: 2.5rem;
+  /* Increased from 2rem */
+}
+
+nav a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 1.2rem;
+  /* Reduced from 1.3rem */
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  padding: 0.5rem 1.25rem;
+  /* Reduced from 0.75rem 1.25rem */
+  border-radius: 6px;
+  background-color: #7f8c8d;
+  transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+nav a:hover {
+  color: #fff;
+  background-color: #3498db;
+  transform: translateY(-2px);
+}
+
+nav a.profile-link {
+  padding: 0;
+  background-color: transparent;
+  box-shadow: none;
+  display: inline-block;
+}
+
+.custom-audio-player {
+  width: 100%;
+  border-radius: 8px;
+  background-color: #f4f7fa;
+  /* Light gray background */
+  padding: 5px;
+  /* Adds space around controls */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+}
+
+/* Optional: Style the controls (limited support, varies by browser) */
+.custom-audio-player::-webkit-media-controls-panel {
+  background-color: #f4f7fa;
+  border-radius: 8px;
+}
+
+.custom-audio-player::-moz-range-track {
+  background-color: #f4f7fa;
 }

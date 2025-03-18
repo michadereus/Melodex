@@ -81,12 +81,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             onChange={handleGenreChange}
             style={{
               marginRight: '10px',
-              padding: '2px 5px',
+              padding: '5px 5px', // Increased from 2px 5px
               backgroundColor: '#f4f7fa',
               border: '1px solid #141820',
               borderRadius: '8px',
               color: '#141820',
-              fontSize: '1rem',
+              fontSize: '1rem', // Unchanged
               fontFamily: 'Inter, Arial, sans-serif',
               cursor: 'pointer',
               transition: 'border-color 0.3s ease, background-color 0.3s ease',
@@ -107,12 +107,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             disabled={!selectedGenre}
             style={{
               marginRight: '10px',
-              padding: '2px 5px',
+              padding: '5px 5px', // Increased from 2px 5px
               backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
               border: '1px solid #141820',
               borderRadius: '8px',
               color: '#141820',
-              fontSize: '1rem',
+              fontSize: '1rem', // Unchanged
               fontFamily: 'Inter, Arial, sans-serif',
               cursor: selectedGenre ? 'pointer' : 'not-allowed',
               transition: 'border-color 0.3s ease, background-color 0.3s ease',
@@ -134,12 +134,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
               disabled={!selectedGenre}
               style={{
                 marginRight: '10px',
-                padding: '2px 5px',
+                padding: '5px 5px', // Increased from 2px 5px
                 backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
                 border: '1px solid #141820',
                 borderRadius: '8px',
                 color: '#141820',
-                fontSize: '1rem',
+                fontSize: '1rem', // Unchanged
                 fontFamily: 'Inter, Arial, sans-serif',
                 cursor: selectedGenre ? 'pointer' : 'not-allowed',
                 transition: 'border-color 0.3s ease, background-color 0.3s ease',
@@ -157,14 +157,14 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
           )}
           <button
             onClick={handleApplyClick}
-            disabled={isRankPage && !selectedGenre} // Disable only for /rank when no genre
+            disabled={isRankPage && !selectedGenre}
             style={{
-              padding: '2px 10px',
-              backgroundColor: (isRankPage && !selectedGenre) ? '#bdc3c7' : '#7f8c8d', // Disabled color for /rank
+              padding: '5px 10px', // Increased from 2px 10px
+              backgroundColor: (isRankPage && !selectedGenre) ? '#bdc3c7' : '#7f8c8d',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
-              fontSize: '1rem',
+              fontSize: '1rem', // Unchanged
               fontFamily: 'Inter, Arial, sans-serif',
               cursor: (isRankPage && !selectedGenre) ? 'not-allowed' : 'pointer',
               transition: 'background-color 0.3s ease',

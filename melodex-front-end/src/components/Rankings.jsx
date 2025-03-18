@@ -51,7 +51,7 @@ const Rankings = () => {
       <div className="filter-container" style={{ height: showFilter ? 'auto' : '0', opacity: showFilter ? 1 : 0 }}>
         <SongFilter onApply={handleApply} isRankPage={false} onHide={toggleFilter} />
       </div>
-      <div style={{ textAlign: 'center', margin: '2px 0 5px 0' }}> {/* Very little above, slightly more below */}
+      <div style={{ textAlign: 'center', margin: '1px 0' }}> {/* Reduced from '2px 0' */}
         <button className="toggle-button" onClick={toggleFilter}>
           {showFilter ? '▲' : '▼'}
         </button>
@@ -63,7 +63,9 @@ const Rankings = () => {
         </div>
       ) : applied ? (
         <div style={{ width: '100%' }}>
-          <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '2rem' }}>Your Song Rankings</h2>
+          <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '0.5rem' }}> {/* Reduced from 1rem */}
+            Your Song Rankings
+          </h2>
           {enrichedSongs.length === 0 ? (
             <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>No ranked songs yet for this filter.</p>
           ) : (
@@ -81,13 +83,9 @@ const Rankings = () => {
                       <audio
                         controls
                         src={song.previewURL}
+                        className="custom-audio-player" // Added class
                         style={{
-                          width: '100%',
-                          marginTop: '0.5rem',
-                          borderRadius: '8px',
-                          backgroundColor: '#f4f7fa',
-                          padding: '5px',
-                          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                          marginTop: '0.5rem', // Kept from original for spacing
                         }}
                         onError={(e) => {
                           console.debug('Audio preview unavailable:', song.songName);

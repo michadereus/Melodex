@@ -82,7 +82,7 @@ export const SongRanker = ({ mode }) => {
       <div className="filter-container" style={{ height: showFilter ? 'auto' : '0', opacity: showFilter ? 1 : 0 }}>
         <SongFilter onApply={handleApply} isRankPage={mode === 'new'} />
       </div>
-      <div style={{ textAlign: 'center', margin: '5px 0' }}>
+            <div style={{ textAlign: 'center', margin: '1px 0' }}> {/* Reduced from '2px 0' */}
         <button className="toggle-button" onClick={toggleFilter}>
           {showFilter ? '▲' : '▼'}
         </button>
@@ -98,7 +98,7 @@ export const SongRanker = ({ mode }) => {
         </p>
       ) : applied ? (
         <div>
-          <h2 style={{ textAlign: 'center', color: '#2c3e50', fontSize: '2rem', marginBottom: '2rem' }}>
+          <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '0.5rem' }}> {/* Reduced from 1rem */}
             {mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}
           </h2>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
@@ -110,13 +110,9 @@ export const SongRanker = ({ mode }) => {
                 <audio
                   controls
                   src={song.previewURL}
+                  className="custom-audio-player" // Added class
                   style={{
-                    width: '100%',
-                    margin: '1rem 0',
-                    borderRadius: '8px',
-                    backgroundColor: '#f4f7fa', // Light gray background
-                    padding: '5px',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', // Subtle shadow
+                    margin: '1rem 0', // Kept from original for spacing
                   }}
                   onError={(e) => {
                     console.debug('Audio preview unavailable:', song.songName);
