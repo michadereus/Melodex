@@ -3,16 +3,34 @@ import React, { useEffect, useState } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 
+const API_BASE_URL = 'http://localhost:3000/api';
+
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
   const [applied, setApplied] = useState(false);
+  const [enrichedSongs, setEnrichedSongs] = useState([]);
 
   useEffect(() => {
     console.log('Rankings useEffect: Fetching ranked songs');
     if (applied) {
-      fetchRankedSongs();
+      fetchRankedSongs().then(() => {
+        // Enrich ranked songs after fetching
+        fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ songs: rankedSongs })
+        })
+          .then(response => response.json())
+          .then(freshSongs => {
+            setEnrichedSongs(freshSongs);
+          })
+          .catch(error => {
+            console.error('Failed to enrich ranked songs:', error);
+            setEnrichedSongs(rankedSongs); // Fallback
+          });
+      });
     }
-  }, [fetchRankedSongs, applied]);
+  }, [fetchRankedSongs, applied, rankedSongs]);
 
   const handleApply = () => {
     setApplied(true);
@@ -24,9 +42,7 @@ const Rankings = () => {
 
   if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>Loading rankings...</p>;
 
-  const sortedRankedSongs = [...rankedSongs].sort((a, b) => b.ranking - a.ranking);
-
-  // Assign listing numbers with ties
+  const sortedRankedSongs = [...enrichedSongs].sort((a, b) => b.ranking - a.ranking);
   let currentPosition = 0;
   const rankedWithPositions = sortedRankedSongs.map((song, index) => {
     if (index === 0 || song.ranking !== sortedRankedSongs[index - 1].ranking) {
@@ -36,7 +52,7 @@ const Rankings = () => {
   });
 
   return (
-    <div style={{ width: '100%' }}> {/* Ensure container takes full width */}
+    <div style={{ width: '100%' }}>
       <h2 style={{ textAlign: 'center', color: '#2c3e50', fontSize: '2rem', marginBottom: '2rem' }}>
         Your Song Rankings
       </h2>
@@ -48,8 +64,8 @@ const Rankings = () => {
           padding: 0,
           display: 'grid',
           gap: '1.5rem',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', // Multi-column grid
-          width: '100%' // Full width to match main
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          width: '100%'
         }}>
           {rankedWithPositions.map((song) => (
             <li key={song.deezerID} style={{
@@ -59,7 +75,8 @@ const Rankings = () => {
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem'
+              gap: '1rem',
+              position: 'relative'
             }}>
               <span style={{
                 fontSize: '1.5rem',
@@ -71,12 +88,33 @@ const Rankings = () => {
                 {song.position}
               </span>
               <img src={song.albumCover} alt="Album Cover" style={{ width: '80px', height: '80px', borderRadius: '8px' }} />
-              <div>
+              <div style={{ flex: 1 }}>
                 <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#2c3e50', margin: '0' }}>
                   {song.songName}
                 </p>
                 <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.25rem 0' }}>{song.artist}</p>
                 <p style={{ fontSize: '0.9rem', color: '#3498db', margin: '0' }}>Ranking: {song.ranking}</p>
+                <audio
+                  controls
+                  src={song.previewURL}
+                  style={{ width: '100%', marginTop: '0.5rem' }}
+                  onError={(e) => {
+                    console.debug('Audio preview unavailable:', song.songName);
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
+                />
+                <span style={{
+                  display: 'none',
+                  color: '#e74c3c',
+                  fontSize: '0.9rem',
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }}>
+                  Preview unavailable
+                </span>
               </div>
             </li>
           ))}

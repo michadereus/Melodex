@@ -6,6 +6,7 @@ import SongFilter from './SongFilter';
 export const SongRanker = ({ mode }) => {
   const { currentPair, selectSong, skipSong, loading, setMode, refreshPair, generateNewSongs, fetchReRankingData, getNextPair } = useSongContext();
   const [applied, setApplied] = useState(false);
+  const [enrichedPair, setEnrichedPair] = useState([]);
 
   useEffect(() => {
     console.log('SongRanker useEffect setting mode:', mode, 'resetting applied to false');
@@ -19,6 +20,25 @@ export const SongRanker = ({ mode }) => {
       getNextPair();
     }
   }, [mode, applied, currentPair, loading, getNextPair]);
+
+  // Enrich currentPair with fresh Deezer data
+  useEffect(() => {
+    if (currentPair.length > 0 && !loading) {
+      fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ songs: currentPair })
+      })
+        .then(response => response.json())
+        .then(enrichedSongs => {
+          setEnrichedPair(enrichedSongs);
+        })
+        .catch(error => {
+          console.error('Failed to enrich songs:', error);
+          setEnrichedPair(currentPair); // Fallback to original pair
+        });
+    }
+  }, [currentPair, loading]);
 
   const handleApply = (filters) => {
     console.log('Handle apply called for mode:', mode, 'with filters:', filters);
@@ -44,16 +64,16 @@ export const SongRanker = ({ mode }) => {
   }
 
   const handlePick = (winnerId) => {
-    const loserSong = currentPair.find((s) => s.deezerID !== winnerId);
+    const loserSong = enrichedPair.find((s) => s.deezerID !== winnerId);
     if (!loserSong || !loserSong.deezerID) {
-      console.error('No valid loser song found in currentPair:', currentPair);
+      console.error('No valid loser song found in enrichedPair:', enrichedPair);
       refreshPair();
       return;
     }
     selectSong(winnerId, loserSong.deezerID);
   };
 
-  const uniqueCurrentPair = Array.from(new Map(currentPair.map(song => [song.deezerID, song])).values());
+  const uniqueCurrentPair = Array.from(new Map(enrichedPair.map(song => [song.deezerID, song])).values());
 
   return (
     <div>
@@ -69,7 +89,8 @@ export const SongRanker = ({ mode }) => {
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
             width: '300px',
             textAlign: 'center',
-            transition: 'transform 0.2s ease'
+            transition: 'transform 0.2s ease',
+            position: 'relative'
           }}>
             <img src={song.albumCover} alt="Album Cover" style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} />
             <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#2c3e50', margin: '0.5rem 0' }}>
@@ -80,8 +101,23 @@ export const SongRanker = ({ mode }) => {
               controls
               src={song.previewURL}
               style={{ width: '100%', margin: '1rem 0' }}
-              onError={(e) => console.debug('Audio preview unavailable:', song.songName)}
+              onError={(e) => {
+                console.debug('Audio preview unavailable:', song.songName);
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'block';
+              }}
             />
+            <span style={{
+              display: 'none',
+              color: '#e74c3c',
+              fontSize: '0.9rem',
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}>
+              Preview unavailable
+            </span>
             <button
               onClick={() => handlePick(song.deezerID)}
               style={{
@@ -149,3 +185,6 @@ export const SongRanker = ({ mode }) => {
     </div>
   );
 };
+
+// Add this constant at the top of the file if not already present
+const API_BASE_URL = 'http://localhost:3000/api';
