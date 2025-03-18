@@ -1,14 +1,66 @@
 /* Melodex/melodex-front-end/src/index.css */
-body {
-  margin: 0;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  /* Ensure padding/margins don’t overflow */
 }
 
-.profile-bubble {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #ccc;
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f4f7fa;
+  /* Removed flex properties, handled by App.jsx */
+}
+
+nav {
+  background: linear-gradient(90deg, #2c3e50, #34495e);
+  color: white;
+  padding: 1.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
+
+nav>div:first-child {
+  display: flex;
+  gap: 2.5rem;
+}
+
+nav a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 600;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+nav a:hover {
+  color: #3498db;
+  transform: translateY(-2px);
+}
+
+.profile-bubble {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #3498db;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.profile-bubble:hover {
+  transform: scale(1.1);
+}
+
+nav>div:last-child {
+  position: absolute;
+  right: 1.5rem;
+}
+
+/* Removed main and footer styles, now inline in App.jsx */

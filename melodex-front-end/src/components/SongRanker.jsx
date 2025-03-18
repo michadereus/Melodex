@@ -13,7 +13,6 @@ export const SongRanker = ({ mode }) => {
     setApplied(false);
   }, [mode, setMode]);
 
-  // Automatically get a new pair when returning to /rank with an existing songList
   useEffect(() => {
     if (mode === 'new' && applied && currentPair.length === 0 && !loading) {
       console.log('Returning to /rank, picking new pair from existing songList');
@@ -30,57 +29,73 @@ export const SongRanker = ({ mode }) => {
     }
   };
 
-  console.log('SongRanker render, mode:', mode, 'applied:', applied, 'currentPair:', currentPair);
-
   if (!applied) {
-    console.log('Rendering SongFilter for mode:', mode);
     return <SongFilter onApply={handleApply} isRankPage={mode === 'new'} />;
   }
 
-  if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em' }}>Loading...</p>;
+  if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>Loading...</p>;
 
   if (currentPair.length === 0 && !loading) {
-    console.log('No songs available for mode:', mode);
     return (
-      <p style={{ textAlign: 'center', fontSize: '1.2em' }}>
+      <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
         {mode === 'rerank' ? 'No ranked songs available to re-rank yet.' : 'No more songs to rank.'}
       </p>
     );
   }
 
   const handlePick = (winnerId) => {
-    console.log('handlePick called with winnerId:', winnerId, 'currentPair:', currentPair);
     const loserSong = currentPair.find((s) => s.deezerID !== winnerId);
     if (!loserSong || !loserSong.deezerID) {
       console.error('No valid loser song found in currentPair:', currentPair);
       refreshPair();
       return;
     }
-    console.log('Calling selectSong with winnerId:', winnerId, 'loserId:', loserSong.deezerID);
     selectSong(winnerId, loserSong.deezerID);
   };
 
-  const uniqueCurrentPair = Array.from(
-    new Map(currentPair.map(song => [song.deezerID, song])).values()
-  );
+  const uniqueCurrentPair = Array.from(new Map(currentPair.map(song => [song.deezerID, song])).values());
 
   return (
     <div>
-      <h2>{mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}</h2>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+      <h2 style={{ textAlign: 'center', color: '#2c3e50', fontSize: '2rem', marginBottom: '2rem' }}>
+        {mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}
+      </h2>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
         {uniqueCurrentPair.map((song) => (
-          <div key={song.deezerID} style={{ textAlign: 'center' }}>
-            <img src={song.albumCover} alt="Album Cover" style={{ width: '100px', height: '100px' }} />
-            <p>{song.songName} by {song.artist}</p>
+          <div key={song.deezerID} style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            width: '300px',
+            textAlign: 'center',
+            transition: 'transform 0.2s ease'
+          }}>
+            <img src={song.albumCover} alt="Album Cover" style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} />
+            <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#2c3e50', margin: '0.5rem 0' }}>
+              {song.songName}
+            </p>
+            <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.5rem 0' }}>{song.artist}</p>
             <audio
               controls
               src={song.previewURL}
-              style={{ margin: '5px' }}
-              onError={(e) => console.warn('Audio preview failed:', e.target.error)}
+              style={{ width: '100%', margin: '1rem 0' }}
+              onError={(e) => console.debug('Audio preview unavailable:', song.songName)}
             />
             <button
               onClick={() => handlePick(song.deezerID)}
-              style={{ margin: '5px' }}
+              style={{
+                background: '#3498db',
+                color: 'white',
+                border: 'none',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                transition: 'background 0.3s ease'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#2980b9'}
+              onMouseOut={(e) => e.target.style.background = '#3498db'}
               disabled={loading}
             >
               Pick
@@ -88,7 +103,19 @@ export const SongRanker = ({ mode }) => {
             {mode === 'new' && (
               <button
                 onClick={() => skipSong(song.deezerID)}
-                style={{ margin: '5px' }}
+                style={{
+                  background: '#e74c3c',
+                  color: 'white',
+                  border: 'none',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  marginLeft: '0.5rem',
+                  transition: 'background 0.3s ease'
+                }}
+                onMouseOver={(e) => e.target.style.background = '#c0392b'}
+                onMouseOut={(e) => e.target.style.background = '#e74c3c'}
                 disabled={loading}
               >
                 Skip
@@ -98,8 +125,23 @@ export const SongRanker = ({ mode }) => {
         ))}
       </div>
       {mode === 'new' && !loading && currentPair.length > 0 && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <button onClick={refreshPair} style={{ padding: '10px 20px' }} disabled={loading}>
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <button
+            onClick={refreshPair}
+            style={{
+              background: '#7f8c8d',
+              color: 'white',
+              border: 'none',
+              padding: '0.75rem 2rem',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              transition: 'background 0.3s ease'
+            }}
+            onMouseOver={(e) => e.target.style.background = '#95a5a6'}
+            onMouseOut={(e) => e.target.style.background = '#7f8c8d'}
+            disabled={loading}
+          >
             Skip Both
           </button>
         </div>
