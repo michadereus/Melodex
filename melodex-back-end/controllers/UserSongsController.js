@@ -3,9 +3,9 @@ const axios = require('axios');
 
 class UserSongsController {
   static async getNewSongsForUser(req, res) {
-    const { userID, genre = 'pop', subgenre, decade } = req.body; // Default genre to 'pop' if not provided
+    const { userID, genre = 'pop', subgenre, decade } = req.body;
     const db = req.app.locals.db;
-    const numSongs = 30; 
+    const numSongs = 30;
 
     try {
       console.log('START getNewSongsForUser for userID:', userID);
@@ -18,17 +18,15 @@ class UserSongsController {
       const seenSongs = userSongs.map(song => `${song.songName}, ${song.artist}`);
       const songsString = seenSongs.length > 0 ? seenSongs.join(', ') : 'None';
 
-      // Define decade ranges
       let startYear, endYear;
       if (decade && decade !== 'all decades') {
-        startYear = parseInt(decade.slice(0, 3)) * 10; // e.g., '2000s' -> 2000
-        endYear = startYear + 9; // e.g., 2009
+        startYear = parseInt(decade.slice(0, 3)) * 10;
+        endYear = startYear + 9;
       } else {
-        startYear = 1900; // Default wide range if no decade specified
+        startYear = 1900;
         endYear = new Date().getFullYear();
       }
 
-      // Construct genre prompt
       let promptGenre = genre;
       if (subgenre && subgenre !== 'all subgenres') {
         promptGenre = `${genre} with subgenre ${subgenre}`;
@@ -72,7 +70,9 @@ class UserSongsController {
         return {
           songName,
           artist,
-          genre, // Use the provided genre
+          genre,
+          subgenre: subgenre || null,
+          decade: decade || null,
           albumCover: '',
           previewURL: '',
           ranking: null,
@@ -100,7 +100,7 @@ class UserSongsController {
     try {
       const query = { userID, skipped: false };
       if (genre && genre !== 'any') {
-        query.genre = genre; // Case-sensitive match
+        query.genre = genre;
       }
       console.log('getReRankSongsForUser query:', query);
       const rankedSongs = await db.collection('user_songs')
@@ -131,11 +131,15 @@ class UserSongsController {
       winnerSongName,
       winnerArtist,
       winnerGenre,
+      winnerSubgenre,
+      winnerDecade,
       winnerAlbumCover,
       winnerPreviewURL,
       loserSongName,
       loserArtist,
       loserGenre,
+      loserSubgenre,
+      loserDecade,
       loserAlbumCover,
       loserPreviewURL,
       ranking,
@@ -158,6 +162,8 @@ class UserSongsController {
           songName: winnerSongName || 'Unknown Song',
           artist: winnerArtist || 'Unknown Artist',
           genre: winnerGenre || 'unknown',
+          subgenre: winnerSubgenre || null,
+          decade: winnerDecade || null,
           albumCover: winnerAlbumCover || '',
           previewURL: winnerPreviewURL || '',
           ranking: ranking !== undefined ? ranking : 1200,
@@ -168,6 +174,8 @@ class UserSongsController {
         if (winnerSongName) song.songName = winnerSongName;
         if (winnerArtist) song.artist = winnerArtist;
         if (winnerGenre) song.genre = winnerGenre;
+        if (winnerSubgenre !== undefined) song.subgenre = winnerSubgenre;
+        if (winnerDecade !== undefined) song.decade = winnerDecade;
         if (winnerAlbumCover) song.albumCover = winnerAlbumCover;
         if (winnerPreviewURL) song.previewURL = winnerPreviewURL;
         if (ranking !== undefined) song.ranking = ranking;
@@ -197,8 +205,10 @@ class UserSongsController {
           songName: loserSongName || 'Unknown Song',
           artist: loserArtist || 'Unknown Artist',
           genre: loserGenre || 'unknown',
+          subgenre: loserSubgenre || null,
+          decade: loserDecade || null,
           albumCover: loserAlbumCover || '',
-          previewURL: loserPreviewURL || '', // Fixed typo from 'voitPreviewURL'
+          previewURL: loserPreviewURL || '',
           ranking: 1200,
           skipped: false,
         };
@@ -207,6 +217,8 @@ class UserSongsController {
         if (loserSongName) opponent.songName = loserSongName;
         if (loserArtist) opponent.artist = loserArtist;
         if (loserGenre) opponent.genre = loserGenre;
+        if (loserSubgenre !== undefined) opponent.subgenre = loserSubgenre;
+        if (loserDecade !== undefined) opponent.decade = loserDecade;
         if (loserAlbumCover) opponent.albumCover = loserAlbumCover;
         if (loserPreviewURL) opponent.previewURL = loserPreviewURL;
         console.log('Updated existing opponent:', opponent);
@@ -214,7 +226,7 @@ class UserSongsController {
 
       if (result) {
         const R_A = song.ranking || 1200;
-        const R_B = opponent.rankingLuke || 1200;
+        const R_B = opponent.ranking || 1200;
         const E_A = 1 / (1 + Math.pow(10, (R_B - R_A) / 400));
         const E_B = 1 / (1 + Math.pow(10, (R_A - R_B) / 400));
         const S_A = result === 'win' ? 1 : 0;
@@ -262,7 +274,7 @@ class UserSongsController {
     try {
       const query = { userID, skipped: false };
       if (genre && genre !== 'any') {
-        query.genre = genre; // Case-sensitive match
+        query.genre = genre;
       }
       console.log('getRankedSongsForUser query:', query);
       const rankedSongs = await db.collection('user_songs')

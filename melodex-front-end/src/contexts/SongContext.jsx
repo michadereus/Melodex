@@ -19,7 +19,7 @@ export const SongProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
   const [selectedGenre, setSelectedGenre] = useState('any');
-  const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' }); // Reintroduced
+  const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
 
   const getNextPair = useCallback((songsToUse = songList) => {
@@ -45,7 +45,12 @@ export const SongProvider = ({ children }) => {
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
     try {
-      const payload = { userID, ...filters };
+      const payload = { 
+        userID, 
+        genre: filters.genre, 
+        subgenre: filters.subgenre !== 'all subgenres' ? filters.subgenre : null, 
+        decade: filters.decade !== 'all decades' ? filters.decade : null 
+      };
       console.log('generateNewSongs with payload:', payload);
       const response = await fetch(`${API_BASE_URL}/user-songs/new`, {
         method: 'POST',
@@ -59,7 +64,7 @@ export const SongProvider = ({ children }) => {
         setSongBuffer(prev => [...prev, ...newSongs]);
       } else {
         setSongList(prev => [...prev, ...newSongs]);
-        setLastFilters(filters); // Update lastFilters when new songs are generated
+        setLastFilters(filters);
         getNextPair(newSongs);
       }
       return newSongs;
@@ -142,11 +147,15 @@ export const SongProvider = ({ children }) => {
         winnerSongName: winnerSong.songName,
         winnerArtist: winnerSong.artist,
         winnerGenre: winnerSong.genre,
+        winnerSubgenre: winnerSong.subgenre || null, // Include subgenre
+        winnerDecade: winnerSong.decade || null,     // Include decade
         winnerAlbumCover: winnerSong.albumCover,
         winnerPreviewURL: winnerSong.previewURL,
         loserSongName: loserSong.songName,
         loserArtist: loserSong.artist,
         loserGenre: loserSong.genre,
+        loserSubgenre: loserSong.subgenre || null,   // Include subgenre
+        loserDecade: loserSong.decade || null,       // Include decade
         loserAlbumCover: loserSong.albumCover,
         loserPreviewURL: loserSong.previewURL,
       };
@@ -214,6 +223,9 @@ export const SongProvider = ({ children }) => {
         skipped: true,
         songName: skippedSong.songName || 'Unknown Song',
         artist: skippedSong.artist || 'Unknown Artist',
+        genre: skippedSong.genre || 'unknown',        // Include genre
+        subgenre: skippedSong.subgenre || null,       // Include subgenre
+        decade: skippedSong.decade || null,           // Include decade
         albumCover: skippedSong.albumCover || '',
         previewURL: skippedSong.previewURL || '',
       };

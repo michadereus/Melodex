@@ -1,6 +1,6 @@
 // Melodex/melodex-front-end/src/components/SongFilter.jsx
 import React, { useState } from 'react';
-import { useSongContext } from '../contexts/SongContext'; // Add this import
+import { useSongContext } from '../contexts/SongContext';
 
 const genres = [
   'Rock', 'Pop', 'Hip-Hop/Rap', 'R&B/Soul', 'Electronic Dance Music (EDM)',
@@ -49,11 +49,11 @@ const SongFilter = ({ onApply, isRankPage }) => {
   const handleApplyClick = () => {
     setIsApplying(true);
     const genreToApply = selectedGenre || 'any';
-    setSelectedGenre(genreToApply); // Update context
+    setSelectedGenre(genreToApply);
     const filters = {
       genre: genreToApply,
       subgenre: selectedSubgenre || 'all subgenres',
-      decade: selectedDecade || 'all decades',
+      decade: isRankPage ? (selectedDecade || 'all decades') : 'all decades', // Only include decade for /rank
     };
     if (typeof onApply === 'function') {
       onApply(filters).finally(() => {
@@ -115,17 +115,19 @@ const SongFilter = ({ onApply, isRankPage }) => {
               <option key={sub} value={sub}>{sub}</option>
             ))}
           </select>
-          <select
-            value={selectedDecade}
-            onChange={(e) => setSelectedDecade(e.target.value)}
-            disabled={!selectedGenre}
-            style={{ marginRight: '10px', padding: '5px' }}
-          >
-            <option value="">All Decades</option>
-            {decades[selectedGenre]?.map(decade => (
-              <option key={decade} value={decade}>{decade}s</option>
-            ))}
-          </select>
+          {isRankPage && ( // Only show decade field for /rank
+            <select
+              value={selectedDecade}
+              onChange={(e) => setSelectedDecade(e.target.value)}
+              disabled={!selectedGenre}
+              style={{ marginRight: '10px', padding: '5px' }}
+            >
+              <option value="">All Decades</option>
+              {decades[selectedGenre]?.map(decade => (
+                <option key={decade} value={decade}>{decade}s</option>
+              ))}
+            </select>
+          )}
           <button onClick={handleApplyClick} style={{ padding: '5px 10px' }}>
             Apply
           </button>
