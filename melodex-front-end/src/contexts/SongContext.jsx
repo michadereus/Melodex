@@ -80,10 +80,10 @@ export const SongProvider = ({ children }) => {
       console.log('fetchReRankingData with genre:', genre, 'subgenre:', subgenre);
       const payload = { userID };
       if (subgenre !== 'any') {
-        payload.subgenre = subgenre; // Subgenre takes priority
-        if (genre !== 'any') payload.genre = genre; // Include genre if specified
+        payload.subgenre = subgenre;
+        if (genre !== 'any') payload.genre = genre;
       } else if (genre !== 'any') {
-        payload.genre = genre; // Only genre if no subgenre
+        payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
       const response = await fetch(`${API_BASE_URL}/user-songs/rerank`, {
@@ -113,10 +113,10 @@ export const SongProvider = ({ children }) => {
       console.log('fetchRankedSongs with genre:', genre, 'subgenre:', subgenre);
       const payload = { userID };
       if (subgenre !== 'any') {
-        payload.subgenre = subgenre; // Subgenre takes priority
-        if (genre !== 'any') payload.genre = genre; // Include genre if specified
+        payload.subgenre = subgenre;
+        if (genre !== 'any') payload.genre = genre;
       } else if (genre !== 'any') {
-        payload.genre = genre; // Only genre if no subgenre
+        payload.genre = genre;
       }
       console.log('fetchRankedSongs payload:', payload);
       const response = await fetch(`${API_BASE_URL}/user-songs/ranked`, {
@@ -295,31 +295,8 @@ export const SongProvider = ({ children }) => {
     }
   }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
 
-  const maintainSongBuffer = useCallback(async () => {
-    const MIN_BUFFER_SIZE = 30;
-    const FETCH_THRESHOLD = 20;
-
-    if (mode !== 'new' || isFetching || songList.length > FETCH_THRESHOLD) return;
-
-    if (songBuffer.length < MIN_BUFFER_SIZE) {
-      console.log('Buffer below', MIN_BUFFER_SIZE, ', fetching more songs in background...');
-      setIsFetching(true);
-      await generateNewSongs(lastFilters, true);
-      setIsFetching(false);
-    }
-
-    if (songList.length < 2 && songBuffer.length > 0) {
-      const songsToMove = songBuffer.slice(0, Math.min(30 - songList.length, songBuffer.length));
-      setSongList(prev => [...prev, ...songsToMove]);
-      setSongBuffer(prev => prev.slice(songsToMove.length));
-      console.log('Moved', songsToMove.length, 'songs from buffer to songList');
-      getNextPair();
-    }
-  }, [songList, songBuffer, mode, lastFilters, isFetching, generateNewSongs, getNextPair]);
-
-  useEffect(() => {
-    maintainSongBuffer();
-  }, [maintainSongBuffer]);
+  // Removed maintainSongBuffer function and its useEffect
+  // Song generation now only happens via explicit calls in components
 
   useEffect(() => {
     setCurrentPair([]);
