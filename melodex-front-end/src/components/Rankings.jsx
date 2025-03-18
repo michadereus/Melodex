@@ -44,7 +44,35 @@ const Rankings = () => {
     return <SongFilter onApply={handleApply} isRankPage={false} />;
   }
 
-  if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>Loading rankings...</p>;
+  // Show loading indicator when loading or when enrichedSongs is empty but fetch is in progress
+  if (loading || (applied && enrichedSongs.length === 0)) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '50vh',
+      }}>
+        <div style={{
+          border: '4px solid #ecf0f1',
+          borderTop: '4px solid #3498db',
+          borderRadius: '50%',
+          width: '40px',
+          height: '40px',
+          animation: 'spin 1s linear infinite',
+        }}></div>
+        <p style={{ 
+          marginTop: '1rem', 
+          fontSize: '1.2em', 
+          color: '#7f8c8d', 
+          fontWeight: '600' 
+        }}>
+          Loading Rankings...
+        </p>
+      </div>
+    );
+  }
 
   const sortedRankedSongs = [...enrichedSongs].sort((a, b) => b.ranking - a.ranking);
   let currentPosition = 0;
@@ -61,7 +89,9 @@ const Rankings = () => {
         Your Song Rankings
       </h2>
       {rankedWithPositions.length === 0 ? (
-        <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>No ranked songs yet.</p>
+        <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
+          No ranked songs yet for this genre.
+        </p>
       ) : (
         <ul style={{
           listStyle: 'none',
