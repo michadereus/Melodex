@@ -4,7 +4,7 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 
 export const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, loading, setMode, refreshPair, generateNewSongs, fetchReRankingData } = useSongContext();
+  const { currentPair, selectSong, skipSong, loading, setMode, refreshPair, generateNewSongs, fetchReRankingData, getNextPair } = useSongContext();
   const [applied, setApplied] = useState(false);
 
   useEffect(() => {
@@ -12,6 +12,14 @@ export const SongRanker = ({ mode }) => {
     setMode(mode);
     setApplied(false);
   }, [mode, setMode]);
+
+  // Automatically get a new pair when returning to /rank with an existing songList
+  useEffect(() => {
+    if (mode === 'new' && applied && currentPair.length === 0 && !loading) {
+      console.log('Returning to /rank, picking new pair from existing songList');
+      getNextPair();
+    }
+  }, [mode, applied, currentPair, loading, getNextPair]);
 
   const handleApply = (filters) => {
     console.log('Handle apply called for mode:', mode, 'with filters:', filters);

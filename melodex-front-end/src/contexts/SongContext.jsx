@@ -5,7 +5,6 @@ const SongContext = createContext();
 const API_BASE_URL = 'http://localhost:3000/api';
 const userID = 'testUser';
 
-// Define the hook
 export const useSongContext = () => {
   const context = useContext(SongContext);
   if (!context) {
@@ -14,7 +13,6 @@ export const useSongContext = () => {
   return context;
 };
 
-// Define the provider
 export const SongProvider = ({ children }) => {
   const [songList, setSongList] = useState([]);
   const [songBuffer, setSongBuffer] = useState([]);
@@ -316,12 +314,10 @@ export const SongProvider = ({ children }) => {
     maintainSongBuffer();
   }, [songList, maintainSongBuffer]);
 
+  // Only reset currentPair on mode change, keep songList and songBuffer
   useEffect(() => {
-    setSongList([]);
-    setCurrentPair([]);
-    setSongBuffer([]);
-    setIsFetching(false);
-    setHasAppliedFilters(false);
+    setCurrentPair([]); // Discard current pair when switching routes
+    // Removed setSongList([]), setSongBuffer([]), setIsFetching(false), setHasAppliedFilters(false)
   }, [mode]);
 
   return (
