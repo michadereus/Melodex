@@ -36,7 +36,7 @@ class UserSongsController {
         promptGenre = `${genre} with all subgenres`;
       }
 
-      const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${promptGenre}, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
+      const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${promptGenre} genre, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
 
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',

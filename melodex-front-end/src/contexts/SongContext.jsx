@@ -18,7 +18,7 @@ export const SongProvider = ({ children }) => {
   const [songBuffer, setSongBuffer] = useState([]);
   const [currentPair, setCurrentPair] = useState([]);
   const [rankedSongs, setRankedSongs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Ensure this is defined
   const [mode, setMode] = useState('new');
   const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
@@ -55,9 +55,9 @@ export const SongProvider = ({ children }) => {
   }, [songList]);
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
-    if (!isBackground) setLoading(true);
     try {
       const payload = { userID, ...filters };
+      console.log('Generating songs with payload:', payload);
       const response = await fetch(`${API_BASE_URL}/user-songs/new`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,23 +66,17 @@ export const SongProvider = ({ children }) => {
       if (!response.ok) throw new Error('Failed to fetch new songs');
       const newSongs = await response.json();
       console.log('generateNewSongs: newSongs:', newSongs);
-
       if (isBackground) {
         setSongBuffer(prev => [...prev, ...newSongs]);
-        console.log('Added to songBuffer:', newSongs.length, 'songs');
       } else {
         setSongList(prev => [...prev, ...newSongs]);
         setLastFilters(filters);
-        setHasAppliedFilters(true);
         getNextPair(newSongs);
       }
       return newSongs;
     } catch (error) {
       console.error('Failed to generate new songs:', error);
       return [];
-    } finally {
-      if (!isBackground) setLoading(false);
-      if (isBackground) setIsFetching(false);
     }
   };
 
@@ -329,6 +323,7 @@ export const SongProvider = ({ children }) => {
         setCurrentPair,
         rankedSongs,
         loading,
+        setLoading, // Add setLoading to the context value
         mode,
         setMode,
         getNextPair,

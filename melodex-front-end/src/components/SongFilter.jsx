@@ -20,22 +20,23 @@ const subgenres = {
 };
 
 const decades = {
-  'Rock': ['60s', '70s', '80s', '90s', '2000s', '2010s', '2020s'],
-  'Pop': ['80s', '90s', '2000s', '2010s', '2020s'],
-  'Hip-Hop/Rap': ['90s', '2000s', '2010s', '2020s'],
-  'R&B/Soul': ['90s', '2000s', '2010s', '2020s'],
-  'Electronic Dance Music (EDM)': ['90s', '2000s', '2010s', '2020s'],
-  'Country': ['90s', '2000s', '2010s', '2020s'],
-  'Reggae/Reggaeton': ['70s', '80s', '90s', '2000s', '2010s', '2020s'],
-  'K-Pop': ['90s', '2000s', '2010s', '2020s'],
-  'Jazz': ['70s', '80s', '90s', '2000s', '2010s'],
-  'Latin Pop': ['90s', '2000s', '2010s', '2020s'],
+  'Rock': ['1960', '1970', '1980', '1990', '2000', '2010', '2020'],
+  'Pop': ['1980', '1990', '2000', '2010', '2020'],
+  'Hip-Hop/Rap': ['1990', '2000', '2010', '2020'],
+  'R&B/Soul': ['1990', '2000', '2010', '2020'],
+  'Electronic Dance Music (EDM)': ['1990', '2000', '2010', '2020'],
+  'Country': ['1990', '2000', '2010', '2020'],
+  'Reggae/Reggaeton': ['1970', '1980', '1990', '2000', '2010', '2020'],
+  'K-Pop': ['1990', '2000', '2010', '2020'],
+  'Jazz': ['1970', '1980', '1990', '2000', '2010', '2020'],
+  'Latin Pop': ['1990', '2000', '2010', '2020'],
 };
 
 const SongFilter = ({ onApply, isRankPage }) => {
   const [selectedGenre, setSelectedGenre] = useState('');
   const [selectedSubgenre, setSelectedSubgenre] = useState('');
   const [selectedDecade, setSelectedDecade] = useState('');
+  const [isApplying, setIsApplying] = useState(false); // New local loading state
 
   const handleGenreChange = (e) => {
     setSelectedGenre(e.target.value);
@@ -43,55 +44,89 @@ const SongFilter = ({ onApply, isRankPage }) => {
     setSelectedDecade('');
   };
 
-  const handleApply = () => {
+  const handleApplyClick = () => {
     if (isRankPage && !selectedGenre) {
       alert('Please select a genre');
       return;
     }
-    onApply({
-      genre: selectedGenre || 'pop', // Default to 'pop' if none selected
+    setIsApplying(true); // Set local loading immediately
+    console.log('Set isApplying to true in SongFilter');
+    const filters = {
+      genre: selectedGenre || 'pop',
       subgenre: selectedSubgenre || 'all subgenres',
       decade: selectedDecade || 'all decades',
+    };
+    onApply(filters).finally(() => {
+      setIsApplying(false); // Reset when done
     });
   };
 
   return (
     <div style={{ margin: '20px 0', textAlign: 'center' }}>
-      <select
-        value={selectedGenre}
-        onChange={handleGenreChange}
-        style={{ marginRight: '10px', padding: '5px' }}
-      >
-        <option value="">Select Genre</option>
-        {genres.map(genre => (
-          <option key={genre} value={genre}>{genre}</option>
-        ))}
-      </select>
-      <select
-        value={selectedSubgenre}
-        onChange={(e) => setSelectedSubgenre(e.target.value)}
-        disabled={!selectedGenre}
-        style={{ marginRight: '10px', padding: '5px' }}
-      >
-        <option value="">Select Subgenre</option>
-        {subgenres[selectedGenre]?.map(sub => (
-          <option key={sub} value={sub}>{sub}</option>
-        ))}
-      </select>
-      <select
-        value={selectedDecade}
-        onChange={(e) => setSelectedDecade(e.target.value)}
-        disabled={!selectedGenre}
-        style={{ marginRight: '10px', padding: '5px' }}
-      >
-        <option value="">Select Decade</option>
-        {decades[selectedGenre]?.map(decade => (
-          <option key={decade} value={decade}>{decade}</option>
-        ))}
-      </select>
-      <button onClick={handleApply} style={{ padding: '5px 10px' }}>
-        Apply
-      </button>
+      {isApplying && isRankPage ? (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '50vh',
+        }}>
+          <div style={{
+            border: '4px solid #ecf0f1',
+            borderTop: '4px solid #3498db',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            animation: 'spin 1s linear infinite',
+          }}></div>
+          <p style={{ 
+            marginTop: '1rem', 
+            fontSize: '1.2em', 
+            color: '#7f8c8d', 
+            fontWeight: '600' 
+          }}>
+            Generating Songs...
+          </p>
+        </div>
+      ) : (
+        <>
+          <select
+            value={selectedGenre}
+            onChange={handleGenreChange}
+            style={{ marginRight: '10px', padding: '5px' }}
+          >
+            <option value="">Select Genre</option>
+            {genres.map(genre => (
+              <option key={genre} value={genre}>{genre}</option>
+            ))}
+          </select>
+          <select
+            value={selectedSubgenre}
+            onChange={(e) => setSelectedSubgenre(e.target.value)}
+            disabled={!selectedGenre}
+            style={{ marginRight: '10px', padding: '5px' }}
+          >
+            <option value="">All Subgenres</option>
+            {subgenres[selectedGenre]?.map(sub => (
+              <option key={sub} value={sub}>{sub}</option>
+            ))}
+          </select>
+          <select
+            value={selectedDecade}
+            onChange={(e) => setSelectedDecade(e.target.value)}
+            disabled={!selectedGenre}
+            style={{ marginRight: '10px', padding: '5px' }}
+          >
+            <option value="">All Decades</option>
+            {decades[selectedGenre]?.map(decade => (
+              <option key={decade} value={decade}>{decade}s</option>
+            ))}
+          </select>
+          <button onClick={handleApplyClick} style={{ padding: '5px 10px' }}>
+            Apply
+          </button>
+        </>
+      )}
     </div>
   );
 };

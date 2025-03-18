@@ -3,8 +3,21 @@ import React, { useState, useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 
+const API_BASE_URL = 'http://localhost:3000/api';
+
 export const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, loading, setMode, refreshPair, generateNewSongs, fetchReRankingData, getNextPair } = useSongContext();
+  const { 
+    currentPair, 
+    selectSong, 
+    skipSong, 
+    loading, 
+    setLoading, 
+    setMode, 
+    refreshPair, 
+    generateNewSongs, 
+    fetchReRankingData, 
+    getNextPair 
+  } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
 
@@ -21,7 +34,6 @@ export const SongRanker = ({ mode }) => {
     }
   }, [mode, applied, currentPair, loading, getNextPair]);
 
-  // Enrich currentPair with fresh Deezer data
   useEffect(() => {
     if (currentPair.length > 0 && !loading) {
       fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
@@ -35,25 +47,63 @@ export const SongRanker = ({ mode }) => {
         })
         .catch(error => {
           console.error('Failed to enrich songs:', error);
-          setEnrichedPair(currentPair); // Fallback to original pair
+          setEnrichedPair(currentPair);
         });
     }
   }, [currentPair, loading]);
 
-  const handleApply = (filters) => {
+  const handleApply = async (filters) => {
     console.log('Handle apply called for mode:', mode, 'with filters:', filters);
     if (mode === 'new') {
-      generateNewSongs(filters).then(() => setApplied(true));
+      setLoading(true); // Set context loading for consistency
+      try {
+        await generateNewSongs(filters);
+        setApplied(true);
+      } catch (error) {
+        console.error('Error in handleApply:', error);
+      } finally {
+        setLoading(false);
+      }
     } else if (mode === 'rerank') {
-      fetchReRankingData().then(() => setApplied(true));
+      await fetchReRankingData();
+      setApplied(true);
     }
   };
+
+  console.log('Rendering SongRanker, loading:', loading, 'mode:', mode);
 
   if (!applied) {
     return <SongFilter onApply={handleApply} isRankPage={mode === 'new'} />;
   }
 
-  if (loading) return <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>Loading...</p>;
+  if (loading && mode === 'new') {
+    console.log('Rendering loading indicator in SongRanker');
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '50vh',
+      }}>
+        <div style={{
+          border: '4px solid #ecf0f1',
+          borderTop: '4px solid #3498db',
+          borderRadius: '50%',
+          width: '40px',
+          height: '40px',
+          animation: 'spin 1s linear infinite',
+        }}></div>
+        <p style={{ 
+          marginTop: '1rem', 
+          fontSize: '1.2em', 
+          color: '#7f8c8d', 
+          fontWeight: '600' 
+        }}>
+        </p>
+      </div>
+    );
+  }
 
   if (currentPair.length === 0 && !loading) {
     return (
@@ -185,6 +235,3 @@ export const SongRanker = ({ mode }) => {
     </div>
   );
 };
-
-// Add this constant at the top of the file if not already present
-const API_BASE_URL = 'http://localhost:3000/api';

@@ -63,4 +63,14 @@ nav>div:last-child {
   right: 1.5rem;
 }
 
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* Removed main and footer styles, now inline in App.jsx */
