@@ -24,17 +24,17 @@ export const SongProvider = ({ children }) => {
 
   const getNextPair = useCallback((songsToUse = songList) => {
     const validSongs = songsToUse.filter(song => song && song.deezerID);
+    console.log('getNextPair: Valid songs available:', validSongs.length, validSongs);
     if (validSongs.length < 2) {
-      setCurrentPair([]);
       console.log('getNextPair: Not enough valid songs, currentPair set to empty');
+      setCurrentPair([]);
       return;
     }
     const song1 = validSongs[0];
     const song2 = validSongs.find(song => song.deezerID !== song1.deezerID);
     if (!song2) {
-      const updatedList = validSongs.filter(song => song.deezerID !== song1.deezerID);
-      setSongList(updatedList);
-      getNextPair(updatedList);
+      console.error('getNextPair: Could not find a second song');
+      setCurrentPair([]);
       return;
     }
     const newPair = [song1, song2];
@@ -44,6 +44,7 @@ export const SongProvider = ({ children }) => {
   }, [songList]);
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
+    setLoading(true); // Set loading to true to prevent useEffect loop
     try {
       const payload = { 
         userID, 
@@ -63,14 +64,18 @@ export const SongProvider = ({ children }) => {
       if (isBackground) {
         setSongBuffer(prev => [...prev, ...newSongs]);
       } else {
-        setSongList(prev => [...prev, ...newSongs]);
+        setSongList(newSongs); // Replace songList with new songs
         setLastFilters(filters);
-        getNextPair(newSongs);
+        getNextPair(newSongs); // Use newSongs directly
       }
       return newSongs;
     } catch (error) {
       console.error('Failed to generate new songs:', error);
+      setSongList([]);
+      setCurrentPair([]);
       return [];
+    } finally {
+      setLoading(false);
     }
   };
 

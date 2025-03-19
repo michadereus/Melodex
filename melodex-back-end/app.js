@@ -7,7 +7,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const cors = require('cors');
 
-app.use(cors());
+// Configure CORS explicitly
+app.use(cors({
+  origin: 'http://localhost:3001', // Frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type'],
+}));
+
 app.use(express.json());
 
 const uri = process.env.MONGODB_URI;
@@ -18,8 +24,6 @@ async function connectDB() {
     client = new MongoClient(uri);
     await client.connect();
     console.log('Connected to MongoDB Atlas');
-    
-    // Check and create user_songs collection
     const db = client.db('melodex');
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(col => col.name);

@@ -7,7 +7,7 @@ import '../index.css';
 const API_BASE_URL = 'http://localhost:3000/api';
 
 export const SongRanker = ({ mode }) => {
-  const { currentPair, selectSong, skipSong, loading, setLoading, setMode, refreshPair, generateNewSongs, fetchReRankingData, getNextPair } = useSongContext();
+  const { currentPair, selectSong, skipSong, loading, setLoading, setMode, refreshPair, generateNewSongs, fetchReRankingData, getNextPair, songList } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
@@ -21,11 +21,11 @@ export const SongRanker = ({ mode }) => {
   }, [mode, setMode]);
 
   useEffect(() => {
-    if (mode === 'new' && applied && currentPair.length === 0 && !loading) {
+    if (mode === 'new' && applied && currentPair.length === 0 && !loading && songList.length > 0) {
       console.log('Returning to /rank, picking new pair from existing songList');
       getNextPair();
     }
-  }, [mode, applied, currentPair, loading, getNextPair]);
+  }, [mode, applied, currentPair, loading, songList, getNextPair]);
 
   useEffect(() => {
     if (currentPair.length > 0 && !loading) {
@@ -136,6 +136,7 @@ export const SongRanker = ({ mode }) => {
                     padding: '0.75rem 1.5rem',
                     borderRadius: '8px',
                     fontSize: '1rem',
+                    fontWeight: '600',
                     cursor: 'pointer',
                     transition: 'background 0.3s ease',
                     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
@@ -156,13 +157,14 @@ export const SongRanker = ({ mode }) => {
                       padding: '0.75rem 1.5rem',
                       borderRadius: '8px',
                       fontSize: '1rem',
+                      fontWeight: '600',
                       cursor: 'pointer',
                       marginLeft: '0.5rem',
                       transition: 'background 0.3s ease',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                     }}
-                    onMouseOver={(e) => e.target.style.background = '#c0392b'}
-                    onMouseOut={(e) => e.target.style.background = '#e74c3c'}
+                    onMouseOver={(e) => e.target.style.background = '#BF4C4C'}
+                    onMouseOut={(e) => e.target.style.background = '#EB5D5D'}
                     disabled={loading}
                   >
                     Skip
@@ -175,9 +177,9 @@ export const SongRanker = ({ mode }) => {
             <div style={{ textAlign: 'center', marginTop: '2rem' }}>
               <button
                 onClick={refreshPair}
-                style={{ background: '#7f8c8d', color: 'white', border: 'none', padding: '0.75rem 2rem', borderRadius: '8px', fontSize: '1rem', cursor: 'pointer', transition: 'background 0.3s ease' }}
-                onMouseOver={(e) => e.target.style.background = '#95a5a6'}
-                onMouseOut={(e) => e.target.style.background = '#7f8c8d'}
+                style={{ background: '#e74c3c', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '8px', fontSize: '1rem', fontWeight: '600', cursor: 'pointer', transition: 'background 0.3s ease' }}
+                onMouseOver={(e) => e.target.style.background = '#BF4C4C'}
+                onMouseOut={(e) => e.target.style.background = '#EB5D5D'}
                 disabled={loading}
               >
                 Skip Both

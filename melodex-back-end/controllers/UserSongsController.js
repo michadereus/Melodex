@@ -1,4 +1,3 @@
-// melodex-back-end/controllers/UserSongsController.js
 const axios = require('axios');
 
 class UserSongsController {
@@ -28,7 +27,7 @@ class UserSongsController {
       }
 
       let promptGenre = genre;
-      if (subgenre && subgenre !== 'all subgenres') {
+      if (subgenre && subgenre !== 'any') {
         promptGenre = `${genre} with subgenre ${subgenre}`;
       } else {
         promptGenre = `${genre} with all subgenres`;
@@ -61,6 +60,9 @@ class UserSongsController {
         console.warn(`OpenAI returned ${songList.length} songs instead of ${numSongs}`);
       }
 
+      const initialRanking = await UserSongsController.getAverageRanking(db, userID, genre, subgenre);
+      console.log(`Initial ranking for new ${genre} songs (subgenre: ${subgenre || 'any'}): ${initialRanking}`);
+
       const transformedSongs = songList.map(songString => {
         const parts = songString.split(/,\s*/);
         const songNameRaw = parts[0];
@@ -75,7 +77,7 @@ class UserSongsController {
           decade: decade || null,
           albumCover: '',
           previewURL: '',
-          ranking: null,
+          ranking: initialRanking,
           skipped: false,
         };
       });
@@ -91,36 +93,6 @@ class UserSongsController {
     } catch (error) {
       console.error('Error in getNewSongsForUser:', error.message, error.stack);
       res.status(500).json({ error: 'Failed to fetch new songs' });
-    }
-  }
-
-  static async getReRankSongsForUser(req, res) {
-    const { userID, genre, subgenre } = req.body;
-    const db = req.app.locals.db;
-    try {
-      const query = { userID, skipped: false };
-      if (subgenre && subgenre !== 'any') {
-        query.subgenre = subgenre; // Subgenre takes priority
-        if (genre && genre !== 'any') query.genre = genre; // Include genre if specified
-      } else if (genre && genre !== 'any') {
-        query.genre = genre; // Only genre if no subgenre
-      }
-      console.log('getReRankSongsForUser query:', query);
-      const rankedSongs = await db.collection('user_songs')
-        .find(query)
-        .toArray();
-      console.log('Ranked songs for rerank:', rankedSongs);
-      if (rankedSongs.length < 2) {
-        res.status(200).json([]);
-      } else {
-        const shuffled = rankedSongs.sort(() => 0.5 - Math.random());
-        const randomPair = shuffled.slice(0, 2);
-        console.log('Random pair for rerank:', randomPair);
-        res.status(200).json(randomPair);
-      }
-    } catch (error) {
-      console.error('Error fetching rerank songs:', error);
-      res.status(500).json({ error: 'Failed to fetch rerank songs' });
     }
   }
 
@@ -159,6 +131,9 @@ class UserSongsController {
       console.log('Found song:', song);
 
       if (!song) {
+        const initialRanking = ranking !== undefined
+          ? ranking
+          : await UserSongsController.getAverageRanking(db, userID, winnerGenre, winnerSubgenre);
         song = {
           userID,
           deezerID,
@@ -169,10 +144,10 @@ class UserSongsController {
           decade: winnerDecade || null,
           albumCover: winnerAlbumCover || '',
           previewURL: winnerPreviewURL || '',
-          ranking: ranking !== undefined ? ranking : 1200,
+          ranking: initialRanking,
           skipped: skipped || false,
         };
-        console.log('Created new song entry:', song);
+        console.log('Created new song entry with initial ranking:', song);
       } else {
         if (winnerSongName) song.songName = winnerSongName;
         if (winnerArtist) song.artist = winnerArtist;
@@ -202,6 +177,7 @@ class UserSongsController {
       let opponent = await db.collection('user_songs').findOne({ userID, deezerID: opponentDeezerID });
       console.log('Found opponent:', opponent);
       if (!opponent) {
+        const initialOpponentRanking = await UserSongsController.getAverageRanking(db, userID, loserGenre, loserSubgenre);
         opponent = {
           userID,
           deezerID: opponentDeezerID,
@@ -212,10 +188,10 @@ class UserSongsController {
           decade: loserDecade || null,
           albumCover: loserAlbumCover || '',
           previewURL: loserPreviewURL || '',
-          ranking: 1200,
+          ranking: initialOpponentRanking,
           skipped: false,
         };
-        console.log('Created new opponent entry:', opponent);
+        console.log('Created new opponent entry with initial ranking:', opponent);
       } else {
         if (loserSongName) opponent.songName = loserSongName;
         if (loserArtist) opponent.artist = loserArtist;
@@ -277,10 +253,10 @@ class UserSongsController {
     try {
       const query = { userID, skipped: false };
       if (subgenre && subgenre !== 'any') {
-        query.subgenre = subgenre; // Subgenre takes priority
-        if (genre && genre !== 'any') query.genre = genre; // Include genre if specified
+        query.subgenre = subgenre;
+        if (genre && genre !== 'any') query.genre = genre;
       } else if (genre && genre !== 'any') {
-        query.genre = genre; // Only genre if no subgenre
+        query.genre = genre;
       }
       console.log('getRankedSongsForUser query:', query);
       const rankedSongs = await db.collection('user_songs')
@@ -291,6 +267,36 @@ class UserSongsController {
     } catch (error) {
       console.error('Error fetching ranked songs:', error);
       res.status(500).json({ error: 'Failed to fetch ranked songs' });
+    }
+  }
+
+  static async getReRankSongsForUser(req, res) {
+    const { userID, genre, subgenre } = req.body;
+    const db = req.app.locals.db;
+    try {
+      const query = { userID, skipped: false };
+      if (subgenre && subgenre !== 'any') {
+        query.subgenre = subgenre;
+        if (genre && genre !== 'any') query.genre = genre;
+      } else if (genre && genre !== 'any') {
+        query.genre = genre;
+      }
+      console.log('getReRankSongsForUser query:', query);
+      const rankedSongs = await db.collection('user_songs')
+        .find(query)
+        .toArray();
+      console.log('Ranked songs for rerank:', rankedSongs);
+      if (rankedSongs.length < 2) {
+        res.status(200).json([]);
+      } else {
+        const shuffled = rankedSongs.sort(() => 0.5 - Math.random());
+        const randomPair = shuffled.slice(0, 2);
+        console.log('Random pair for rerank:', randomPair);
+        res.status(200).json(randomPair);
+      }
+    } catch (error) {
+      console.error('Error fetching rerank songs:', error);
+      res.status(500).json({ error: 'Failed to fetch rerank songs' });
     }
   }
 
@@ -312,7 +318,7 @@ class UserSongsController {
     const enrichedSongsPromises = songs.map(async (song) => {
       console.log(`START processing song: ${song.songName} by ${song.artist}`);
       try {
-        const cleanedArtist = cleanArtistName(song.artist);
+        const cleanedArtist = UserSongsController.cleanArtistName(song.artist);
         console.log(`Cleaned artist for ${song.songName}: ${cleanedArtist}`);
         const searchUrl = `https://api.deezer.com/search?q=track:"${song.songName}" artist:${cleanedArtist}`;
         console.log(`Fetching Deezer URL: ${searchUrl}`);
@@ -327,7 +333,7 @@ class UserSongsController {
         const data = await response.json();
         console.log(`Deezer data for ${song.songName}:`, data.data ? data.data.length : 0, 'tracks found');
         
-        const selectedTrack = findMatchingTrack(data.data, cleanedArtist);
+        const selectedTrack = UserSongsController.findMatchingTrack(data.data, cleanedArtist);
         if (selectedTrack) {
           console.log(`Selected track for ${song.songName}: ID=${selectedTrack.id}, Artist=${selectedTrack.artist.name}, Preview=${selectedTrack.preview}, Cover=${selectedTrack.album.cover_medium}`);
           const enrichedSong = {
@@ -355,30 +361,55 @@ class UserSongsController {
     console.log('END enrichSongsWithDeezer, returning', enrichedSongs.length, 'songs:', enrichedSongs);
     return enrichedSongs;
   }
-}
 
-function cleanArtistName(artist) {
-  const keywords = ['featuring', 'ft', 'ft.', 'feature'];
-  const regex = new RegExp(`\\s+(${keywords.join('|')}).*`, 'i');
-  return artist.replace(regex, '').trim();
-}
-
-function findMatchingTrack(tracks, inputArtist) {
-  if (!tracks || tracks.length === 0) return null;
-
-  const inputWords = inputArtist.toLowerCase().split(/\s+/);
-  const matchWords = inputWords.length >= 2 ? inputWords.slice(0, 2).join(' ') : inputWords[0];
-
-  for (const track of tracks) {
-    const trackWords = track.artist.name.toLowerCase().split(/\s+/);
-    const trackMatchWords = trackWords.length >= 2 ? trackWords.slice(0, 2).join(' ') : trackWords[0];
-
-    if (trackMatchWords === matchWords) {
-      return track;
+  static async getAverageRanking(db, userID, genre, subgenre) {
+    const query = { userID, genre, skipped: false, ranking: { $ne: null } };
+    if (subgenre && subgenre !== 'any' && subgenre !== null) {
+      query.subgenre = subgenre;
     }
+    console.log('Query for average ranking:', query);
+    const similarSongs = await db.collection('user_songs').find(query).toArray();
+    console.log(`Found ${similarSongs.length} similar songs:`, similarSongs.map(song => ({
+      deezerID: song.deezerID,
+      songName: song.songName,
+      artist: song.artist,
+      subgenre: song.subgenre,
+      ranking: song.ranking
+    })));
+
+    if (similarSongs.length === 0) {
+      console.log('No similar songs found, defaulting to 1200');
+      return 1200;
+    }
+
+    const totalRanking = similarSongs.reduce((sum, song) => sum + song.ranking, 0);
+    const average = Math.round(totalRanking / similarSongs.length);
+    console.log(`Total ranking sum: ${totalRanking}, number of songs: ${similarSongs.length}, average: ${average}`);
+    return average;
   }
 
-  return tracks[0];
+  static cleanArtistName(artist) {
+    const keywords = ['featuring', 'ft', 'ft.', 'feature'];
+    const regex = new RegExp(`\\s+(${keywords.join('|')}).*`, 'i');
+    return artist.replace(regex, '').trim();
+  }
+
+  static findMatchingTrack(tracks, inputArtist) {
+    if (!tracks || tracks.length === 0) return null;
+
+    const inputWords = inputArtist.toLowerCase().split(/\s+/);
+    const matchWords = inputWords.length >= 2 ? inputWords.slice(0, 2).join(' ') : inputWords[0];
+
+    for (const track of tracks) {
+      const trackWords = track.artist.name.toLowerCase().split(/\s+/);
+      const trackMatchWords = trackWords.length >= 2 ? trackWords.slice(0, 2).join(' ') : trackWords[0];
+
+      if (trackMatchWords === matchWords) {
+        return track;
+      }
+    }
+    return tracks[0];
+  }
 }
 
 module.exports = UserSongsController;

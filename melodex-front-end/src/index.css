@@ -15,7 +15,7 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #7f8c8d url('https://i.imgur.com/R2x2iPg.png') no-repeat center center;
+  background: #434957 url('https://i.imgur.com/uPnNK9Y.png') no-repeat center center;
   background-size: 60%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
@@ -106,7 +106,7 @@ nav a {
   padding: 0.5rem 1.25rem;
   /* Reduced from 0.75rem 1.25rem */
   border-radius: 8px;
-  background-color: #7f8c8d;
+  background-color: #434957;
   transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
