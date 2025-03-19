@@ -12,6 +12,8 @@ const Rankings = () => {
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
+  const [selectedGenre, setSelectedGenre] = useState('any'); // New state
+  const [selectedSubgenre, setSelectedSubgenre] = useState('any'); // New state
 
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
@@ -38,6 +40,8 @@ const Rankings = () => {
     setApplied(false);
     setEnrichedSongs([]);
     setIsFetching(true);
+    setSelectedGenre(filters.genre); // Store genre
+    setSelectedSubgenre(filters.subgenre); // Store subgenre
     await fetchRankedSongs(filters.genre, filters.subgenre);
     setApplied(true);
   };
@@ -63,8 +67,8 @@ const Rankings = () => {
         </div>
       ) : applied ? (
         <div style={{ width: '100%' }}>
-          <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '0.5rem' }}> {/* Reduced from 1rem */}
-            Your Song Rankings
+          <h2 style={{ textAlign: 'center', color: '#141820', marginBottom: '1.5rem', marginTop: '1rem' }}>
+            Your {selectedSubgenre !== 'any' ? selectedSubgenre : selectedGenre !== 'any' ? selectedGenre : ''} Rankings
           </h2>
           {enrichedSongs.length === 0 ? (
             <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>No ranked songs yet for this filter.</p>

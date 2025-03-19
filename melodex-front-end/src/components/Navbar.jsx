@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 function Navbar() {
   return (
     <nav>
-      <div>
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <Link to="/rank">Rank</Link>
         <Link to="/rerank">Re-Rank</Link>
         <Link to="/rankings">Rankings</Link>

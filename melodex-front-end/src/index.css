@@ -11,29 +11,12 @@ body {
   background: #f4f7fa;
 }
 
-nav {
-  background: #141820; /* Changed from gradient */
-  color: white;
-  padding: 1rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
-}
-
-nav>div:first-child {
-  display: flex;
-  gap: 2rem;
-}
-
-
 .profile-bubble {
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: #bdc3c7 url('https://cdn-icons-png.flaticon.com/512/149/149071.png') no-repeat center center;
-  background-size: 70%;
+  background: #7f8c8d url('https://i.imgur.com/R2x2iPg.png') no-repeat center center;
+  background-size: 60%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
 }
@@ -94,22 +77,27 @@ nav {
   background: #141820;
   color: white;
   padding: 1.5rem;
-  /* Increased from 1rem */
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  /* Changed from center to space-between */
   align-items: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
+  width: 100%;
+  /* Ensure full width */
 }
 
 nav>div:first-child {
-  display: flex;
+  display: 'flex';
+  justify-content: center;
+  /* Center links within their container */
+  flex-grow: 1;
+  /* Allow it to take available space */
   gap: 2.5rem;
-  /* Increased from 2rem */
 }
 
 nav a {
-  color: #ecf0f1;
+  color: #ffffff;
   text-decoration: none;
   font-size: 1.2rem;
   /* Reduced from 1.3rem */
@@ -117,7 +105,7 @@ nav a {
   font-family: 'Roboto', sans-serif;
   padding: 0.5rem 1.25rem;
   /* Reduced from 0.75rem 1.25rem */
-  border-radius: 6px;
+  border-radius: 8px;
   background-color: #7f8c8d;
   transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

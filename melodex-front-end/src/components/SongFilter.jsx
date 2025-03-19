@@ -67,8 +67,9 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
     }
   };
 
+  // Inside SongFilter.jsx
   return (
-    <div style={{ margin: '5px 0', textAlign: 'center' }}>
+    <div style={{ marginTop: '0.3em', marginBottom: '0.3em', display: 'flex', justifyContent: 'center', width: '100%' }}>
       {isApplying && !isRankPage ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div style={{ border: '4px solid #ecf0f1', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
@@ -81,12 +82,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             onChange={handleGenreChange}
             style={{
               marginRight: '10px',
-              padding: '5px 5px', // Increased from 2px 5px
+              padding: '5px 5px',
               backgroundColor: '#f4f7fa',
               border: '1px solid #141820',
               borderRadius: '8px',
               color: '#141820',
-              fontSize: '1rem', // Unchanged
+              fontSize: '1rem',
               fontFamily: 'Inter, Arial, sans-serif',
               cursor: 'pointer',
               transition: 'border-color 0.3s ease, background-color 0.3s ease',
@@ -107,12 +108,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             disabled={!selectedGenre}
             style={{
               marginRight: '10px',
-              padding: '5px 5px', // Increased from 2px 5px
+              padding: '5px 5px',
               backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
               border: '1px solid #141820',
               borderRadius: '8px',
               color: '#141820',
-              fontSize: '1rem', // Unchanged
+              fontSize: '1rem',
               fontFamily: 'Inter, Arial, sans-serif',
               cursor: selectedGenre ? 'pointer' : 'not-allowed',
               transition: 'border-color 0.3s ease, background-color 0.3s ease',
@@ -134,12 +135,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
               disabled={!selectedGenre}
               style={{
                 marginRight: '10px',
-                padding: '5px 5px', // Increased from 2px 5px
+                padding: '5px 5px',
                 backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
                 border: '1px solid #141820',
                 borderRadius: '8px',
                 color: '#141820',
-                fontSize: '1rem', // Unchanged
+                fontSize: '1rem',
                 fontFamily: 'Inter, Arial, sans-serif',
                 cursor: selectedGenre ? 'pointer' : 'not-allowed',
                 transition: 'border-color 0.3s ease, background-color 0.3s ease',
@@ -159,12 +160,12 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             onClick={handleApplyClick}
             disabled={isRankPage && !selectedGenre}
             style={{
-              padding: '5px 10px', // Increased from 2px 10px
+              padding: '5px 10px',
               backgroundColor: (isRankPage && !selectedGenre) ? '#bdc3c7' : '#7f8c8d',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
-              fontSize: '1rem', // Unchanged
+              fontSize: '1rem',
               fontFamily: 'Inter, Arial, sans-serif',
               cursor: (isRankPage && !selectedGenre) ? 'not-allowed' : 'pointer',
               transition: 'background-color 0.3s ease',
