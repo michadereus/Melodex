@@ -1,9 +1,9 @@
 // Melodex/melodex-front-end/src/contexts/SongContext.jsx
 import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
+import { useUserContext } from './UserContext';
 
 const SongContext = createContext();
 const API_BASE_URL = 'http://localhost:3000/api';
-const userID = 'testUser';
 
 export const useSongContext = () => {
   const context = useContext(SongContext);
@@ -12,6 +12,7 @@ export const useSongContext = () => {
 };
 
 export const SongProvider = ({ children }) => {
+  const { userID } = useUserContext();
   const [songList, setSongList] = useState([]);
   const [songBuffer, setSongBuffer] = useState([]);
   const [currentPair, setCurrentPair] = useState([]);
@@ -44,7 +45,7 @@ export const SongProvider = ({ children }) => {
   }, [songList]);
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
-    setLoading(true); // Set loading to true to prevent useEffect loop
+    setLoading(true);
     try {
       const payload = { 
         userID, 
@@ -64,9 +65,9 @@ export const SongProvider = ({ children }) => {
       if (isBackground) {
         setSongBuffer(prev => [...prev, ...newSongs]);
       } else {
-        setSongList(newSongs); // Replace songList with new songs
+        setSongList(newSongs);
         setLastFilters(filters);
-        getNextPair(newSongs); // Use newSongs directly
+        getNextPair(newSongs);
       }
       return newSongs;
     } catch (error) {
@@ -140,7 +141,7 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedGenre]);
+  }, [selectedGenre, userID]);
 
   const selectSong = async (winnerId, loserId) => {
     setLoading(true);
@@ -197,7 +198,6 @@ export const SongProvider = ({ children }) => {
       console.log(`Updated ratings - Winner: ${newRatingA}, Loser: ${newRatingB}`);
 
       setCurrentPair([]);
-
       setRankedSongs(prevRanked => {
         const updated = prevRanked.filter(song => 
           song.deezerID !== winnerSong.deezerID && song.deezerID !== loserSong.deezerID
@@ -299,9 +299,6 @@ export const SongProvider = ({ children }) => {
       setLoading(false);
     }
   }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
-
-  // Removed maintainSongBuffer function and its useEffect
-  // Song generation now only happens via explicit calls in components
 
   useEffect(() => {
     setCurrentPair([]);
