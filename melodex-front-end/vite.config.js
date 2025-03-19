@@ -12,4 +12,14 @@ export default defineConfig({
   server: {
     port: process.env.VITE_PORT || 3001, // Use VITE_PORT or fallback to 3001
   },
+  optimizeDeps: {
+    include: [
+      'aws-amplify',
+      '@aws-amplify/auth',
+      '@aws-amplify/core'
+    ]
+  },
+  define: {
+    global: 'window' // Maps `global` to `window` for browser compatibility
+  },
 });

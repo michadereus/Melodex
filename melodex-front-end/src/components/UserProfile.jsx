@@ -2,16 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import { useUserContext } from '../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 function UserProfile() {
   const { rankedSongs, fetchRankedSongs } = useSongContext();
-  const { userID } = useUserContext();
+  const { userID, signOut } = useUserContext();
   const [stats, setStats] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch all ranked songs for the user
         const ranked = await fetchRankedSongs('any', 'any');
         const genreStats = ranked.reduce((acc, song) => {
           const genre = song.genre || 'Unknown';
@@ -27,6 +28,11 @@ function UserProfile() {
     };
     fetchStats();
   }, [fetchRankedSongs]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -55,10 +61,10 @@ function UserProfile() {
         </div>
       </div>
       <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
-        Username: {userID}
+        Username: {userID || 'Not logged in'}
       </p>
       <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
-        Email: {userID}@example.com
+        Email: {userID ? `${userID}@example.com` : 'N/A'}
       </p>
       <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
         Total Ranked Songs: {rankedSongs.length}
@@ -86,6 +92,7 @@ function UserProfile() {
       </div>
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <button
+          onClick={handleSignOut}
           style={{
             background: '#e74c3c',
             color: 'white',
