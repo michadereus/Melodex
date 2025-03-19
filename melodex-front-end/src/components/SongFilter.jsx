@@ -69,7 +69,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
 
   // Inside SongFilter.jsx
   return (
-    <div style={{ marginTop: '0.3em', marginBottom: '0.3em', display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <div style={{ marginTop: '0.4em', marginBottom: '1em', display: 'flex', justifyContent: 'center', width: '100%' }}>
       {isApplying && !isRankPage ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div style={{ border: '4px solid #ecf0f1', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>

@@ -144,3 +144,12 @@ nav a.profile-link {
 .custom-audio-player::-moz-range-track {
   background-color: #f4f7fa;
 }
+
+.song-box {
+  transition: transform 0.2s ease;
+}
+
+.song-box:hover {
+  transform: scale(1.05);
+  /* Slightly pop out, less than profile bubble’s 1.1 */
+}

@@ -47,8 +47,8 @@ export const SongRanker = ({ mode }) => {
     console.log('Handle apply called for mode:', mode, 'with filters:', filters);
     setApplied(false);
     setEnrichedPair([]);
-    setSelectedGenre(filters.genre); // Store genre
-    setSelectedSubgenre(filters.subgenre); // Store subgenre
+    setSelectedGenre(filters.genre);
+    setSelectedSubgenre(filters.subgenre);
     if (mode === 'new') {
       setLoading(true);
       try {
@@ -86,7 +86,7 @@ export const SongRanker = ({ mode }) => {
       <div className="filter-container" style={{ height: showFilter ? 'auto' : '0', opacity: showFilter ? 1 : 0 }}>
         <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={toggleFilter} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '1px 0' }}> {/* Your choice, could be '1px 0 0' */}
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '1px 0' }}>
         <button className="toggle-button" onClick={toggleFilter}>
           {showFilter ? '▲' : '▼'}
         </button>
@@ -109,23 +109,34 @@ export const SongRanker = ({ mode }) => {
           </h2>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
             {Array.from(new Map(enrichedPair.map(song => [song.deezerID, song])).values()).map((song) => (
-              <div key={song.deezerID} style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', width: '300px', textAlign: 'center', transition: 'transform 0.2s ease', position: 'relative' }}>
+              <div 
+                key={song.deezerID} 
+                className="song-box" // Added className for hover effect
+                style={{ 
+                  background: 'white', 
+                  borderRadius: '12px', 
+                  padding: '1.5rem', 
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', 
+                  width: '300px', 
+                  textAlign: 'center', 
+                  transition: 'transform 0.2s ease', 
+                  position: 'relative' 
+                }}
+              >
                 <img src={song.albumCover} alt="Album Cover" style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} />
                 <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#2c3e50', margin: '0.5rem 0' }}>{song.songName}</p>
                 <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.5rem 0' }}>{song.artist}</p>
                 <audio
                   controls
                   src={song.previewURL}
-                  className="custom-audio-player" // Added class
-                  style={{
-                    margin: '1rem 0', // Kept from original for spacing
-                  }}
+                  className="custom-audio-player"
+                  style={{ margin: '1rem 0' }}
                   onError={(e) => {
                     console.debug('Audio preview unavailable:', song.songName);
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'block';
                   }}
-              />
+                />
                 <span style={{ display: 'none', color: '#e74c3c', fontSize: '0.9rem', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>Preview unavailable</span>
                 <button
                   onClick={() => handlePick(song.deezerID)}
