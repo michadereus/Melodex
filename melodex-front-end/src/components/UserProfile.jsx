@@ -1,24 +1,45 @@
-// Melodex/melodex-front-end/src/components/UserProfile.jsx
+// Filepath: Melodex/melodex-front-end/src/components/UserProfile.jsx
 import React, { useEffect, useState } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import { useUserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { Auth } from '@aws-amplify/auth';
 
 function UserProfile() {
   const { rankedSongs, fetchRankedSongs } = useSongContext();
-  const { userID, signOut } = useUserContext();
+  const { displayName, signOut } = useUserContext();
+  const [email, setEmail] = useState('N/A');
   const [stats, setStats] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const userInfo = await Auth.currentUserInfo();
+        if (userInfo && userInfo.attributes && userInfo.attributes.email) {
+          setEmail(userInfo.attributes.email);
+        } else {
+          console.log('No email attribute found, using N/A');
+          setEmail('N/A');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+        setEmail('N/A');
+      }
+    };
+
     const fetchStats = async () => {
       try {
         const ranked = await fetchRankedSongs('any', 'any');
         const genreStats = ranked.reduce((acc, song) => {
           const genre = song.genre || 'Unknown';
           const subgenre = song.subgenre || 'None';
-          acc[genre] = (acc[genre] || 0) + 1;
-          acc[`${genre} - ${subgenre}`] = (acc[`${genre} - ${subgenre}`] || 0) + 1;
+          if (subgenre === 'None' || subgenre === 'any') {
+            acc[genre] = (acc[genre] || 0) + 1;
+          } else {
+            const key = `${genre} - ${subgenre}`;
+            acc[key] = (acc[key] || 0) + 1;
+          }
           return acc;
         }, {});
         setStats(genreStats);
@@ -26,6 +47,8 @@ function UserProfile() {
         console.error('Failed to fetch profile stats:', error);
       }
     };
+
+    fetchUserInfo();
     fetchStats();
   }, [fetchRankedSongs]);
 
@@ -37,7 +60,7 @@ function UserProfile() {
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '1.5rem' }}>
-        User Profile
+        {displayName || 'User Profile'} {/* Use displayName as header */}
       </h2>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
         <div
@@ -61,34 +84,40 @@ function UserProfile() {
         </div>
       </div>
       <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
-        Username: {userID || 'Not logged in'}
-      </p>
-      <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
-        Email: {userID ? `${userID}@example.com` : 'N/A'}
+        Email: {email}
       </p>
       <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
         Total Ranked Songs: {rankedSongs.length}
       </p>
-      <div style={{ marginTop: '2rem' }}>
-        <h3 style={{ color: '#141820', fontSize: '1.5rem' }}>Ranking Statistics</h3>
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {Object.entries(stats).map(([key, value]) => (
-            <li
-              key={key}
-              style={{
-                marginBottom: '0.5rem',
-                color: '#2c3e50',
-                fontSize: '1rem',
-                background: 'white',
-                padding: '0.5rem',
-                borderRadius: '8px',
-                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              }}
-            >
-              {key}: {value} songs ranked
-            </li>
-          ))}
-        </ul>
+      <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+        <h3 style={{ color: '#141820', fontSize: '1.5rem', marginBottom: '1rem' }}>
+          Ranking Statistics
+        </h3>
+        {Object.keys(stats).length > 0 ? (
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {Object.entries(stats).map(([key, value]) => (
+              <li
+                key={key}
+                style={{
+                  marginBottom: '0.5rem',
+                  color: '#2c3e50',
+                  fontSize: '1rem',
+                  background: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  width: '300px',
+                }}
+              >
+                {key}: {value} songs ranked
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ color: '#7f8c8d', fontSize: '1rem' }}>
+            No ranking statistics available yet.
+          </p>
+        )}
       </div>
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <button

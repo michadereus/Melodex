@@ -1,43 +1,58 @@
-import React, { useState } from 'react';
+// Filepath: Melodex/melodex-front-end/src/components/Login.jsx
+import React, { useState, useEffect } from 'react';
 import { Auth } from 'aws-amplify';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
+import { useUserContext } from '../contexts/UserContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const { setUserID, setDisplayName } = useUserContext();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await Auth.currentAuthenticatedUser();
+        console.log('User already authenticated on /login:', user);
+        setUserID(user.username);
+        const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
+        setDisplayName(preferredName);
+        navigate('/rank');
+      } catch (error) {
+        console.log('No user authenticated on /login:', error);
+      }
+    };
+    checkAuth();
+  }, [navigate, setUserID, setDisplayName]);
 
   const handleLogin = async () => {
     try {
-      await Auth.signIn(email, password);
-      console.log('Logged in with email');
+      const user = await Auth.signIn(email, password);
+      console.log('Logged in with email:', user);
+      setUserID(user.username);
+      const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
+      setDisplayName(preferredName);
       navigate('/rank');
     } catch (error) {
       console.error('Email login error:', error);
     }
   };
 
-  const handleGoogleLogin = async (credentialResponse) => {
+  const handleGoogleLogin = async () => {
     try {
-        const { credential } = credentialResponse;
-        console.log('Google ID Token:', credential);
-        // Comment out Amplify for now
-        // await Auth.federatedSignIn({ provider: 'Google', token: credential });
-        navigate('/rank');
+      console.log('Initiating Google login via Cognito Hosted UI');
+      await Auth.federatedSignIn({ provider: 'Google' });
     } catch (error) {
-        console.error('Google login error:', error);
+      console.error('Google login error:', error);
     }
-    };
-
-  const handleGoogleError = () => {
-    console.error('Google Login Failed');
   };
 
   const handleRegisterRedirect = () => {
     navigate('/register');
   };
 
+  console.log('Rendering Login component');
   return (
     <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '1.5rem' }}>
@@ -97,17 +112,34 @@ const Login = () => {
           Register
         </button>
         <div style={{ padding: '0.2rem', maxWidth: '400px', margin: '0 auto' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={handleGoogleError}
-            flow="implicit"
-            text="signin_with"
-            shape="circle"
-            theme="outline"
-            size="large"
-            width="48px"
-            style={{ border: 'none', background: 'transparent', padding: '0', width: '48px', height: '48px' }}
-          />
+          <button
+            onClick={handleGoogleLogin}
+            style={{
+              background: '#4285f4',
+              color: 'white',
+              border: 'none',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              fontSize: '1rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'background 0.3s ease',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+            }}
+            onMouseOver={(e) => (e.target.style.background = '#357abd')}
+            onMouseOut={(e) => (e.target.style.background = '#4285f4')}
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google Logo"
+              style={{ width: '20px', height: '20px', borderRadius: '10px' }}
+            />
+            Sign in with Google
+          </button>
         </div>
       </div>
     </div>

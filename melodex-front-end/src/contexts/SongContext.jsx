@@ -23,6 +23,10 @@ export const SongProvider = ({ children }) => {
   const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
 
+  useEffect(() => {
+    setRankedSongs([]); // Reset on mount
+  }, []);
+
   const getNextPair = useCallback((songsToUse = songList) => {
     const validSongs = songsToUse.filter(song => song && song.deezerID);
     console.log('getNextPair: Valid songs available:', validSongs.length, validSongs);
@@ -32,7 +36,7 @@ export const SongProvider = ({ children }) => {
       return;
     }
     const song1 = validSongs[0];
-    const song2 = validSongs.find(song => song.deezerID !== song1.deezerID);
+    const song2 = validSongs.find(song => song.deezerID !== song1.deezerID); // Fixed typo: song1ematode -> song1
     if (!song2) {
       console.error('getNextPair: Could not find a second song');
       setCurrentPair([]);
@@ -45,6 +49,10 @@ export const SongProvider = ({ children }) => {
   }, [songList]);
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
+    if (!userID) {
+      console.error('No userID available for generateNewSongs');
+      return [];
+    }
     setLoading(true);
     try {
       const payload = { 
@@ -81,6 +89,10 @@ export const SongProvider = ({ children }) => {
   };
 
   const fetchReRankingData = async (genre = selectedGenre, subgenre = 'any') => {
+    if (!userID) {
+      console.error('No userID available for fetchReRankingData');
+      return [];
+    }
     setLoading(true);
     try {
       console.log('fetchReRankingData with genre:', genre, 'subgenre:', subgenre);
@@ -114,6 +126,11 @@ export const SongProvider = ({ children }) => {
   };
 
   const fetchRankedSongs = useCallback(async (genre = selectedGenre, subgenre = 'any') => {
+    if (!userID) {
+      console.error('No userID available for fetchRankedSongs');
+      setRankedSongs([]);
+      return [];
+    }
     setLoading(true);
     try {
       console.log('fetchRankedSongs with genre:', genre, 'subgenre:', subgenre);
@@ -132,11 +149,12 @@ export const SongProvider = ({ children }) => {
       });
       if (!response.ok) throw new Error('Failed to fetch ranked songs');
       const ranked = await response.json();
-      console.log('fetchRankedSongs: Retrieved songs:', ranked);
+      console.log('fetchRankedSongs: Retrieved songs from API:', ranked);
       setRankedSongs(ranked);
       return ranked;
     } catch (error) {
       console.error('Failed to fetch ranked songs:', error);
+      setRankedSongs([]);
       return [];
     } finally {
       setLoading(false);
@@ -144,13 +162,13 @@ export const SongProvider = ({ children }) => {
   }, [selectedGenre, userID]);
 
   const selectSong = async (winnerId, loserId) => {
+    if (!userID) {
+      console.error('No userID available for selectSong');
+      return;
+    }
     setLoading(true);
     try {
-      console.log('selectSong called with:', { winnerId, loserId, currentPair });
-      if (!loserId) {
-        console.error('No loserId provided, aborting');
-        return;
-      }
+      console.log('selectSong called with:', { winnerId, loserId, userID, currentPair });
       const winnerSong = currentPair.find(s => s.deezerID === winnerId);
       const loserSong = currentPair.find(s => s.deezerID === loserId);
       console.log('Winner song:', winnerSong);
@@ -197,7 +215,8 @@ export const SongProvider = ({ children }) => {
       const { newRatingA, newRatingB } = await response.json();
       console.log(`Updated ratings - Winner: ${newRatingA}, Loser: ${newRatingB}`);
 
-      setCurrentPair([]);
+      const updatedList = songList.filter(song => song.deezerID !== winnerId && song.deezerID !== loserId);
+      setSongList(updatedList);
       setRankedSongs(prevRanked => {
         const updated = prevRanked.filter(song => 
           song.deezerID !== winnerSong.deezerID && song.deezerID !== loserSong.deezerID
@@ -210,8 +229,6 @@ export const SongProvider = ({ children }) => {
       });
 
       if (mode === 'new') {
-        const updatedList = songList.filter(song => song.deezerID !== winnerId && song.deezerID !== loserId);
-        setSongList(updatedList);
         getNextPair(updatedList);
       } else if (mode === 'rerank') {
         const newPair = await fetchReRankingData();
@@ -226,9 +243,13 @@ export const SongProvider = ({ children }) => {
   };
 
   const skipSong = async (songId) => {
+    if (!userID) {
+      console.error('No userID available for skipSong');
+      return;
+    }
     setLoading(true);
     try {
-      console.log('skipSong called with songId:', songId);
+      console.log('skipSong called with songId:', songId, 'userID:', userID);
       const skippedSong = currentPair.find(s => s.deezerID === songId);
       const keptSong = currentPair.find(s => s.deezerID !== songId);
       
@@ -280,6 +301,10 @@ export const SongProvider = ({ children }) => {
   };
 
   const refreshPair = useCallback(async () => {
+    if (!userID) {
+      console.error('No userID available for refreshPair');
+      return;
+    }
     setLoading(true);
     try {
       if (mode === 'new' && currentPair.length === 2) {

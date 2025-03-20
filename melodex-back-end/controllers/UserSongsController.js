@@ -6,6 +6,11 @@ class UserSongsController {
     const db = req.app.locals.db;
     const numSongs = 30;
 
+    if (!userID) {
+      console.error('No userID provided in getNewSongsForUser');
+      return res.status(400).json({ error: 'userID is required' });
+    }
+
     try {
       console.log('START getNewSongsForUser for userID:', userID);
       console.log('Fetching user songs from DB...');
@@ -122,6 +127,11 @@ class UserSongsController {
     } = req.body;
     const db = req.app.locals.db;
     const K = 32;
+
+    if (!userID) {
+      console.error('No userID provided in upsertUserSong');
+      return res.status(400).json({ error: 'userID is required' });
+    }
 
     try {
       console.log('Starting upsertUserSong for userID:', userID);
@@ -250,6 +260,12 @@ class UserSongsController {
   static async getRankedSongsForUser(req, res) {
     const { userID, genre, subgenre } = req.body;
     const db = req.app.locals.db;
+
+    if (!userID) {
+      console.error('No userID provided in getRankedSongsForUser');
+      return res.status(400).json({ error: 'userID is required' });
+    }
+
     try {
       const query = { userID, skipped: false };
       if (subgenre && subgenre !== 'any') {
@@ -273,6 +289,12 @@ class UserSongsController {
   static async getReRankSongsForUser(req, res) {
     const { userID, genre, subgenre } = req.body;
     const db = req.app.locals.db;
+
+    if (!userID) {
+      console.error('No userID provided in getReRankSongsForUser');
+      return res.status(400).json({ error: 'userID is required' });
+    }
+
     try {
       const query = { userID, skipped: false };
       if (subgenre && subgenre !== 'any') {
@@ -302,6 +324,9 @@ class UserSongsController {
 
   static async getDeezerInfo(req, res) {
     const { songs } = req.body;
+
+    // No userID check here since this endpoint doesn't require it
+    // It’s a utility function that enriches song data, not tied to a user
     console.log('START getDeezerInfo with songs:', songs);
     try {
       const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(songs);
@@ -363,6 +388,11 @@ class UserSongsController {
   }
 
   static async getAverageRanking(db, userID, genre, subgenre) {
+    if (!userID) {
+      console.error('No userID provided in getAverageRanking');
+      return 1200; // Default ranking as a fallback
+    }
+
     const query = { userID, genre, skipped: false, ranking: { $ne: null } };
     if (subgenre && subgenre !== 'any' && subgenre !== null) {
       query.subgenre = subgenre;

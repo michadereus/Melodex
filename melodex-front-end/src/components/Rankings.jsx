@@ -1,4 +1,4 @@
-// Melodex/melodex-front-end/src/components/Rankings.jsx
+// Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
 import React, { useEffect, useState } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
@@ -25,6 +25,7 @@ const Rankings = () => {
       })
         .then(response => response.json())
         .then(freshSongs => {
+          console.log('Enriched songs for rankings:', freshSongs);
           setEnrichedSongs(freshSongs);
           setIsFetching(false);
         })
@@ -48,6 +49,26 @@ const Rankings = () => {
 
   const toggleFilter = () => {
     setShowFilter(prev => !prev);
+  };
+
+  // Calculate rank positions for tied rankings
+  const getRankPositions = (songs) => {
+    const sortedSongs = [...songs].sort((a, b) => b.ranking - a.ranking);
+    const positions = [];
+    let currentRank = 1;
+    let previousRanking = null;
+
+    sortedSongs.forEach((song) => {
+      if (previousRanking === null || song.ranking !== previousRanking) {
+        positions.push(currentRank);
+        currentRank += 1; // Increment for next unique ranking
+      } else {
+        positions.push(positions[positions.length - 1]); // Same rank for ties
+      }
+      previousRanking = song.ranking;
+    });
+
+    return positions;
   };
 
   return (
@@ -75,34 +96,48 @@ const Rankings = () => {
           ) : (
             (() => {
               const sortedSongs = [...enrichedSongs].sort((a, b) => b.ranking - a.ranking);
+              const rankPositions = getRankPositions(sortedSongs);
               return (
                 <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', width: '100%' }}>
-                  {sortedSongs.map((song, index) => {
-                    const position = index === 0 || song.ranking !== sortedSongs[index - 1].ranking ? index + 1 : null;
-                    return (
-                      <li key={song.deezerID} style={{ background: 'white', borderRadius: '12px', padding: '1.5rem', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative' }}>
-                        <span style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3498db', minWidth: '2rem', textAlign: 'center' }}>{position}</span>
-                        <img src={song.albumCover} alt="Album Cover" style={{ width: '80px', height: '80px', borderRadius: '8px' }} />
-                        <div style={{ flex: 1 }}>
-                          <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#141820', margin: '0' }}>{song.songName}</p>
-                          <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.25rem 0' }}>{song.artist}</p>
-                          <p style={{ fontSize: '0.9rem', color: '#3498db', margin: '0' }}>Ranking: {song.ranking}</p>
-                          <audio
-                            controls
-                            src={song.previewURL}
-                            className="custom-audio-player"
-                            style={{ marginTop: '0.5rem' }}
-                            onError={(e) => {
-                              console.debug('Audio preview unavailable:', song.songName);
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'block';
-                            }}
-                          />
-                          <span style={{ display: 'none', color: '#e74c3c', fontSize: '0.9rem', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>Preview unavailable</span>
-                        </div>
-                      </li>
-                    );
-                  })}
+                  {sortedSongs.map((song, index) => (
+                    <li
+                      key={song.deezerID}
+                      style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        padding: '1.5rem',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        position: 'relative',
+                      }}
+                    >
+                      <span style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3498db', minWidth: '2rem', textAlign: 'center' }}>
+                        {rankPositions[index]}
+                      </span>
+                      <img src={song.albumCover} alt="Album Cover" style={{ width: '80px', height: '80px', borderRadius: '8px' }} />
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#141820', margin: '0' }}>{song.songName}</p>
+                        <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.25rem 0' }}>{song.artist}</p>
+                        <p style={{ fontSize: '0.9rem', color: '#3498db', margin: '0' }}>Ranking: {song.ranking}</p>
+                        <audio
+                          controls
+                          src={song.previewURL}
+                          className="custom-audio-player"
+                          style={{ marginTop: '0.5rem' }}
+                          onError={(e) => {
+                            console.debug('Audio preview unavailable:', song.songName);
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                          }}
+                        />
+                        <span style={{ display: 'none', color: '#e74c3c', fontSize: '0.9rem', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                          Preview unavailable
+                        </span>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               );
             })()
