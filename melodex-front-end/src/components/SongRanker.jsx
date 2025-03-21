@@ -36,7 +36,6 @@ export const SongRanker = ({ mode }) => {
     }
   }, [mode, applied, currentPair, loading, songList, getNextPair]);
 
-  // Enrich currentPair with fresh Deezer data when it updates
   useEffect(() => {
     if (currentPair.length > 0 && !loading) {
       console.log(`Mode: ${mode}, Current pair updated:`, currentPair.map(s => ({
@@ -56,7 +55,7 @@ export const SongRanker = ({ mode }) => {
         })
         .catch(error => {
           console.error('Failed to enrich songs for rerank:', error);
-          setEnrichedPair(currentPair); // Fallback to original pair if enrichment fails
+          setEnrichedPair(currentPair);
         })
         .finally(() => {
           setIsProcessing(false);
@@ -65,6 +64,7 @@ export const SongRanker = ({ mode }) => {
   }, [currentPair, loading, mode]);
 
   const handleApply = async (filters) => {
+    setShowFilter(false);
     setApplied(false);
     setEnrichedPair([]);
     setIsProcessing(true);
@@ -113,7 +113,6 @@ export const SongRanker = ({ mode }) => {
         songName: s.songName,
         previewURL: s.previewURL,
       })));
-      // Ensure a new pair is fetched after skipping
       if (currentPair.length === 0 || currentPair.length < 2) {
         console.log('Fetching next pair after skip in mode:', mode);
         await getNextPair();
@@ -129,17 +128,19 @@ export const SongRanker = ({ mode }) => {
 
   return (
     <div className="song-ranker-container">
-      <div className={`filter-container ${mode === 'rerank' ? 'filter-rerank' : ''} ${showFilter ? 'visible' : 'hidden'}`}>
-        <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={toggleFilter} />
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '0' }}>
-        <button className="filter-toggle" onClick={toggleFilter}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-            <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-            <rect y="14" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-          </svg>
-        </button>
+      <div style={{ position: 'relative' }}>
+        <div className={`filter-container ${mode === 'rerank' ? 'filter-rerank' : ''} ${showFilter ? 'visible' : 'hidden'}`}>
+          <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={toggleFilter} />
+        </div>
+        <div style={{ position: 'absolute', top: showFilter ? 'calc(100% + 0.5rem)' : '0', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
+          <button className="filter-toggle" onClick={toggleFilter}>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+              <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+              <rect y="14" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+            </svg>
+          </button>
+        </div>
       </div>
       {(loading || isProcessing) ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -148,7 +149,7 @@ export const SongRanker = ({ mode }) => {
             borderTop: '4px solid #3498db', 
             borderRadius: '50%', 
             width: '36px', 
-            height: '36px', 
+            height: '36px',
             animation: 'spin 1s linear infinite' 
           }}></div>
         </div>
@@ -158,7 +159,14 @@ export const SongRanker = ({ mode }) => {
         </p>
       ) : applied && enrichedPair.length > 0 ? (
         <div className="song-ranker-wrapper">
-          <h2 style={{ textAlign: 'center', fontSize: '1.75rem', fontWeight: 400, margin: '1rem 0', color: '#141820' }}>
+          <h2
+            style={{
+              textAlign: 'center',
+              color: '#141820',
+              marginBottom: '1.5rem',
+              marginTop: '5rem',
+            }}
+          >
             {mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}
           </h2>
           <div className="song-pair">

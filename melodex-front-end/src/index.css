@@ -74,6 +74,12 @@ nav a:hover {
   transform: scale(1.05);
 }
 
+h2 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
 /* Song Filter Container */
 .filter-container {
   background: #fff;
@@ -150,7 +156,7 @@ button[style*="background: #e74c3c"]:hover {
 .filter-toggle {
   background: transparent;
   border: none;
-  padding: 0.23rem;
+  padding: 0.3rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -207,12 +213,16 @@ button[style*="background: #e74c3c"]:hover {
 
 .song-ranker-container .filter-toggle,
 .rankings-container .filter-toggle {
-  margin-top: 0;
+  margin-top: 0.5rem;
 }
 
-.song-ranker-container .song-box:hover,
+.song-ranker-container .song-box:hover {
+  transform: translateY(-2px) scale(1.025);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .rankings-container .song-box:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.015);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -228,11 +238,20 @@ button[style*="background: #e74c3c"]:hover {
   width: 80px;
   height: 80px;
   border-radius: 8px;
+  flex-shrink: 0;
+    /* Prevent shrinking */
 }
 
-.song-ranker-container .song-details,
+
 .rankings-container .song-details {
   flex: 1;
+  /* Take remaining space */
+  display: flex;
+  /* Added */
+  flex-direction: column;
+  /* Stack details vertically */
+  gap: 0.25rem;
+  /* Space between text elements */
 }
 
 .song-ranker-container .song-name,
@@ -240,10 +259,6 @@ button[style*="background: #e74c3c"]:hover {
   font-size: 1.1rem;
   font-weight: 600;
   color: #141820;
-  margin: 0.5rem 0;
-}
-
-.rankings-container .song-name {
   margin: 0;
 }
 
@@ -251,7 +266,7 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-container .song-artist {
   font-size: 1rem;
   color: #7f8c8d;
-  margin: 0.25rem 0;
+  margin: 0;
 }
 
 .rankings-container .song-ranking {
@@ -269,11 +284,17 @@ button[style*="background: #e74c3c"]:hover {
   display: block;
 }
 
+.rankings-container .custom-audio-player::-webkit-media-controls-panel {
+  background-color: #f4f7fa;
+  border-radius: 8px;
+}
+
 .rankings-container .custom-audio-player {
-  max-width: 100%;
-  width: flex;
-  margin-top: 0.5rem;
-  height: 35px;
+  width: 100%;
+  border-radius: 8px;
+  background-color: #f4f7fa;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .song-ranker-container .preview-unavailable,
@@ -289,6 +310,17 @@ button[style*="background: #e74c3c"]:hover {
   gap: 1.5rem;
   list-style: none;
   padding: 0;
+}
+
+/* New container for rank and album */
+.rankings-container .song-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  /* Space between rank and album */
+  min-width: 0;
+  /* Prevent overflow */
 }
 
 .rankings-container .rank-position {
@@ -307,13 +339,13 @@ button[style*="background: #e74c3c"]:hover {
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
-  margin-top: 0.1rem;
+  margin-top: 0.5rem;
 }
 
 .refresh-icon-btn svg {
   fill: #bdc3c7;
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
 }
 
 .refresh-icon-btn:hover svg {
@@ -436,6 +468,10 @@ button.refresh-icon-btn:hover::before {
 
 /* Responsive */
 @media (max-width: 768px) {
+  .rankings-container ul {
+    grid-template-columns: 1fr;
+  }
+  
   nav {
     padding: 0.5rem;
     height: 2.5rem;
@@ -486,14 +522,23 @@ button.refresh-icon-btn:hover::before {
   }
 
   .rankings-container .song-box {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
+    transition: transform 0.2s ease;
   }
 
   .rankings-container .custom-audio-player {
     width: 100%;
   }
+
+  .rankings-container .custom-audio-player::-moz-range-track {
+    background-color: #f4f7fa;
+  }
+
+  .rankings-container .song-left {
+    width: 100%;
+    /* Full width for left group */
+    justify-content: flex-start;
+  }
+
 }
 
 /* Spinner Animation */

@@ -38,6 +38,7 @@ const Rankings = () => {
   }, [rankedSongs, applied]);
 
   const handleApply = async (filters) => {
+    setShowFilter(false);
     setApplied(false);
     setEnrichedSongs([]);
     setIsFetching(true);
@@ -81,119 +82,66 @@ const Rankings = () => {
   return (
     <div className="rankings-container">
       <div className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}>
-        <SongFilter
-          onApply={handleApply}
-          isRankPage={false}
-          onHide={toggleFilter}
-        />
+        <SongFilter onApply={handleApply} isRankPage={false} onHide={toggleFilter} />
       </div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          margin: '0.05rem 0', // Reduced from 0.5rem to 0.05rem
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '0' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '0' }}>
         <button className="filter-toggle" onClick={toggleFilter}>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-          <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-          <rect y="14" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-        </svg>
+            <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+            <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+            <rect y="14" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+          </svg>
         </button>
       </div>
-      </div>
       {(loading || isFetching) && applied ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '50vh',
-          }}
-        >
-          <div
-            style={{
-              border: '4px solid #ecf0f1',
-              borderTop: '4px solid #3498db',
-              borderRadius: '50%',
-              width: '40px',
-              height: '40px',
-              animation: 'spin 1s linear infinite',
-            }}
-          ></div>
-          <p
-            style={{
-              marginTop: '1rem',
-              fontSize: '1.2em',
-              color: '#7f8c8d',
-              fontWeight: '600',
-            }}
-          >
-            Loading Rankings...
-          </p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <div style={{ border: '4px solid #ecf0f1', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
         </div>
       ) : applied ? (
-        <div className="rankings-wrapper">
-          <h2
-            style={{
-              textAlign: 'center',
-              color: '#141820',
-              marginBottom: '1.5rem',
-              marginTop: '1rem',
-            }}
-          >
-            Your{' '}
-            {selectedSubgenre !== 'any'
-              ? selectedSubgenre
-              : selectedGenre !== 'any'
-              ? selectedGenre
-              : ''}{' '}
-            Rankings
+        <div style={{ width: '100%' }}>
+          <h2 style={{ textAlign: 'center', color: '#141820', marginBottom: '1.5rem', marginTop: '1rem' }}>
+            Your {selectedSubgenre !== 'any' ? selectedSubgenre : selectedGenre !== 'any' ? selectedGenre : ''} Rankings
           </h2>
           {enrichedSongs.length === 0 ? (
-            <p
-              style={{
-                textAlign: 'center',
-                fontSize: '1.2em',
-                color: '#7f8c8d',
-              }}
-            >
-              No ranked songs yet for this filter.
-            </p>
+            <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>No ranked songs yet for this filter.</p>
           ) : (
             (() => {
-              const sortedSongs = [...enrichedSongs].sort(
-                (a, b) => b.ranking - a.ranking
-              );
+              const sortedSongs = [...enrichedSongs].sort((a, b) => b.ranking - a.ranking);
               const rankPositions = getRankPositions(sortedSongs);
               return (
-                <ul className="rankings-list">
+                <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', width: '100%' }}>
                   {sortedSongs.map((song, index) => (
-                    <li key={song.deezerID} className="song-box">
-                      <span className="rank-position">{rankPositions[index]}</span>
-                      <img
-                        src={song.albumCover}
-                        alt="Album Cover"
-                        className="album-cover"
-                      />
-                      <div className="song-details">
-                        <p className="song-name">{song.songName}</p>
-                        <p className="song-artist">{song.artist}</p>
-                        <p className="song-ranking">Ranking: {song.ranking}</p>
+                    <li
+                      key={song.deezerID}
+                      className="song-box"
+                      style={{
+                        background: 'white',
+                        borderRadius: '12px',
+                        padding: '1.5rem',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1.5rem',
+                        position: 'relative',
+                      }}
+                    >
+                      <span style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3498db', minWidth: '2rem', textAlign: 'center' }}>
+                        {rankPositions[index]}
+                      </span>
+                      <img src={song.albumCover} alt="Album Cover" style={{ width: '80px', height: '80px', borderRadius: '8px' }} />
+                      <div style={{ flex: 1 }}>
+                        <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#141820', margin: '0' }}>{song.songName}</p>
+                        <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.25rem 0' }}>{song.artist}</p>
+                        <p style={{ fontSize: '0.9rem', color: '#3498db', margin: '0' }}>Ranking: {song.ranking}</p>
                         {song.previewURL && isPreviewValid(song.previewURL) ? (
                           <audio
                             controls
                             src={song.previewURL}
                             className="custom-audio-player"
+                            style={{ marginTop: '0.5rem' }}
                             onError={(e) => {
-                              console.debug(
-                                'Audio preview failed to load:',
-                                song.songName,
-                                e.target.error
-                              );
+                              console.debug('Audio preview failed to load:', song.songName, e.target.error);
                               e.target.style.display = 'none';
                               e.target.nextSibling.style.display = 'block';
                             }}
@@ -203,14 +151,11 @@ const Rankings = () => {
                             }}
                           />
                         ) : (
-                          <span
-                            className="preview-unavailable"
-                            style={{ display: 'block' }}
-                          >
+                          <span style={{ display: 'block', color: '#e74c3c', fontSize: '0.9rem', marginTop: '0.5rem' }}>
                             Preview unavailable
                           </span>
                         )}
-                        <span className="preview-unavailable">
+                        <span style={{ display: 'none', color: '#e74c3c', fontSize: '0.9rem', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
                           Preview unavailable
                         </span>
                       </div>
