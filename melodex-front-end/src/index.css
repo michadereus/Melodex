@@ -1,4 +1,4 @@
-/* Melodex/melodex-front-end/src/index.css */
+/* Filepath: Melodex/melodex-front-end/src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500&family=Poppins:wght@400;600&display=swap');
 
 * {
@@ -15,8 +15,8 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #434957 url('https://i.imgur.com/uPnNK9Y.png') no-repeat center center;
-  background-size: 60%;
+  background-color: #434957;
+  /* Fallback color */
   transition: transform 0.2s ease;
 }
 
@@ -31,8 +31,13 @@ nav>div:last-child {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .filter-container {
@@ -63,7 +68,7 @@ h2 {
 }
 
 footer {
-  background: #141820; /* Changed from #2c3e50 */
+  background: #141820;
   color: #bdc3c7;
   padding: 1rem;
   text-align: center;
@@ -71,27 +76,22 @@ footer {
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Melodex/melodex-front-end/src/index.css */
 nav {
   background: #141820;
   color: white;
   padding: 1.5rem;
   display: flex;
-  justify-content: space-between;
-  /* Changed from center to space-between */
+  justifyContent: space-between;
   align-items: center;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: relative;
   width: 100%;
-  /* Ensure full width */
 }
 
 nav>div:first-child {
-  display: 'flex';
+  display: flex;
   justify-content: center;
-  /* Center links within their container */
   flex-grow: 1;
-  /* Allow it to take available space */
   gap: 2.5rem;
 }
 
@@ -99,11 +99,9 @@ nav a {
   color: #ffffff;
   text-decoration: none;
   font-size: 1.2rem;
-  /* Reduced from 1.3rem */
   font-weight: 500;
   font-family: 'Roboto', sans-serif;
   padding: 0.5rem 1.25rem;
-  /* Reduced from 0.75rem 1.25rem */
   border-radius: 8px;
   background-color: #434957;
   transition: color 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
@@ -127,14 +125,10 @@ nav a.profile-link {
   width: 100%;
   border-radius: 8px;
   background-color: #f4f7fa;
-  /* Light gray background */
   padding: 5px;
-  /* Adds space around controls */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow */
 }
 
-/* Optional: Style the controls (limited support, varies by browser) */
 .custom-audio-player::-webkit-media-controls-panel {
   background-color: #f4f7fa;
   border-radius: 8px;
@@ -150,5 +144,4 @@ nav a.profile-link {
 
 .song-box:hover {
   transform: scale(1.05);
-  /* Slightly pop out, less than profile bubble’s 1.1 */
 }

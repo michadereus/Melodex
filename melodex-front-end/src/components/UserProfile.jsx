@@ -1,27 +1,30 @@
 // Filepath: Melodex/melodex-front-end/src/components/UserProfile.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import { useUserContext } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { Auth } from '@aws-amplify/auth';
+import { Auth, Storage } from 'aws-amplify';
 
 function UserProfile() {
   const { rankedSongs, fetchRankedSongs } = useSongContext();
-  const { displayName, signOut } = useUserContext();
+  const { userID, displayName, profilePicture, setProfilePicture, signOut } = useUserContext();
   const [email, setEmail] = useState('N/A');
   const [stats, setStats] = useState({});
+  const [isHovered, setIsHovered] = useState(false);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const userInfo = await Auth.currentUserInfo();
-        if (userInfo && userInfo.attributes && userInfo.attributes.email) {
-          setEmail(userInfo.attributes.email);
-        } else {
-          console.log('No email attribute found, using N/A');
-          setEmail('N/A');
-        }
+        const user = await Auth.currentAuthenticatedUser();
+        const attributes = user.attributes;
+        setEmail(attributes.email || 'N/A');
+        console.log('User info fetched:', {
+          userID: user.username,
+          profilePicture: attributes['custom:uploadedPicture'] || attributes.picture || 'default',
+          isGoogleUser: attributes.identities ? JSON.parse(attributes.identities).some(id => id.providerName === 'Google') : false,
+        });
       } catch (error) {
         console.error('Failed to fetch user info:', error);
         setEmail('N/A');
@@ -52,15 +55,56 @@ function UserProfile() {
     fetchStats();
   }, [fetchRankedSongs]);
 
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      console.log('No file selected for upload');
+      return;
+    }
+
+    try {
+      console.log('Starting upload for file:', file.name);
+      const result = await Storage.put(`profile-pictures/${userID}-${Date.now()}.${file.name.split('.').pop()}`, file, {
+        contentType: file.type,
+        level: 'public',
+      });
+      console.log('S3 upload result:', result);
+      const url = await Storage.get(result.key, { level: 'public' });
+      console.log('Retrieved public URL:', url);
+      const user = await Auth.currentAuthenticatedUser();
+      await Auth.updateUserAttributes(user, {
+        'custom:uploadedPicture': url, // Store in custom attribute
+      });
+      console.log('Cognito attribute updated with URL:', url);
+      setProfilePicture(url); // Instant update
+    } catch (error) {
+      console.error('Failed to upload profile picture:', error.message, error.stack);
+    }
+  };
+
+  const triggerFileInput = () => {
+    console.log('Profile picture clicked, triggering file input');
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    } else {
+      console.error('File input ref is not set');
+    }
+  };
+
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
+    try {
+      await signOut();
+      navigate('/login');
+      console.log('Sign out successful');
+    } catch (error) {
+      console.error('Sign out failed:', error);
+    }
   };
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '1.5rem' }}>
-        {displayName || 'User Profile'} {/* Use displayName as header */}
+        {displayName || 'User Profile'}
       </h2>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
         <div
@@ -68,19 +112,42 @@ function UserProfile() {
             width: '100px',
             height: '100px',
             borderRadius: '50%',
-            background: '#434957 url("https://i.imgur.com/uPnNK9Y.png") no-repeat center center',
-            backgroundSize: '60%',
+            backgroundImage: `url(${profilePicture})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            position: 'relative',
             cursor: 'pointer',
-            transition: 'transform 0.2s ease',
+            transition: 'transform 0.2s ease, opacity 0.2s ease',
+            opacity: isHovered ? 0.7 : 1,
           }}
-          onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
-          onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          onClick={triggerFileInput}
         >
-          <span style={{ color: '#bdc3c7', fontSize: '0.9rem', display: 'none' }}>Upload</span>
+          {isHovered && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                color: '#fff',
+                fontSize: '1rem',
+                fontWeight: '600',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                padding: '0.5rem 1rem',
+                borderRadius: '8px',
+              }}
+            >
+              Upload
+            </span>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleFileUpload}
+          />
         </div>
       </div>
       <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>

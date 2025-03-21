@@ -12,10 +12,9 @@ const Register = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const { setUserID, setDisplayName } = useUserContext();
+  const { setUserID, setDisplayName, setProfilePicture } = useUserContext();
 
   const handleRegister = async () => {
-    // Basic validation
     if (!email || !username || !password) {
       setErrorMessage('All fields are required');
       return;
@@ -23,11 +22,12 @@ const Register = () => {
 
     try {
       await Auth.signUp({
-        username: email, // Cognito username is email
+        username: email,
         password,
         attributes: {
           email,
-          'custom:username': username, // Custom attribute
+          'custom:username': username,
+          'picture': 'https://i.imgur.com/uPnNK9Y.png', // Initial default
         },
       });
       console.log('Registered');
@@ -45,7 +45,8 @@ const Register = () => {
       console.log('Verified');
       const user = await Auth.signIn(email, password);
       setUserID(user.username);
-      setDisplayName(username); // Use username from form
+      setDisplayName(username);
+      setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
       setErrorMessage('');
       navigate('/rank');
     } catch (error) {
@@ -140,6 +141,6 @@ const Register = () => {
       )}
     </div>
   );
-};
+}
 
 export default Register;

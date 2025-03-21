@@ -13,6 +13,7 @@ export const useUserContext = () => {
 export const UserProvider = ({ children }) => {
   const [userID, setUserID] = useState(null);
   const [displayName, setDisplayName] = useState(null);
+  const [profilePicture, setProfilePicture] = useState('https://i.imgur.com/uPnNK9Y.png');
   const [loading, setLoading] = useState(true);
 
   const checkUser = async () => {
@@ -21,13 +22,17 @@ export const UserProvider = ({ children }) => {
       console.log('Authenticated user:', user);
       console.log('User attributes:', user.attributes);
       setUserID(user.username);
-      // Prioritize custom:username for email/password, preferred_username for Google
       const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
       setDisplayName(preferredName);
+      // Prioritize custom:uploadedPicture over Google’s picture
+      const profilePictureUrl = user.attributes['custom:uploadedPicture'] || user.attributes.picture || 'https://i.imgur.com/uPnNK9Y.png';
+      setProfilePicture(profilePictureUrl);
+      console.log('Profile picture set to:', profilePictureUrl);
     } catch (error) {
       console.log('No user signed in:', error);
       setUserID(null);
       setDisplayName(null);
+      setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
     } finally {
       setLoading(false);
     }
@@ -42,6 +47,7 @@ export const UserProvider = ({ children }) => {
       await Auth.signOut();
       setUserID(null);
       setDisplayName(null);
+      setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
       console.log('Signed out');
     } catch (error) {
       console.error('Sign-out error:', error);
@@ -49,7 +55,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ userID, setUserID, displayName, setDisplayName, signOut, loading }}>
+    <UserContext.Provider value={{ userID, setUserID, displayName, setDisplayName, profilePicture, setProfilePicture, signOut, loading }}>
       {children}
     </UserContext.Provider>
   );
