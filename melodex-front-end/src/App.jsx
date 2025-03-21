@@ -29,7 +29,7 @@ function App() {
         <Router>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navbar />
-            <main style={{ flex: '1 0 auto', padding: '2rem', width: '100%', maxWidth: 'none', margin: '0 auto' }}>
+            <main style={{ flex: '1 0 auto', padding: '0.75rem', width: '100%', maxWidth: 'none', margin: '0 auto' }}>
               <Routes>
                 <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
                 <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
@@ -40,7 +40,7 @@ function App() {
                 <Route path="/" element={<Navigate to="/login" replace />} />
               </Routes>
             </main>
-            <footer style={{ background: '#141820', color: '#bdc3c7', padding: '1rem', textAlign: 'center', flexShrink: 0, fontSize: '0.9rem', boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}>
+            <footer style={{ background: '#141820', color: '#bdc3c7', padding: '1rem 1rem', textAlign: 'left', flexShrink: 0, fontSize: '0.7rem', boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}>
               <p>https://linktr.ee/michaeldereus</p>
             </footer>
           </div>

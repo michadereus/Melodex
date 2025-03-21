@@ -181,10 +181,10 @@ function UserProfile() {
       </p>
       <div style={{ marginTop: '2rem', textAlign: 'center' }}>
         <h3 style={{ fontSize: '1.5rem', fontWeight: 400, marginBottom: '1rem', color: '#141820' }}>
-          Statistics
+          Stats
         </h3>
         {Object.keys(stats).length > 0 ? (
-          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'left' }}>
             {Object.entries(stats).map(([key, value]) => (
               <li
                 key={key}
@@ -196,10 +196,10 @@ function UserProfile() {
                   padding: '0.5rem 1rem',
                   borderRadius: '6px',
                   boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-                  width: '300px',
+                  width: '300px'
                 }}
               >
-                {key}: {value} songs ranked
+                {key}: {value} ranked songs
               </li>
             ))}
           </ul>

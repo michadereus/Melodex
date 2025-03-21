@@ -83,7 +83,7 @@ nav a:hover {
   transition: max-height 0.3s ease, opacity 0.2s ease;
   overflow: hidden;
   margin: 0 auto;
-  width: 580px;
+  width: 585px;
 }
 
 .song-ranker-container .filter-container {
@@ -91,7 +91,7 @@ nav a:hover {
 }
 
 .song-ranker-container .filter-rerank {
-  width: 580px;
+  width: 585px;
 }
 
 .filter-container.hidden {
@@ -150,7 +150,7 @@ button[style*="background: #e74c3c"]:hover {
 .filter-toggle {
   background: transparent;
   border: none;
-  padding: 0.25rem;
+  padding: 0.23rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -195,14 +195,14 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-container .song-box {
   background: #fff;
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.2rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .song-ranker-container .song-box {
   width: 280px;
-  text-align: center;
+  text-align: left;
 }
 
 .song-ranker-container .filter-toggle,
@@ -263,16 +263,17 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .custom-audio-player {
   max-width: 100%;
   width: 240px;
-  margin: 0.75rem auto;
-  height: 40px;
+  margin: 1.2rem auto;
+  margin-bottom: 0rem;
+  height: 35px;
   display: block;
 }
 
 .rankings-container .custom-audio-player {
   max-width: 100%;
-  width: 200px;
+  width: flex;
   margin-top: 0.5rem;
-  height: 40px;
+  height: 35px;
 }
 
 .song-ranker-container .preview-unavailable,
@@ -302,7 +303,7 @@ button[style*="background: #e74c3c"]:hover {
 .refresh-icon-btn {
   background: transparent;
   border: none;
-  padding: 0.5rem;
+  padding: 0.23rem;
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
