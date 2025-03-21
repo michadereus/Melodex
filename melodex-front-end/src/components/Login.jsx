@@ -54,93 +54,33 @@ const Login = () => {
 
   console.log('Rendering Login component');
   return (
-    <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '1.5rem' }}>
-        Sign in to My Song Ranker
-      </h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+    <div className="auth-container">
+      <h2 className="auth-title">Sign in to My Song Ranker</h2>
+      <div className="auth-form">
         <input
+          className="auth-input"
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #bdc3c7', fontSize: '1rem', color: '#2c3e50', background: '#f4f7fa' }}
         />
         <input
+          className="auth-input"
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #bdc3c7', fontSize: '1rem', color: '#2c3e50', background: '#f4f7fa' }}
         />
-        <button
-          onClick={handleLogin}
-          style={{
-            background: '#3498db',
-            color: 'white',
-            border: 'none',
-            padding: '0.75rem',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'background 0.3s ease',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          }}
-          onMouseOver={(e) => (e.target.style.background = '#2980b9')}
-          onMouseOut={(e) => (e.target.style.background = '#3498db')}
-        >
+        <button className="auth-button auth-button-primary" onClick={handleLogin}>
           Sign In
         </button>
-        <button
-          onClick={handleRegisterRedirect}
-          style={{
-            background: '#7f8c8d',
-            color: 'white',
-            border: 'none',
-            padding: '0.75rem',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'background 0.3s ease',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          }}
-          onMouseOver={(e) => (e.target.style.background = '#6c757d')}
-          onMouseOut={(e) => (e.target.style.background = '#7f8c8d')}
-        >
+        <button className="auth-button auth-button-secondary" onClick={handleRegisterRedirect}>
           Register
         </button>
-        <div style={{ padding: '0.2rem', maxWidth: '400px', margin: '0 auto' }}>
-          <button
-            onClick={handleGoogleLogin}
-            style={{
-              background: '#4285f4',
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'background 0.3s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-            }}
-            onMouseOver={(e) => (e.target.style.background = '#357abd')}
-            onMouseOut={(e) => (e.target.style.background = '#4285f4')}
-          >
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google Logo"
-              style={{ width: '20px', height: '20px', borderRadius: '10px' }}
-            />
-            Sign in with Google
-          </button>
-        </div>
+        <button className="auth-button auth-button-google" onClick={handleGoogleLogin}>
+          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" />
+          Sign in with Google
+        </button>
       </div>
     </div>
   );

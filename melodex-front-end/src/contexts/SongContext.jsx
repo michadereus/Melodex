@@ -88,7 +88,7 @@ export const SongProvider = ({ children }) => {
     }
   };
 
-  const fetchReRankingData = async (genre = selectedGenre, subgenre = 'any') => {
+  const fetchReRankingData = async (genre = selectedGenre, subgenre = 'any', setContext = true) => {
     if (!userID) {
       console.error('No userID available for fetchReRankingData');
       return [];
@@ -112,13 +112,13 @@ export const SongProvider = ({ children }) => {
       if (!response.ok) throw new Error('Failed to fetch re-ranking data');
       const reRankSongs = await response.json();
       console.log('fetchReRankingData: Retrieved songs:', reRankSongs);
-      setSongList(reRankSongs);
-      getNextPair(reRankSongs);
+      if (setContext) {
+        setSongList(reRankSongs);
+        getNextPair(reRankSongs);
+      }
       return reRankSongs;
     } catch (error) {
       console.error('Failed to fetch re-ranking data:', error);
-      setSongList([]);
-      setCurrentPair([]);
       return [];
     } finally {
       setLoading(false);
@@ -286,15 +286,33 @@ export const SongProvider = ({ children }) => {
 
       console.log('Song skipped successfully:', songId);
 
-      if (songList.length > 0) {
-        const nextSong = songList[0];
-        setCurrentPair([nextSong, keptSong]);
-        setSongList(songList.slice(1));
+      if (mode === 'rerank') {
+        // Fetch new songs to re-rank
+        const reRankSongs = await fetchReRankingData();
+        if (reRankSongs.length > 0) {
+          // Find a new song that isn’t the kept song
+          const newSong = reRankSongs.find(s => s.deezerID !== keptSong.deezerID);
+          if (newSong) {
+            setCurrentPair([keptSong, newSong]);
+          } else {
+            setCurrentPair([keptSong]); // Only kept song remains if no new song is found
+          }
+        } else {
+          setCurrentPair([]); // No songs left to re-rank
+        }
       } else {
-        setCurrentPair([]);
+        // Original logic for 'new' mode
+        if (songList.length > 0) {
+          const nextSong = songList[0];
+          setCurrentPair([nextSong, keptSong]);
+          setSongList(songList.slice(1));
+        } else {
+          setCurrentPair([]);
+        }
       }
     } catch (error) {
       console.error('Failed to skip song:', error.message);
+      setCurrentPair([]); // Reset on error
     } finally {
       setLoading(false);
     }

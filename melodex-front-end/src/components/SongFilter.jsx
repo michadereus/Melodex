@@ -69,11 +69,11 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
 
   // Inside SongFilter.jsx
   return (
-    <div style={{ marginTop: '0.4em', marginBottom: '1em', display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <div style={{ marginTop: '0.8em', marginBottom: '0.8em', display: 'flex', justifyContent: 'center', width: '100%' }}>
       {isApplying && !isRankPage ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div style={{ border: '4px solid #ecf0f1', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
-          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>Generating Songs...</p>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
         </div>
       ) : (
         <>
@@ -98,7 +98,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             onMouseOut={(e) => (e.target.style.backgroundColor = '#f4f7fa')}
           >
             <option value="">Select Genre</option>
-            {genres.map(genre => (
+            {genres.map((genre) => (
               <option key={genre} value={genre}>{genre}</option>
             ))}
           </select>
@@ -124,7 +124,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             onMouseOut={(e) => selectedGenre && (e.target.style.backgroundColor = '#f4f7fa')}
           >
             <option value="">All Subgenres</option>
-            {subgenres[selectedGenre]?.map(sub => (
+            {subgenres[selectedGenre]?.map((sub) => (
               <option key={sub} value={sub}>{sub}</option>
             ))}
           </select>
@@ -151,7 +151,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
               onMouseOut={(e) => selectedGenre && (e.target.style.backgroundColor = '#f4f7fa')}
             >
               <option value="">All Decades</option>
-              {decades[selectedGenre]?.map(decade => (
+              {decades[selectedGenre]?.map((decade) => (
                 <option key={decade} value={decade}>{decade}s</option>
               ))}
             </select>
@@ -179,6 +179,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
       )}
     </div>
   );
+
 };
 
 export default SongFilter;

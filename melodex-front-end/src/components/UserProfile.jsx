@@ -17,12 +17,12 @@ function UserProfile() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const user = await Auth.currentAuthenticatedUser();
+        const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
         const attributes = user.attributes;
         setEmail(attributes.email || 'N/A');
-        console.log('User info fetched:', {
+        console.log('User info fetched on load:', {
           userID: user.username,
-          profilePicture: attributes['custom:uploadedPicture'] || attributes.picture || 'default',
+          attributes,
           isGoogleUser: attributes.identities ? JSON.parse(attributes.identities).some(id => id.providerName === 'Google') : false,
         });
       } catch (error) {
@@ -63,22 +63,43 @@ function UserProfile() {
     }
 
     try {
-      console.log('Starting upload for file:', file.name);
+      console.log('Starting upload for user:', userID, 'File:', file.name);
       const result = await Storage.put(`profile-pictures/${userID}-${Date.now()}.${file.name.split('.').pop()}`, file, {
         contentType: file.type,
         level: 'public',
       });
       console.log('S3 upload result:', result);
-      const url = await Storage.get(result.key, { level: 'public' });
-      console.log('Retrieved public URL:', url);
+
+      // Construct unsigned public URL
+      const url = `https://songranker168d4c9071004e018de33684bf3c094ede93a-dev.s3.us-east-1.amazonaws.com/public/${result.key}`;
+      console.log('Generated public URL:', url);
+
       const user = await Auth.currentAuthenticatedUser();
+      console.log('User before update:', user.attributes);
       await Auth.updateUserAttributes(user, {
-        'custom:uploadedPicture': url, // Store in custom attribute
+        'custom:uploadedPicture': url,
       });
       console.log('Cognito attribute updated with URL:', url);
-      setProfilePicture(url); // Instant update
+
+      // Verify update
+      const refreshedUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
+      console.log('Refreshed user attributes after upload:', refreshedUser.attributes);
+      if (refreshedUser.attributes['custom:uploadedPicture'] !== url) {
+        throw new Error('custom:uploadedPicture not persisted in Cognito');
+      }
+
+      setProfilePicture(url);
+      console.log('Profile picture set to:', url);
+
+      // Test accessibility
+      const img = new Image();
+      img.src = url;
+      img.onload = () => console.log('Uploaded image loaded successfully:', url);
+      img.onerror = () => console.error('Uploaded image failed to load:', url);
     } catch (error) {
       console.error('Failed to upload profile picture:', error.message, error.stack);
+      setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
+      alert('Upload failed: ' + error.message);
     }
   };
 
@@ -103,7 +124,7 @@ function UserProfile() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '1.5rem' }}>
+      <h2 style={{ textAlign: 'center', fontSize: '1.75rem', fontWeight: 400, marginBottom: '1.5rem', color: '#141820' }}>
         {displayName || 'User Profile'}
       </h2>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
@@ -115,12 +136,14 @@ function UserProfile() {
             backgroundImage: `url(${profilePicture})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
             position: 'relative',
             cursor: 'pointer',
             transition: 'transform 0.2s ease, opacity 0.2s ease',
             opacity: isHovered ? 0.7 : 1,
           }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           onClick={triggerFileInput}
         >
           {isHovered && (
@@ -132,10 +155,10 @@ function UserProfile() {
                 transform: 'translate(-50%, -50%)',
                 color: '#fff',
                 fontSize: '1rem',
-                fontWeight: '600',
+                fontWeight: 500,
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 padding: '0.5rem 1rem',
-                borderRadius: '8px',
+                borderRadius: '4px',
               }}
             >
               Upload
@@ -150,15 +173,15 @@ function UserProfile() {
           />
         </div>
       </div>
-      <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
-        Email: {email}
+      <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>
+        {email}
       </p>
-      <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
-        Total Ranked Songs: {rankedSongs.length}
+      <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>
+        {rankedSongs.length} ranked songs
       </p>
       <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-        <h3 style={{ color: '#141820', fontSize: '1.5rem', marginBottom: '1rem' }}>
-          Ranking Statistics
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 400, marginBottom: '1rem', color: '#141820' }}>
+          Statistics
         </h3>
         {Object.keys(stats).length > 0 ? (
           <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -167,12 +190,12 @@ function UserProfile() {
                 key={key}
                 style={{
                   marginBottom: '0.5rem',
-                  color: '#2c3e50',
+                  color: '#141820',
                   fontSize: '1rem',
-                  background: 'white',
+                  background: '#fff',
                   padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  borderRadius: '6px',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
                   width: '300px',
                 }}
               >
@@ -181,7 +204,7 @@ function UserProfile() {
             ))}
           </ul>
         ) : (
-          <p style={{ color: '#7f8c8d', fontSize: '1rem' }}>
+          <p style={{ color: '#666', fontSize: '1rem' }}>
             No ranking statistics available yet.
           </p>
         )}
@@ -189,20 +212,7 @@ function UserProfile() {
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <button
           onClick={handleSignOut}
-          style={{
-            background: '#e74c3c',
-            color: 'white',
-            border: 'none',
-            padding: '0.75rem 1.5rem',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'background 0.3s ease',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          }}
-          onMouseOver={(e) => (e.target.style.background = '#c0392b')}
-          onMouseOut={(e) => (e.target.style.background = '#e74c3c')}
+          style={{ background: '#e74c3c' }}
         >
           Log Out
         </button>

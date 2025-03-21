@@ -17,26 +17,31 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const checkUser = async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser();
-      console.log('Authenticated user:', user);
-      console.log('User attributes:', user.attributes);
-      setUserID(user.username);
-      const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
-      setDisplayName(preferredName);
-      // Prioritize custom:uploadedPicture over Google’s picture
-      const profilePictureUrl = user.attributes['custom:uploadedPicture'] || user.attributes.picture || 'https://i.imgur.com/uPnNK9Y.png';
-      setProfilePicture(profilePictureUrl);
-      console.log('Profile picture set to:', profilePictureUrl);
-    } catch (error) {
-      console.log('No user signed in:', error);
-      setUserID(null);
-      setDisplayName(null);
-      setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
+    console.log('Authenticated user:', user);
+    console.log('User attributes:', user.attributes);
+    setUserID(user.username);
+    const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
+    setDisplayName(preferredName);
+    const uploadedPicture = user.attributes['custom:uploadedPicture'];
+    const googlePicture = user.attributes.picture;
+    const profilePictureUrl = uploadedPicture || googlePicture || 'https://i.imgur.com/uPnNK9Y.png';
+    setProfilePicture(profilePictureUrl);
+    console.log('Profile picture priority:', { uploadedPicture, googlePicture, profilePictureUrl });
+    const img = new Image();
+    img.src = profilePictureUrl;
+    img.onload = () => console.log('Profile picture loaded successfully:', profilePictureUrl);
+    img.onerror = () => console.error('Profile picture failed to load:', profilePictureUrl);
+  } catch (error) {
+    console.log('No user signed in:', error);
+    setUserID(null);
+    setDisplayName(null);
+    setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     checkUser();
@@ -48,9 +53,9 @@ export const UserProvider = ({ children }) => {
       setUserID(null);
       setDisplayName(null);
       setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
-      console.log('Signed out');
+      console.log('Signed out successfully');
     } catch (error) {
-      console.error('Sign-out error:', error);
+      console.error('Sign-out error:', error.message);
     }
   };
 

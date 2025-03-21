@@ -27,7 +27,7 @@ const Register = () => {
         attributes: {
           email,
           'custom:username': username,
-          'picture': 'https://i.imgur.com/uPnNK9Y.png', // Initial default
+          'picture': 'https://i.imgur.com/uPnNK9Y.png',
         },
       });
       console.log('Registered');
@@ -56,91 +56,53 @@ const Register = () => {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '400px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', color: '#141820', fontSize: '2rem', marginBottom: '1.5rem' }}>
-        Register for My Song Ranker
-      </h2>
+    <div className="auth-container">
+      <h2 className="auth-title">Register for My Song Ranker</h2>
       {!showVerification ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="auth-form">
           <input
+            className="auth-input"
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #bdc3c7', fontSize: '1rem', color: '#2c3e50', background: '#f4f7fa' }}
           />
           <input
+            className="auth-input"
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #bdc3c7', fontSize: '1rem', color: '#2c3e50', background: '#f4f7fa' }}
           />
           <input
+            className="auth-input"
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #bdc3c7', fontSize: '1rem', color: '#2c3e50', background: '#f4f7fa' }}
           />
-          <button
-            onClick={handleRegister}
-            style={{
-              background: '#3498db',
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'background 0.3s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-            }}
-            onMouseOver={(e) => (e.target.style.background = '#2980b9')}
-            onMouseOut={(e) => (e.target.style.background = '#3498db')}
-          >
+          <button className="auth-button auth-button-primary" onClick={handleRegister}>
             Register
           </button>
-          {errorMessage && (
-            <p style={{ color: '#e74c3c', textAlign: 'center', fontSize: '0.9rem' }}>{errorMessage}</p>
-          )}
+          {errorMessage && <p className="auth-error">{errorMessage}</p>}
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="auth-form">
           <input
+            className="auth-input"
             type="text"
             placeholder="Verification Code"
             value={verificationCode}
             onChange={(e) => setVerificationCode(e.target.value)}
-            style={{ padding: '0.75rem', borderRadius: '8px', border: '1px solid #bdc3c7', fontSize: '1rem', color: '#2c3e50', background: '#f4f7fa' }}
           />
-          <button
-            onClick={handleVerify}
-            style={{
-              background: '#3498db',
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'background 0.3s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-            }}
-            onMouseOver={(e) => (e.target.style.background = '#2980b9')}
-            onMouseOut={(e) => (e.target.style.background = '#3498db')}
-          >
+          <button className="auth-button auth-button-primary" onClick={handleVerify}>
             Verify
           </button>
-          {errorMessage && (
-            <p style={{ color: '#e74c3c', textAlign: 'center', fontSize: '0.9rem' }}>{errorMessage}</p>
-          )}
+          {errorMessage && <p className="auth-error">{errorMessage}</p>}
         </div>
       )}
     </div>
   );
-}
+};
 
 export default Register;
