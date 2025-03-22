@@ -4,7 +4,7 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
