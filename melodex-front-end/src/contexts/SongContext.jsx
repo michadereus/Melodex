@@ -132,7 +132,7 @@ export const SongProvider = ({ children }) => {
       return [];
     }
     setLoading(true);
-    const url = `http://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/ranked`; // Hardcode temporarily
+    const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/ranked'; // Use HTTPS
     console.log('Fetching ranked songs from:', url);
 
     try {

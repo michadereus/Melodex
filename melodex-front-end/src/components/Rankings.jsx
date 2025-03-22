@@ -1,13 +1,5 @@
-// Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
-import React, { useEffect, useState } from 'react';
-import { useSongContext } from '../contexts/SongContext';
-import SongFilter from './SongFilter';
-import '../index.css';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://melodex-backend.us-east-1.elasticbeanstalk.com/api';
-
 const Rankings = () => {
-  const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
+  const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext(); // Add userID here
   const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
@@ -16,9 +8,15 @@ const Rankings = () => {
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
 
   useEffect(() => {
+    if (userID && !applied) {
+      handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
+    }
+  }, [userID, applied, handleApply]);
+
+  useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = 'http://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info'; // Absolute URL
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info'; // Use HTTPS
       console.log('Enriching ranked songs with URL:', url);
 
       fetch(url, {
@@ -52,7 +50,7 @@ const Rankings = () => {
           setIsFetching(false);
         });
     }
-  }, [rankedSongs, applied]);
+  }, [rankedSongs, applied, userID]); 
 
   const handleApply = async (filters) => {
     setShowFilter(false);

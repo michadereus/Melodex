@@ -43,7 +43,7 @@ export const SongRanker = ({ mode }) => {
         previewURL: s.previewURL,
       })));
       setIsProcessing(true);
-      const url = `${API_BASE_URL}/user-songs/deezer-info`; // Ensure API_BASE_URL includes http://
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info'; // Use HTTPS
       console.log('Enriching songs with URL:', url);
 
       fetch(url, {
