@@ -1,3 +1,6 @@
+import { useSongContext } from '../contexts/SongContext';
+import Rankings from './Rankings';
+
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext(); // Add userID here
   const [applied, setApplied] = useState(false);
@@ -6,6 +9,7 @@ const Rankings = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
+  
 
   useEffect(() => {
     if (userID && !applied) {
@@ -59,7 +63,7 @@ const Rankings = () => {
     setIsFetching(true);
     setSelectedGenre(filters.genre);
     setSelectedSubgenre(filters.subgenre);
-    await fetchRankedSongs(filters.genre, filters.subgenre);
+    await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre }); // Pass object with userID
     setApplied(true);
   };
 

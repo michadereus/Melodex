@@ -62,7 +62,8 @@ export const SongProvider = ({ children }) => {
         decade: filters.decade !== 'all decades' ? filters.decade : null 
       };
       console.log('generateNewSongs with payload:', payload);
-      const response = await fetch(`${API_BASE_URL}/user-songs/new`, {
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/new'; // Use HTTPS
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -104,7 +105,8 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const response = await fetch(`${API_BASE_URL}/user-songs/rerank`, {
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/rerank'; // Use HTTPS
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
