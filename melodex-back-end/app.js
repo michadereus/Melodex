@@ -8,6 +8,11 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const cors = require('cors');
 
+// Debug routes
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Backend is running' });
+});
+
 // Configure CORS explicitly
 app.use(cors({
   origin: 'https://main.dw9xqt12hzzbu.amplifyapp.com',
@@ -59,3 +64,4 @@ process.on('SIGINT', async () => {
   console.log('MongoDB connection closed');
   process.exit(0);
 });
+

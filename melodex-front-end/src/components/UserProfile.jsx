@@ -16,20 +16,19 @@ function UserProfile() {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      try {
-        const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
-        const attributes = user.attributes;
-        setEmail(attributes.email || 'N/A');
-        console.log('User info fetched on load:', {
-          userID: user.username,
-          attributes,
-          isGoogleUser: attributes.identities ? JSON.parse(attributes.identities).some(id => id.providerName === 'Google') : false,
-        });
-      } catch (error) {
-        console.error('Failed to fetch user info:', error);
-        setEmail('N/A');
-      }
-    };
+    try {
+      const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
+      setUserInfo({
+        userID: user.attributes.sub,
+        attributes: user.attributes,
+        isGoogleUser: user.attributes['identities']?.includes('Google') || false,
+      });
+      const pictureUrl = user.attributes['custom:uploadedPicture'];
+      if (pictureUrl) setProfilePicture(pictureUrl);
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  };
 
     const fetchStats = async () => {
       try {
@@ -121,6 +120,7 @@ function UserProfile() {
       console.error('Sign out failed:', error);
     }
   };
+  
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
