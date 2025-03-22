@@ -18,7 +18,7 @@ const Rankings = () => {
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = `${API_BASE_URL}/user-songs/deezer-info`; // Ensure API_BASE_URL includes http://
+      const url = 'http://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info'; // Absolute URL
       console.log('Enriching ranked songs with URL:', url);
 
       fetch(url, {
