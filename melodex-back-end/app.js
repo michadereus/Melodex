@@ -4,12 +4,13 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 const cors = require('cors');
 
 // Configure CORS explicitly
 app.use(cors({
-  origin: 'http://localhost:3001', // Frontend origin
+  origin: 'https://main.dw9xqt12hzzbu.amplifyapp.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type'],
 }));
