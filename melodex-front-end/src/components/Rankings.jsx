@@ -4,7 +4,7 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://melodex-backend.us-east-1.elasticbeanstalk.com/api';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
@@ -18,7 +18,7 @@ const Rankings = () => {
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = `${API_BASE_URL}/user-songs/deezer-info`;
+      const url = `${API_BASE_URL}/user-songs/deezer-info`; // Ensure API_BASE_URL includes http://
       console.log('Enriching ranked songs with URL:', url);
 
       fetch(url, {
