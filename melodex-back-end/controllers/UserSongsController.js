@@ -345,48 +345,47 @@ class UserSongsController {
       console.log(`START processing song: ${song.songName} by ${song.artist}`);
       try {
         const cleanedArtist = UserSongsController.cleanArtistName(song.artist);
-        console.log(`Cleaned artist for ${song.songName}: ${cleanedArtist}`);
         const searchUrl = `https://api.deezer.com/search?q=track:"${song.songName}" artist:${cleanedArtist}`;
         console.log(`Fetching Deezer URL: ${searchUrl}`);
-        
+
         const response = await fetch(searchUrl);
-        console.log(`Fetch completed for ${song.songName}, status: ${response.status}`);
-        
+        const text = await response.text();
+        console.log(`Raw Deezer response for ${song.songName}:`, text);
+
         if (!response.ok) {
-          throw new Error(`HTTP error for ${song.songName}! status: ${response.status}`);
+          console.error(`Deezer error for ${song.songName}: ${response.status} ${text}`);
+          return song;
         }
-        
-        const data = await response.json();
-        console.log(`Deezer data for ${song.songName}:`, data.data ? data.data.length : 0, 'tracks found');
-        
+
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (parseError) {
+          console.error(`JSON parse error for ${song.songName}: ${parseError.message}, Raw: ${text}`);
+          return song;
+        }
+
+        console.log(`Parsed Deezer data for ${song.songName}:`, data.data ? data.data.length : 0, 'tracks');
         const selectedTrack = UserSongsController.findMatchingTrack(data.data, cleanedArtist);
         if (selectedTrack) {
-          console.log(`Selected track for ${song.songName}: ID=${selectedTrack.id}, Artist=${selectedTrack.artist.name}, Preview=${selectedTrack.preview}, Cover=${selectedTrack.album.cover_medium}`);
-          const enrichedSong = {
+          return {
             ...song,
             deezerID: selectedTrack.id,
             previewURL: selectedTrack.preview,
             albumCover: selectedTrack.album.cover_medium,
           };
-          console.log(`Enriched song ${song.songName}:`, enrichedSong);
-          return enrichedSong;
-        } else {
-          console.log(`No matching track found for ${song.songName}`);
-          return song;
         }
+        return song;
       } catch (error) {
         console.error(`Error enriching ${song.songName}: ${error.message}, Stack: ${error.stack}`);
         return song;
-      } finally {
-        console.log(`END processing song: ${song.songName}`);
       }
     });
-    
-    console.log('Awaiting all enrichment promises...');
-    const enrichedSongs = await Promise.all(enrichedSongsPromises);
-    console.log('END enrichSongsWithDeezer, returning', enrichedSongs.length, 'songs:', enrichedSongs);
-    return enrichedSongs;
-  }
+
+  const enrichedSongs = await Promise.all(enrichedSongsPromises);
+  console.log('END enrichSongsWithDeezer, returning', enrichedSongs.length, 'songs:', enrichedSongs);
+  return enrichedSongs;
+}
 
   static async getAverageRanking(db, userID, genre, subgenre) {
     if (!userID) {
