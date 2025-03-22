@@ -4,7 +4,7 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const SongRanker = ({ mode }) => {
   const { 
@@ -43,15 +43,31 @@ export const SongRanker = ({ mode }) => {
         previewURL: s.previewURL,
       })));
       setIsProcessing(true);
-      fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
+      const url = `${API_BASE_URL}/user-songs/deezer-info`;
+      console.log('Enriching songs with URL:', url);
+
+      fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songs: currentPair }),
+        body: JSON.stringify({ songs: currentPair })
       })
-        .then(response => response.json())
-        .then(freshSongs => {
-          console.log('Enriched songs for rerank:', freshSongs);
-          setEnrichedPair(freshSongs);
+        .then(response => {
+          if (!response.ok) {
+            console.error(`HTTP error enriching songs! Status: ${response.status}`);
+            throw new Error('Failed to fetch Deezer info');
+          }
+          return response.text();
+        })
+        .then(text => {
+          console.log('Raw Deezer response:', text);
+          try {
+            const freshSongs = JSON.parse(text);
+            console.log('Enriched songs for rerank:', freshSongs);
+            setEnrichedPair(freshSongs);
+          } catch (error) {
+            console.error('JSON parse error in SongRanker:', error, 'Raw response:', text);
+            setEnrichedPair(currentPair);
+          }
         })
         .catch(error => {
           console.error('Failed to enrich songs for rerank:', error);

@@ -3,7 +3,7 @@ import React, { createContext, useState, useCallback, useContext, useEffect } fr
 import { useUserContext } from './UserContext';
 
 const SongContext = createContext();
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const useSongContext = () => {
   const context = useContext(SongContext);
@@ -125,33 +125,41 @@ export const SongProvider = ({ children }) => {
     }
   };
 
-  const fetchRankedSongs = useCallback(async (genre = selectedGenre, subgenre = 'any') => {
+  async function fetchRankedSongs({ userID, genre = selectedGenre, subgenre = 'any' }) {
     if (!userID) {
       console.error('No userID available for fetchRankedSongs');
       setRankedSongs([]);
       return [];
     }
     setLoading(true);
+    const url = `${API_BASE_URL}/user-songs/ranked`;
+    console.log('Fetching ranked songs from:', url);
+
     try {
-      console.log('fetchRankedSongs with genre:', genre, 'subgenre:', subgenre);
-      const payload = { userID };
-      if (subgenre !== 'any') {
-        payload.subgenre = subgenre;
-        if (genre !== 'any') payload.genre = genre;
-      } else if (genre !== 'any') {
-        payload.genre = genre;
-      }
-      console.log('fetchRankedSongs payload:', payload);
-      const response = await fetch(`${API_BASE_URL}/user-songs/ranked`, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ userID, genre, subgenre })
       });
-      if (!response.ok) throw new Error('Failed to fetch ranked songs');
-      const ranked = await response.json();
-      console.log('fetchRankedSongs: Retrieved songs from API:', ranked);
-      setRankedSongs(ranked);
-      return ranked;
+
+      if (!response.ok) {
+        console.error(`HTTP error fetching ranked songs! Status: ${response.status}`);
+        throw new Error('Failed to fetch ranked songs');
+      }
+
+      const text = await response.text();
+      console.log('Raw response from ranked songs:', text);
+
+      try {
+        const ranked = JSON.parse(text);
+        console.log('Parsed ranked songs:', ranked);
+        setRankedSongs(ranked);
+        return ranked;
+      } catch (parseError) {
+        console.error('JSON parse error in fetchRankedSongs:', parseError, 'Raw response:', text);
+        setRankedSongs([]);
+        return [];
+      }
     } catch (error) {
       console.error('Failed to fetch ranked songs:', error);
       setRankedSongs([]);
@@ -159,7 +167,7 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [selectedGenre, userID]);
+  }
 
   const selectSong = async (winnerId, loserId) => {
     if (!userID) {

@@ -4,7 +4,7 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading } = useSongContext();
@@ -18,20 +18,37 @@ const Rankings = () => {
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      fetch(`${API_BASE_URL}/user-songs/deezer-info`, {
+      const url = `${API_BASE_URL}/user-songs/deezer-info`;
+      console.log('Enriching ranked songs with URL:', url);
+
+      fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songs: rankedSongs }),
+        body: JSON.stringify({ songs: rankedSongs })
       })
-        .then((response) => response.json())
-        .then((freshSongs) => {
-          console.log('Enriched songs for rankings:', freshSongs);
-          setEnrichedSongs(freshSongs);
-          setIsFetching(false);
+        .then(response => {
+          if (!response.ok) {
+            console.error(`HTTP error enriching ranked songs! Status: ${response.status}`);
+            throw new Error('Failed to fetch Deezer info');
+          }
+          return response.text();
         })
-        .catch((error) => {
+        .then(text => {
+          console.log('Raw Deezer response for rankings:', text);
+          try {
+            const freshSongs = JSON.parse(text);
+            console.log('Enriched songs for rankings:', freshSongs);
+            setEnrichedSongs(freshSongs);
+          } catch (error) {
+            console.error('JSON parse error in Rankings:', error, 'Raw response:', text);
+            setEnrichedSongs(rankedSongs);
+          }
+        })
+        .catch(error => {
           console.error('Failed to enrich ranked songs:', error);
           setEnrichedSongs(rankedSongs);
+        })
+        .finally(() => {
           setIsFetching(false);
         });
     }
