@@ -3,7 +3,6 @@ import React, { createContext, useState, useCallback, useContext, useEffect } fr
 import { useUserContext } from './UserContext';
 
 const SongContext = createContext();
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://melodex-backend.us-east-1.elasticbeanstalk.com/api';
 
 export const useSongContext = () => {
   const context = useContext(SongContext);
@@ -36,7 +35,7 @@ export const SongProvider = ({ children }) => {
       return;
     }
     const song1 = validSongs[0];
-    const song2 = validSongs.find(song => song.deezerID !== song1.deezerID); // Fixed typo: song1ematode -> song1
+    const song2 = validSongs.find(song => song.deezerID !== song1.deezerID);
     if (!song2) {
       console.error('getNextPair: Could not find a second song');
       setCurrentPair([]);
@@ -62,7 +61,7 @@ export const SongProvider = ({ children }) => {
         decade: filters.decade !== 'all decades' ? filters.decade : null 
       };
       console.log('generateNewSongs with payload:', payload);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/new'; // Use HTTPS
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/new';
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -105,7 +104,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/rerank'; // Use HTTPS
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/rerank';
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -134,7 +133,7 @@ export const SongProvider = ({ children }) => {
       return [];
     }
     setLoading(true);
-    const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/ranked'; // Use HTTPS
+    const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/ranked';
     console.log('Fetching ranked songs from:', url);
 
     try {
@@ -211,7 +210,8 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending payload to /api/user-songs/upsert:', payload);
 
-      const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/upsert';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -283,7 +283,8 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
-      const response = await fetch(`${API_BASE_URL}/user-songs/upsert`, {
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/upsert';
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -297,21 +298,18 @@ export const SongProvider = ({ children }) => {
       console.log('Song skipped successfully:', songId);
 
       if (mode === 'rerank') {
-        // Fetch new songs to re-rank
         const reRankSongs = await fetchReRankingData();
         if (reRankSongs.length > 0) {
-          // Find a new song that isn’t the kept song
           const newSong = reRankSongs.find(s => s.deezerID !== keptSong.deezerID);
           if (newSong) {
             setCurrentPair([keptSong, newSong]);
           } else {
-            setCurrentPair([keptSong]); // Only kept song remains if no new song is found
+            setCurrentPair([keptSong]);
           }
         } else {
-          setCurrentPair([]); // No songs left to re-rank
+          setCurrentPair([]);
         }
       } else {
-        // Original logic for 'new' mode
         if (songList.length > 0) {
           const nextSong = songList[0];
           setCurrentPair([nextSong, keptSong]);
@@ -322,7 +320,7 @@ export const SongProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Failed to skip song:', error.message);
-      setCurrentPair([]); // Reset on error
+      setCurrentPair([]);
     } finally {
       setLoading(false);
     }

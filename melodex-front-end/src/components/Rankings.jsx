@@ -1,26 +1,27 @@
 import { useSongContext } from '../contexts/SongContext';
-import Rankings from './Rankings';
+import React, { useState, useEffect } from 'react';
+import SongFilter from './SongFilter';
+import '../index.css';
 
 const Rankings = () => {
-  const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext(); // Add userID here
+  const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
-  
 
   useEffect(() => {
     if (userID && !applied) {
       handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
     }
-  }, [userID, applied, handleApply]);
+  }, [userID, applied]);
 
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info'; // Use HTTPS
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info';
       console.log('Enriching ranked songs with URL:', url);
 
       fetch(url, {
@@ -54,7 +55,7 @@ const Rankings = () => {
           setIsFetching(false);
         });
     }
-  }, [rankedSongs, applied, userID]); 
+  }, [rankedSongs, applied, userID]);
 
   const handleApply = async (filters) => {
     setShowFilter(false);
@@ -63,7 +64,7 @@ const Rankings = () => {
     setIsFetching(true);
     setSelectedGenre(filters.genre);
     setSelectedSubgenre(filters.subgenre);
-    await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre }); // Pass object with userID
+    await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre }); // Fixed call
     setApplied(true);
   };
 
