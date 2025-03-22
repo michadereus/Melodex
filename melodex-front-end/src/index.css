@@ -254,13 +254,9 @@ button[style*="background: #e74c3c"]:hover {
 
 .rankings-container .song-details {
   flex: 1;
-  /* Take remaining space */
   display: flex;
-  /* Added */
   flex-direction: column;
-  /* Stack details vertically */
   gap: 0.25rem;
-  /* Space between text elements */
 }
 
 .song-ranker-container .song-name,
