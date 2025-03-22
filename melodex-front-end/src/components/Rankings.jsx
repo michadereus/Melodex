@@ -80,37 +80,88 @@ const Rankings = () => {
   };
 
   return (
-    <div className="rankings-container">
-      <div className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}>
+    <div className="rankings-container" style={{ maxWidth: '1200px', width: '100%' }}>
+      {/* Filter Container with Inline Width */}
+      <div
+        className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}
+        style={{ width: '550px', margin: '0 auto' }} // Centered, doesn't affect grid width
+      >
         <SongFilter onApply={handleApply} isRankPage={false} onHide={toggleFilter} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '0' }}>
+
+      {/* Filter Toggle Button with Animation */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          margin: '0',
+          transition: 'transform 0.3s ease',
+          transform: showFilter ? 'translateY(0.5rem)' : 'translateY(0)',
+        }}
+      >
         <button className="filter-toggle" onClick={toggleFilter}>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-            <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
-            <rect y="14" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line"/>
+            <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line" />
+            <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line" />
+            <rect y="14" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line" />
           </svg>
         </button>
       </div>
+
+      {/* Main Content */}
       {(loading || isFetching) && applied ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
-          <div style={{ border: '4px solid #ecf0f1', borderTop: '4px solid #3498db', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite' }}></div>
-          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
+          <div
+            style={{
+              border: '4px solid #ecf0f1',
+              borderTop: '4px solid #3498db',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              animation: 'spin 1s linear infinite',
+            }}
+          ></div>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
+            
+          </p>
         </div>
       ) : applied ? (
-        <div style={{ width: '100%' }}>
-          <h2 style={{ textAlign: 'center', color: '#141820', marginBottom: '1.5rem', marginTop: '1rem' }}>
-            Your {selectedSubgenre !== 'any' ? selectedSubgenre : selectedGenre !== 'any' ? selectedGenre : ''} Rankings
+        <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+          <h2
+            style={{
+              textAlign: 'center',
+              color: '#141820',
+              marginBottom: '1.5rem',
+              marginTop: '4rem',
+            }}
+          >
+            Your{' '}
+            {selectedSubgenre !== 'any'
+              ? selectedSubgenre
+              : selectedGenre !== 'any'
+              ? selectedGenre
+              : ''}{' '}
+            Rankings
           </h2>
           {enrichedSongs.length === 0 ? (
-            <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>No ranked songs yet for this filter.</p>
+            <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
+              No ranked songs yet for this filter.
+            </p>
           ) : (
             (() => {
               const sortedSongs = [...enrichedSongs].sort((a, b) => b.ranking - a.ranking);
               const rankPositions = getRankPositions(sortedSongs);
               return (
-                <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: '1.5rem', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', width: '100%' }}>
+                <ul
+                  style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    display: 'grid',
+                    gap: '1.5rem',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+                    width: '100%',
+                  }}
+                >
                   {sortedSongs.map((song, index) => (
                     <li
                       key={song.deezerID}
@@ -126,14 +177,30 @@ const Rankings = () => {
                         position: 'relative',
                       }}
                     >
-                      <span style={{ fontSize: '1.5rem', fontWeight: '700', color: '#3498db', minWidth: '2rem', textAlign: 'center' }}>
+                      <span
+                        style={{
+                          fontSize: '1.5rem',
+                          fontWeight: '700',
+                          color: '#3498db',
+                          minWidth: '2rem',
+                          textAlign: 'center',
+                        }}
+                      >
                         {rankPositions[index]}
                       </span>
-                      <img src={song.albumCover} alt="Album Cover" style={{ width: '80px', height: '80px', borderRadius: '8px' }} />
+                      <img
+                        src={song.albumCover}
+                        alt="Album Cover"
+                        style={{ width: '80px', height: '80px', borderRadius: '8px' }}
+                      />
                       <div style={{ flex: 1 }}>
-                        <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#141820', margin: '0' }}>{song.songName}</p>
+                        <p style={{ fontSize: '1.1rem', fontWeight: '600', color: '#141820', margin: '0' }}>
+                          {song.songName}
+                        </p>
                         <p style={{ fontSize: '1rem', color: '#7f8c8d', margin: '0.25rem 0' }}>{song.artist}</p>
-                        <p style={{ fontSize: '0.9rem', color: '#3498db', margin: '0' }}>Ranking: {song.ranking}</p>
+                        <p style={{ fontSize: '0.9rem', color: '#3498db', margin: '0' }}>
+                          Ranking: {song.ranking}
+                        </p>
                         {song.previewURL && isPreviewValid(song.previewURL) ? (
                           <audio
                             controls
@@ -151,11 +218,23 @@ const Rankings = () => {
                             }}
                           />
                         ) : (
-                          <span style={{ display: 'block', color: '#e74c3c', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                          <span
+                            style={{ display: 'block', color: '#e74c3c', fontSize: '0.9rem', marginTop: '0.5rem' }}
+                          >
                             Preview unavailable
                           </span>
                         )}
-                        <span style={{ display: 'none', color: '#e74c3c', fontSize: '0.9rem', position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                        <span
+                          style={{
+                            display: 'none',
+                            color: '#e74c3c',
+                            fontSize: '0.9rem',
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                          }}
+                        >
                           Preview unavailable
                         </span>
                       </div>
@@ -169,6 +248,7 @@ const Rankings = () => {
       ) : null}
     </div>
   );
-};
+
+}
 
 export default Rankings;
