@@ -11,6 +11,7 @@ export const useSongContext = () => {
 };
 
 export const SongProvider = ({ children }) => {
+  console.log('SongProvider: userID from UserContext:', userID);
   const { userID } = useUserContext();
   const [songList, setSongList] = useState([]);
   const [songBuffer, setSongBuffer] = useState([]);

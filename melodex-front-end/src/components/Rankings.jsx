@@ -1,3 +1,4 @@
+// // Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
 import React, { useState, useEffect } from 'react';
 import SongFilter from './SongFilter';
@@ -16,7 +17,7 @@ const Rankings = () => {
     if (userID && !applied) {
       handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
     }
-  }, [userID, applied]);
+  }, [userID, applied, handleApply]);
 
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
@@ -58,13 +59,17 @@ const Rankings = () => {
   }, [rankedSongs, applied, userID]);
 
   const handleApply = async (filters) => {
+    if (!userID) {
+      console.error('handleApply: No userID available yet, skipping fetch');
+      return;
+    }
     setShowFilter(false);
     setApplied(false);
     setEnrichedSongs([]);
     setIsFetching(true);
     setSelectedGenre(filters.genre);
     setSelectedSubgenre(filters.subgenre);
-    await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre }); // Fixed call
+    await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre });
     setApplied(true);
   };
 
@@ -101,15 +106,12 @@ const Rankings = () => {
 
   return (
     <div className="rankings-container" style={{ maxWidth: '1200px', width: '100%' }}>
-      {/* Filter Container with Inline Width */}
       <div
         className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}
-        style={{ width: '550px', margin: '0 auto' }} // Centered, doesn't affect grid width
+        style={{ width: '550px', margin: '0 auto' }}
       >
         <SongFilter onApply={handleApply} isRankPage={false} onHide={toggleFilter} />
       </div>
-
-      {/* Filter Toggle Button with Animation */}
       <div
         style={{
           display: 'flex',
@@ -127,8 +129,6 @@ const Rankings = () => {
           </svg>
         </button>
       </div>
-
-      {/* Main Content */}
       {(loading || isFetching) && applied ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div
@@ -141,9 +141,7 @@ const Rankings = () => {
               animation: 'spin 1s linear infinite',
             }}
           ></div>
-          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
-            
-          </p>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
         </div>
       ) : applied ? (
         <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
@@ -268,7 +266,6 @@ const Rankings = () => {
       ) : null}
     </div>
   );
-
-}
+};
 
 export default Rankings;
