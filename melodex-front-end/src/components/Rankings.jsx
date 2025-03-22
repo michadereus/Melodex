@@ -78,6 +78,10 @@ const Rankings = () => {
   };
 
   const getRankPositions = (songs) => {
+    if (!Array.isArray(songs)) {
+      console.error('getRankPositions: songs is not an array', songs);
+      return [];
+    }
     const sortedSongs = [...songs].sort((a, b) => b.ranking - a.ranking);
     const positions = [];
     let currentRank = 1;

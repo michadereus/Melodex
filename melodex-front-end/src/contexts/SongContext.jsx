@@ -11,8 +11,8 @@ export const useSongContext = () => {
 };
 
 export const SongProvider = ({ children }) => {
-  console.log('SongProvider: userID from UserContext:', userID);
   const { userID } = useUserContext();
+  console.log('SongProvider: userID from UserContext:', userID); // Moved after declaration
   const [songList, setSongList] = useState([]);
   const [songBuffer, setSongBuffer] = useState([]);
   const [currentPair, setCurrentPair] = useState([]);
@@ -28,6 +28,11 @@ export const SongProvider = ({ children }) => {
   }, []);
 
   const getNextPair = useCallback((songsToUse = songList) => {
+    if (!Array.isArray(songsToUse)) {
+      console.error('getNextPair: songsToUse is not an array', songsToUse);
+      setCurrentPair([]);
+      return;
+    }
     const validSongs = songsToUse.filter(song => song && song.deezerID);
     console.log('getNextPair: Valid songs available:', validSongs.length, validSongs);
     if (validSongs.length < 2) {
@@ -383,3 +388,5 @@ export const SongProvider = ({ children }) => {
     </SongContext.Provider>
   );
 };
+
+export default SongProvider;

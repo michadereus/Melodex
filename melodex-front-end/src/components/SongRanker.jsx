@@ -1,4 +1,3 @@
-// Filepath: Melodex/melodex-front-end/src/components/SongRanker.jsx
 import React, { useState, useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
@@ -43,7 +42,7 @@ export const SongRanker = ({ mode }) => {
         previewURL: s.previewURL,
       })));
       setIsProcessing(true);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info'; // Use HTTPS
+      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info';
       console.log('Enriching songs with URL:', url);
 
       fetch(url, {
@@ -144,22 +143,19 @@ export const SongRanker = ({ mode }) => {
 
   return (
     <div className="song-ranker-container">
-      {/* Filter Container with Dynamic Width */}
       <div
         className={`filter-container ${mode === 'rerank' ? 'filter-rerank' : ''} ${showFilter ? 'visible' : 'hidden'}`}
-        style={{ width: mode === 'rerank' ? '550px' : '700px' }} // Set width inline
+        style={{ width: mode === 'rerank' ? '550px' : '700px' }}
       >
         <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={toggleFilter} />
       </div>
-
-      {/* Filter Toggle Button with Animation */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'center',
           margin: '0',
-          transition: 'transform 0.3s ease', // Smooth animation
-          transform: showFilter ? 'translateY(0.5rem)' : 'translateY(0)', // Moves down when filter opens
+          transition: 'transform 0.3s ease',
+          transform: showFilter ? 'translateY(0.5rem)' : 'translateY(0)',
         }}
       >
         <button className="filter-toggle" onClick={toggleFilter}>
@@ -170,8 +166,6 @@ export const SongRanker = ({ mode }) => {
           </svg>
         </button>
       </div>
-
-      {/* Main Content */}
       {(loading || isProcessing) ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
           <div
@@ -189,7 +183,7 @@ export const SongRanker = ({ mode }) => {
         <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>
           {mode === 'rerank' ? 'No ranked songs available to re-rank yet.' : 'No more songs to rank.'}
         </p>
-      ) : applied && enrichedPair.length > 0 ? (
+      ) : applied && Array.isArray(enrichedPair) && enrichedPair.length > 0 ? (
         <div className="song-ranker-wrapper">
           <h2
             style={{
@@ -202,7 +196,7 @@ export const SongRanker = ({ mode }) => {
             {mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}
           </h2>
           <div className="song-pair">
-            {Array.from(new Map(enrichedPair.map(song => [song.deezerID, song])).values()).map((song) => (
+            {Array.from(new Map(enrichedPair.map(song => [song.deezerID, song]))).map((song) => (
               <div key={song.deezerID} className="song-card-container">
                 <div
                   className="song-box"
@@ -255,6 +249,6 @@ export const SongRanker = ({ mode }) => {
       ) : null}
     </div>
   );
-}
+};
 
 export default SongRanker;
