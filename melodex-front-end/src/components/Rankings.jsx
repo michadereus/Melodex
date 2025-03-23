@@ -4,10 +4,6 @@ import React, { useState, useEffect } from 'react';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8080/api' 
-  : 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api';
-
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
   const [applied, setApplied] = useState(false);
@@ -41,7 +37,7 @@ const Rankings = () => {
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = `${API_BASE_URL}/user-songs/deezer-info`; // Use dynamic URL
+      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/deezer-info`;
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,7 +45,7 @@ const Rankings = () => {
       })
         .then(response => {
           if (!response.ok) throw new Error(`Failed to fetch Deezer info: ${response.status}`);
-          return response.json(); // Use json() directly
+          return response.json();
         })
         .then(freshSongs => {
           setEnrichedSongs(freshSongs);

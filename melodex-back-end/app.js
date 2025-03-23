@@ -1,4 +1,3 @@
-// melodex-back-end/app.js
 const express = require('express');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
@@ -6,14 +5,15 @@ const cors = require('cors');
 
 const app = express();
 
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Backend is running', timestamp: new Date() });
 });
 
 const allowedOrigins = [
   'https://main.dw9xqt12hzzbu.amplifyapp.com',
-  'http://localhost:3000', // Frontend port
-  'http://localhost:3001' // Add this if frontend runs on 3001
+  'http://main.dw9xqt12hzzbu.amplifyapp.com', // Add HTTP
+  'http://localhost:3000',
+  'http://localhost:3001'
 ];
 
 const corsOptions = {
@@ -26,26 +26,18 @@ const corsOptions = {
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
-
-// Explicit OPTIONS handler
-app.options('*', (req, res) => {
-  console.log('CORS preflight request received:', req.method, req.url);
-  res.set('Access-Control-Allow-Origin', req.headers.origin || 'http://localhost:3000');
-  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+app.options('*', cors(corsOptions), (req, res) => {
   res.sendStatus(204);
 });
 
 app.use((req, res, next) => {
-  console.log(`Request: ${req.method} ${req.url}`);
+  console.log(`Incoming: ${req.method} ${req.url} from ${req.ip}`);
   res.on('finish', () => {
-    console.log(`Response: ${res.statusCode}, Headers:`, res.getHeaders());
+    console.log(`Outgoing: ${req.method} ${req.url} - ${res.statusCode}`);
   });
   next();
 });
@@ -60,8 +52,7 @@ async function connectDB() {
     client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
     await client.connect();
     console.log('Connected to MongoDB:', uri.includes('localhost') ? 'Local' : 'Atlas');
-    const db = client.db('melodex');
-    app.locals.db = db;
+    app.locals.db = client.db('melodex');
   } catch (error) {
     console.error('MongoDB connection failed:', error.message, error.stack);
   }
@@ -69,16 +60,12 @@ async function connectDB() {
 
 async function startServer() {
   await connectDB();
-  try {
-    const apiRoutes = require('./routes/api');
-    app.use('/api', apiRoutes);
-    console.log('API routes mounted');
-  } catch (error) {
-    console.error('Failed to mount API routes:', error.message, error.stack);
-  }
+  const apiRoutes = require('./routes/api');
+  app.use('/api', apiRoutes);
+  console.log('API routes mounted');
 
   const PORT = process.env.PORT || 8080;
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server started on port ${PORT}`);
   });
 }

@@ -10,10 +10,6 @@ export const useSongContext = () => {
   return context;
 };
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8080/api' 
-  : 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api';
-
 export const SongProvider = ({ children }) => {
   const { userID } = useUserContext();
   console.log('SongProvider: userID from UserContext:', userID);
@@ -26,7 +22,7 @@ export const SongProvider = ({ children }) => {
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
-  const [contextUserID, setContextUserID] = useState(null); // Mirror userID to force updates
+  const [contextUserID, setContextUserID] = useState(null);
 
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
@@ -59,7 +55,6 @@ export const SongProvider = ({ children }) => {
     console.log('getNextPair: New pair set:', newPair);
   }, [songList]);
 
-  // Melodex/melodex-front-end/src/contexts/SongContext.jsx
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
     if (!userID) {
       console.error('No userID available for generateNewSongs');
@@ -74,7 +69,7 @@ export const SongProvider = ({ children }) => {
         decade: filters.decade !== 'all decades' ? filters.decade : null 
       };
       console.log('generateNewSongs with payload:', payload);
-      const url = `${API_BASE_URL}/user-songs/new`;
+      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/new`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,7 +112,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = `${API_BASE_URL}/user-songs/rerank`;
+      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/rerank`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -148,7 +143,7 @@ export const SongProvider = ({ children }) => {
       return [];
     }
     setLoading(true);
-    const url = `${API_BASE_URL}/user-songs/ranked`;
+    const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/ranked`;
     console.log('Fetching ranked songs from:', url);
 
     try {
@@ -183,7 +178,7 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [contextUserID, selectedGenre]); // Dependencies for useCallback
+  }, [contextUserID, selectedGenre]);
 
   const selectSong = async (winnerId, loserId) => {
     if (!contextUserID) {
@@ -225,7 +220,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending payload to /api/user-songs/upsert:', payload);
 
-      const url = `${API_BASE_URL}/user-songs/upsert`;
+      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -298,7 +293,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
-      const url = `${API_BASE_URL}/user-songs/upsert`;
+      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -391,7 +386,7 @@ export const SongProvider = ({ children }) => {
         refreshPair,
         selectedGenre,
         setSelectedGenre,
-        userID: contextUserID // Explicitly provide userID
+        userID: contextUserID
       }}
     >
       {children}

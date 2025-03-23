@@ -3,10 +3,6 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = process.env.NODE_ENV === 'development' 
-  ? 'http://localhost:8080/api' 
-  : 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api';
-
 export const SongRanker = ({ mode }) => {
   const { 
     currentPair, 
@@ -44,7 +40,7 @@ export const SongRanker = ({ mode }) => {
         previewURL: s.previewURL,
       })));
       setIsProcessing(true);
-      const url = `${API_BASE_URL}/user-songs/deezer-info`;
+      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/deezer-info`;
       console.log('Enriching songs with URL:', url);
 
       fetch(url, {
