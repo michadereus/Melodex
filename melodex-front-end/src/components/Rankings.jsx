@@ -1,4 +1,3 @@
-// Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
 import React, { useState, useEffect } from 'react';
 import SongFilter from './SongFilter';
