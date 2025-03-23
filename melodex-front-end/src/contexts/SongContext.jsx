@@ -10,9 +10,13 @@ export const useSongContext = () => {
   return context;
 };
 
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:8080/api' 
+  : 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api';
+
 export const SongProvider = ({ children }) => {
   const { userID } = useUserContext();
-  console.log('SongProvider: userID from UserContext:', userID); // Moved after declaration
+  console.log('SongProvider: userID from UserContext:', userID);
   const [songList, setSongList] = useState([]);
   const [songBuffer, setSongBuffer] = useState([]);
   const [currentPair, setCurrentPair] = useState([]);
@@ -22,10 +26,12 @@ export const SongProvider = ({ children }) => {
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
+  const [contextUserID, setContextUserID] = useState(null); // Mirror userID to force updates
 
   useEffect(() => {
-    setRankedSongs([]); // Reset on mount
-  }, []);
+    console.log('SongProvider useEffect: Setting contextUserID to', userID);
+    setContextUserID(userID);
+  }, [userID]);
 
   const getNextPair = useCallback((songsToUse = songList) => {
     if (!Array.isArray(songsToUse)) {
@@ -53,6 +59,7 @@ export const SongProvider = ({ children }) => {
     console.log('getNextPair: New pair set:', newPair);
   }, [songList]);
 
+  // Melodex/melodex-front-end/src/contexts/SongContext.jsx
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
     if (!userID) {
       console.error('No userID available for generateNewSongs');
@@ -67,7 +74,7 @@ export const SongProvider = ({ children }) => {
         decade: filters.decade !== 'all decades' ? filters.decade : null 
       };
       console.log('generateNewSongs with payload:', payload);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/new';
+      const url = `${API_BASE_URL}/user-songs/new`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -95,14 +102,14 @@ export const SongProvider = ({ children }) => {
   };
 
   const fetchReRankingData = async (genre = selectedGenre, subgenre = 'any', setContext = true) => {
-    if (!userID) {
+    if (!contextUserID) {
       console.error('No userID available for fetchReRankingData');
       return [];
     }
     setLoading(true);
     try {
       console.log('fetchReRankingData with genre:', genre, 'subgenre:', subgenre);
-      const payload = { userID };
+      const payload = { userID: contextUserID };
       if (subgenre !== 'any') {
         payload.subgenre = subgenre;
         if (genre !== 'any') payload.genre = genre;
@@ -110,7 +117,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/rerank';
+      const url = `${API_BASE_URL}/user-songs/rerank`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -132,21 +139,23 @@ export const SongProvider = ({ children }) => {
     }
   };
 
-  async function fetchRankedSongs({ userID, genre = selectedGenre, subgenre = 'any' }) {
-    if (!userID) {
+  const fetchRankedSongs = useCallback(async ({ userID: fetchUserID, genre = selectedGenre, subgenre = 'any' }) => {
+    const idToUse = fetchUserID || contextUserID;
+    console.log('fetchRankedSongs called with userID:', idToUse);
+    if (!idToUse) {
       console.error('No userID available for fetchRankedSongs');
       setRankedSongs([]);
       return [];
     }
     setLoading(true);
-    const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/ranked';
+    const url = `${API_BASE_URL}/user-songs/ranked`;
     console.log('Fetching ranked songs from:', url);
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID, genre, subgenre })
+        body: JSON.stringify({ userID: idToUse, genre, subgenre })
       });
 
       if (!response.ok) {
@@ -174,10 +183,10 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }
+  }, [contextUserID, selectedGenre]); // Dependencies for useCallback
 
   const selectSong = async (winnerId, loserId) => {
-    if (!userID) {
+    if (!contextUserID) {
       console.error('No userID available for selectSong');
       return;
     }
@@ -216,7 +225,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending payload to /api/user-songs/upsert:', payload);
 
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/upsert';
+      const url = `${API_BASE_URL}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -259,7 +268,7 @@ export const SongProvider = ({ children }) => {
   };
 
   const skipSong = async (songId) => {
-    if (!userID) {
+    if (!contextUserID) {
       console.error('No userID available for skipSong');
       return;
     }
@@ -289,7 +298,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/upsert';
+      const url = `${API_BASE_URL}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -333,7 +342,7 @@ export const SongProvider = ({ children }) => {
   };
 
   const refreshPair = useCallback(async () => {
-    if (!userID) {
+    if (!contextUserID) {
       console.error('No userID available for refreshPair');
       return;
     }
@@ -382,6 +391,7 @@ export const SongProvider = ({ children }) => {
         refreshPair,
         selectedGenre,
         setSelectedGenre,
+        userID: contextUserID // Explicitly provide userID
       }}
     >
       {children}

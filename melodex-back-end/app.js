@@ -6,30 +6,42 @@ const cors = require('cors');
 
 const app = express();
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Backend is running', timestamp: new Date() });
 });
 
-// CORS configuration
+const allowedOrigins = [
+  'https://main.dw9xqt12hzzbu.amplifyapp.com',
+  'http://localhost:3000', // Frontend port
+  'http://localhost:3001' // Add this if frontend runs on 3001
+];
+
 const corsOptions = {
-  origin: 'https://main.dw9xqt12hzzbu.amplifyapp.com', // Your frontend domain
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Include OPTIONS for preflight
-  allowedHeaders: ['Content-Type', 'Authorization'], // Add Authorization if needed
-  credentials: false, // Set to true if cookies/auth are used
-  preflightContinue: false, // Ensure preflight requests are handled
-  optionsSuccessStatus: 204, // Standard response for OPTIONS
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 };
 
 app.use(cors(corsOptions));
 
-// Handle CORS preflight requests explicitly
-app.options('*', cors(corsOptions), (req, res) => {
+// Explicit OPTIONS handler
+app.options('*', (req, res) => {
   console.log('CORS preflight request received:', req.method, req.url);
-  res.sendStatus(204); // No Content response for OPTIONS
+  res.set('Access-Control-Allow-Origin', req.headers.origin || 'http://localhost:3000');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.sendStatus(204);
 });
 
-// Middleware to log requests and CORS headers
 app.use((req, res, next) => {
   console.log(`Request: ${req.method} ${req.url}`);
   res.on('finish', () => {
@@ -47,12 +59,11 @@ async function connectDB() {
   try {
     client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
     await client.connect();
-    console.log('Connected to MongoDB Atlas');
+    console.log('Connected to MongoDB:', uri.includes('localhost') ? 'Local' : 'Atlas');
     const db = client.db('melodex');
     app.locals.db = db;
   } catch (error) {
     console.error('MongoDB connection failed:', error.message, error.stack);
-    // Keep server running for debugging
   }
 }
 

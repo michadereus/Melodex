@@ -1,4 +1,3 @@
-// // Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
 import React, { useState, useEffect } from 'react';
 import SongFilter from './SongFilter';
@@ -13,16 +12,40 @@ const Rankings = () => {
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
 
-  useEffect(() => {
-    if (userID && !applied) {
-      handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
-    }
-  }, [userID, applied, handleApply]);
+  console.log('Rankings render - userID:', userID); // Debug userID availability
 
+  // Initial fetch when userID is ready
+  useEffect(() => {
+    let mounted = true;
+    let retries = 0;
+    const maxRetries = 5;
+
+    const fetchInitialData = async () => {
+      if (!mounted) return;
+
+      if (userID && !applied) {
+        console.log('Initial fetch triggered with userID:', userID);
+        await handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
+      } else if (retries < maxRetries && !applied) { // Stop if applied
+        console.log('userID not ready yet, retrying...', { retries, userID });
+        retries += 1;
+        setTimeout(fetchInitialData, 500);
+      } else {
+        console.error('Max retries reached or already applied');
+      }
+    };
+
+    fetchInitialData();
+    return () => {
+      mounted = false;
+    };
+  }, [userID, applied]);
+
+  // Enrich songs when rankedSongs updates
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info';
+      const url = 'http://localhost:8080/api/user-songs/deezer-info';
       console.log('Enriching ranked songs with URL:', url);
 
       fetch(url, {
@@ -56,21 +79,27 @@ const Rankings = () => {
           setIsFetching(false);
         });
     }
-  }, [rankedSongs, applied, userID]);
+  }, [rankedSongs, applied]);
 
   const handleApply = async (filters) => {
     if (!userID) {
       console.error('handleApply: No userID available yet, skipping fetch');
       return;
     }
+    console.log('handleApply called with userID:', userID, 'filters:', filters);
     setShowFilter(false);
     setApplied(false);
     setEnrichedSongs([]);
     setIsFetching(true);
     setSelectedGenre(filters.genre);
     setSelectedSubgenre(filters.subgenre);
-    await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre });
-    setApplied(true);
+    try {
+      await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre });
+      setApplied(true);
+    } catch (error) {
+      console.error('handleApply error:', error);
+      setApplied(true); // Ensure loading stops even on error
+    }
   };
 
   const toggleFilter = () => {
@@ -82,7 +111,13 @@ const Rankings = () => {
       console.error('getRankPositions: songs is not an array', songs);
       return [];
     }
-    const sortedSongs = [...songs].sort((a, b) => b.ranking - a.ranking);
+    const sortedSongs = [...songs].sort((a, b) => {
+      if (typeof a.ranking !== 'number' || typeof b.ranking !== 'number') {
+        console.error('Invalid ranking value', a, b);
+        return 0;
+      }
+      return b.ranking - a.ranking;
+    });
     const positions = [];
     let currentRank = 1;
     let previousRanking = null;
@@ -267,7 +302,11 @@ const Rankings = () => {
             })()
           )}
         </div>
-      ) : null}
+      ) : (
+        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <p>Loading user data...</p>
+        </div>
+      )}
     </div>
   );
 };

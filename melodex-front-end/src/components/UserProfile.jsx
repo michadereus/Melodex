@@ -1,4 +1,5 @@
 // Filepath: Melodex/melodex-front-end/src/components/UserProfile.jsx
+// Filepath: Melodex/melodex-front-end/src/components/UserProfile.jsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import { useUserContext } from '../contexts/UserContext';
@@ -7,8 +8,9 @@ import { Auth, Storage } from 'aws-amplify';
 
 function UserProfile() {
   const { rankedSongs, fetchRankedSongs } = useSongContext();
-  const { userID, displayName, profilePicture, setProfilePicture, signOut } = useUserContext();
+  const { userID, userAttributes } = useUserContext();
   const [email, setEmail] = useState('N/A');
+  const [profilePicture, setProfilePicture] = useState('https://i.imgur.com/uPnNK9Y.png'); // Default fallback
   const [stats, setStats] = useState({});
   const [isHovered, setIsHovered] = useState(false);
   const fileInputRef = useRef(null);
@@ -16,23 +18,24 @@ function UserProfile() {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-    try {
-      const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
-      setUserInfo({
-        userID: user.attributes.sub,
-        attributes: user.attributes,
-        isGoogleUser: user.attributes['identities']?.includes('Google') || false,
-      });
-      const pictureUrl = user.attributes['custom:uploadedPicture'];
-      if (pictureUrl) setProfilePicture(pictureUrl);
-    } catch (error) {
-      console.error('Error fetching user info:', error);
-    }
-  };
+      try {
+        const user = await Auth.currentAuthenticatedUser();
+        console.log('Authenticated user:', user);
+        setEmail(user.attributes?.email || 'N/A');
+        const pictureUrl = user.attributes['custom:uploadedPicture'] || user.attributes.picture;
+        if (pictureUrl) setProfilePicture(pictureUrl);
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
 
     const fetchStats = async () => {
+      if (!userID) {
+        console.log('No userID yet, skipping fetchStats');
+        return;
+      }
       try {
-        const ranked = await fetchRankedSongs('any', 'any');
+        const ranked = await fetchRankedSongs({ userID, genre: 'any', subgenre: 'any' });
         const genreStats = ranked.reduce((acc, song) => {
           const genre = song.genre || 'Unknown';
           const subgenre = song.subgenre || 'None';
@@ -52,7 +55,7 @@ function UserProfile() {
 
     fetchUserInfo();
     fetchStats();
-  }, [fetchRankedSongs]);
+  }, [userID, fetchRankedSongs]); // Dependencies: userID and fetchRankedSongs
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
@@ -69,7 +72,6 @@ function UserProfile() {
       });
       console.log('S3 upload result:', result);
 
-      // Construct unsigned public URL
       const url = `https://songranker168d4c9071004e018de33684bf3c094ede93a-dev.s3.us-east-1.amazonaws.com/public/${result.key}`;
       console.log('Generated public URL:', url);
 
@@ -80,7 +82,6 @@ function UserProfile() {
       });
       console.log('Cognito attribute updated with URL:', url);
 
-      // Verify update
       const refreshedUser = await Auth.currentAuthenticatedUser({ bypassCache: true });
       console.log('Refreshed user attributes after upload:', refreshedUser.attributes);
       if (refreshedUser.attributes['custom:uploadedPicture'] !== url) {
@@ -90,7 +91,6 @@ function UserProfile() {
       setProfilePicture(url);
       console.log('Profile picture set to:', url);
 
-      // Test accessibility
       const img = new Image();
       img.src = url;
       img.onload = () => console.log('Uploaded image loaded successfully:', url);
@@ -113,19 +113,18 @@ function UserProfile() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await Auth.signOut();
       navigate('/login');
       console.log('Sign out successful');
     } catch (error) {
       console.error('Sign out failed:', error);
     }
   };
-  
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <h2 style={{ textAlign: 'center', fontSize: '1.75rem', fontWeight: 400, marginBottom: '1.5rem', color: '#141820' }}>
-        {displayName || 'User Profile'}
+        {userAttributes?.preferred_username || 'User Profile'}
       </h2>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
         <div
@@ -196,7 +195,7 @@ function UserProfile() {
                   padding: '0.5rem 1rem',
                   borderRadius: '6px',
                   boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-                  width: '300px'
+                  width: '300px',
                 }}
               >
                 {key}: {value} ranked songs
@@ -212,7 +211,7 @@ function UserProfile() {
       <div style={{ textAlign: 'center', marginTop: '2rem' }}>
         <button
           onClick={handleSignOut}
-          style={{ background: '#e74c3c' }}
+          style={{ background: '#e74c3c', padding: '0.5rem 1rem', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
         >
           Log Out
         </button>

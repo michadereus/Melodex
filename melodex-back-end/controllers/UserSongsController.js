@@ -12,6 +12,16 @@ class UserSongsController {
       return res.status(400).json({ error: 'userID is required' });
     }
 
+    if (!db) {
+      console.error('Database not connected in getNewSongsForUser');
+      return res.status(500).json({ error: 'Database connection unavailable' });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY not set in getNewSongsForUser');
+      return res.status(500).json({ error: 'OpenAI API key missing' });
+    }
+
     try {
       console.log('START getNewSongsForUser for userID:', userID);
       console.log('Fetching user songs from DB...');
@@ -132,6 +142,11 @@ class UserSongsController {
     if (!userID) {
       console.error('No userID provided in upsertUserSong');
       return res.status(400).json({ error: 'userID is required' });
+    }
+
+    if (!db) {
+      console.error('Database not connected in upsertUserSong');
+      return res.status(500).json({ error: 'Database connection unavailable' });
     }
 
     try {
@@ -267,6 +282,11 @@ class UserSongsController {
       return res.status(400).json({ error: 'userID is required' });
     }
 
+    if (!db) {
+      console.error('Database not connected in getRankedSongsForUser');
+      return res.status(500).json({ error: 'Database connection unavailable' });
+    }
+
     try {
       const query = { userID, skipped: false };
       if (subgenre && subgenre !== 'any') {
@@ -296,6 +316,11 @@ class UserSongsController {
       return res.status(400).json({ error: 'userID is required' });
     }
 
+    if (!db) {
+      console.error('Database not connected in getReRankSongsForUser');
+      return res.status(500).json({ error: 'Database connection unavailable' });
+    }
+
     try {
       const query = { userID, skipped: false };
       if (subgenre && subgenre !== 'any') {
@@ -318,16 +343,19 @@ class UserSongsController {
         res.status(200).json(randomPair);
       }
     } catch (error) {
-      console.error('Error fetching rerank songs:', error);
-      res.status(500).json({ error: 'Failed to fetch rerank songs' });
+      console.error('Error fetching rerank songs:', error.message, error.stack);
+      res.status(500).json({ error: 'Failed to fetch rerank songs', details: error.message });
     }
   }
 
   static async getDeezerInfo(req, res) {
     const { songs } = req.body;
 
-    // No userID check here since this endpoint doesn't require it
-    // It’s a utility function that enriches song data, not tied to a user
+    if (!req.app.locals.db) {
+      console.error('Database not connected in getDeezerInfo');
+      return res.status(500).json({ error: 'Database connection unavailable' });
+    }
+
     console.log('START getDeezerInfo with songs:', songs);
     try {
       const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(songs);
@@ -382,15 +410,20 @@ class UserSongsController {
       }
     });
 
-  const enrichedSongs = await Promise.all(enrichedSongsPromises);
-  console.log('END enrichSongsWithDeezer, returning', enrichedSongs.length, 'songs:', enrichedSongs);
-  return enrichedSongs;
-}
+    const enrichedSongs = await Promise.all(enrichedSongsPromises);
+    console.log('END enrichSongsWithDeezer, returning', enrichedSongs.length, 'songs:', enrichedSongs);
+    return enrichedSongs;
+  }
 
   static async getAverageRanking(db, userID, genre, subgenre) {
     if (!userID) {
       console.error('No userID provided in getAverageRanking');
       return 1200; // Default ranking as a fallback
+    }
+
+    if (!db) {
+      console.error('Database not connected in getAverageRanking');
+      return 1200; // Default fallback
     }
 
     const query = { userID, genre, skipped: false, ranking: { $ne: null } };

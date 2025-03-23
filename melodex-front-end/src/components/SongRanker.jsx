@@ -3,7 +3,9 @@ import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://melodex-backend.us-east-1.elasticbeanstalk.com/api';
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:8080/api' 
+  : 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api';
 
 export const SongRanker = ({ mode }) => {
   const { 
@@ -42,7 +44,7 @@ export const SongRanker = ({ mode }) => {
         previewURL: s.previewURL,
       })));
       setIsProcessing(true);
-      const url = 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api/user-songs/deezer-info';
+      const url = `${API_BASE_URL}/user-songs/deezer-info`;
       console.log('Enriching songs with URL:', url);
 
       fetch(url, {
@@ -88,77 +90,41 @@ export const SongRanker = ({ mode }) => {
         await generateNewSongs(filters);
         setApplied(true);
       } else if (mode === 'rerank') {
-        await fetchReRankingData(filters.genre, filters.subgenre);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Fetch timeout')), 10000)
+        );
+        const fetchPromise = fetchReRankingData(filters.genre, filters.subgenre);
+        await Promise.race([fetchPromise, timeoutPromise]);
         setApplied(true);
       }
     } catch (error) {
       console.error('Error in handleApply:', error);
+      setApplied(true);
     } finally {
       setLoading(false);
       setIsProcessing(false);
     }
   };
 
-  const toggleFilter = () => {
-    setShowFilter(prev => !prev);
+  const handlePick = (winnerId) => {
+    const loserId = enrichedPair.find(s => s.deezerID !== winnerId)?.deezerID;
+    selectSong(winnerId, loserId);
   };
 
-  const handlePick = async (winnerId) => {
-    const loserSong = enrichedPair.find((s) => s.deezerID !== winnerId);
-    if (!loserSong || !loserSong.deezerID) {
-      refreshPair();
-      return;
-    }
-    setIsProcessing(true);
-    try {
-      await selectSong(winnerId, loserSong.deezerID);
-    } catch (error) {
-      console.error('Failed to pick song:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleSkip = async (songId) => {
-    setIsProcessing(true);
-    try {
-      console.log(`Skipping song ${songId} in mode: ${mode}`);
-      await skipSong(songId);
-      console.log('Post-skip currentPair:', currentPair.map(s => ({
-        songName: s.songName,
-        previewURL: s.previewURL,
-      })));
-      if (currentPair.length === 0 || currentPair.length < 2) {
-        console.log('Fetching next pair after skip in mode:', mode);
-        await getNextPair();
-      }
-    } catch (error) {
-      console.error('Failed to skip song:', error);
-      console.log('Falling back to fetch next pair after skip failure');
-      await getNextPair();
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleSkip = (songId) => {
+    skipSong(songId);
   };
 
   return (
     <div className="song-ranker-container">
       <div
-        className={`filter-container ${mode === 'rerank' ? 'filter-rerank' : ''} ${showFilter ? 'visible' : 'hidden'}`}
-        style={{ width: mode === 'rerank' ? '550px' : '700px' }}
+        className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}
+        style={{ width: '550px', margin: '0 auto' }}
       >
-        <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={toggleFilter} />
+        <SongFilter onApply={handleApply} isRankPage={false} onHide={() => setShowFilter(false)} />
       </div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          margin: '0',
-          transition: 'transform 0.3s ease',
-          transform: showFilter ? 'translateY(0.5rem)' : 'translateY(0)',
-        }}
-      >
-        <button className="filter-toggle" onClick={toggleFilter}>
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '0' }}>
+        <button className="filter-toggle" onClick={() => setShowFilter(prev => !prev)}>
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect y="4" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line" />
             <rect y="9" width="20" height="2" rx="1" fill="#bdc3c7" className="filter-line" />
@@ -166,24 +132,21 @@ export const SongRanker = ({ mode }) => {
           </svg>
         </button>
       </div>
-      {(loading || isProcessing) ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+      {(loading || isProcessing) || !applied || !Array.isArray(enrichedPair) || enrichedPair.length === 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div
             style={{
-              border: '4px solid #e0e0e0',
+              border: '4px solid #ecf0f1',
               borderTop: '4px solid #3498db',
               borderRadius: '50%',
-              width: '36px',
-              height: '36px',
+              width: '40px',
+              height: '40px',
               animation: 'spin 1s linear infinite',
             }}
           ></div>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
         </div>
-      ) : applied && currentPair.length === 0 ? (
-        <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>
-          {mode === 'rerank' ? 'No ranked songs available to re-rank yet.' : 'No more songs to rank.'}
-        </p>
-      ) : applied && Array.isArray(enrichedPair) && enrichedPair.length > 0 ? (
+      ) : (
         <div className="song-ranker-wrapper">
           <h2
             style={{
@@ -195,8 +158,8 @@ export const SongRanker = ({ mode }) => {
           >
             {mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}
           </h2>
-          <div className="song-pair">
-            {Array.from(new Map(enrichedPair.map(song => [song.deezerID, song]))).map((song) => (
+          <div className="song-pair" key="song-pair">
+            {enrichedPair.map((song) => (
               <div key={song.deezerID} className="song-card-container">
                 <div
                   className="song-box"
@@ -226,7 +189,7 @@ export const SongRanker = ({ mode }) => {
                     ) : (
                       <span className="preview-unavailable" style={{ display: 'block' }}>Preview unavailable</span>
                     )}
-                    <span className="preview-unavailable">Preview unavailable</span>
+                    <span className="preview-unavailable" style={{ display: 'none' }}>Preview unavailable</span>
                   </div>
                 </div>
                 <button
@@ -246,7 +209,7 @@ export const SongRanker = ({ mode }) => {
             ))}
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 };
