@@ -1,7 +1,12 @@
+// Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
 import React, { useState, useEffect } from 'react';
 import SongFilter from './SongFilter';
 import '../index.css';
+
+const API_BASE_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:8080/api' 
+  : 'https://melodex-backend.us-east-1.elasticbeanstalk.com/api';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
@@ -12,9 +17,6 @@ const Rankings = () => {
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
 
-  console.log('Rankings render - userID:', userID); // Debug userID availability
-
-  // Initial fetch when userID is ready
   useEffect(() => {
     let mounted = true;
     let retries = 0;
@@ -22,16 +24,11 @@ const Rankings = () => {
 
     const fetchInitialData = async () => {
       if (!mounted) return;
-
       if (userID && !applied) {
-        console.log('Initial fetch triggered with userID:', userID);
         await handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
-      } else if (retries < maxRetries && !applied) { // Stop if applied
-        console.log('userID not ready yet, retrying...', { retries, userID });
+      } else if (retries < maxRetries) {
         retries += 1;
         setTimeout(fetchInitialData, 500);
-      } else {
-        console.error('Max retries reached or already applied');
       }
     };
 
@@ -41,35 +38,21 @@ const Rankings = () => {
     };
   }, [userID, applied]);
 
-  // Enrich songs when rankedSongs updates
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
       setIsFetching(true);
-      const url = 'http://localhost:8080/api/user-songs/deezer-info';
-      console.log('Enriching ranked songs with URL:', url);
-
+      const url = `${API_BASE_URL}/user-songs/deezer-info`; // Use dynamic URL
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ songs: rankedSongs })
       })
         .then(response => {
-          if (!response.ok) {
-            console.error(`HTTP error enriching ranked songs! Status: ${response.status}`);
-            throw new Error('Failed to fetch Deezer info');
-          }
-          return response.text();
+          if (!response.ok) throw new Error(`Failed to fetch Deezer info: ${response.status}`);
+          return response.json(); // Use json() directly
         })
-        .then(text => {
-          console.log('Raw Deezer response for rankings:', text);
-          try {
-            const freshSongs = JSON.parse(text);
-            console.log('Enriched songs for rankings:', freshSongs);
-            setEnrichedSongs(freshSongs);
-          } catch (error) {
-            console.error('JSON parse error in Rankings:', error, 'Raw response:', text);
-            setEnrichedSongs(rankedSongs);
-          }
+        .then(freshSongs => {
+          setEnrichedSongs(freshSongs);
         })
         .catch(error => {
           console.error('Failed to enrich ranked songs:', error);
@@ -82,11 +65,7 @@ const Rankings = () => {
   }, [rankedSongs, applied]);
 
   const handleApply = async (filters) => {
-    if (!userID) {
-      console.error('handleApply: No userID available yet, skipping fetch');
-      return;
-    }
-    console.log('handleApply called with userID:', userID, 'filters:', filters);
+    if (!userID) return;
     setShowFilter(false);
     setApplied(false);
     setEnrichedSongs([]);
@@ -94,11 +73,15 @@ const Rankings = () => {
     setSelectedGenre(filters.genre);
     setSelectedSubgenre(filters.subgenre);
     try {
-      await fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre });
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Fetch timeout')), 60000)
+      );
+      const fetchPromise = fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre });
+      await Promise.race([fetchPromise, timeoutPromise]);
       setApplied(true);
     } catch (error) {
       console.error('handleApply error:', error);
-      setApplied(true); // Ensure loading stops even on error
+      setApplied(true);
     }
   };
 
