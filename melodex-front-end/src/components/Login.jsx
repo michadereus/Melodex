@@ -65,7 +65,7 @@ const Login = () => {
           marginBottom: '0.5rem',
         }}
       >
-        Melodx
+        Melodx.io
       </h2>
       <p
         style={{

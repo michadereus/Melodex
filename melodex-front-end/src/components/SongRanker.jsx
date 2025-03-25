@@ -1,4 +1,4 @@
-// Melodex/melodex-front-end/src/components/SongRanker.jsx
+// Filepath: Melodex/melodex-front-end/src/components/SongRanker.jsx
 import React, { useState, useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
@@ -19,18 +19,20 @@ export const SongRanker = ({ mode }) => {
     getNextPair, 
     songList,
     setSongList,
-    userID: contextUserID // Add contextUserID to wait for it
+    userID: contextUserID
   } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [fetchError, setFetchError] = useState(null); // Track API errors
 
   useEffect(() => {
     setMode(mode);
     setApplied(false);
     setCurrentPair([]);
     setEnrichedPair([]);
+    setFetchError(null);
   }, [mode, setMode, setCurrentPair]);
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export const SongRanker = ({ mode }) => {
       console.log('Initial fetch triggered for /rerank');
       handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
     }
-  }, [mode, applied, loading, currentPair, contextUserID]); // Add contextUserID as a dependency
+  }, [mode, applied, loading, currentPair, contextUserID]);
 
   useEffect(() => {
     if (mode === 'new' && applied && currentPair.length === 0 && !loading && songList.length > 0) {
@@ -92,10 +94,19 @@ export const SongRanker = ({ mode }) => {
     setApplied(false);
     setEnrichedPair([]);
     setIsProcessing(true);
+    setFetchError(null);
     try {
       if (mode === 'new') {
-        const newSongs = await generateNewSongs(filters);
+        let newSongs = await generateNewSongs(filters);
         console.log('New songs fetched:', newSongs);
+        if (newSongs.length === 0) {
+          // Retry once on failure
+          console.log('Retrying generateNewSongs due to empty result');
+          newSongs = await generateNewSongs(filters);
+          if (newSongs.length === 0) {
+            setFetchError('Unable to load new songs from the server. Please try again later or contact support.');
+          }
+        }
         setSongList(newSongs);
         setApplied(true);
       } else if (mode === 'rerank') {
@@ -108,6 +119,7 @@ export const SongRanker = ({ mode }) => {
       }
     } catch (error) {
       console.error('Error in handleApply:', error);
+      setFetchError('An error occurred while fetching songs. Please try again or contact support.');
       setApplied(true);
     } finally {
       setLoading(false);
@@ -153,13 +165,33 @@ export const SongRanker = ({ mode }) => {
               animation: 'spin 1s linear infinite',
             }}
           ></div>
-          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>Loading songs...</p>
         </div>
       ) : !applied && mode === 'new' ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <p style={{ fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
             Select filters to rank songs
           </p>
+        </div>
+      ) : fetchError ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <p style={{ fontSize: '1.2em', color: '#e74c3c', fontWeight: '600' }}>
+            {fetchError}
+          </p>
+          <button
+            onClick={() => handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' })}
+            style={{
+              marginTop: '1rem',
+              background: '#3498db',
+              color: '#fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Retry
+          </button>
         </div>
       ) : !Array.isArray(enrichedPair) || enrichedPair.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
@@ -228,6 +260,21 @@ export const SongRanker = ({ mode }) => {
                 </button>
               </div>
             ))}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+            <button
+              className="refresh-icon-btn"
+              onClick={refreshPair}
+              disabled={loading || isProcessing}
+              title="Refresh Pair"
+            >
+              <svg width="25" height="25" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4.01 7.58 4.01 12C4.01 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
+                  fill="#bdc3c7"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       )}
