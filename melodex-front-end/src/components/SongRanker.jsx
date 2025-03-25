@@ -1,3 +1,4 @@
+// Melodex/melodex-front-end/src/components/SongRanker.jsx
 import React, { useState, useEffect } from 'react';
 import { useSongContext } from '../contexts/SongContext';
 import SongFilter from './SongFilter';
@@ -6,6 +7,7 @@ import '../index.css';
 export const SongRanker = ({ mode }) => {
   const { 
     currentPair, 
+    setCurrentPair,
     selectSong, 
     skipSong, 
     loading, 
@@ -15,17 +17,28 @@ export const SongRanker = ({ mode }) => {
     generateNewSongs, 
     fetchReRankingData, 
     getNextPair, 
-    songList 
+    songList,
+    setSongList,
+    userID: contextUserID // Add contextUserID to wait for it
   } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
-  const [showFilter, setShowFilter] = useState(true);
+  const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     setMode(mode);
     setApplied(false);
-  }, [mode, setMode]);
+    setCurrentPair([]);
+    setEnrichedPair([]);
+  }, [mode, setMode, setCurrentPair]);
+
+  useEffect(() => {
+    if (mode === 'rerank' && !applied && !loading && currentPair.length === 0 && contextUserID) {
+      console.log('Initial fetch triggered for /rerank');
+      handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
+    }
+  }, [mode, applied, loading, currentPair, contextUserID]); // Add contextUserID as a dependency
 
   useEffect(() => {
     if (mode === 'new' && applied && currentPair.length === 0 && !loading && songList.length > 0) {
@@ -34,47 +47,45 @@ export const SongRanker = ({ mode }) => {
   }, [mode, applied, currentPair, loading, songList, getNextPair]);
 
   useEffect(() => {
-    if (currentPair.length > 0 && !loading) {
-      console.log(`Mode: ${mode}, Current pair updated:`, currentPair.map(s => ({
-        songName: s.songName,
-        previewURL: s.previewURL,
-      })));
+    if (currentPair.length > 0 && !loading && (mode !== 'new' || applied)) {
+      console.log('Starting enrichment for currentPair:', currentPair);
       setIsProcessing(true);
-      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/deezer-info`;
-      console.log('Enriching songs with URL:', url);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.log('Fetch timed out after 10s');
+      }, 10000);
 
+      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songs: currentPair })
+        body: JSON.stringify({ songs: currentPair }),
+        signal: controller.signal,
       })
         .then(response => {
+          clearTimeout(timeoutId);
           if (!response.ok) {
-            console.error(`HTTP error enriching songs! Status: ${response.status}`);
-            throw new Error('Failed to fetch Deezer info');
+            throw new Error(`HTTP error enriching songs! Status: ${response.status}`);
           }
           return response.text();
         })
         .then(text => {
           console.log('Raw Deezer response:', text);
-          try {
-            const freshSongs = JSON.parse(text);
-            console.log('Enriched songs for rerank:', freshSongs);
-            setEnrichedPair(freshSongs);
-          } catch (error) {
-            console.error('JSON parse error in SongRanker:', error, 'Raw response:', text);
-            setEnrichedPair(currentPair);
-          }
+          const freshSongs = JSON.parse(text);
+          console.log('Enriched songs:', freshSongs);
+          setEnrichedPair(freshSongs);
         })
         .catch(error => {
-          console.error('Failed to enrich songs for rerank:', error);
+          console.error('Enrichment error:', error);
           setEnrichedPair(currentPair);
         })
         .finally(() => {
+          console.log('Enrichment complete, resetting isProcessing');
           setIsProcessing(false);
         });
     }
-  }, [currentPair, loading, mode]);
+  }, [currentPair, loading, mode, applied]);
 
   const handleApply = async (filters) => {
     setShowFilter(false);
@@ -83,7 +94,9 @@ export const SongRanker = ({ mode }) => {
     setIsProcessing(true);
     try {
       if (mode === 'new') {
-        await generateNewSongs(filters);
+        const newSongs = await generateNewSongs(filters);
+        console.log('New songs fetched:', newSongs);
+        setSongList(newSongs);
         setApplied(true);
       } else if (mode === 'rerank') {
         const timeoutPromise = new Promise((_, reject) =>
@@ -115,9 +128,9 @@ export const SongRanker = ({ mode }) => {
     <div className="song-ranker-container">
       <div
         className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}
-        style={{ width: '550px', margin: '0 auto' }}
+        style={{ width: mode === 'new' ? '700px' : '550px', margin: '0 auto' }}
       >
-        <SongFilter onApply={handleApply} isRankPage={false} onHide={() => setShowFilter(false)} />
+        <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={() => setShowFilter(false)} />
       </div>
       <div style={{ display: 'flex', justifyContent: 'center', margin: '0' }}>
         <button className="filter-toggle" onClick={() => setShowFilter(prev => !prev)}>
@@ -128,7 +141,7 @@ export const SongRanker = ({ mode }) => {
           </svg>
         </button>
       </div>
-      {(loading || isProcessing) || !applied || !Array.isArray(enrichedPair) || enrichedPair.length === 0 ? (
+      {(loading || isProcessing) ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div
             style={{
@@ -141,6 +154,18 @@ export const SongRanker = ({ mode }) => {
             }}
           ></div>
           <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}></p>
+        </div>
+      ) : !applied && mode === 'new' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <p style={{ fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
+            Select filters to rank songs
+          </p>
+        </div>
+      ) : !Array.isArray(enrichedPair) || enrichedPair.length === 0 ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <p style={{ fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
+            No songs available to rank
+          </p>
         </div>
       ) : (
         <div className="song-ranker-wrapper">

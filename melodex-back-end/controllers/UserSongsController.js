@@ -5,7 +5,11 @@ class UserSongsController {
   static async getNewSongsForUser(req, res) {
     const { userID, genre = 'pop', subgenre, decade } = req.body;
     const db = req.app.locals.db;
-    const numSongs = 30;
+    let numSongs = 15; // Start with a smaller number to get more unique songs
+    const minSongs = 10;
+    const maxAttempts = 3;
+    let attempt = 0;
+    let newSongs = [];
 
     if (!userID) {
       console.error('No userID provided in getNewSongsForUser');
@@ -26,9 +30,9 @@ class UserSongsController {
       console.log('START getNewSongsForUser for userID:', userID);
       console.log('Fetching user songs from DB...');
       const userSongs = await db.collection('user_songs').find({ userID }).toArray();
-      console.log('User songs from DB:', userSongs.length, 'songs');
+      console.log('User songs from DB:', userSongs.length, 'songs', userSongs);
       const userDeezerIDs = userSongs.map(song => song.deezerID);
-      console.log('User deezerIDs count:', userDeezerIDs.length);
+      console.log('User deezerIDs:', userDeezerIDs);
 
       const seenSongs = userSongs.map(song => `${song.songName}, ${song.artist}`);
       const songsString = seenSongs.length > 0 ? seenSongs.join(', ') : 'None';
@@ -49,64 +53,77 @@ class UserSongsController {
         promptGenre = `${genre} with all subgenres`;
       }
 
-      const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${promptGenre} genre, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
-      console.log('OpenAI prompt:', prompt);
+      while (newSongs.length < minSongs && attempt < maxAttempts) {
+        attempt++;
+        console.log(`Attempt ${attempt} to fetch new songs...`);
+        const prompt = `Generate a list of ${numSongs} well-known hit songs in the ${promptGenre} genre, released between ${startYear} and ${endYear}. Each song must be formatted as "Song Name, Artist". Exclude the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. Focus on lesser-known hits to avoid repetition. Provide only the song list, no explanations.`;
+        console.log('OpenAI prompt:', prompt);
 
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: prompt }],
-          max_tokens: 500,
-          temperature: 0.9,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        const response = await axios.post(
+          'https://api.openai.com/v1/chat/completions',
+          {
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: 500,
+            temperature: 0.9,
           },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+          }
+        );
+        console.log('OpenAI response status:', response.status, 'data:', response.data);
+
+        const songList = response.data.choices[0].message.content
+          .trim()
+          .split('\n')
+          .map(line => line.trim());
+        console.log('Parsed song list:', songList);
+
+        if (songList.length !== numSongs) {
+          console.warn(`OpenAI returned ${songList.length} songs instead of ${numSongs}`);
         }
-      );
-      console.log('OpenAI response status:', response.status, 'data:', response.data);
 
-      const songList = response.data.choices[0].message.content
-        .trim()
-        .split('\n')
-        .map(line => line.trim());
-      console.log('Parsed song list length:', songList.length);
+        const initialRanking = await UserSongsController.getAverageRanking(db, userID, genre, subgenre);
+        console.log(`Initial ranking for new ${genre} songs (subgenre: ${subgenre || 'any'}): ${initialRanking}`);
 
-      if (songList.length !== numSongs) {
-        console.warn(`OpenAI returned ${songList.length} songs instead of ${numSongs}`);
+        const transformedSongs = songList.map(songString => {
+          const parts = songString.split(/,\s*/);
+          const songNameRaw = parts[0];
+          const artistRaw = parts.slice(1).join(', ');
+          const songName = songNameRaw.replace(/^\d+\.\s*"?(.*?)"?$/, '$1').trim();
+          const artist = artistRaw.replace(/^"?(.*?)"?$/, '$1').trim();
+          return {
+            songName,
+            artist,
+            genre,
+            subgenre: subgenre || null,
+            decade: decade || null,
+            albumCover: '',
+            previewURL: '',
+            ranking: initialRanking,
+            skipped: false,
+          };
+        });
+        console.log('Transformed songs:', transformedSongs);
+
+        const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(transformedSongs);
+        console.log('Enriched songs:', enrichedSongs);
+
+        newSongs = enrichedSongs.filter(song => !userDeezerIDs.includes(song.deezerID));
+        console.log('Filtered new songs:', newSongs);
+
+        if (newSongs.length < minSongs && attempt < maxAttempts) {
+          numSongs = Math.min(numSongs + 10, 50);
+          console.log(`Retrying with numSongs=${numSongs}...`);
+        }
       }
 
-      const initialRanking = await UserSongsController.getAverageRanking(db, userID, genre, subgenre);
-      console.log(`Initial ranking for new ${genre} songs (subgenre: ${subgenre || 'any'}): ${initialRanking}`);
-
-      const transformedSongs = songList.map(songString => {
-        const parts = songString.split(/,\s*/);
-        const songNameRaw = parts[0];
-        const artistRaw = parts.slice(1).join(', ');
-        const songName = songNameRaw.replace(/^\d+\.\s*"?(.*?)"?$/, '$1').trim();
-        const artist = artistRaw.replace(/^"?(.*?)"?$/, '$1').trim();
-        return {
-          songName,
-          artist,
-          genre,
-          subgenre: subgenre || null,
-          decade: decade || null,
-          albumCover: '',
-          previewURL: '',
-          ranking: initialRanking,
-          skipped: false,
-        };
-      });
-      console.log('Transformed songs:', transformedSongs.length);
-
-      const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(transformedSongs);
-      console.log('Enriched songs:', enrichedSongs.length);
-
-      const newSongs = enrichedSongs.filter(song => !userDeezerIDs.includes(song.deezerID));
-      console.log('Filtered new songs:', newSongs.length);
+      if (newSongs.length === 0) {
+        console.warn('No new songs available after filtering');
+      }
 
       console.log('END getNewSongsForUser, sending response with', newSongs.length, 'songs');
       res.status(200).json(newSongs);

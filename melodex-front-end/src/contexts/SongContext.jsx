@@ -24,6 +24,8 @@ export const SongProvider = ({ children }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [contextUserID, setContextUserID] = useState(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
     setContextUserID(userID);
@@ -57,13 +59,25 @@ export const SongProvider = ({ children }) => {
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
     if (!userID) return [];
-    setLoading(true); // Start loading
+    setLoading(true);
+    console.log('Loading set to true');
     try {
-      const response = await fetch('https://api.melodx.io/api/user-songs/new', {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        console.log('generateNewSongs fetch timed out');
+      }, 10000);
+
+      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/new`;
+      console.log('generateNewSongs filters:', filters);
+      const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({ userID, ...filters }),
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
       if (!response.ok) throw new Error('Failed to fetch new songs');
       const songs = await response.json();
       return songs;
@@ -71,7 +85,8 @@ export const SongProvider = ({ children }) => {
       console.error('Failed to generate new songs:', error);
       return [];
     } finally {
-      setLoading(false); // Always stop loading
+      setLoading(false);
+      console.log('Loading set to false');
     }
   };
 
@@ -81,6 +96,7 @@ export const SongProvider = ({ children }) => {
       return [];
     }
     setLoading(true);
+    console.log('Loading set to true');
     try {
       console.log('fetchReRankingData with genre:', genre, 'subgenre:', subgenre);
       const payload = { userID: contextUserID };
@@ -91,7 +107,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/rerank`;
+      const url = `${API_BASE_URL}/user-songs/rerank`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,6 +126,7 @@ export const SongProvider = ({ children }) => {
       return [];
     } finally {
       setLoading(false);
+      console.log('Loading set to false');
     }
   };
 
@@ -122,14 +139,15 @@ export const SongProvider = ({ children }) => {
       return [];
     }
     setLoading(true);
-    const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/ranked`;
+    console.log('Loading set to true');
+    const url = `${API_BASE_URL}/user-songs/ranked`;
     console.log('Fetching ranked songs from:', url);
 
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID: idToUse, genre, subgenre })
+        body: JSON.stringify({ userID: idToUse, genre, subgenre }),
       });
 
       if (!response.ok) {
@@ -156,6 +174,7 @@ export const SongProvider = ({ children }) => {
       return [];
     } finally {
       setLoading(false);
+      console.log('Loading set to false');
     }
   }, [contextUserID, selectedGenre]);
 
@@ -165,6 +184,7 @@ export const SongProvider = ({ children }) => {
       return;
     }
     setLoading(true);
+    console.log('Loading set to true');
     try {
       console.log('selectSong called with:', { winnerId, loserId, userID, currentPair });
       const winnerSong = currentPair.find(s => s.deezerID === winnerId);
@@ -199,7 +219,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending payload to /api/user-songs/upsert:', payload);
 
-      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/upsert`;
+      const url = `${API_BASE_URL}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -238,6 +258,7 @@ export const SongProvider = ({ children }) => {
       console.error('Failed to select song:', error.message);
     } finally {
       setLoading(false);
+      console.log('Loading set to false');
     }
   };
 
@@ -247,6 +268,7 @@ export const SongProvider = ({ children }) => {
       return;
     }
     setLoading(true);
+    console.log('Loading set to true');
     try {
       console.log('skipSong called with songId:', songId, 'userID:', userID);
       const skippedSong = currentPair.find(s => s.deezerID === songId);
@@ -272,7 +294,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
-      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/upsert`;
+      const url = `${API_BASE_URL}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -312,6 +334,7 @@ export const SongProvider = ({ children }) => {
       setCurrentPair([]);
     } finally {
       setLoading(false);
+      console.log('Loading set to false');
     }
   };
 
@@ -321,6 +344,7 @@ export const SongProvider = ({ children }) => {
       return;
     }
     setLoading(true);
+    console.log('Loading set to true');
     try {
       if (mode === 'new' && currentPair.length === 2) {
         await Promise.all([
@@ -337,6 +361,7 @@ export const SongProvider = ({ children }) => {
       setCurrentPair([]);
     } finally {
       setLoading(false);
+      console.log('Loading set to false');
     }
   }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
 

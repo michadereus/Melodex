@@ -12,7 +12,7 @@ const subgenres = {
   'Pop': ['Teen Pop', 'Dance-Pop', 'Indie Pop', 'Synth-Pop'],
   'Hip-Hop/Rap': ['Gangsta Rap', 'Trap', 'Conscious Rap', 'Pop Rap'],
   'R&B/Soul': ['Contemporary R&B', 'Neo-Soul', 'Hip-Hop Soul'],
-  'Electronic Dance Music (EDM)': ['House', 'Dubstep', 'Trance', 'Techno'],
+  'Electronic Dance Music': ['House', 'Dubstep', 'Trance', 'Techno'],
   'Country': ['Country Pop', 'Alt-Country', 'Bro-Country'],
   'Reggae/Reggaeton': ['Roots Reggae', 'Reggaeton'],
   'K-Pop': ['Bubblegum Pop K-Pop', 'Modern K-Pop'],

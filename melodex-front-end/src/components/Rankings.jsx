@@ -35,18 +35,20 @@ const Rankings = () => {
 
   useEffect(() => {
     if (applied && rankedSongs !== undefined) {
+      console.log('Enriching rankedSongs:', rankedSongs);
       setIsFetching(true);
-      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/deezer-info`;
+      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
       fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songs: rankedSongs })
+        body: JSON.stringify({ songs: rankedSongs }),
       })
         .then(response => {
           if (!response.ok) throw new Error(`Failed to fetch Deezer info: ${response.status}`);
           return response.json();
         })
         .then(freshSongs => {
+          console.log('Enriched songs received:', freshSongs);
           setEnrichedSongs(freshSongs);
         })
         .catch(error => {
@@ -55,6 +57,7 @@ const Rankings = () => {
         })
         .finally(() => {
           setIsFetching(false);
+          console.log('isFetching set to false');
         });
     }
   }, [rankedSongs, applied]);

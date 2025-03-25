@@ -1,3 +1,4 @@
+// melodex-back-end/app.js
 const express = require('express');
 const { MongoClient } = require('mongodb');
 require('dotenv').config();
@@ -9,7 +10,6 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Backend is running', timestamp: new Date() });
 });
 
-// Split CORS_ORIGIN into an array if it’s a comma-separated string, fallback to defaults
 const allowedOrigins = process.env.CORS_ORIGIN
   ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
   : [
@@ -79,4 +79,14 @@ process.on('SIGINT', async () => {
   if (client) await client.close();
   console.log('MongoDB connection closed');
   process.exit(0);
+});
+
+// Error handling middleware for CORS errors
+app.use((err, req, res, next) => {
+  if (err.message === 'Not allowed by CORS') {
+    res.set('Access-Control-Allow-Origin', '*'); // Temporary for debugging
+    res.status(403).json({ error: 'CORS error', message: err.message });
+  } else {
+    res.status(500).json({ error: 'Server error', message: err.message });
+  }
 });
