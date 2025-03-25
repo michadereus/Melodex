@@ -23,6 +23,12 @@ const AuthRoute = ({ children }) => {
 };
 
 function App() {
+  const { loading } = useUserContext();
+
+  if (loading) {
+    return <div>Loading...</div>; // Ensure app waits for auth check
+  }
+
   return (
     <UserProvider>
       <SongProvider>
@@ -38,6 +44,7 @@ function App() {
                 <Route path="/rankings" element={<ProtectedRoute><Rankings /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
                 <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="*" element={<Navigate to="/login" replace />} /> {/* Catch-all redirect */}
               </Routes>
             </main>
             <footer style={{ background: '#141820', color: '#bdc3c7', padding: '1rem 1rem', textAlign: 'left', flexShrink: 0, fontSize: '0.7rem', boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}>

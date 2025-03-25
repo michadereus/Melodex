@@ -9,12 +9,15 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Backend is running', timestamp: new Date() });
 });
 
-const allowedOrigins = [
-  'https://main.dw9xqt12hzzbu.amplifyapp.com',
-  'http://main.dw9xqt12hzzbu.amplifyapp.com', // Add HTTP
-  'http://localhost:3000',
-  'http://localhost:3001'
-];
+// Split CORS_ORIGIN into an array if it’s a comma-separated string, fallback to defaults
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : [
+      'https://main.dw9xqt12hzzbu.amplifyapp.com',
+      'http://main.dw9xqt12hzzbu.amplifyapp.com',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ];
 
 const corsOptions = {
   origin: (origin, callback) => {

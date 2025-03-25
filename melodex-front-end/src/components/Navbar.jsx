@@ -11,7 +11,7 @@ function Navbar() {
   return (
     <nav>
       <div className="nav-left">
-        <Link to="/" className="logo">Melodex</Link>
+        <Link to="/" className="logo">Melodx.io</Link>
         <div className="nav-links">
           <Link to="/rank">
             <FontAwesomeIcon icon={faStar} className="nav-icon" /> <span>Rank</span>
