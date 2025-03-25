@@ -33,6 +33,10 @@ const Login = () => {
       setUserID(user.username);
       const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
       setDisplayName(preferredName);
+      console.log('Navigating to /rank, navigate type:', typeof navigate);
+      if (typeof navigate !== 'function') {
+        throw new Error('navigate is not a function');
+      }
       navigate('/rank');
     } catch (error) {
       console.error('Email login error:', error);

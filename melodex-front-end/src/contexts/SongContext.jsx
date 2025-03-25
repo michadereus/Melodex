@@ -56,43 +56,22 @@ export const SongProvider = ({ children }) => {
   }, [songList]);
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
-    if (!userID) {
-      console.error('No userID available for generateNewSongs');
-      return [];
-    }
-    setLoading(true);
+    if (!userID) return [];
+    setLoading(true); // Start loading
     try {
-      const payload = { 
-        userID, 
-        genre: filters.genre, 
-        subgenre: filters.subgenre !== 'all subgenres' ? filters.subgenre : null, 
-        decade: filters.decade !== 'all decades' ? filters.decade : null 
-      };
-      console.log('generateNewSongs with payload:', payload);
-      const url = `${import.meta.env.VITE_API_BASE_URL}/user-songs/new`;
-      const response = await fetch(url, {
+      const response = await fetch('https://api.melodx.io/api/user-songs/new', {
         method: 'POST',
+        body: JSON.stringify({ userID, ...filters }),
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error('Failed to fetch new songs');
-      const newSongs = await response.json();
-      console.log('generateNewSongs: Fetched songs:', newSongs);
-      if (isBackground) {
-        setSongBuffer(prev => [...prev, ...newSongs]);
-      } else {
-        setSongList(newSongs);
-        setLastFilters(filters);
-        getNextPair(newSongs);
-      }
-      return newSongs;
+      const songs = await response.json();
+      return songs;
     } catch (error) {
       console.error('Failed to generate new songs:', error);
-      setSongList([]);
-      setCurrentPair([]);
       return [];
     } finally {
-      setLoading(false);
+      setLoading(false); // Always stop loading
     }
   };
 
