@@ -26,9 +26,9 @@ class UserSongsController {
       console.log('START getNewSongsForUser for userID:', userID);
       console.log('Fetching user songs from DB...');
       const userSongs = await db.collection('user_songs').find({ userID }).toArray();
-      console.log('User songs from DB:', userSongs);
+      console.log('User songs from DB:', userSongs.length, 'songs');
       const userDeezerIDs = userSongs.map(song => song.deezerID);
-      console.log('User deezerIDs:', userDeezerIDs);
+      console.log('User deezerIDs count:', userDeezerIDs.length);
 
       const seenSongs = userSongs.map(song => `${song.songName}, ${song.artist}`);
       const songsString = seenSongs.length > 0 ? seenSongs.join(', ') : 'None';
@@ -50,6 +50,7 @@ class UserSongsController {
       }
 
       const prompt = `Please generate a list of ${numSongs} well-known hit songs in the ${promptGenre} genre, released between ${startYear} and ${endYear}. Each song should be formatted as "Song Name, Artist". Do NOT include any of the following songs: ${songsString}. Ensure the response has exactly ${numSongs} unique songs, with no artist appearing more than twice. The response must contain no explanations, only the song list.`;
+      console.log('OpenAI prompt:', prompt);
 
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
@@ -66,11 +67,13 @@ class UserSongsController {
           },
         }
       );
+      console.log('OpenAI response status:', response.status, 'data:', response.data);
 
       const songList = response.data.choices[0].message.content
         .trim()
         .split('\n')
         .map(line => line.trim());
+      console.log('Parsed song list length:', songList.length);
 
       if (songList.length !== numSongs) {
         console.warn(`OpenAI returned ${songList.length} songs instead of ${numSongs}`);
@@ -97,18 +100,19 @@ class UserSongsController {
           skipped: false,
         };
       });
+      console.log('Transformed songs:', transformedSongs.length);
 
       const enrichedSongs = await UserSongsController.enrichSongsWithDeezer(transformedSongs);
-      console.log('Enriched songs before filter:', enrichedSongs);
+      console.log('Enriched songs:', enrichedSongs.length);
 
       const newSongs = enrichedSongs.filter(song => !userDeezerIDs.includes(song.deezerID));
-      console.log('New songs after filter:', newSongs);
+      console.log('Filtered new songs:', newSongs.length);
 
-      console.log('END getNewSongsForUser, sending response with', newSongs.length, 'songs...');
+      console.log('END getNewSongsForUser, sending response with', newSongs.length, 'songs');
       res.status(200).json(newSongs);
     } catch (error) {
       console.error('Error in getNewSongsForUser:', error.message, error.stack);
-      res.status(500).json({ error: 'Failed to fetch new songs' });
+      res.status(500).json({ error: 'Failed to fetch new songs', details: error.message });
     }
   }
 

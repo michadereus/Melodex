@@ -18,13 +18,14 @@ const Login = () => {
         setUserID(user.username);
         const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
         setDisplayName(preferredName);
-        navigate('/rank');
+        console.log('Navigating to /rank from useEffect');
+        window.location.href = '/rank'; // Fallback navigation
       } catch (error) {
         console.log('No user authenticated on /login:', error);
       }
     };
     checkAuth();
-  }, [navigate, setUserID, setDisplayName]);
+  }, [setUserID, setDisplayName]);
 
   const handleLogin = async () => {
     try {
@@ -35,7 +36,9 @@ const Login = () => {
       setDisplayName(preferredName);
       console.log('Navigating to /rank, navigate type:', typeof navigate);
       if (typeof navigate !== 'function') {
-        throw new Error('navigate is not a function');
+        console.error('navigate is not a function:', navigate);
+        window.location.href = '/rank'; // Fallback navigation
+        return;
       }
       navigate('/rank');
     } catch (error) {
@@ -53,7 +56,8 @@ const Login = () => {
   };
 
   const handleRegisterRedirect = () => {
-    navigate('/register');
+    console.log('Navigating to /register');
+    window.location.href = '/register'; // Fallback navigation
   };
 
   console.log('Rendering Login component');
