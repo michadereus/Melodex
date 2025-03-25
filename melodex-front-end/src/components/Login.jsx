@@ -13,11 +13,15 @@ const Login = () => {
 
   // Handle redirect after federated login
   useEffect(() => {
-    if (location.pathname === '/oauth2/idpresponse') {
+    // Check if we're on the Cognito redirect URI
+    if (location.pathname === '/oauth2/idpresponse' || location.search.includes('code=')) {
       console.log('Detected redirect from federated login');
       checkUser().then(() => {
         console.log('Navigating to /rank after Google login');
         navigate('/rank');
+      }).catch(err => {
+        console.error('Error after federated login:', err);
+        navigate('/login');
       });
     }
   }, [location, checkUser, navigate]);
@@ -65,7 +69,7 @@ const Login = () => {
           marginBottom: '0.5rem',
         }}
       >
-        Melodx.io
+        Melodx
       </h2>
       <p
         style={{
