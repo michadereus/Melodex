@@ -12,7 +12,7 @@ const Register = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const { setUserID, setDisplayName, setProfilePicture } = useUserContext();
+  const { setUserID, setDisplayName, setProfilePicture, checkUser } = useUserContext();
 
   const handleRegister = async () => {
     if (!email || !username || !password) {
@@ -21,7 +21,7 @@ const Register = () => {
     }
 
     try {
-      await Auth.signUp({
+      const signUpResponse = await Auth.signUp({
         username: email,
         password,
         attributes: {
@@ -30,7 +30,7 @@ const Register = () => {
           'picture': 'https://i.imgur.com/uPnNK9Y.png',
         },
       });
-      console.log('Registered');
+      console.log('Sign-up response:', signUpResponse);
       setShowVerification(true);
       setErrorMessage('');
     } catch (error) {
@@ -44,9 +44,11 @@ const Register = () => {
       await Auth.confirmSignUp(email, verificationCode);
       console.log('Verified');
       const user = await Auth.signIn(email, password);
+      console.log('Signed in after verification:', user);
       setUserID(user.username);
       setDisplayName(username);
       setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
+      await checkUser();
       setErrorMessage('');
       navigate('/rank');
     } catch (error) {
@@ -55,9 +57,35 @@ const Register = () => {
     }
   };
 
+  const handleBackToLogin = () => {
+    console.log('Navigating back to /login');
+    navigate('/login');
+  };
+
   return (
     <div className="auth-container">
-      <h2 className="auth-title">Register for My Song Ranker</h2>
+      <h2
+        style={{
+          textAlign: 'center',
+          fontFamily: "'Inter', sans-serif",
+          fontSize: '2rem', // Larger than navbar
+          fontWeight: 600, // Matches navbar
+          color: '#141820',
+          marginBottom: '0.5rem',
+        }}
+      >
+        Melodx
+      </h2>
+      <p
+        style={{
+          textAlign: 'center',
+          fontSize: '1rem',
+          color: '#666',
+          marginBottom: '1.5rem',
+        }}
+      >
+        Register
+      </p>
       {!showVerification ? (
         <div className="auth-form">
           <input
@@ -81,8 +109,23 @@ const Register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button className="auth-button auth-button-primary" onClick={handleRegister}>
+          <button
+            className="auth-button auth-button-primary"
+            onClick={handleRegister}
+            style={{ borderRadius: '0.5rem' }}
+          >
             Register
+          </button>
+          <button
+            className="auth-button auth-button-secondary"
+            onClick={handleBackToLogin}
+            style={{
+              borderRadius: '0.5rem',
+              marginTop: '1rem', // Space above the button
+              background: '#7f8c8d', // Matches gray from Login
+            }}
+          >
+            Back to Login
           </button>
           {errorMessage && <p className="auth-error">{errorMessage}</p>}
         </div>
@@ -95,8 +138,23 @@ const Register = () => {
             value={verificationCode}
             onChange={(e) => setVerificationCode(e.target.value)}
           />
-          <button className="auth-button auth-button-primary" onClick={handleVerify}>
+          <button
+            className="auth-button auth-button-primary"
+            onClick={handleVerify}
+            style={{ borderRadius: '0.5rem' }}
+          >
             Verify
+          </button>
+          <button
+            className="auth-button auth-button-secondary"
+            onClick={handleBackToLogin}
+            style={{
+              borderRadius: '0.5rem',
+              marginTop: '1rem',
+              background: '#7f8c8d', // Matches gray from Login
+            }}
+          >
+            Back to Login
           </button>
           {errorMessage && <p className="auth-error">{errorMessage}</p>}
         </div>

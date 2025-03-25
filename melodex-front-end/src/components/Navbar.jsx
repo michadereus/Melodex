@@ -3,10 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useUserContext } from '../contexts/UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faSync, faList, faUser } from '@fortawesome/free-solid-svg-icons'; // Fixed import
+import { faStar, faSync, faList, faUser } from '@fortawesome/free-solid-svg-icons';
 
 function Navbar() {
-  const { profilePicture } = useUserContext();
+  const { profilePicture, userID } = useUserContext();
 
   return (
     <nav>
@@ -29,7 +29,7 @@ function Navbar() {
           <div
             className="profile-bubble"
             style={{
-              backgroundImage: `url(${profilePicture})`,
+              backgroundImage: `url(${userID ? profilePicture : 'https://i.imgur.com/uPnNK9Y.png'})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}

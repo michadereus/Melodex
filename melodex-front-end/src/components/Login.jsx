@@ -1,48 +1,36 @@
 // Filepath: Melodex/melodex-front-end/src/components/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { Auth } from 'aws-amplify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useUserContext } from '../contexts/UserContext';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { setUserID, setDisplayName } = useUserContext();
+  const location = useLocation();
+  const { checkUser, loading } = useUserContext();
 
+  // Handle redirect after federated login
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = await Auth.currentAuthenticatedUser();
-        console.log('User already authenticated on /login:', user);
-        setUserID(user.username);
-        const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
-        setDisplayName(preferredName);
-        console.log('Navigating to /rank from useEffect');
-        window.location.href = '/rank'; // Fallback navigation
-      } catch (error) {
-        console.log('No user authenticated on /login:', error);
-      }
-    };
-    checkAuth();
-  }, [setUserID, setDisplayName]);
+    if (location.pathname === '/oauth2/idpresponse') {
+      console.log('Detected redirect from federated login');
+      checkUser().then(() => {
+        console.log('Navigating to /rank after Google login');
+        navigate('/rank');
+      });
+    }
+  }, [location, checkUser, navigate]);
 
   const handleLogin = async () => {
     try {
       const user = await Auth.signIn(email, password);
       console.log('Logged in with email:', user);
-      setUserID(user.username);
-      const preferredName = user.attributes?.['custom:username'] || user.attributes?.preferred_username || user.attributes?.email || user.username;
-      setDisplayName(preferredName);
-      console.log('Navigating to /rank, navigate type:', typeof navigate);
-      if (typeof navigate !== 'function') {
-        console.error('navigate is not a function:', navigate);
-        window.location.href = '/rank'; // Fallback navigation
-        return;
-      }
+      await checkUser();
+      console.log('Navigating to /rank');
       navigate('/rank');
     } catch (error) {
-      console.error('Email login error:', error);
+      console.error('Email login error:', error.message || error);
     }
   };
 
@@ -51,19 +39,44 @@ const Login = () => {
       console.log('Initiating Google login via Cognito Hosted UI');
       await Auth.federatedSignIn({ provider: 'Google' });
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error('Google login error:', error.message || error);
     }
   };
 
   const handleRegisterRedirect = () => {
     console.log('Navigating to /register');
-    window.location.href = '/register'; // Fallback navigation
+    navigate('/register');
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   console.log('Rendering Login component');
   return (
     <div className="auth-container">
-      <h2 className="auth-title">Sign in to My Song Ranker</h2>
+      <h2
+        style={{
+          textAlign: 'center',
+          fontFamily: "'Inter', sans-serif",
+          fontSize: '2rem',
+          fontWeight: 600,
+          color: '#141820',
+          marginBottom: '0.5rem',
+        }}
+      >
+        Melodx
+      </h2>
+      <p
+        style={{
+          textAlign: 'center',
+          fontSize: '1rem',
+          color: '#666',
+          marginBottom: '1.5rem',
+        }}
+      >
+        Log In
+      </p>
       <div className="auth-form">
         <input
           className="auth-input"
@@ -79,13 +92,25 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button className="auth-button auth-button-primary" onClick={handleLogin}>
+        <button
+          className="auth-button auth-button-primary"
+          onClick={handleLogin}
+          style={{ borderRadius: '0.5rem' }}
+        >
           Sign In
         </button>
-        <button className="auth-button auth-button-secondary" onClick={handleRegisterRedirect}>
+        <button
+          className="auth-button auth-button-secondary"
+          onClick={handleRegisterRedirect}
+          style={{ borderRadius: '0.5rem' }}
+        >
           Register
         </button>
-        <button className="auth-button auth-button-google" onClick={handleGoogleLogin}>
+        <button
+          className="auth-button auth-button-google"
+          onClick={handleGoogleLogin}
+          style={{ borderRadius: '0.5rem' }}
+        >
           <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" />
           Sign in with Google
         </button>

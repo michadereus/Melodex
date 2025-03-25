@@ -16,8 +16,8 @@ const awsmobile = {
             "profile",
             "aws.cognito.signin.user.admin"
         ],
-        "redirectSignIn": "http://localhost:3001/rank/",
-        "redirectSignOut": "http://localhost:3001/login/",
+        "redirectSignIn": "https://melodx.io/oauth2/idpresponse",
+        "redirectSignOut": "https://melodx.io/login/",
         "responseType": "code"
     },
     "federationTarget": "COGNITO_USER_POOLS",
@@ -44,6 +44,5 @@ const awsmobile = {
     "aws_user_files_s3_bucket": "songranker168d4c9071004e018de33684bf3c094ede93a-dev",
     "aws_user_files_s3_bucket_region": "us-east-1"
 };
-
 
 export default awsmobile;
