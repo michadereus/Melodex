@@ -175,7 +175,8 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-container {
   padding: 0.1rem;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
+  /* Increased from 800px to accommodate two 380px song boxes + 3rem gap */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -201,7 +202,6 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: column;
   align-items: center;
   width: 380px;
-  /* Increased from 340px for desktop */
 }
 
 /* Song Boxes */
@@ -217,7 +217,6 @@ button[style*="background: #e74c3c"]:hover {
 /* Song Boxes for /rank and /rerank */
 .song-ranker-container .song-box {
   width: 380px;
-  /* Increased from 340px for desktop */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -251,7 +250,6 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .album-cover {
   width: 100%;
   max-width: 320px;
-  /* Increased from 280px for desktop */
   height: auto;
   border-radius: 0.5rem;
   margin-bottom: 0.75rem;
@@ -270,7 +268,6 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .song-details {
   width: 100%;
   max-width: 320px;
-  /* Increased from 280px for desktop */
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -287,7 +284,6 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .song-name,
 .rankings-container .song-name {
   font-size: 1.4rem;
-  /* Increased from 1.2rem for desktop */
   font-weight: 600;
   color: #141820;
   margin: 0;
@@ -296,7 +292,6 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .song-artist,
 .rankings-container .song-artist {
   font-size: 1.3rem;
-  /* Increased from 1.1rem for desktop */
   color: #7f8c8d;
   margin: 0;
 }
@@ -310,11 +305,9 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .custom-audio-player {
   max-width: 100%;
   width: 320px;
-  /* Increased from 280px for desktop */
   margin: 1.2rem auto;
   margin-bottom: 0rem;
   height: 48px;
-  /* Increased from 40px for desktop */
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -553,39 +546,31 @@ footer {
 
   .song-ranker-container .song-box {
     width: 300px;
-    /* Revert to original size for tablet */
   }
 
   .song-card-container {
     width: 300px;
-    /* Revert to original size for tablet */
   }
 
   .song-ranker-container .album-cover {
     max-width: 280px;
-    /* Revert to original size for tablet */
   }
 
   .song-ranker-container .song-details {
     max-width: 280px;
-    /* Revert to original size for tablet */
   }
 
   .song-ranker-container .song-name {
     font-size: 1.2rem;
-    /* Revert to original size for tablet */
   }
 
   .song-ranker-container .song-artist {
     font-size: 1.1rem;
-    /* Revert to original size for tablet */
   }
 
   .song-ranker-container .custom-audio-player {
     width: 280px;
-    /* Revert to original size for tablet */
     height: 40px;
-    /* Revert to original size for tablet */
   }
 
   .filter-container {
