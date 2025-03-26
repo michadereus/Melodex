@@ -27,3 +27,4 @@ temp
 *.zip
 
 .platform
+melodex-back-end/update-client.json
