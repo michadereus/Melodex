@@ -25,7 +25,7 @@ export const SongRanker = ({ mode }) => {
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [fetchError, setFetchError] = useState(null); // Track API errors
+  const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
     setMode(mode);
@@ -100,7 +100,6 @@ export const SongRanker = ({ mode }) => {
         let newSongs = await generateNewSongs(filters);
         console.log('New songs fetched:', newSongs);
         if (newSongs.length === 0) {
-          // Retry once on failure
           console.log('Retrying generateNewSongs due to empty result');
           newSongs = await generateNewSongs(filters);
           if (newSongs.length === 0) {
@@ -127,13 +126,20 @@ export const SongRanker = ({ mode }) => {
     }
   };
 
-  const handlePick = (winnerId) => {
+  const handlePick = async (winnerId) => {
+    setIsProcessing(true);
     const loserId = enrichedPair.find(s => s.deezerID !== winnerId)?.deezerID;
-    selectSong(winnerId, loserId);
+    await selectSong(winnerId, loserId, () => setIsProcessing(false));
   };
 
-  const handleSkip = (songId) => {
-    skipSong(songId);
+  const handleSkip = async (songId) => {
+    setIsProcessing(true);
+    await skipSong(songId, () => setIsProcessing(false));
+  };
+
+  const handleRefreshPair = async () => {
+    setIsProcessing(true);
+    await refreshPair(() => setIsProcessing(false));
   };
 
   return (
@@ -196,8 +202,22 @@ export const SongRanker = ({ mode }) => {
       ) : !Array.isArray(enrichedPair) || enrichedPair.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <p style={{ fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
-            No songs available to rank
+            No songs available to rank. The song pool may be depleted. Try adjusting your filters or contact support.
           </p>
+          <button
+            onClick={() => handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' })}
+            style={{
+              marginTop: '1rem',
+              background: '#3498db',
+              color: '#fff',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Retry with Default Filters
+          </button>
         </div>
       ) : (
         <div className="song-ranker-wrapper">
@@ -264,7 +284,7 @@ export const SongRanker = ({ mode }) => {
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
             <button
               className="refresh-icon-btn"
-              onClick={refreshPair}
+              onClick={handleRefreshPair}
               disabled={loading || isProcessing}
               title="Refresh Pair"
             >

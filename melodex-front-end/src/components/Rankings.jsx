@@ -1,75 +1,113 @@
+// Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import SongFilter from './SongFilter';
 import '../index.css';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
-  const [applied, setApplied] = useState(false);
+  const [applied, setApplied] = useState(true);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
+  const [filteredSongs, setFilteredSongs] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
-  const [selectedGenre, setSelectedGenre] = useState('any');
-  const [selectedSubgenre, setSelectedSubgenre] = useState('any');
+  const [selectedGenre, setSelectedGenre] = useState('any'); // Default to 'any'
+  const [selectedSubgenre, setSelectedSubgenre] = useState('any'); // Default to 'any'
+  const [lastAppliedFilters, setLastAppliedFilters] = useState({ genre: 'any', subgenre: 'any' });
 
+  // Trigger initial fetch when userID becomes available
   useEffect(() => {
-    let mounted = true;
-    let retries = 0;
-    const maxRetries = 5;
+    if (userID) {
+      handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
+    }
+  }, [userID]);
 
-    const fetchInitialData = async () => {
-      if (!mounted) return;
-      if (userID && !applied) {
-        await handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
-      } else if (retries < maxRetries) {
-        retries += 1;
-        setTimeout(fetchInitialData, 500);
-      }
-    };
+  // Function to enrich and filter songs
+  const enrichAndFilterSongs = useCallback(async () => {
+    if (!applied || !rankedSongs) return;
 
-    fetchInitialData();
-    return () => {
-      mounted = false;
-    };
-  }, [userID, applied]);
-
-  useEffect(() => {
-    if (applied && rankedSongs !== undefined) {
-      console.log('Enriching rankedSongs:', rankedSongs);
-      setIsFetching(true);
-      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
-      fetch(url, {
+    console.log('Enriching rankedSongs:', rankedSongs);
+    setIsFetching(true);
+    const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
+    try {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ songs: rankedSongs }),
-      })
-        .then(response => {
-          if (!response.ok) throw new Error(`Failed to fetch Deezer info: ${response.status}`);
-          return response.json();
-        })
-        .then(freshSongs => {
-          console.log('Enriched songs received:', freshSongs);
-          setEnrichedSongs(freshSongs);
-        })
-        .catch(error => {
-          console.error('Failed to enrich ranked songs:', error);
-          setEnrichedSongs(rankedSongs);
-        })
-        .finally(() => {
-          setIsFetching(false);
-          console.log('isFetching set to false');
-        });
+      });
+
+      if (!response.ok) throw new Error(`Failed to fetch Deezer info: ${response.status}`);
+      const freshSongs = await response.json();
+      console.log('Enriched songs received:', freshSongs);
+
+      // Check and refresh preview URLs if expired
+      const refreshPromises = freshSongs.map(async (song) => {
+        if (song.previewURL && !isPreviewValid(song.previewURL)) {
+          console.log(`Preview URL expired for ${song.songName}, refreshing...`);
+          const refreshUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
+          const refreshResponse = await fetch(refreshUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ songs: [song] }),
+          });
+          if (refreshResponse.ok) {
+            const [refreshedSong] = await refreshResponse.json();
+            return { ...song, previewURL: refreshedSong.previewURL };
+          }
+        }
+        return song;
+      });
+
+      const updatedSongs = await Promise.all(refreshPromises);
+      setEnrichedSongs(updatedSongs);
+
+      // Apply client-side filtering
+      const filtered = updatedSongs.filter(song => {
+        const matchesGenre = selectedGenre === 'any' || song.genre === selectedGenre;
+        const matchesSubgenre = selectedSubgenre === 'any' || song.subgenre === selectedSubgenre;
+        return matchesGenre && matchesSubgenre;
+      });
+      console.log('Client-side filtered songs:', filtered);
+      setFilteredSongs(filtered);
+    } catch (error) {
+      console.error('Failed to enrich ranked songs:', error);
+      setEnrichedSongs(rankedSongs);
+      setFilteredSongs(rankedSongs);
+    } finally {
+      setIsFetching(false);
+      console.log('isFetching set to false');
     }
-  }, [rankedSongs, applied]);
+  }, [applied, rankedSongs, selectedGenre, selectedSubgenre]);
+
+  // Trigger enrichment and filtering when rankedSongs changes
+  useEffect(() => {
+    enrichAndFilterSongs();
+  }, [enrichAndFilterSongs]);
 
   const handleApply = async (filters) => {
-    if (!userID) return;
+    if (!userID) {
+      console.log('No userID available, skipping fetch');
+      return;
+    }
+
+    // Check if filters have actually changed
+    if (
+      filters.genre === lastAppliedFilters.genre &&
+      filters.subgenre === lastAppliedFilters.subgenre
+    ) {
+      console.log('Filters unchanged, skipping fetch');
+      return;
+    }
+
     setShowFilter(false);
     setApplied(false);
     setEnrichedSongs([]);
+    setFilteredSongs([]);
     setIsFetching(true);
     setSelectedGenre(filters.genre);
     setSelectedSubgenre(filters.subgenre);
+    setLastAppliedFilters({ genre: filters.genre, subgenre: filters.subgenre });
+
     try {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Fetch timeout')), 60000)
@@ -80,6 +118,7 @@ const Rankings = () => {
     } catch (error) {
       console.error('handleApply error:', error);
       setApplied(true);
+      setFilteredSongs([]);
     }
   };
 
@@ -149,7 +188,7 @@ const Rankings = () => {
           </svg>
         </button>
       </div>
-      {(loading || isFetching) && applied ? (
+      {(loading || isFetching) ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div
             style={{
@@ -181,13 +220,13 @@ const Rankings = () => {
               : ''}{' '}
             Rankings
           </h2>
-          {enrichedSongs.length === 0 ? (
+          {filteredSongs.length === 0 ? (
             <p style={{ textAlign: 'center', fontSize: '1.2em', color: '#7f8c8d' }}>
               No ranked songs yet for this filter.
             </p>
           ) : (
             (() => {
-              const sortedSongs = [...enrichedSongs].sort((a, b) => b.ranking - a.ranking);
+              const sortedSongs = [...filteredSongs].sort((a, b) => b.ranking - a.ranking);
               const rankPositions = getRankPositions(sortedSongs);
               return (
                 <ul
@@ -284,8 +323,20 @@ const Rankings = () => {
           )}
         </div>
       ) : (
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-          <p>Loading user data...</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+          <div
+            style={{
+              border: '4px solid #ecf0f1',
+              borderTop: '4px solid #3498db',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              animation: 'spin 1s linear infinite',
+            }}
+          ></div>
+          <p style={{ marginTop: '1rem', fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
+            Loading user data...
+          </p>
         </div>
       )}
     </div>

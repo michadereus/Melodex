@@ -1,3 +1,4 @@
+/* Filepath: Melodex/melodex-front-end/src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
 * {
@@ -21,7 +22,6 @@ nav {
   justify-content: space-between;
   align-items: center;
   height: 3.5rem;
-  /* Increased from 2.75rem */
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
@@ -33,7 +33,6 @@ nav {
 
 nav .logo {
   font-size: 1.4rem;
-  /* Increased from 1.2rem */
   font-weight: 600;
   color: #fff;
   text-decoration: none;
@@ -48,7 +47,6 @@ nav a {
   color: #bdc3c7;
   text-decoration: none;
   font-size: 1rem;
-  /* Increased from 0.9rem */
   font-weight: 400;
   display: flex;
   align-items: center;
@@ -62,12 +60,10 @@ nav a:hover {
 .nav-icon {
   margin-right: 0.75rem;
   font-size: 1.2rem;
-  /* Increased from 1rem */
 }
 
 .profile-bubble {
   width: 28px;
-  /* Increased from 26px */
   height: 28px;
   border-radius: 50%;
   background-color: #434957;
@@ -94,7 +90,6 @@ h2 {
   margin: 0 auto;
   width: 100%;
   max-width: 700px;
-  /* Adjusted for responsiveness */
 }
 
 .song-ranker-container .filter-container {
@@ -113,13 +108,11 @@ h2 {
 
 .filter-container.visible {
   max-height: 200px;
-  /* Adjust based on content height */
   opacity: 1;
 }
 
 select {
   padding: 8px 10px;
-  /* Increased for better touch targets */
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background: #fff;
@@ -141,7 +134,6 @@ button {
   color: #fff;
   border: none;
   padding: 8px 12px;
-  /* Increased for better touch targets */
   border-radius: 4px;
   font-size: 0.9rem;
   font-weight: 500;
@@ -178,9 +170,7 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-container {
   padding: 0.1rem;
   width: 100%;
-  /* Changed from 650px to be responsive */
   max-width: 700px;
-  /* Slightly larger container */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -205,7 +195,6 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: column;
   align-items: center;
   width: 300px;
-  /* Increased from 280px */
 }
 
 /* Song Boxes */
@@ -220,7 +209,6 @@ button[style*="background: #e74c3c"]:hover {
 
 .song-ranker-container .song-box {
   width: 300px;
-  /* Increased from 280px */
   text-align: left;
 }
 
@@ -252,7 +240,6 @@ button[style*="background: #e74c3c"]:hover {
   height: 80px;
   border-radius: 8px;
   flex-shrink: 0;
-  /* Prevent shrinking */
 }
 
 .rankings-container .song-details {
@@ -315,7 +302,6 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  /* Increased from 300px */
   gap: 1.5rem;
   list-style: none;
   padding: 0;
@@ -327,9 +313,7 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: row;
   align-items: center;
   gap: 0.75rem;
-  /* Space between rank and album */
   min-width: 0;
-  /* Prevent overflow */
 }
 
 .rankings-container .rank-position {
@@ -479,16 +463,14 @@ button.refresh-icon-btn:hover::before {
 /* Footer */
 footer {
   height: 3.5rem;
-  /* Matches Navbar */
   display: flex;
   align-items: center;
   padding: 0 1rem;
   font-size: 0.8rem;
 }
 
-/* Responsive */
+/* Responsive Styles */
 @media (max-width: 1024px) {
-
   /* Tablet */
   nav {
     height: 3.25rem;
@@ -518,12 +500,22 @@ footer {
 
   .song-ranker-container .song-box {
     width: 280px;
-    /* Slightly smaller than desktop */
+  }
+
+  .filter-container {
+    max-width: 600px;
+  }
+
+  .song-ranker-container .filter-container {
+    max-width: 600px;
+  }
+
+  .song-ranker-container .filter-rerank {
+    max-width: 500px;
   }
 }
 
 @media (max-width: 768px) {
-
   /* Mobile */
   .rankings-container ul {
     grid-template-columns: 1fr;
@@ -568,7 +560,6 @@ footer {
 
   .song-ranker-container .song-box {
     width: 90%;
-    /* Takes up most of the screen width */
     max-width: 350px;
   }
 
@@ -596,6 +587,35 @@ footer {
   .rankings-container .song-left {
     width: 100%;
     justify-content: flex-start;
+  }
+
+  /* SongFilter Responsiveness */
+  .filter-container {
+    max-width: 100%;
+    padding: 0.5rem;
+  }
+
+  .song-ranker-container .filter-container,
+  .song-ranker-container .filter-rerank {
+    max-width: 100%;
+  }
+
+  .song-filter-container {
+    flex-direction: column !important;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .song-filter-container select,
+  .song-filter-container button {
+    width: 100%;
+    margin-right: 0;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+
+  .song-filter-container button {
+    padding: 8px;
   }
 }
 

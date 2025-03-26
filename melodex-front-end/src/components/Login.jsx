@@ -99,7 +99,7 @@ const Login = () => {
           marginBottom: '0.5rem',
         }}
       >
-        Melodx
+        Melodx.io
       </h2>
       <p
         style={{
@@ -109,7 +109,7 @@ const Login = () => {
           marginBottom: '1.5rem',
         }}
       >
-        Log In
+        Sign in to rank your favorite music
       </p>
       <div className="auth-form">
         <input

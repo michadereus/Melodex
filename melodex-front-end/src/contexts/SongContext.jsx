@@ -23,11 +23,78 @@ export const SongProvider = ({ children }) => {
   const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
   const [contextUserID, setContextUserID] = useState(null);
+  const [isBackgroundFetching, setIsBackgroundFetching] = useState(false);
 
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
     setContextUserID(userID);
   }, [userID]);
+
+  // Background fetching logic with retries
+  useEffect(() => {
+    const fetchMoreSongs = async () => {
+      if (!contextUserID || mode !== 'new' || isBackgroundFetching || songList.length >= 20) {
+        console.log('Background fetch skipped:', { contextUserID, mode, isBackgroundFetching, songListLength: songList.length });
+        return;
+      }
+      console.log('Triggering background fetch for more songs');
+      setIsBackgroundFetching(true);
+      let retries = 0;
+      const maxRetries = 3;
+      let newSongs = [];
+
+      while (retries < maxRetries) {
+        try {
+          newSongs = await generateNewSongs(lastFilters, true);
+          console.log('Background fetch result:', newSongs);
+          if (newSongs.length > 0) {
+            setSongBuffer(prevBuffer => [...prevBuffer, ...newSongs]);
+            console.log('Background fetch added songs to buffer:', newSongs.length);
+            break;
+          } else {
+            console.warn(`Background fetch returned no songs on attempt ${retries + 1}`);
+            retries++;
+            if (retries === maxRetries) {
+              console.error('Max retries reached, no songs fetched');
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        } catch (error) {
+          console.error(`Background fetch failed on attempt ${retries + 1}:`, error);
+          retries++;
+          if (retries === maxRetries) {
+            console.error('Max retries reached, failed to fetch songs');
+            break;
+          }
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+      setIsBackgroundFetching(false);
+    };
+
+    fetchMoreSongs();
+  }, [songList, contextUserID, mode, isBackgroundFetching, lastFilters]);
+
+  useEffect(() => {
+    if (songList.length < 10 && songBuffer.length > 0) {
+      const batchSize = Math.min(30, songBuffer.length);
+      const newSongs = songBuffer.slice(0, batchSize);
+      setSongList(prevList => [...prevList, ...newSongs]);
+      setSongBuffer(prevBuffer => prevBuffer.slice(batchSize));
+      console.log('Replenished songList from buffer:', newSongs.length);
+    } else if (songList.length === 0 && songBuffer.length === 0 && mode === 'new' && contextUserID) {
+      console.log('Song list and buffer are empty, fetching more songs');
+      generateNewSongs(lastFilters).then(newSongs => {
+        if (newSongs.length > 0) {
+          setSongList(newSongs);
+          console.log('Fetched new songs due to empty list:', newSongs.length);
+        } else {
+          console.warn('No new songs available to fetch');
+        }
+      });
+    }
+  }, [songList, songBuffer, mode, contextUserID, lastFilters]);
 
   const getNextPair = useCallback((songsToUse = songList) => {
     if (!Array.isArray(songsToUse)) {
@@ -43,7 +110,7 @@ export const SongProvider = ({ children }) => {
       return;
     }
     const song1 = validSongs[0];
-    const song2 = validSongs.find(song => song.deezerID !== song1.deezerID);
+    const song2 = validSongs.find(song => String(song.deezerID) !== String(song1.deezerID));
     if (!song2) {
       console.error('getNextPair: Could not find a second song');
       setCurrentPair([]);
@@ -51,20 +118,22 @@ export const SongProvider = ({ children }) => {
     }
     const newPair = [song1, song2];
     setCurrentPair(newPair);
-    setSongList(validSongs.filter(song => song.deezerID !== song1.deezerID && song.deezerID !== song2.deezerID));
+    setSongList(validSongs.filter(song => String(song.deezerID) !== String(song1.deezerID) && String(song.deezerID) !== String(song2.deezerID)));
     console.log('getNextPair: New pair set:', newPair);
   }, [songList]);
 
   const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
     if (!userID) return [];
-    setLoading(true);
-    console.log('Loading set to true');
+    if (!isBackground) {
+      setLoading(true);
+      console.log('Loading set to true');
+    }
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
         console.log('generateNewSongs fetch timed out');
-      }, 10000);
+      }, 30000);
 
       const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/new`;
       console.log('generateNewSongs filters:', filters);
@@ -76,15 +145,25 @@ export const SongProvider = ({ children }) => {
       });
 
       clearTimeout(timeoutId);
-      if (!response.ok) throw new Error('Failed to fetch new songs');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch new songs: ${response.status} ${errorText}`);
+      }
       const songs = await response.json();
       return songs;
     } catch (error) {
       console.error('Failed to generate new songs:', error);
+      if (error.name === 'AbortError') {
+        console.log('Fetch aborted due to timeout');
+      } else if (error.message.includes('NetworkError')) {
+        console.log('Network error occurred, possibly backend server is not running');
+      }
       return [];
     } finally {
-      setLoading(false);
-      console.log('Loading set to false');
+      if (!isBackground) {
+        setLoading(false);
+        console.log('Loading set to false');
+      }
     }
   };
 
@@ -130,7 +209,7 @@ export const SongProvider = ({ children }) => {
 
   const fetchRankedSongs = useCallback(async ({ userID: fetchUserID, genre = selectedGenre, subgenre = 'any' }) => {
     const idToUse = fetchUserID || contextUserID;
-    console.log('fetchRankedSongs called with userID:', idToUse);
+    console.log('fetchRankedSongs called with userID:', idToUse, 'genre:', genre, 'subgenre:', subgenre);
     if (!idToUse) {
       console.error('No userID available for fetchRankedSongs');
       setRankedSongs([]);
@@ -142,10 +221,19 @@ export const SongProvider = ({ children }) => {
     console.log('Fetching ranked songs from:', url);
 
     try {
+      const payload = { userID: idToUse };
+      if (genre !== 'any') {
+        payload.genre = genre;
+      }
+      if (subgenre !== 'any') {
+        payload.subgenre = subgenre;
+      }
+      console.log('fetchRankedSongs payload:', payload);
+
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userID: idToUse, genre, subgenre }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -176,22 +264,24 @@ export const SongProvider = ({ children }) => {
     }
   }, [contextUserID, selectedGenre]);
 
-  const selectSong = async (winnerId, loserId) => {
+  const selectSong = async (winnerId, loserId, resetProcessing) => {
     if (!contextUserID) {
       console.error('No userID available for selectSong');
+      resetProcessing?.();
       return;
     }
     setLoading(true);
     console.log('Loading set to true');
     try {
       console.log('selectSong called with:', { winnerId, loserId, userID, currentPair });
-      const winnerSong = currentPair.find(s => s.deezerID === winnerId);
-      const loserSong = currentPair.find(s => s.deezerID === loserId);
+      const winnerSong = currentPair.find(s => String(s.deezerID) === String(winnerId));
+      const loserSong = currentPair.find(s => String(s.deezerID) === String(loserId));
       console.log('Winner song:', winnerSong);
       console.log('Loser song:', loserSong);
 
       if (!winnerSong || !loserSong) {
         console.error('Winner or loser song not found in currentPair', { winnerId, loserId, currentPair });
+        resetProcessing?.();
         return;
       }
 
@@ -232,11 +322,11 @@ export const SongProvider = ({ children }) => {
       const { newRatingA, newRatingB } = await response.json();
       console.log(`Updated ratings - Winner: ${newRatingA}, Loser: ${newRatingB}`);
 
-      const updatedList = songList.filter(song => song.deezerID !== winnerId && song.deezerID !== loserId);
+      const updatedList = songList.filter(song => String(song.deezerID) !== String(winnerId) && String(song.deezerID) !== String(loserId));
       setSongList(updatedList);
       setRankedSongs(prevRanked => {
         const updated = prevRanked.filter(song => 
-          song.deezerID !== winnerSong.deezerID && song.deezerID !== loserSong.deezerID
+          String(song.deezerID) !== String(winnerSong.deezerID) && String(song.deezerID) !== String(loserSong.deezerID)
         );
         return [
           ...updated,
@@ -257,23 +347,26 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
       console.log('Loading set to false');
+      resetProcessing?.();
     }
   };
 
-  const skipSong = async (songId) => {
+  const skipSong = async (songId, resetProcessing) => {
     if (!contextUserID) {
       console.error('No userID available for skipSong');
+      resetProcessing?.();
       return;
     }
     setLoading(true);
     console.log('Loading set to true');
     try {
       console.log('skipSong called with songId:', songId, 'userID:', userID);
-      const skippedSong = currentPair.find(s => s.deezerID === songId);
-      const keptSong = currentPair.find(s => s.deezerID !== songId);
+      const skippedSong = currentPair.find(s => String(s.deezerID) === String(songId));
+      const keptSong = currentPair.find(s => String(s.deezerID) !== String(songId));
       
       if (!skippedSong || !keptSong) {
         console.error('Skipped song or kept song not found in currentPair:', { songId, currentPair });
+        resetProcessing?.();
         return;
       }
 
@@ -309,7 +402,7 @@ export const SongProvider = ({ children }) => {
       if (mode === 'rerank') {
         const reRankSongs = await fetchReRankingData();
         if (reRankSongs.length > 0) {
-          const newSong = reRankSongs.find(s => s.deezerID !== keptSong.deezerID);
+          const newSong = reRankSongs.find(s => String(s.deezerID) !== String(keptSong.deezerID));
           if (newSong) {
             setCurrentPair([keptSong, newSong]);
           } else {
@@ -333,12 +426,14 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
       console.log('Loading set to false');
+      resetProcessing?.();
     }
   };
 
-  const refreshPair = useCallback(async () => {
+  const refreshPair = useCallback(async (resetProcessing) => {
     if (!contextUserID) {
       console.error('No userID available for refreshPair');
+      resetProcessing?.();
       return;
     }
     setLoading(true);
@@ -360,6 +455,7 @@ export const SongProvider = ({ children }) => {
     } finally {
       setLoading(false);
       console.log('Loading set to false');
+      resetProcessing?.();
     }
   }, [mode, currentPair, songList, skipSong, fetchReRankingData]);
 

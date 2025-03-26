@@ -55,14 +55,14 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
     };
     console.log('SongFilter applying filters:', filters);
     if (typeof onApply === 'function') {
-      onApply(filters); // Removed .finally() to prevent onHide from toggling showFilter back
+      onApply(filters);
     } else {
       console.error('onApply is not a function');
     }
   };
 
   return (
-    <div style={{ marginTop: '0.8em', marginBottom: '0.8em', display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <div className="song-filter-container" style={{ marginTop: '0.8em', marginBottom: '0.8em', display: 'flex', justifyContent: 'center', width: '100%' }}>
       <select
         value={selectedGenre}
         onChange={handleGenreChange}
