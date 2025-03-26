@@ -19,13 +19,15 @@ export const SongRanker = ({ mode }) => {
     getNextPair, 
     songList,
     setSongList,
-    userID: contextUserID
+    userID: contextUserID,
+    setIsRankPageActive // Add to context
   } = useSongContext();
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  const [selectedGenre, setSelectedGenre] = useState(''); // Track selected genre for title
 
   useEffect(() => {
     setMode(mode);
@@ -33,7 +35,10 @@ export const SongRanker = ({ mode }) => {
     setCurrentPair([]);
     setEnrichedPair([]);
     setFetchError(null);
-  }, [mode, setMode, setCurrentPair]);
+    setSelectedGenre(''); // Reset selected genre on mode change
+    // Set isRankPageActive based on mode
+    setIsRankPageActive(mode === 'new');
+  }, [mode, setMode, setCurrentPair, setIsRankPageActive]);
 
   useEffect(() => {
     if (mode === 'rerank' && !applied && !loading && currentPair.length === 0 && contextUserID) {
@@ -95,6 +100,7 @@ export const SongRanker = ({ mode }) => {
     setEnrichedPair([]);
     setIsProcessing(true);
     setFetchError(null);
+    setSelectedGenre(filters.genre === 'any' ? '' : filters.genre); // Update selected genre for title
     try {
       if (mode === 'new') {
         let newSongs = await generateNewSongs(filters);
@@ -159,7 +165,7 @@ export const SongRanker = ({ mode }) => {
           </svg>
         </button>
       </div>
-      {(loading || isProcessing) ? (
+      {(isProcessing || (loading && mode === 'rerank')) ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <div
             style={{
@@ -190,7 +196,7 @@ export const SongRanker = ({ mode }) => {
               marginTop: '1rem',
               background: '#3498db',
               color: '#fff',
-              padding: '0.5rem 1rem',
+              padding: "0.5rem 1rem",
               borderRadius: '0.5rem',
               border: 'none',
               cursor: 'pointer',
@@ -229,7 +235,7 @@ export const SongRanker = ({ mode }) => {
               marginTop: '4rem',
             }}
           >
-            {mode === 'new' ? 'Rank New Songs' : 'Re-rank Songs'}
+            {mode === 'new' ? (selectedGenre ? `Rank ${selectedGenre} Songs` : 'Rank All Songs') : (selectedGenre ? `Rerank ${selectedGenre} Songs` : 'Re-rank All Songs')}
           </h2>
           <div className="song-pair" key="song-pair">
             {enrichedPair.map((song) => (

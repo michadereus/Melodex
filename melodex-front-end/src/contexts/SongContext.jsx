@@ -24,6 +24,7 @@ export const SongProvider = ({ children }) => {
   const [isFetching, setIsFetching] = useState(false);
   const [contextUserID, setContextUserID] = useState(null);
   const [isBackgroundFetching, setIsBackgroundFetching] = useState(false);
+  const [isRankPageActive, setIsRankPageActive] = useState(false);
 
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
@@ -33,8 +34,8 @@ export const SongProvider = ({ children }) => {
   // Background fetching logic with retries
   useEffect(() => {
     const fetchMoreSongs = async () => {
-      if (!contextUserID || mode !== 'new' || isBackgroundFetching || songList.length >= 20) {
-        console.log('Background fetch skipped:', { contextUserID, mode, isBackgroundFetching, songListLength: songList.length });
+      if (!contextUserID || mode !== 'new' || !isRankPageActive || isBackgroundFetching || songList.length >= 20) {
+        console.log('Background fetch skipped:', { contextUserID, mode, isRankPageActive, isBackgroundFetching, songListLength: songList.length });
         return;
       }
       console.log('Triggering background fetch for more songs');
@@ -74,7 +75,7 @@ export const SongProvider = ({ children }) => {
     };
 
     fetchMoreSongs();
-  }, [songList, contextUserID, mode, isBackgroundFetching, lastFilters]);
+  }, [songList, contextUserID, mode, isBackgroundFetching, lastFilters, isRankPageActive]);
 
   useEffect(() => {
     if (songList.length < 10 && songBuffer.length > 0) {
@@ -83,7 +84,7 @@ export const SongProvider = ({ children }) => {
       setSongList(prevList => [...prevList, ...newSongs]);
       setSongBuffer(prevBuffer => prevBuffer.slice(batchSize));
       console.log('Replenished songList from buffer:', newSongs.length);
-    } else if (songList.length === 0 && songBuffer.length === 0 && mode === 'new' && contextUserID) {
+    } else if (songList.length === 0 && songBuffer.length === 0 && mode === 'new' && contextUserID && isRankPageActive) {
       console.log('Song list and buffer are empty, fetching more songs');
       generateNewSongs(lastFilters).then(newSongs => {
         if (newSongs.length > 0) {
@@ -94,7 +95,7 @@ export const SongProvider = ({ children }) => {
         }
       });
     }
-  }, [songList, songBuffer, mode, contextUserID, lastFilters]);
+  }, [songList, songBuffer, mode, contextUserID, lastFilters, isRankPageActive]);
 
   const getNextPair = useCallback((songsToUse = songList) => {
     if (!Array.isArray(songsToUse)) {
@@ -274,8 +275,9 @@ export const SongProvider = ({ children }) => {
     console.log('Loading set to true');
     try {
       console.log('selectSong called with:', { winnerId, loserId, userID, currentPair });
-      const winnerSong = currentPair.find(s => String(s.deezerID) === String(winnerId));
-      const loserSong = currentPair.find(s => String(s.deezerID) === String(loserId));
+      // Ensure consistent type conversion for deezerID comparison
+      const winnerSong = currentPair.find(s => s.deezerID.toString() === winnerId.toString());
+      const loserSong = currentPair.find(s => s.deezerID.toString() === loserId.toString());
       console.log('Winner song:', winnerSong);
       console.log('Loser song:', loserSong);
 
@@ -361,8 +363,8 @@ export const SongProvider = ({ children }) => {
     console.log('Loading set to true');
     try {
       console.log('skipSong called with songId:', songId, 'userID:', userID);
-      const skippedSong = currentPair.find(s => String(s.deezerID) === String(songId));
-      const keptSong = currentPair.find(s => String(s.deezerID) !== String(songId));
+      const skippedSong = currentPair.find(s => s.deezerID.toString() === songId.toString());
+      const keptSong = currentPair.find(s => s.deezerID.toString() !== songId.toString());
       
       if (!skippedSong || !keptSong) {
         console.error('Skipped song or kept song not found in currentPair:', { songId, currentPair });
@@ -484,7 +486,8 @@ export const SongProvider = ({ children }) => {
         refreshPair,
         selectedGenre,
         setSelectedGenre,
-        userID: contextUserID
+        userID: contextUserID,
+        setIsRankPageActive
       }}
     >
       {children}

@@ -198,6 +198,42 @@ button[style*="background: #e74c3c"]:hover {
 }
 
 /* Song Boxes */
+.song-ranker-container,
+.rankings-container {
+  padding: 0.1rem;
+  width: 100%;
+  max-width: 800px;
+  /* Increased from 700px to accommodate larger song boxes and gap */
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.song-ranker-wrapper,
+.rankings-wrapper {
+  width: 100%;
+}
+
+/* Song Pair (Responsive Spacing) */
+.song-pair {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  /* Increased from 2rem to ensure larger spacing on desktop */
+  flex-wrap: wrap;
+}
+
+/* Song Card Container */
+.song-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 340px;
+  /* Matches song-box width */
+}
+
+/* Song Boxes */
 .song-ranker-container .song-box,
 .rankings-container .song-box {
   background: #fff;
@@ -205,11 +241,17 @@ button[style*="background: #e74c3c"]:hover {
   padding: 1.2rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Center content horizontally */
 }
 
 .song-ranker-container .song-box {
-  width: 300px;
-  text-align: left;
+  width: 340px;
+  /* Increased from 300px for larger elements */
+  text-align: center;
+  /* Center text for consistency */
 }
 
 .song-ranker-container .filter-toggle,
@@ -229,10 +271,16 @@ button[style*="background: #e74c3c"]:hover {
 
 .song-ranker-container .album-cover {
   width: 100%;
-  max-width: 240px;
+  max-width: 280px;
+  /* Increased from 240px for larger elements */
   height: auto;
   border-radius: 6px;
   margin-bottom: 0.75rem;
+  display: block;
+  /* Ensure image is a block element */
+  margin-left: auto;
+  margin-right: auto;
+  /* Center the image */
 }
 
 .rankings-container .album-cover {
@@ -242,16 +290,22 @@ button[style*="background: #e74c3c"]:hover {
   flex-shrink: 0;
 }
 
-.rankings-container .song-details {
-  flex: 1;
+.song-ranker-container .song-details {
+  width: 100%;
+  max-width: 280px;
+  /* Match the album cover width */
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  align-items: flex-start;
+  /* Align text to the left within the container */
+  text-align: left;
+  /* Ensure text alignment */
 }
 
 .song-ranker-container .song-name,
 .rankings-container .song-name {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  /* Increased from 1.1rem for larger elements */
   font-weight: 600;
   color: #141820;
   margin: 0;
@@ -259,7 +313,8 @@ button[style*="background: #e74c3c"]:hover {
 
 .song-ranker-container .song-artist,
 .rankings-container .song-artist {
-  font-size: 1rem;
+  font-size: 1.1rem;
+  /* Increased from 1rem for larger elements */
   color: #7f8c8d;
   margin: 0;
 }
@@ -272,11 +327,16 @@ button[style*="background: #e74c3c"]:hover {
 
 .song-ranker-container .custom-audio-player {
   max-width: 100%;
-  width: 240px;
+  width: 280px;
+  /* Match the album cover width */
   margin: 1.2rem auto;
   margin-bottom: 0rem;
-  height: 35px;
+  height: 40px;
+  /* Increased from 35px for larger elements */
   display: block;
+  margin-left: auto;
+  margin-right: auto;
+  /* Center the audio player */
 }
 
 .rankings-container .custom-audio-player::-webkit-media-controls-panel {
@@ -499,7 +559,7 @@ footer {
   }
 
   .song-ranker-container .song-box {
-    width: 280px;
+    width: 300px;
   }
 
   .filter-container {
@@ -513,6 +573,17 @@ footer {
   .song-ranker-container .filter-rerank {
     max-width: 500px;
   }
+  .song-pair {
+    gap: 0rem;
+    /* Reduced gap for tablet screens */
+  }
+
+  .song-ranker-container,
+  .rankings-container {
+    max-width: 700px;
+    /* Adjusted for tablet */
+  }
+
 }
 
 @media (max-width: 768px) {
@@ -556,6 +627,8 @@ footer {
   .song-pair {
     flex-direction: column;
     align-items: center;
+    gap: 1rem;
+    /* Further reduced gap for mobile screens */
   }
 
   .song-ranker-container .song-box {
