@@ -175,8 +175,8 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-container {
   padding: 0.1rem;
   width: 100%;
-  max-width: 900px;
-  /* Increased from 800px to accommodate two 380px song boxes + 3rem gap */
+  max-width: 960px;
+  /* Increased from 900px to accommodate two 380px song boxes + 3rem gap */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -193,7 +193,10 @@ button[style*="background: #e74c3c"]:hover {
   display: flex;
   justify-content: center;
   gap: 3rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  /* Force side-by-side layout on desktop */
+  min-width: 808px;
+  /* 2 × 380px song boxes + 3rem (48px) gap */
 }
 
 /* Song Card Container */
@@ -542,6 +545,8 @@ footer {
 
   .song-pair {
     gap: 2rem;
+    flex-wrap: wrap;
+    /* Allow wrapping on tablet */
   }
 
   .song-ranker-container .song-box {
