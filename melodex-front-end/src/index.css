@@ -1,6 +1,12 @@
 /* Filepath: Melodex/melodex-front-end/src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
 
+/* Set a consistent root font size */
+html {
+  font-size: 16px;
+  /* Ensure consistent rem sizing across environments */
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -170,40 +176,7 @@ button[style*="background: #e74c3c"]:hover {
 .rankings-container {
   padding: 0.1rem;
   width: 100%;
-  max-width: 700px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.song-ranker-wrapper,
-.rankings-wrapper {
-  width: 100%;
-}
-
-.song-pair {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-/* Song Card Container */
-.song-card-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 300px;
-}
-
-/* Song Boxes */
-.song-ranker-container,
-.rankings-container {
-  padding: 0.1rem;
-  width: 100%;
   max-width: 800px;
-  /* Increased from 700px to accommodate larger song boxes and gap */
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -220,7 +193,6 @@ button[style*="background: #e74c3c"]:hover {
   display: flex;
   justify-content: center;
   gap: 3rem;
-  /* Increased from 2rem to ensure larger spacing on desktop */
   flex-wrap: wrap;
 }
 
@@ -230,7 +202,6 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: column;
   align-items: center;
   width: 340px;
-  /* Matches song-box width */
 }
 
 /* Song Boxes */
@@ -241,17 +212,24 @@ button[style*="background: #e74c3c"]:hover {
   padding: 1.2rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Song Boxes for /rank and /rerank */
+.song-ranker-container .song-box {
+  width: 340px;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* Center content horizontally */
 }
 
-.song-ranker-container .song-box {
-  width: 340px;
-  /* Increased from 300px for larger elements */
-  text-align: center;
-  /* Center text for consistency */
+/* Song Boxes for /rankings */
+.rankings-container .song-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .song-ranker-container .filter-toggle,
@@ -272,15 +250,12 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .album-cover {
   width: 100%;
   max-width: 280px;
-  /* Increased from 240px for larger elements */
   height: auto;
   border-radius: 6px;
   margin-bottom: 0.75rem;
   display: block;
-  /* Ensure image is a block element */
   margin-left: auto;
   margin-right: auto;
-  /* Center the image */
 }
 
 .rankings-container .album-cover {
@@ -293,19 +268,22 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .song-details {
   width: 100%;
   max-width: 280px;
-  /* Match the album cover width */
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  /* Align text to the left within the container */
   text-align: left;
-  /* Ensure text alignment */
+}
+
+.rankings-container .song-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .song-ranker-container .song-name,
 .rankings-container .song-name {
   font-size: 1.2rem;
-  /* Increased from 1.1rem for larger elements */
   font-weight: 600;
   color: #141820;
   margin: 0;
@@ -314,7 +292,6 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .song-artist,
 .rankings-container .song-artist {
   font-size: 1.1rem;
-  /* Increased from 1rem for larger elements */
   color: #7f8c8d;
   margin: 0;
 }
@@ -328,20 +305,12 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .custom-audio-player {
   max-width: 100%;
   width: 280px;
-  /* Match the album cover width */
   margin: 1.2rem auto;
   margin-bottom: 0rem;
   height: 40px;
-  /* Increased from 35px for larger elements */
   display: block;
   margin-left: auto;
   margin-right: auto;
-  /* Center the audio player */
-}
-
-.rankings-container .custom-audio-player::-webkit-media-controls-panel {
-  background-color: #f4f7fa;
-  border-radius: 8px;
 }
 
 .rankings-container .custom-audio-player {
@@ -350,6 +319,12 @@ button[style*="background: #e74c3c"]:hover {
   background-color: #f4f7fa;
   padding: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+}
+
+.rankings-container .custom-audio-player::-webkit-media-controls-panel {
+  background-color: #f4f7fa;
+  border-radius: 8px;
 }
 
 .song-ranker-container .preview-unavailable,
@@ -531,6 +506,7 @@ footer {
 
 /* Responsive Styles */
 @media (max-width: 1024px) {
+
   /* Tablet */
   nav {
     height: 3.25rem;
@@ -558,7 +534,20 @@ footer {
     font-size: 0.75rem;
   }
 
+  .song-ranker-container,
+  .rankings-container {
+    max-width: 700px;
+  }
+
+  .song-pair {
+    gap: 2rem;
+  }
+
   .song-ranker-container .song-box {
+    width: 300px;
+  }
+
+  .song-card-container {
     width: 300px;
   }
 
@@ -573,20 +562,10 @@ footer {
   .song-ranker-container .filter-rerank {
     max-width: 500px;
   }
-  .song-pair {
-    gap: 0rem;
-    /* Reduced gap for tablet screens */
-  }
-
-  .song-ranker-container,
-  .rankings-container {
-    max-width: 700px;
-    /* Adjusted for tablet */
-  }
-
 }
 
 @media (max-width: 768px) {
+
   /* Mobile */
   .rankings-container ul {
     grid-template-columns: 1fr;
@@ -624,11 +603,15 @@ footer {
     padding: 0 0.75rem;
   }
 
+  .song-ranker-container,
+  .rankings-container {
+    max-width: 400px;
+  }
+
   .song-pair {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    /* Further reduced gap for mobile screens */
   }
 
   .song-ranker-container .song-box {
@@ -662,7 +645,6 @@ footer {
     justify-content: flex-start;
   }
 
-  /* SongFilter Responsiveness */
   .filter-container {
     max-width: 100%;
     padding: 0.5rem;
