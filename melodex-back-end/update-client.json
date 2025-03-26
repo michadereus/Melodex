@@ -1,9 +1,22 @@
 {
   "UserPoolId": "us-east-1_NDrWmC0M9",
   "ClientId": "706qcim5329kgn132129rdb6hi",
-  "CallbackURLs": ["http://localhost:3001/rank/", "https://melodx.io/oauth2/idpresponse"],
-  "LogoutURLs": ["https://melodx.io/login/"],
-  "AllowedOAuthFlows": ["code"],
-  "AllowedOAuthScopes": ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"],
+  "CallbackURLs": [
+    "http://localhost:3001/rank/",
+    "https://melodx.io/oauth2/idpresponse"
+  ],
+  "LogoutURLs": [
+    "https://melodx.io/login/"
+  ],
+  "AllowedOAuthFlows": [
+    "code"
+  ],
+  "AllowedOAuthScopes": [
+    "phone",
+    "email",
+    "openid",
+    "profile",
+    "aws.cognito.signin.user.admin"
+  ],
   "AllowedOAuthFlowsUserPoolClient": true
 }
