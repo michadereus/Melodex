@@ -1,56 +1,85 @@
 // Filepath: Melodex/melodex-front-end/src/components/Login.jsx
 import React, { useState, useEffect } from 'react';
 import { Auth } from 'aws-amplify';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useUserContext } from '../contexts/UserContext';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false); // New state for sign-in loading
   const navigate = useNavigate();
-  const location = useLocation();
   const { checkUser, loading } = useUserContext();
 
-  // Handle redirect after federated login
-  useEffect(() => {
-    // Check if we're on a redirect URI with an authorization code
-    if (location.search.includes('code=')) {
-      console.log('Detected redirect from federated login:', location.search);
-      checkUser()
-        .then(() => {
-          console.log('Navigating to /rank after Google login');
-          navigate('/rank');
-        })
-        .catch(err => {
-          console.error('Error after federated login:', err);
-          navigate('/login');
-        });
-    }
-  }, [location, checkUser, navigate]);
+  // Your Google Client ID
+  const GOOGLE_CLIENT_ID = '178829211245-19gec6v6qatnj74rbpb2st97c3hr1p8i.apps.googleusercontent.com';
 
+  // Check if user is already authenticated on mount
+  useEffect(() => {
+    const verifyUser = async () => {
+      try {
+        await Auth.currentAuthenticatedUser();
+        console.log('User already authenticated, redirecting to /rank');
+        await checkUser();
+        navigate('/rank');
+      } catch (error) {
+        console.log('No user authenticated, proceeding with login');
+      }
+    };
+    verifyUser();
+  }, [checkUser, navigate]);
+
+  // Handle email/password login
   const handleLogin = async () => {
+    setIsSigningIn(true); // Set loading state
     try {
       const user = await Auth.signIn(email, password);
       console.log('Logged in with email:', user);
       await checkUser();
-      console.log('Navigating to /rank');
       navigate('/rank');
     } catch (error) {
       console.error('Email login error:', error.message || error);
+    } finally {
+      setIsSigningIn(false); // Reset loading state
     }
   };
 
-  const handleGoogleLogin = async () => {
+  // Handle Google login success
+  const handleGoogleLogin = async (credentialResponse) => {
+    const idToken = credentialResponse.credential; // Google ID token
+    console.log('Google ID token:', idToken);
+
     try {
-      console.log('Initiating Google login via Cognito Hosted UI');
-      await Auth.federatedSignIn({ provider: 'Google' });
+      // Check if user is already signed in
+      const currentUser = await Auth.currentAuthenticatedUser();
+      console.log('User already signed in:', currentUser);
+      await checkUser();
+      navigate('/rank');
     } catch (error) {
-      console.error('Google login error:', error.message || error);
+      // No user signed in, proceed with federated sign-in
+      try {
+        const user = await Auth.federatedSignIn(
+          'accounts.google.com',
+          { token: idToken },
+          {}
+        );
+        console.log('Signed in with Google via Cognito User Pool:', user);
+        await checkUser();
+        console.log('User context updated after Google login');
+        navigate('/rank');
+      } catch (federatedError) {
+        console.error('Error signing in with Google token:', federatedError.message || federatedError);
+      }
     }
+  };
+
+  // Handle Google login failure
+  const handleGoogleFailure = (error) => {
+    console.error('Google login failed:', error);
   };
 
   const handleRegisterRedirect = () => {
-    console.log('Navigating to /register');
     navigate('/register');
   };
 
@@ -58,7 +87,6 @@ const Login = () => {
     return <div>Loading...</div>;
   }
 
-  console.log('Rendering Login component');
   return (
     <div className="auth-container">
       <h2
@@ -102,8 +130,9 @@ const Login = () => {
           className="auth-button auth-button-primary"
           onClick={handleLogin}
           style={{ borderRadius: '0.5rem' }}
+          disabled={isSigningIn} // Disable button while signing in
         >
-          Sign In
+          {isSigningIn ? 'Signing In...' : 'Sign In'}
         </button>
         <button
           className="auth-button auth-button-secondary"
@@ -112,14 +141,27 @@ const Login = () => {
         >
           Register
         </button>
-        <button
-          className="auth-button auth-button-google"
-          onClick={handleGoogleLogin}
-          style={{ borderRadius: '0.5rem' }}
-        >
-          <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo" />
-          Sign in with Google
-        </button>
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={handleGoogleFailure}
+            render={(renderProps) => (
+              <button
+                className="auth-button auth-button-google"
+                onClick={renderProps.onClick}
+                disabled={renderProps.disabled}
+                style={{ borderRadius: '0.5rem' }}
+              >
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  alt="Google Logo"
+                  style={{ width: '20px', marginRight: '8px' }}
+                />
+                Sign in with Google
+              </button>
+            )}
+          />
+        </GoogleOAuthProvider>
       </div>
     </div>
   );

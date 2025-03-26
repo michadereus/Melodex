@@ -18,15 +18,15 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <UserProvider>
-      <SongProvider>
-        <Router>
+    <Router>
+      <UserProvider>
+        <SongProvider>
           <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Navbar />
             <main style={{ flex: '1 0 auto', padding: '0.75rem', width: '100%', maxWidth: 'none', margin: '0 auto' }}>
               <Routes>
-                <Route path="/login" element={<Login />} /> {/* No AuthRoute */}
-                <Route path="/register" element={<Register />} /> {/* No AuthRoute */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
                 <Route path="/rank" element={<ProtectedRoute><SongRanker mode="new" key="new" /></ProtectedRoute>} />
                 <Route path="/rerank" element={<ProtectedRoute><SongRanker mode="rerank" key="rerank" /></ProtectedRoute>} />
                 <Route path="/rankings" element={<ProtectedRoute><Rankings /></ProtectedRoute>} />
@@ -35,13 +35,24 @@ function App() {
                 <Route path="*" element={<Navigate to="/login" replace />} />
               </Routes>
             </main>
-            <footer style={{ background: '#141820', color: '#bdc3c7', padding: '1rem 1rem', textAlign: 'left', flexShrink: 0, fontSize: '0.7rem', boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' }}>
-              <p>https://linktr.ee/michaeldereus</p>
+            <footer style={{ 
+                background: '#141820', 
+                color: '#bdc3c7', 
+                height: '3.5rem', 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0 1rem', 
+                textAlign: 'left', 
+                flexShrink: 0, 
+                fontSize: '0.8rem', 
+                boxShadow: '0 -2px 4px rgba(0, 0, 0, 0.1)' 
+              }}>
+              <p style={{ margin: 0 }}>https://linktr.ee/michaeldereus</p>
             </footer>
           </div>
-        </Router>
-      </SongProvider>
-    </UserProvider>
+        </SongProvider>
+      </UserProvider>
+    </Router>
   );
 }
 

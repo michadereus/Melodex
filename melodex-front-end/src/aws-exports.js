@@ -16,8 +16,8 @@ const awsmobile = {
             "profile",
             "aws.cognito.signin.user.admin"
         ],
-        "redirectSignIn": "https://songranker0f57bee6-0f57bee6-dev.auth.us-east-1.amazoncognito.com/oauth2/idpresponse",
-        "redirectSignOut": "https://melodx.io/login/",
+        "redirectSignIn": "http://localhost:3001/login/",
+        "redirectSignOut": "http://localhost:3001/login/",
         "responseType": "code"
     },
     "federationTarget": "COGNITO_USER_POOLS",

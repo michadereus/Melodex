@@ -1,4 +1,4 @@
-// Melodex/melodex-front-end/src/contexts/SongContext.jsx
+// Filepath: Melodex/melodex-front-end/src/contexts/SongContext.jsx
 import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
 import { useUserContext } from './UserContext';
 
@@ -23,8 +23,6 @@ export const SongProvider = ({ children }) => {
   const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
   const [isFetching, setIsFetching] = useState(false);
   const [contextUserID, setContextUserID] = useState(null);
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
@@ -107,7 +105,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = `${API_BASE_URL}/user-songs/rerank`;
+      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/rerank`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,7 +138,7 @@ export const SongProvider = ({ children }) => {
     }
     setLoading(true);
     console.log('Loading set to true');
-    const url = `${API_BASE_URL}/user-songs/ranked`;
+    const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/ranked`;
     console.log('Fetching ranked songs from:', url);
 
     try {
@@ -219,7 +217,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending payload to /api/user-songs/upsert:', payload);
 
-      const url = `${API_BASE_URL}/user-songs/upsert`;
+      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -294,7 +292,7 @@ export const SongProvider = ({ children }) => {
       };
       console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
-      const url = `${API_BASE_URL}/user-songs/upsert`;
+      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
