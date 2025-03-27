@@ -1,6 +1,7 @@
 // Filepath: Melodex/melodex-front-end/src/components/SongRanker.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Add useRef
 import { useSongContext } from '../contexts/SongContext';
+import { useVolumeContext } from '../contexts/VolumeContext'; // Add this import
 import SongFilter from './SongFilter';
 import '../index.css';
 
@@ -20,14 +21,16 @@ export const SongRanker = ({ mode }) => {
     songList,
     setSongList,
     userID: contextUserID,
-    setIsRankPageActive // Add to context
+    setIsRankPageActive
   } = useSongContext();
+  const { volume, setVolume } = useVolumeContext(); // Add VolumeContext
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-  const [selectedGenre, setSelectedGenre] = useState(''); // Track selected genre for title
+  const [selectedGenre, setSelectedGenre] = useState('');
+  const audioRefs = useRef([]); // Add refs for audio elements
 
   useEffect(() => {
     setMode(mode);
@@ -35,8 +38,7 @@ export const SongRanker = ({ mode }) => {
     setCurrentPair([]);
     setEnrichedPair([]);
     setFetchError(null);
-    setSelectedGenre(''); // Reset selected genre on mode change
-    // Set isRankPageActive based on mode
+    setSelectedGenre('');
     setIsRankPageActive(mode === 'new');
   }, [mode, setMode, setCurrentPair, setIsRankPageActive]);
 
@@ -94,13 +96,22 @@ export const SongRanker = ({ mode }) => {
     }
   }, [currentPair, loading, mode, applied]);
 
+  // Synchronize volume across all audio players
+  useEffect(() => {
+    audioRefs.current.forEach(audio => {
+      if (audio) {
+        audio.volume = volume;
+      }
+    });
+  }, [volume, enrichedPair]); // Re-run when volume or enrichedPair changes
+
   const handleApply = async (filters) => {
     setShowFilter(false);
     setApplied(false);
     setEnrichedPair([]);
     setIsProcessing(true);
     setFetchError(null);
-    setSelectedGenre(filters.genre === 'any' ? '' : filters.genre); // Update selected genre for title
+    setSelectedGenre(filters.genre === 'any' ? '' : filters.genre);
     try {
       if (mode === 'new') {
         let newSongs = await generateNewSongs(filters);
@@ -238,7 +249,7 @@ export const SongRanker = ({ mode }) => {
             {mode === 'new' ? (selectedGenre ? `Rank ${selectedGenre} Songs` : 'Rank All Songs') : (selectedGenre ? `Rerank ${selectedGenre} Songs` : 'Re-rank All Songs')}
           </h2>
           <div className="song-pair" key="song-pair">
-            {enrichedPair.map((song) => (
+            {enrichedPair.map((song, index) => (
               <div key={song.deezerID} className="song-card-container">
                 <div
                   className="song-box"
@@ -251,9 +262,11 @@ export const SongRanker = ({ mode }) => {
                     <p className="song-artist">{song.artist}</p>
                     {song.previewURL ? (
                       <audio
+                        ref={(el) => (audioRefs.current[index] = el)} // Assign ref to audio element
                         controls
                         src={song.previewURL}
                         className="custom-audio-player"
+                        onVolumeChange={(e) => setVolume(e.target.volume)} // Update volume state on change
                         onError={(e) => {
                           console.debug('Audio preview failed to load:', song.songName, e.target.error);
                           e.target.style.display = 'none';

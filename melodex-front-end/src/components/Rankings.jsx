@@ -1,12 +1,14 @@
 // Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react'; // Add useRef
+import { useVolumeContext } from '../contexts/VolumeContext'; // Add this import
 import SongFilter from './SongFilter';
 import '../index.css';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
-  const [applied, setApplied] = useState(false); // Changed to false to trigger initial fetch
+  const { volume, setVolume } = useVolumeContext(); // Add VolumeContext
+  const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
@@ -14,8 +16,8 @@ const Rankings = () => {
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
   const [lastAppliedFilters, setLastAppliedFilters] = useState({ genre: 'any', subgenre: 'any' });
+  const audioRefs = useRef([]); // Add refs for audio elements
 
-  // Trigger initial fetch when userID becomes available
   useEffect(() => {
     if (userID && !applied) {
       console.log('Initial fetch triggered for /rankings');
@@ -23,7 +25,6 @@ const Rankings = () => {
     }
   }, [userID, applied]);
 
-  // Function to enrich and filter songs
   const enrichAndFilterSongs = useCallback(async () => {
     if (!applied || !rankedSongs) return;
 
@@ -41,7 +42,6 @@ const Rankings = () => {
       const freshSongs = await response.json();
       console.log('Enriched songs received:', freshSongs);
 
-      // Check and refresh preview URLs if expired
       const refreshPromises = freshSongs.map(async (song) => {
         if (song.previewURL && !isPreviewValid(song.previewURL)) {
           console.log(`Preview URL expired for ${song.songName}, refreshing...`);
@@ -62,7 +62,6 @@ const Rankings = () => {
       const updatedSongs = await Promise.all(refreshPromises);
       setEnrichedSongs(updatedSongs);
 
-      // Apply client-side filtering
       const filtered = updatedSongs.filter(song => {
         const matchesGenre = selectedGenre === 'any' || song.genre === selectedGenre;
         const matchesSubgenre = selectedSubgenre === 'any' || song.subgenre === selectedSubgenre;
@@ -80,10 +79,18 @@ const Rankings = () => {
     }
   }, [applied, rankedSongs, selectedGenre, selectedSubgenre]);
 
-  // Trigger enrichment and filtering when rankedSongs changes
   useEffect(() => {
     enrichAndFilterSongs();
   }, [enrichAndFilterSongs]);
+
+  // Synchronize volume across all audio players
+  useEffect(() => {
+    audioRefs.current.forEach(audio => {
+      if (audio) {
+        audio.volume = volume;
+      }
+    });
+  }, [volume, filteredSongs]); // Re-run when volume or filteredSongs changes
 
   const handleApply = async (filters) => {
     if (!userID) {
@@ -272,10 +279,12 @@ const Rankings = () => {
                         </p>
                         {song.previewURL && isPreviewValid(song.previewURL) ? (
                           <audio
+                            ref={(el) => (audioRefs.current[index] = el)} // Assign ref to audio element
                             controls
                             src={song.previewURL}
                             className="custom-audio-player"
                             style={{ marginTop: '0.5rem' }}
+                            onVolumeChange={(e) => setVolume(e.target.volume)} // Update volume state on change
                             onError={(e) => {
                               console.debug('Audio preview failed to load:', song.songName, e.target.error);
                               e.target.style.display = 'none';
