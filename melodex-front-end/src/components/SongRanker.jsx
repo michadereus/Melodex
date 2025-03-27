@@ -1,7 +1,7 @@
 // Filepath: Melodex/melodex-front-end/src/components/SongRanker.jsx
-import React, { useState, useEffect, useRef } from 'react'; // Add useRef
+import React, { useState, useEffect, useRef } from 'react';
 import { useSongContext } from '../contexts/SongContext';
-import { useVolumeContext } from '../contexts/VolumeContext'; // Add this import
+import { useVolumeContext } from '../contexts/VolumeContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
@@ -23,14 +23,14 @@ export const SongRanker = ({ mode }) => {
     userID: contextUserID,
     setIsRankPageActive
   } = useSongContext();
-  const { volume, setVolume } = useVolumeContext(); // Add VolumeContext
+  const { volume, setVolume, playingAudioRef, setPlayingAudioRef } = useVolumeContext(); // Add playingAudioRef
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
   const [selectedGenre, setSelectedGenre] = useState('');
-  const audioRefs = useRef([]); // Add refs for audio elements
+  const audioRefs = useRef([]);
 
   useEffect(() => {
     setMode(mode);
@@ -103,7 +103,7 @@ export const SongRanker = ({ mode }) => {
         audio.volume = volume;
       }
     });
-  }, [volume, enrichedPair]); // Re-run when volume or enrichedPair changes
+  }, [volume, enrichedPair]);
 
   const handleApply = async (filters) => {
     setShowFilter(false);
@@ -219,7 +219,7 @@ export const SongRanker = ({ mode }) => {
       ) : !Array.isArray(enrichedPair) || enrichedPair.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
           <p style={{ fontSize: '1.2em', color: '#7f8c8d', fontWeight: '600' }}>
-            No songs available to rank. The song pool may be depleted. Try adjusting your filters or contact support.
+            No songs available to rank.
           </p>
           <button
             onClick={() => handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' })}
@@ -233,7 +233,7 @@ export const SongRanker = ({ mode }) => {
               cursor: 'pointer',
             }}
           >
-            Retry with Default Filters
+            Retry
           </button>
         </div>
       ) : (
@@ -262,11 +262,17 @@ export const SongRanker = ({ mode }) => {
                     <p className="song-artist">{song.artist}</p>
                     {song.previewURL ? (
                       <audio
-                        ref={(el) => (audioRefs.current[index] = el)} // Assign ref to audio element
+                        ref={(el) => (audioRefs.current[index] = el)}
                         controls
                         src={song.previewURL}
                         className="custom-audio-player"
-                        onVolumeChange={(e) => setVolume(e.target.volume)} // Update volume state on change
+                        onVolumeChange={(e) => setVolume(e.target.volume)}
+                        onPlay={(e) => {
+                          if (playingAudioRef && playingAudioRef !== e.target) {
+                            playingAudioRef.pause();
+                          }
+                          setPlayingAudioRef(e.target);
+                        }}
                         onError={(e) => {
                           console.debug('Audio preview failed to load:', song.songName, e.target.error);
                           e.target.style.display = 'none';

@@ -1,13 +1,13 @@
 // Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
-import React, { useState, useEffect, useCallback, useRef } from 'react'; // Add useRef
-import { useVolumeContext } from '../contexts/VolumeContext'; // Add this import
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useVolumeContext } from '../contexts/VolumeContext';
 import SongFilter from './SongFilter';
 import '../index.css';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
-  const { volume, setVolume } = useVolumeContext(); // Add VolumeContext
+  const { volume, setVolume, playingAudioRef, setPlayingAudioRef } = useVolumeContext();
   const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
@@ -16,8 +16,9 @@ const Rankings = () => {
   const [selectedGenre, setSelectedGenre] = useState('any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
   const [lastAppliedFilters, setLastAppliedFilters] = useState({ genre: 'any', subgenre: 'any' });
-  const audioRefs = useRef([]); // Add refs for audio elements
+  const audioRefs = useRef([]);
 
+  // Trigger initial fetch when userID becomes available
   useEffect(() => {
     if (userID && !applied) {
       console.log('Initial fetch triggered for /rankings');
@@ -25,6 +26,7 @@ const Rankings = () => {
     }
   }, [userID, applied]);
 
+  // Enrich songs after rankedSongs updates
   const enrichAndFilterSongs = useCallback(async () => {
     if (!applied || !rankedSongs) return;
 
@@ -61,36 +63,28 @@ const Rankings = () => {
 
       const updatedSongs = await Promise.all(refreshPromises);
       setEnrichedSongs(updatedSongs);
-
-      const filtered = updatedSongs.filter(song => {
-        const matchesGenre = selectedGenre === 'any' || song.genre === selectedGenre;
-        const matchesSubgenre = selectedSubgenre === 'any' || song.subgenre === selectedSubgenre;
-        return matchesGenre && matchesSubgenre;
-      });
-      console.log('Client-side filtered songs:', filtered);
-      setFilteredSongs(filtered);
+      setFilteredSongs(updatedSongs); // Use the enriched songs directly
     } catch (error) {
       console.error('Failed to enrich ranked songs:', error);
-      setEnrichedSongs(rankedSongs);
-      setFilteredSongs(rankedSongs);
+      setEnrichedSongs([]);
+      setFilteredSongs([]); // Clear filtered songs on error
     } finally {
       setIsFetching(false);
       console.log('isFetching set to false');
     }
-  }, [applied, rankedSongs, selectedGenre, selectedSubgenre]);
+  }, [applied, rankedSongs]);
 
   useEffect(() => {
     enrichAndFilterSongs();
   }, [enrichAndFilterSongs]);
 
-  // Synchronize volume across all audio players
   useEffect(() => {
     audioRefs.current.forEach(audio => {
       if (audio) {
         audio.volume = volume;
       }
     });
-  }, [volume, filteredSongs]); // Re-run when volume or filteredSongs changes
+  }, [volume, filteredSongs]);
 
   const handleApply = async (filters) => {
     if (!userID) {
@@ -99,7 +93,6 @@ const Rankings = () => {
     }
 
     setShowFilter(false);
-    setApplied(false);
     setEnrichedSongs([]);
     setFilteredSongs([]);
     setIsFetching(true);
@@ -111,9 +104,11 @@ const Rankings = () => {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Fetch timeout')), 60000)
       );
-      const fetchPromise = fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre });
-      await Promise.race([fetchPromise, timeoutPromise]);
-      setApplied(true);
+      const fetchedSongs = await Promise.race([
+        fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre }),
+        timeoutPromise
+      ]);
+      setApplied(true); // Set applied to true only after fetch completes
     } catch (error) {
       console.error('handleApply error:', error);
       setApplied(true);
@@ -279,12 +274,18 @@ const Rankings = () => {
                         </p>
                         {song.previewURL && isPreviewValid(song.previewURL) ? (
                           <audio
-                            ref={(el) => (audioRefs.current[index] = el)} // Assign ref to audio element
+                            ref={(el) => (audioRefs.current[index] = el)}
                             controls
                             src={song.previewURL}
                             className="custom-audio-player"
                             style={{ marginTop: '0.5rem' }}
-                            onVolumeChange={(e) => setVolume(e.target.volume)} // Update volume state on change
+                            onVolumeChange={(e) => setVolume(e.target.volume)}
+                            onPlay={(e) => {
+                              if (playingAudioRef && playingAudioRef !== e.target) {
+                                playingAudioRef.pause();
+                              }
+                              setPlayingAudioRef(e.target);
+                            }}
                             onError={(e) => {
                               console.debug('Audio preview failed to load:', song.songName, e.target.error);
                               e.target.style.display = 'none';

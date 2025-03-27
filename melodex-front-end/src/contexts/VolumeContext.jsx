@@ -5,9 +5,10 @@ const VolumeContext = createContext();
 
 export const VolumeProvider = ({ children }) => {
   const [volume, setVolume] = useState(0.5); // Default volume (0 to 1)
+  const [playingAudioRef, setPlayingAudioRef] = useState(null); // Track currently playing audio
 
   return (
-    <VolumeContext.Provider value={{ volume, setVolume }}>
+    <VolumeContext.Provider value={{ volume, setVolume, playingAudioRef, setPlayingAudioRef }}>
       {children}
     </VolumeContext.Provider>
   );
