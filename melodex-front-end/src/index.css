@@ -209,7 +209,8 @@ button[style*="background: #e74c3c"]:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 380px;
+  width: 358px;
+  /* Match the song box width */
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -218,15 +219,18 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .song-box,
 .rankings-container .song-box {
   background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   padding: 1.2rem;
+  /* Consistent padding on all sides */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Song Boxes for /rank and /rerank */
 .song-ranker-container .song-box {
-  width: 380px;
+  width: 358px;
+  /* Reduced from 380px to match vertical white space */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -262,7 +266,10 @@ button[style*="background: #e74c3c"]:hover {
   max-width: 320px;
   height: auto;
   border-radius: 0.5rem;
-  margin-bottom: 0.75rem;
+  margin-top: 0;
+  /* Remove margin-top */
+  margin-bottom: 1.2rem;
+  /* Match padding of song-box */
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -282,6 +289,7 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
+  margin-bottom: 0rem;
 }
 
 .rankings-container .song-details {
@@ -297,6 +305,8 @@ button[style*="background: #e74c3c"]:hover {
   font-weight: 600;
   color: #141820;
   margin: 0;
+  margin-top: 0;
+  /* Remove margin-top */
 }
 
 .song-ranker-container .song-artist,
@@ -315,13 +325,12 @@ button[style*="background: #e74c3c"]:hover {
 .song-ranker-container .custom-audio-player {
   max-width: 100%;
   width: 320px;
-  margin: 1.2rem auto;
-  margin-bottom: 0rem;
-  height: 48px;
+  margin: 0 auto;
+  /* Remove top and bottom margins */
+  margin-top: 1.5rem;
   display: block;
   margin-left: auto;
   margin-right: auto;
-  border-radius: 0.5rem;
 }
 
 .rankings-container .custom-audio-player {
@@ -611,9 +620,7 @@ footer {
 
   nav {
     height: 3.5rem;
-    /* Increased by 20% from 3.5rem */
     padding: 0.6rem 1.2rem;
-    /* Increased by 20% from 0.5rem 1rem */
   }
 
   nav .logo {
@@ -622,7 +629,6 @@ footer {
 
   .nav-links {
     gap: 1.5rem;
-    /* Increased by 20% from 1.25rem */
     flex-wrap: wrap;
     justify-content: space-between;
     width: 100%;
@@ -630,29 +636,22 @@ footer {
 
   nav a {
     font-size: 0.9rem;
-    /* Increased by 20% from 1rem */
   }
 
   .nav-icon {
     margin-right: 0.6rem;
-    /* Increased by 20% from 0.75rem */
     font-size: 1.2rem;
-    /* Increased by 20% from 1.2rem */
   }
 
   .profile-bubble {
     width: 30px;
-    /* Increased by 20% from 24px */
     height: 30px;
   }
 
   footer {
     height: 3rem;
-    /* Increased by 20% from 3rem */
     font-size: 0.7rem;
-    /* Increased by 20% from 0.7rem */
     padding: 0 0.9rem;
-    /* Increased by 20% from 0.75rem */
   }
 
   .song-ranker-container,

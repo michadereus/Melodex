@@ -168,7 +168,7 @@ const decades = {
 
 const SongFilter = ({ onApply, isRankPage, onHide }) => {
   const { setSelectedGenre } = useSongContext();
-  const [selectedGenre, setLocalGenre] = useState(isRankPage ? '' : 'any'); // Default to '' for /rank, 'any' for /rerank and /rankings
+  const [selectedGenre, setLocalGenre] = useState(isRankPage ? '' : 'any');
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
   const [selectedDecade, setSelectedDecade] = useState('all decades');
 
@@ -194,6 +194,11 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
     }
   };
 
+  // Filter genres: exclude "All Genres" for /rank, exclude "Select Genre" for /rerank and /rankings
+  const genreOptions = isRankPage
+    ? genres.filter(genre => genre.value !== 'any')
+    : genres.filter(genre => genre.value !== '');
+
   return (
     <div className="song-filter-container" style={{ marginTop: '0.8em', marginBottom: '0.8em', display: 'flex', justifyContent: 'center', width: '100%' }}>
       <select
@@ -216,7 +221,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
         onMouseOver={(e) => (e.target.style.backgroundColor = '#ecf0f1')}
         onMouseOut={(e) => (e.target.style.backgroundColor = '#f4f7fa')}
       >
-        {genres.map((genre) => (
+        {genreOptions.map((genre) => (
           <option key={genre.value} value={genre.value}>
             {genre.label}
           </option>
