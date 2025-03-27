@@ -62,7 +62,6 @@ nav a {
   align-items: center;
   transition: color 0.2s ease;
   white-space: nowrap;
-  /* Prevent text wrapping */
 }
 
 nav a:hover {
@@ -75,8 +74,8 @@ nav a:hover {
 }
 
 .profile-bubble {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background-color: #434957;
   transition: transform 0.2s ease;
@@ -203,7 +202,6 @@ button[style*="background: #e74c3c"]:hover {
   flex-wrap: nowrap;
   min-width: 808px;
   margin: 0 auto;
-  /* Ensure centering */
 }
 
 /* Song Card Container */
@@ -538,8 +536,8 @@ footer {
   }
 
   .profile-bubble {
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
   }
 
   footer {
@@ -555,25 +553,19 @@ footer {
   .song-pair {
     gap: 2rem;
     flex-wrap: wrap;
-    /* Allow wrapping on tablet */
     min-width: 0;
-    /* Remove min-width constraint for smaller screens */
     margin: 0 auto;
-    /* Center the song pair */
     justify-content: center;
-    /* Ensure centering */
   }
 
   .song-ranker-container .song-box {
     width: 300px;
     margin: 0 auto;
-    /* Center the song box */
   }
 
   .song-card-container {
     width: 300px;
     margin: 0 auto;
-    /* Center the song card */
   }
 
   .song-ranker-container .album-cover {
@@ -618,43 +610,49 @@ footer {
   }
 
   nav {
-    height: auto;
-    /* Allow height to adjust for stacking */
-    padding: 0.5rem;
+    height: 3.5rem;
+    /* Increased by 20% from 3.5rem */
+    padding: 0.6rem 1.2rem;
+    /* Increased by 20% from 0.5rem 1rem */
   }
 
   nav .logo {
     display: none;
-    /* Hide Melodx logo on mobile */
   }
 
   .nav-links {
-    gap: 0.5rem;
-    /* Reduce gap for mobile */
+    gap: 1.5rem;
+    /* Increased by 20% from 1.25rem */
     flex-wrap: wrap;
-    /* Allow wrapping if needed */
     justify-content: space-between;
     width: 100%;
   }
 
   nav a {
     font-size: 0.9rem;
+    /* Increased by 20% from 1rem */
   }
 
   .nav-icon {
-    margin-right: 0.5rem;
-    font-size: 1rem;
+    margin-right: 0.6rem;
+    /* Increased by 20% from 0.75rem */
+    font-size: 1.2rem;
+    /* Increased by 20% from 1.2rem */
   }
 
   .profile-bubble {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    /* Increased by 20% from 24px */
+    height: 30px;
   }
 
   footer {
     height: 3rem;
+    /* Increased by 20% from 3rem */
     font-size: 0.7rem;
-    padding: 0 0.75rem;
+    /* Increased by 20% from 0.7rem */
+    padding: 0 0.9rem;
+    /* Increased by 20% from 0.75rem */
   }
 
   .song-ranker-container,

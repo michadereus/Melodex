@@ -6,21 +6,22 @@ import '../index.css';
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
-  const [applied, setApplied] = useState(true);
+  const [applied, setApplied] = useState(false); // Changed to false to trigger initial fetch
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
   const [showFilter, setShowFilter] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
-  const [selectedGenre, setSelectedGenre] = useState('any'); // Default to 'any'
-  const [selectedSubgenre, setSelectedSubgenre] = useState('any'); // Default to 'any'
+  const [selectedGenre, setSelectedGenre] = useState('any');
+  const [selectedSubgenre, setSelectedSubgenre] = useState('any');
   const [lastAppliedFilters, setLastAppliedFilters] = useState({ genre: 'any', subgenre: 'any' });
 
   // Trigger initial fetch when userID becomes available
   useEffect(() => {
-    if (userID) {
+    if (userID && !applied) {
+      console.log('Initial fetch triggered for /rankings');
       handleApply({ genre: 'any', subgenre: 'any', decade: 'all decades' });
     }
-  }, [userID]);
+  }, [userID, applied]);
 
   // Function to enrich and filter songs
   const enrichAndFilterSongs = useCallback(async () => {
@@ -87,15 +88,6 @@ const Rankings = () => {
   const handleApply = async (filters) => {
     if (!userID) {
       console.log('No userID available, skipping fetch');
-      return;
-    }
-
-    // Check if filters have actually changed
-    if (
-      filters.genre === lastAppliedFilters.genre &&
-      filters.subgenre === lastAppliedFilters.subgenre
-    ) {
-      console.log('Filters unchanged, skipping fetch');
       return;
     }
 
