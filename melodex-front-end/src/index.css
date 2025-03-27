@@ -210,7 +210,6 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: column;
   align-items: center;
   width: 358px;
-  /* Match the song box width */
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -222,7 +221,6 @@ button[style*="background: #e74c3c"]:hover {
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.5rem;
   padding: 1.2rem;
-  /* Consistent padding on all sides */
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -230,7 +228,6 @@ button[style*="background: #e74c3c"]:hover {
 /* Song Boxes for /rank and /rerank */
 .song-ranker-container .song-box {
   width: 358px;
-  /* Reduced from 380px to match vertical white space */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -267,9 +264,7 @@ button[style*="background: #e74c3c"]:hover {
   height: auto;
   border-radius: 0.5rem;
   margin-top: 0;
-  /* Remove margin-top */
   margin-bottom: 1.2rem;
-  /* Match padding of song-box */
   display: block;
   margin-left: auto;
   margin-right: auto;
@@ -306,7 +301,6 @@ button[style*="background: #e74c3c"]:hover {
   color: #141820;
   margin: 0;
   margin-top: 0;
-  /* Remove margin-top */
 }
 
 .song-ranker-container .song-artist,
@@ -326,7 +320,6 @@ button[style*="background: #e74c3c"]:hover {
   max-width: 100%;
   width: 320px;
   margin: 0 auto;
-  /* Remove top and bottom margins */
   margin-top: 1.5rem;
   display: block;
   margin-left: auto;
@@ -608,6 +601,25 @@ footer {
 
   .song-ranker-container .filter-rerank {
     max-width: 500px;
+  }
+
+  /* Apply mobile layout to song-filter-container on /rank at tablet size */
+  .song-ranker-container .song-filter-container.rank-page {
+    flex-direction: column !important;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .song-ranker-container .song-filter-container.rank-page select,
+  .song-ranker-container .song-filter-container.rank-page button {
+    width: 100%;
+    margin-right: 0;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+  }
+
+  .song-ranker-container .song-filter-container.rank-page button {
+    padding: 8px;
   }
 }
 

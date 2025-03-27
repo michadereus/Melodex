@@ -200,7 +200,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
     : genres.filter(genre => genre.value !== '');
 
   return (
-    <div className="song-filter-container" style={{ marginTop: '0.8em', marginBottom: '0.8em', display: 'flex', justifyContent: 'center', width: '100%' }}>
+    <div className={`song-filter-container ${isRankPage ? 'rank-page' : 'rerank-rankings'}`} style={{ marginTop: '0.8em', marginBottom: '0.8em', display: 'flex', justifyContent: 'center', width: '100%' }}>
       <select
         value={selectedGenre}
         onChange={handleGenreChange}
@@ -265,7 +265,7 @@ const SongFilter = ({ onApply, isRankPage, onHide }) => {
             backgroundColor: selectedGenre ? '#f4f7fa' : '#ecf0f1',
             border: '1px solid #141820',
             borderRadius: '8px',
-            color: '#141820',
+            color: '141820',
             fontSize: '1rem',
             fontFamily: 'Inter, Arial, sans-serif',
             cursor: selectedGenre ? 'pointer' : 'not-allowed',
