@@ -16,8 +16,8 @@ body {
   font-family: 'Inter', sans-serif;
   background: #f5f6f5;
   color: #141820;
+  width: 100%;
   overflow-x: hidden;
-  /* Prevent horizontal scrolling */
 }
 
 /* Navigation */
@@ -28,11 +28,11 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   height: 3.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 100vw;
-  /* Ensure nav fits within viewport */
+  overflow-x: hidden;
 }
 
 .nav-left {
@@ -61,6 +61,8 @@ nav a {
   display: flex;
   align-items: center;
   transition: color 0.2s ease;
+  white-space: nowrap;
+  /* Prevent text wrapping */
 }
 
 nav a:hover {
@@ -78,6 +80,7 @@ nav a:hover {
   border-radius: 50%;
   background-color: #434957;
   transition: transform 0.2s ease;
+  margin: 0 auto;
 }
 
 .profile-bubble:hover {
@@ -198,9 +201,9 @@ button[style*="background: #e74c3c"]:hover {
   justify-content: center;
   gap: 3rem;
   flex-wrap: nowrap;
-  /* Force side-by-side layout on desktop */
   min-width: 808px;
-  /* 2 × 380px song boxes + 3rem (48px) gap */
+  margin: 0 auto;
+  /* Ensure centering */
 }
 
 /* Song Card Container */
@@ -209,6 +212,8 @@ button[style*="background: #e74c3c"]:hover {
   flex-direction: column;
   align-items: center;
   width: 380px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Song Boxes */
@@ -551,14 +556,24 @@ footer {
     gap: 2rem;
     flex-wrap: wrap;
     /* Allow wrapping on tablet */
+    min-width: 0;
+    /* Remove min-width constraint for smaller screens */
+    margin: 0 auto;
+    /* Center the song pair */
+    justify-content: center;
+    /* Ensure centering */
   }
 
   .song-ranker-container .song-box {
     width: 300px;
+    margin: 0 auto;
+    /* Center the song box */
   }
 
   .song-card-container {
     width: 300px;
+    margin: 0 auto;
+    /* Center the song card */
   }
 
   .song-ranker-container .album-cover {
@@ -603,24 +618,23 @@ footer {
   }
 
   nav {
-    height: 3rem;
+    height: auto;
+    /* Allow height to adjust for stacking */
     padding: 0.5rem;
-    /* Reduced padding to fit better */
-    flex-wrap: nowrap;
-    /* Prevent wrapping of nav items */
-    overflow-x: hidden;
-    /* Prevent horizontal scrolling */
   }
 
   nav .logo {
-    font-size: 1.2rem;
+    display: none;
+    /* Hide Melodx logo on mobile */
   }
 
   .nav-links {
     gap: 0.5rem;
-    /* Reduced gap to prevent overlap */
-    flex-shrink: 1;
-    /* Allow shrinking to fit */
+    /* Reduce gap for mobile */
+    flex-wrap: wrap;
+    /* Allow wrapping if needed */
+    justify-content: space-between;
+    width: 100%;
   }
 
   nav a {
@@ -635,8 +649,6 @@ footer {
   .profile-bubble {
     width: 24px;
     height: 24px;
-    flex-shrink: 0;
-    /* Prevent shrinking */
   }
 
   footer {
@@ -655,19 +667,20 @@ footer {
     align-items: center;
     gap: 1rem;
     min-width: 0;
-    /* Remove min-width constraint on mobile */
-    width: 100%;
-    /* Ensure it fits within viewport */
+    margin: 0 auto;
+    justify-content: center;
   }
 
   .song-ranker-container .song-box {
     width: 90%;
     max-width: 350px;
+    margin: 0 auto;
   }
 
   .song-card-container {
     width: 100%;
     max-width: 350px;
+    margin: 0 auto;
   }
 
   .rankings-list {
