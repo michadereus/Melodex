@@ -20,7 +20,7 @@ theme:
     - content.action.edit
     - content.code.copy
   palette:
-    - media: "(prefers-color-scheme: light)"
+    - media: "(prefers-color-scheme: dark)"
       scheme: default
       primary: blue
       accent: indigo
@@ -66,7 +66,7 @@ nav:
     - Architecture: overview/architecture.md
 
   - Requirements:
-    - Overview: requirements/index.md
+    - User Stories: requirements/index.md
     - Acceptance Criteria: requirements/acceptance-criteria.md
     - Non-Functional Requirements: requirements/nfrs.md
 
