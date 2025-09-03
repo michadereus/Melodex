@@ -1,55 +1,90 @@
-site_name: Melodex Engineering Docs
+site_name: Melodex Documentation
 site_url: https://michadereus.github.io/Melodex/
 repo_url: https://github.com/michadereus/Melodex
 repo_name: michadereus/Melodex
+site_description: Technical documentation, test approach, and portfolio artifacts for the Melodex project.
+site_author: Michael De Reus
 
 theme:
   name: material
+  language: en
+  logo: null
+  favicon: null
   features:
     - navigation.instant
     - navigation.tracking
     - navigation.sections
-    - navigation.top
+    - navigation.tabs
+    - navigation.expand
+    - toc.integrate
+    - content.action.edit
     - content.code.copy
-    - toc.follow
   palette:
-    - scheme: default
-      primary: blue
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
       accent: indigo
 
-nav:
-  - Home: index.md
-  - Overview:
-    - Project Overview: overview/index.md
-    - Architecture: overview/architecture.md
-  - Requirements:
-    - User Stories: requirements/index.md
-    - Acceptance Criteria: requirements/acceptance-criteria.md
-    - Non-Functional Requirements: requirements/nfrs.md
-  - Test:
-    - Test Approach: test/test-approach.md
-    - Test Plan: test/test-plan.md
-    - Risk Log: test/risk-log.md
-    - Traceability Matrix: test/traceability.md
-    - Exploratory Charters: test/exploratory-charters.md
-  - CI/CD & Quality:
-    - Quality Gates: ci-cd-quality/quality-gates.md
-    - Coding Standards: ci-cd-quality/coding-standards.md
-  - Reports:
-    - Execution Summary: reports/execution-summary.md
-    - Bugs Index: reports/bugs.md
-  - Case Studies:
-    - Spotify Playlist Export: case-studies/spotify-playlist-export.md
-  - How-To:
-    - Local Dev Setup: how-to/local-dev.md
-    - Run Tests: how-to/run-tests.md
-    - Contribute Docs: how-to/contributing-docs.md
+plugins:
+  - search
 
 markdown_extensions:
   - admonition
-  - codehilite
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
   - toc:
       permalink: true
-  - footnotes
-  - def_list
-  - attr_list
+      toc_depth: 3
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.critic
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+
+nav:
+  - Home: index.md
+
+  - Overview:
+    - Overview: overview/index.md
+    - Architecture: overview/architecture.md
+
+  - Requirements:
+    - Overview: requirements/index.md
+    - Acceptance Criteria: requirements/acceptance-criteria.md
+    - Non-Functional Requirements: requirements/nfrs.md
+
+  - Test:
+    - Test Approach: test/test-approach.md
+    - Test Plan: test/test-plan.md
+    - Traceability Matrix: test/traceability.md
+    - Risk Log: test/risk-log.md
+    - Exploratory Charters: test/exploratory-charters.md
+
+  - Reports:
+    - Execution Summary: reports/execution-summary.md
+    - Defect Log: reports/bugs.md
+
+  - How-To:
+    - Local Development: how-to/local-dev.md
+    - Run Tests: how-to/run-tests.md
+    - Contributing Docs: how-to/contributing-docs.md
+
+  - CI/CD and Quality:
+    - Coding Standards: ci-cd-quality/coding-standards.md
+    - Quality Gates: ci-cd-quality/quality-gates.md
+
+  - Case Studies:
+    - Spotify Playlist Export: case-studies/spotify-playlist-export.md
+
+  - Not Found: 404.md
