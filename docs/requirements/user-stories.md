@@ -7,7 +7,6 @@ This page lists the prioritized user stories for the Spotify playlist export fea
 - In scope: exporting ranked songs to Spotify as playlists, including authentication, review/selection, feedback, and error handling.
 - Out of scope (for this feature): changes to ranking algorithms, new data sources, or unrelated profile features.
 
-
 ## Prioritized User Stories
 
 ### US-001 — Authenticate with Spotify
