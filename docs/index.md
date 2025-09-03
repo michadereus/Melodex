@@ -4,10 +4,6 @@ Welcome. This site hosts the technical documentation and QA portfolio artifacts 
 
 Use the sidebar for full navigation, or jump in with these quick links.
 
-# Melodex QA/Engineering Docs
-
-Welcome! Use the sidebar for full navigation, or jump in with these quick links.
-
 ## Start Here
 - [Project Overview](overview/)
 - [Requirements](requirements/)
