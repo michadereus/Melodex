@@ -1,0 +1,55 @@
+site_name: Melodex Engineering Docs
+site_url: https://michadereus.github.io/Melodex/
+repo_url: https://github.com/michadereus/Melodex
+repo_name: michadereus/Melodex
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: blue
+      accent: indigo
+
+nav:
+  - Home: index.md
+  - Overview:
+    - Project Overview: overview/index.md
+    - Architecture: overview/architecture.md
+  - Requirements:
+    - User Stories: requirements/index.md
+    - Acceptance Criteria: requirements/acceptance-criteria.md
+    - Non-Functional Requirements: requirements/nfrs.md
+  - Test:
+    - Test Approach: test/test-approach.md
+    - Test Plan: test/test-plan.md
+    - Risk Log: test/risk-log.md
+    - Traceability Matrix: test/traceability.md
+    - Exploratory Charters: test/exploratory-charters.md
+  - CI/CD & Quality:
+    - Quality Gates: ci-cd-quality/quality-gates.md
+    - Coding Standards: ci-cd-quality/coding-standards.md
+  - Reports:
+    - Execution Summary: reports/execution-summary.md
+    - Bugs Index: reports/bugs.md
+  - Case Studies:
+    - Spotify Playlist Export: case-studies/spotify-playlist-export.md
+  - How-To:
+    - Local Dev Setup: how-to/local-dev.md
+    - Run Tests: how-to/run-tests.md
+    - Contribute Docs: how-to/contributing-docs.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - toc:
+      permalink: true
+  - footnotes
+  - def_list
+  - attr_list

@@ -1,17 +1,17 @@
-// Filepath: Melodex/melodex-front-end/src/contexts/VolumeContext.jsx
-import React, { createContext, useContext, useState } from 'react';
+  // Filepath: Melodex/melodex-front-end/src/contexts/VolumeContext.jsx
+  import React, { createContext, useContext, useState } from 'react';
 
-const VolumeContext = createContext();
+  const VolumeContext = createContext();
 
-export const VolumeProvider = ({ children }) => {
-  const [volume, setVolume] = useState(0.5); // Default volume (0 to 1)
-  const [playingAudioRef, setPlayingAudioRef] = useState(null); // Track currently playing audio
+  export const VolumeProvider = ({ children }) => {
+    const [volume, setVolume] = useState(0.5); // Default volume
+    const [playingAudioRef, setPlayingAudioRef] = useState(null); // Track currently playing audio
 
-  return (
-    <VolumeContext.Provider value={{ volume, setVolume, playingAudioRef, setPlayingAudioRef }}>
-      {children}
-    </VolumeContext.Provider>
-  );
-};
+    return (
+      <VolumeContext.Provider value={{ volume, setVolume, playingAudioRef, setPlayingAudioRef }}>
+        {children}
+      </VolumeContext.Provider>
+    );
+  };
 
-export const useVolumeContext = () => useContext(VolumeContext);
+  export const useVolumeContext = () => useContext(VolumeContext);

@@ -34,12 +34,14 @@ const Login = () => {
   const handleLogin = async () => {
     setIsSigningIn(true); // Set loading state
     try {
+      console.log('Attempting email/password sign-in with email:', email);
       const user = await Auth.signIn(email, password);
       console.log('Logged in with email:', user);
       await checkUser();
       navigate('/rank');
     } catch (error) {
       console.error('Email login error:', error.message || error);
+      alert(`Login failed: ${error.message || 'Unknown error. Check console for details.'}`);
     } finally {
       setIsSigningIn(false); // Reset loading state
     }
