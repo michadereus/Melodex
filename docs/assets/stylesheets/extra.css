@@ -70,3 +70,43 @@
     white-space: nowrap;
     text-align: center;
 }
+
+/* Optional: make the status look like a pill */
+.md-typeset table.trace-table td:nth-child(8) {
+    font-weight: 600;
+}
+
+.md-typeset table.trace-table td:nth-child(8)::before {
+    content: "";
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    margin-right: 0.35rem;
+    background: #9aa0a6;
+    /* default dot */
+}
+
+/* If you literally use these strings, tint the dot based on status */
+.md-typeset table.trace-table td:nth-child(8):has(> :contains("Planned")),
+.md-typeset table.trace-table td:nth-child(8):contains("Planned")::before {
+    background: #9aa0a6;
+}
+
+/* gray */
+.md-typeset table.trace-table td:nth-child(8):has(> :contains("In Progress")),
+.md-typeset table.trace-table td:nth-child(8):contains("In Progress")::before {
+    background: #1e88e5;
+}
+
+/* blue */
+.md-typeset table.trace-table td:nth-child(8):has(> :contains("Blocked")),
+.md-typeset table.trace-table td:nth-child(8):contains("Blocked")::before {
+    background: #e53935;
+}
+
+/* red */
+.md-typeset table.trace-table td:nth-child(8):has(> :contains("Done")),
+.md-typeset table.trace-table td:nth-child(8):contains("Done")::before {
+    background: #43a047;
+}

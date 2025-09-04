@@ -31,8 +31,7 @@ Scope: Maps user stories → acceptance criteria → test cases for the Spotify 
 | US-06 | Error handling | AC-06.1 Per-song error surfaced; AC-06.2 Batch error list with actions; AC-06.3 429 shows “try again later”; AC-06.4 Retry/skip works | UT-API-Export-003 429 handling/backoff; UT-API-Export-005 per-item errors; UT-FE-Errors-001 render list & actions | IT-Export-006 inject 429 & verify UX; IT-Export-010 per-item fail surfaces | E2E-009 rate-limit path; E2E-010 retry/skip flow | commit: <sha>; logs: error-cases.txt; cypress: rate-limit.mp4; screenshot: retry-message.png | Planned |
 | US-07 | Confirmation with playlist link | AC-07.1 Confirmation + clickable link; AC-07.2 Deep link opens Spotify app if installed; AC-07.3 Web fallback if not | UT-FE-Link-001 link shape & target; UT-FE-DeepLink-001 scheme/web fallback | IT-Export-007 link returned in response | E2E-011 follow link; E2E-012 deep-link behavior (desktop fallback) | commit: <sha>; screenshot: confirmation.png; cypress: deeplink.mp4 | Planned |
 | US-08 | Revoke Spotify access | AC-08.1 Disconnect invalidates tokens; AC-08.2 Export prompts reconnect; AC-08.3 Removed from Spotify connected apps; AC-08.4 Local state cleared | UT-API-Auth-004 revoke clears server tokens; UT-FE-Auth-002 state reset | IT-Revoke-001 revoke → blocked export | E2E-013 revoke → export blocked; E2E-014 verify removed in Spotify apps | commit: <sha>; screenshot: revoke.png; note: “Spotify > Apps shows Melodex removed” | Planned |
-
-{: .trace-table}
+{:.trace-table}
 
 ---
 
