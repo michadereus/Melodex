@@ -19,31 +19,19 @@ The documentation is intentionally scoped to the **Spotify Playlist Export case 
 
 Melodex/
 
-├─ melodex-back-end/ # Node.js/Express API (Elastic Beanstalk)
-
-├─ melodex-front-end/ # React app (Amplify)
-
-├─ docs/ # MkDocs site (case study docs)
-
-│ ├─ overview/ # Case study overview & architecture
-
-│ ├─ requirements/ # User stories & acceptance criteria
-
-│ ├─ test/ # Test approach, plan, traceability, risks
-
-│ ├─ reports/ # Execution summary, defects
-
-│ ├─ how-to/ # Local dev, running tests, etc.
-
-│ ├─ ci-cd-quality/ # Coding standards, quality gates
-
-│ ├─ case-studies/ # Case study narrative
-
-│ └─ index.md # Landing page for docs
-
-├─ mkdocs.yml # MkDocs configuration
-
-└─ .github/workflows/docs.yml# GitHub Actions: build & publish docs
+├─ melodex-back-end/ # Node.js/Express API (Elastic Beanstalk)  
+├─ melodex-front-end/ # React app (Amplify)  
+├─ docs/ # MkDocs site (case study docs)  
+│ ├─ overview/ # Case study overview & architecture  
+│ ├─ requirements/ # User stories & acceptance criteria  
+│ ├─ test/ # Test approach, plan, traceability, risks  
+│ ├─ reports/ # Execution summary, defects  
+│ ├─ how-to/ # Local dev, running tests, etc.  
+│ ├─ ci-cd-quality/ # Coding standards, quality gates  
+│ ├─ case-studies/ # Case study narrative  
+│ └─ index.md # Landing page for docs  
+├─ mkdocs.yml # MkDocs configuration  
+└─ .github/workflows/docs.yml# GitHub Actions: build & publish docs  
 
 ---
 
