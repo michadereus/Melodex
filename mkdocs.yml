@@ -19,6 +19,7 @@ theme:
     - toc.integrate
     - content.action.edit
     - content.code.copy
+    - content.footer
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: default
@@ -37,6 +38,10 @@ theme:
 
 plugins:
   - search
+  - git-revision-date-localized:
+      type: date            # or "timeago" if you prefer “3 days ago”
+      fallback_to_build_date: true
+      enable_creation_date: false
 
 markdown_extensions:
   - admonition
