@@ -151,34 +151,38 @@ A full matrix will be maintained in test/traceability.md and linked from PRs.
 ## 12. Test Cases Inventory (initial)
 IDs are indicative; detailed steps live in component/feature spec files.
 
-Unit (Jest)
-- SVC-TOKEN-REFRESH-401: refresh on 401 then retry
-- SVC-CHUNK-ADD-TRACKS: batch add in chunks of N
-- SVC-BACKOFF-429: exponential backoff and final user-facing message
-- SVC-SELECTOR-FILTERS: apply genre/subgenre/decade rules
-- SVC-SELECTOR-EMPTY: empty result returns proper status
+### Unit (Jest)
+
+- SVC-TOKEN-REFRESH-401: refresh on 401 then retry  
+- SVC-CHUNK-ADD-TRACKS: batch add in chunks of N  
+- SVC-BACKOFF-429: exponential backoff and final user-facing message  
+- SVC-SELECTOR-FILTERS: apply genre/subgenre/decade rules  
+- SVC-SELECTOR-EMPTY: empty result returns proper status  
 - GUARD-ELO-MATH: sanity update calc
 
-Integration/API (Jest + Supertest)
-- API-EXPORT-VALID: validates payload, calls Spotify client correctly
-- API-EXPORT-EMPTY: returns “no songs” response
-- API-EXPORT-ERROR-404: per-track not found list returned
-- API-EXPORT-ERROR-429: backoff path exercised, message surfaced
+### Integration/API (Jest + Supertest)
+
+- API-EXPORT-VALID: validates payload, calls Spotify client correctly  
+- API-EXPORT-EMPTY: returns “no songs” response  
+- API-EXPORT-ERROR-404: per-track not found list returned  
+- API-EXPORT-ERROR-429: backoff path exercised, message surfaced  
 - API-RANKED-CONTRACT: ranked endpoint returns required fields
 
-Component/UI (React Testing Library)
-- MODAL-RENDER: modal shows list and confirm disabled with 0 items
-- MODAL-REMOVE-REALTIME: removing updates count and enables confirm
-- MODAL-DEFAULT-NAME: default name uses yyyy-mm-dd format
-- UI-PROGRESS-STATES: pending → success/error transitions
+### Component/UI (React Testing Library)
+
+- MODAL-RENDER: modal shows list and confirm disabled with 0 items  
+- MODAL-REMOVE-REALTIME: removing updates count and enables confirm  
+- MODAL-DEFAULT-NAME: default name uses yyyy-mm-dd format  
+- UI-PROGRESS-STATES: pending → success/error transitions  
 - UI-ERROR-MESSAGES: show “try again later” on rate limit
 
-E2E (Cypress)
-- EX-HAPPY-PATH-DESKTOP: login → filter → modal → remove → export → confirm link
-- EX-MOBILE-VIEWPORT: repeat happy path on mobile viewport
-- EX-EMPTY-FILTER: export with 0 matches → user message
-- EX-OAUTH-CANCEL: cancel hosted UI → no tokens stored, retry path
-- EX-429-MESSAGE: simulated rate-limit → message and recovery path
+### E2E (Cypress)
+
+- EX-HAPPY-PATH-DESKTOP: login → filter → modal → remove → export → confirm link  
+- EX-MOBILE-VIEWPORT: repeat happy path on mobile viewport  
+- EX-EMPTY-FILTER: export with 0 matches → user message  
+- EX-OAUTH-CANCEL: cancel hosted UI → no tokens stored, retry path  
+- EX-429-MESSAGE: simulated rate-limit → message and recovery path  
 - EX-TRACK-NOT-FOUND: verify per-track errors, export continues
 
 ## 13. Execution Process
