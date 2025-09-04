@@ -1,9 +1,9 @@
-site_name: Melodex Documentation
+site_name: Melodex Docs — Spotify Playlist Export Case Study
 site_url: https://michadereus.github.io/Melodex/
 repo_url: https://github.com/michadereus/Melodex
 repo_name: michadereus/Melodex
 site_description: Technical documentation, test approach, and portfolio artifacts for the Melodex project.
-site_author: Michael De Reus
+site_author: Michael DeReus
 
 theme:
   name: material
@@ -62,6 +62,7 @@ nav:
   - Home: index.md
 
   - Overview:
+    - About These Docs: overview/about-docs.md
     - Overview: overview/index.md
     - Architecture: overview/architecture.md
 

@@ -1,4 +1,8 @@
-# Melodex Documentation
+# Melodex Spotify Playlist Feature Documentation
+
+!!! info "Scope"
+    This site documents the **Spotify Playlist Export** feature as a QA/engineering case study.  
+    It is **not** the full product documentation for Melodex. For app code and setup, see the repository README.
 
 Welcome. This site hosts the technical documentation and QA portfolio artifacts for Melodex: a music ranking app with AWS Cognito authentication, Amplify hosting, a Node/Express backend on Elastic Beanstalk with MongoDB Atlas, and integrations with OpenAI and Deezer.
 
