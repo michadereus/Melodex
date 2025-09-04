@@ -33,6 +33,7 @@ Scales: Likelihood (L) and Impact (I) use Low / Medium / High. Exposure is a sim
 | R-18 | Flaky E2E tests slow delivery | Quality / Process | M | M | 4 | Intermittent CI failures | Test isolation; data seeding; network stubbing for 3rd-party | Quarantine flaky tests; fix before merging | QA | Open |
 | R-19 | Environment parity gaps (local vs. prod) | Config Drift | M | M | 4 | Works local, fails prod | `.env.example`; config docs; smoke tests post-deploy | Feature flag; quick rollback | DevOps | Open |
 | R-20 | User confusion about export scope (filters vs. selection) | UX / Clarity | M | L | 2 | Support questions; wrong expectations | Clear summary: N songs, filters applied; confirm modal | Undo/redo; simple re-export | UX | Mitigating |
+
 {: .risk-table}
 
 ---
