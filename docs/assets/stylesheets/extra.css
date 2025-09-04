@@ -1,0 +1,72 @@
+/* Risk table: auto-size most columns, keep key ones narrow */
+.md-typeset table.risk-table {
+    table-layout: auto;
+    /* let browser size flex columns */
+    width: 100%;
+}
+
+.md-typeset table.risk-table th,
+.md-typeset table.risk-table td {
+    padding: 0.45rem 0.55rem;
+    vertical-align: middle;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    /* allows long tokens to wrap */
+    hyphens: auto;
+}
+
+/* 1 = Risk ID */
+.md-typeset table.risk-table th:nth-child(1),
+.md-typeset table.risk-table td:nth-child(1) {
+    width: 8rem;
+    /* compact ID column */
+    white-space: nowrap;
+    text-align: left;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* 4 = L, 5 = I, 6 = Exposure */
+.md-typeset table.risk-table th:nth-child(4),
+.md-typeset table.risk-table td:nth-child(4),
+.md-typeset table.risk-table th:nth-child(5),
+.md-typeset table.risk-table td:nth-child(5),
+.md-typeset table.risk-table th:nth-child(6),
+.md-typeset table.risk-table td:nth-child(6) {
+    width: 5rem;
+    /* keep numeric columns tight */
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Auto-size traceability matrix with narrow ID/Status */
+.md-typeset table.trace-table {
+    table-layout: auto;
+    /* back to browser sizing */
+    width: 100%;
+}
+
+.md-typeset table.trace-table th,
+.md-typeset table.trace-table td {
+    padding: 0.45rem 0.55rem;
+    vertical-align: top;
+    word-break: break-word;
+    /* wrap long content */
+    overflow-wrap: anywhere;
+    /* allow breaks inside long tokens */
+    hyphens: auto;
+}
+
+/* Keep ID & Status compact; the rest auto-size */
+.md-typeset table.trace-table th:nth-child(1),
+.md-typeset table.trace-table td:nth-child(1) {
+    width: 7rem;
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.md-typeset table.trace-table th:nth-child(8),
+.md-typeset table.trace-table td:nth-child(8) {
+    width: 7.5rem;
+    white-space: nowrap;
+    text-align: center;
+}
