@@ -1,112 +1,271 @@
-/* Risk table: auto-size most columns, keep key ones narrow */
-.md-typeset table.risk-table {
+/* =========================================
+   Shared table base styles (Risk + Trace)
+   ========================================= */
+
+.md-typeset .risk-table table,
+.md-typeset .trace-table table {
     table-layout: auto;
-    /* let browser size flex columns */
     width: 100%;
+    border-collapse: collapse;
 }
 
-.md-typeset table.risk-table th,
-.md-typeset table.risk-table td {
-    padding: 0.45rem 0.55rem;
-    vertical-align: middle;
-    word-break: break-word;
-    overflow-wrap: anywhere;
-    /* allows long tokens to wrap */
-    hyphens: auto;
-}
-
-/* 1 = Risk ID */
-.md-typeset table.risk-table th:nth-child(1),
-.md-typeset table.risk-table td:nth-child(1) {
-    width: 8rem;
-    /* compact ID column */
-    white-space: nowrap;
-    text-align: left;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-/* 4 = L, 5 = I, 6 = Exposure */
-.md-typeset table.risk-table th:nth-child(4),
-.md-typeset table.risk-table td:nth-child(4),
-.md-typeset table.risk-table th:nth-child(5),
-.md-typeset table.risk-table td:nth-child(5),
-.md-typeset table.risk-table th:nth-child(6),
-.md-typeset table.risk-table td:nth-child(6) {
-    width: 5rem;
-    /* keep numeric columns tight */
-    white-space: nowrap;
-    text-align: center;
-}
-
-/* Auto-size traceability matrix with narrow ID/Status */
-.md-typeset table.trace-table {
-    table-layout: auto;
-    /* back to browser sizing */
-    width: 100%;
-}
-
-.md-typeset table.trace-table th,
-.md-typeset table.trace-table td {
+/* Top-align, comfortable padding, and sane wrapping */
+.md-typeset .risk-table th,
+.md-typeset .risk-table td,
+.md-typeset .trace-table th,
+.md-typeset .trace-table td {
     padding: 0.45rem 0.55rem;
     vertical-align: top;
-    word-break: break-word;
-    /* wrap long content */
-    overflow-wrap: anywhere;
-    /* allow breaks inside long tokens */
+    word-break: normal;
+    /* avoid chopping words */
+    overflow-wrap: break-word;
     hyphens: auto;
+    /* soft hyphenation (needs lang attr) */
 }
 
-/* Keep ID & Status compact; the rest auto-size */
-.md-typeset table.trace-table th:nth-child(1),
-.md-typeset table.trace-table td:nth-child(1) {
-    width: 7rem;
+/* =========================================
+   Risk table specific
+   ========================================= */
+
+/* Remove Material’s default min-width on headers inside wrapped tables */
+.md-typeset .risk-table :is(.md-typeset__table, .md-typeset__scrollwrap)>table th,
+.md-typeset .risk-table>table th {
+    min-width: 0 !important;
+}
+
+/* Compact ID column */
+.md-typeset .risk-table table th:nth-child(1),
+.md-typeset .risk-table table td:nth-child(1) {
+    width: 8rem;
     white-space: nowrap;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-.md-typeset table.trace-table th:nth-child(8),
-.md-typeset table.trace-table td:nth-child(8) {
-    width: 7.5rem;
+/* Keep L / I tight and centered */
+.md-typeset .risk-table table th:nth-child(4),
+.md-typeset .risk-table table td:nth-child(4),
+.md-typeset .risk-table table th:nth-child(5),
+.md-typeset .risk-table table td:nth-child(5) {
+    min-width: 0 !important;
+    width: 3.5ch !important;
+    /* just enough for L/M/H */
     white-space: nowrap;
-    text-align: center;
+    text-align: center !important;
 }
 
-/* Optional: make the status look like a pill */
-.md-typeset table.trace-table td:nth-child(8) {
+/* Exposure a bit wider, still centered */
+.md-typeset .risk-table table th:nth-child(6),
+.md-typeset .risk-table table td:nth-child(6) {
+    min-width: 0 !important;
+    width: 6ch !important;
+    /* fits 1–3 digits */
+    white-space: nowrap;
+    text-align: center !important;
+}
+
+/* Long-text columns: wrap at spaces (no mid-word cuts) and give room */
+.md-typeset .risk-table table th:nth-child(7),
+.md-typeset .risk-table table td:nth-child(7),
+.md-typeset .risk-table table th:nth-child(8),
+.md-typeset .risk-table table td:nth-child(8),
+.md-typeset .risk-table table th:nth-child(9),
+.md-typeset .risk-table table td:nth-child(9) {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    min-width: 22ch;
+    /* tweak to taste (18–26ch works well) */
+}
+
+/* =========================================
+   Traceability table specific
+   ========================================= */
+
+.md-typeset .trace-table :is(.md-typeset__table, .md-typeset__scrollwrap)>table,
+.md-typeset .trace-table>table {
+    table-layout: auto;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Reassert top-align + no mid-word chops for trace rows */
+.md-typeset .trace-table th,
+.md-typeset .trace-table td {
+    padding: 0.45rem 0.55rem;
+    vertical-align: top;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+}
+
+/* Story ID compact */
+.md-typeset .trace-table table th:nth-child(1),
+.md-typeset .trace-table table td:nth-child(1) {
+    width: 8ch;
+    /* US-08, etc. */
+    white-space: nowrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Status compact */
+.md-typeset .trace-table table th:nth-child(8),
+.md-typeset .trace-table table td:nth-child(8) {
+    width: 9ch;
+    white-space: nowrap;
+    text-align: center;
     font-weight: 600;
 }
 
-.md-typeset table.trace-table td:nth-child(8)::before {
-    content: "";
-    display: inline-block;
-    width: 0.5rem;
-    height: 0.5rem;
+/* Long-text columns (2–7): breathing room + no mid-word cuts */
+.md-typeset .trace-table table th:nth-child(2),
+.md-typeset .trace-table table td:nth-child(2),
+.md-typeset .trace-table table th:nth-child(3),
+.md-typeset .trace-table table td:nth-child(3),
+.md-typeset .trace-table table th:nth-child(4),
+.md-typeset .trace-table table td:nth-child(4),
+.md-typeset .trace-table table th:nth-child(5),
+.md-typeset .trace-table table td:nth-child(5),
+.md-typeset .trace-table table th:nth-child(6),
+.md-typeset .trace-table table td:nth-child(6),
+.md-typeset .trace-table table th:nth-child(7),
+.md-typeset .trace-table table td:nth-child(7) {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    min-width: 22ch;
+    /* tweak 20–26ch to taste */
+}
+
+/* Allow long code/URLs to break safely in Evidence */
+.md-typeset .trace-table td code,
+.md-typeset .trace-table td a {
+    overflow-wrap: anywhere;
+}
+
+/* =========================================
+   Colored Pills (Traceability + Risk)
+   Usage:
+     <span class="pill planned">Planned</span>
+     <span class="pill progress">In&nbsp;Progress</span>
+     <span class="pill blocked">Blocked</span>
+     <span class="pill done">Done</span>
+     <span class="pill open">Open</span>
+     <span class="pill mitigating">Mitigating</span>
+     <span class="pill accepted">Accepted</span>
+     <span class="pill closed">Closed</span>
+   ========================================= */
+
+/* Base pill */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.15rem 0.5rem;
     border-radius: 999px;
-    margin-right: 0.35rem;
-    background: #9aa0a6;
-    /* default dot */
+    font-size: 0.78em;
+    font-weight: 600;
+    line-height: 1.2;
+    border: 1px solid currentColor;
+    text-transform: none;
+    white-space: nowrap;
 }
 
-/* If you literally use these strings, tint the dot based on status */
-.md-typeset table.trace-table td:nth-child(8):has(> :contains("Planned")),
-.md-typeset table.trace-table td:nth-child(8):contains("Planned")::before {
-    background: #9aa0a6;
+/* Map colors using Material theme vars with sensible fallbacks */
+:root,
+[data-md-color-scheme="default"] {
+    --pill-gray: #9aa0a6;
+    --pill-blue: #1e88e5;
+    --pill-green: #43a047;
+    --pill-red: #e53935;
+    --pill-amber: #fb8c00;
+    --pill-indigo: #3f51b5;
 }
 
-/* gray */
-.md-typeset table.trace-table td:nth-child(8):has(> :contains("In Progress")),
-.md-typeset table.trace-table td:nth-child(8):contains("In Progress")::before {
-    background: #1e88e5;
+[data-md-color-scheme="slate"] {
+    /* Slightly brighter for dark mode contrast */
+    --pill-gray: #b0b6bb;
+    --pill-blue: #64b5f6;
+    --pill-green: #66bb6a;
+    --pill-red: #ef5350;
+    --pill-amber: #ffb74d;
+    --pill-indigo: #7986cb;
 }
 
-/* blue */
-.md-typeset table.trace-table td:nth-child(8):has(> :contains("Blocked")),
-.md-typeset table.trace-table td:nth-child(8):contains("Blocked")::before {
-    background: #e53935;
+/* Traceability */
+.pill.planned {
+    color: var(--pill-gray);
+    background: color-mix(in oklab, var(--pill-gray) 18%, transparent);
 }
 
-/* red */
-.md-typeset table.trace-table td:nth-child(8):has(> :contains("Done")),
-.md-typeset table.trace-table td:nth-child(8):contains("Done")::before {
-    background: #43a047;
+.pill.progress {
+    color: var(--pill-blue);
+    background: color-mix(in oklab, var(--pill-blue) 18%, transparent);
+}
+
+.pill.blocked {
+    color: var(--pill-red);
+    background: color-mix(in oklab, var(--pill-red) 18%, transparent);
+}
+
+.pill.done {
+    color: var(--pill-green);
+    background: color-mix(in oklab, var(--pill-green) 18%, transparent);
+}
+
+/* Risk */
+.pill.open {
+    color: var(--pill-amber);
+    background: color-mix(in oklab, var(--pill-amber) 18%, transparent);
+}
+
+.pill.mitigating {
+    color: var(--pill-indigo);
+    background: color-mix(in oklab, var(--pill-indigo) 18%, transparent);
+}
+
+.pill.accepted {
+    color: var(--pill-gray);
+    background: color-mix(in oklab, var(--pill-gray) 18%, transparent);
+}
+
+.pill.closed {
+    color: var(--pill-green);
+    background: color-mix(in oklab, var(--pill-green) 18%, transparent);
+}
+
+/* Fallback for browsers without color-mix (older Safari/Chromium) */
+@supports not (background: color-mix(in oklab, black 10%, white)) {
+    .pill.planned {
+        background: #9aa0a61f;
+    }
+
+    .pill.progress {
+        background: #1e88e51f;
+    }
+
+    .pill.blocked {
+        background: #e539351f;
+    }
+
+    .pill.done {
+        background: #43a0471f;
+    }
+
+    .pill.open {
+        background: #fb8c001f;
+    }
+
+    .pill.mitigating {
+        background: #3f51b51f;
+    }
+
+    .pill.accepted {
+        background: #9aa0a61f;
+    }
+
+    .pill.closed {
+        background: #43a0471f;
+    }
 }
