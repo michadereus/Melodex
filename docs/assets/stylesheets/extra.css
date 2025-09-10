@@ -199,6 +199,16 @@
     background: color-mix(in oklab, var(--pill-gray) 18%, transparent);
 }
 
+.pill.notrun {
+    color: var(--pill-gray);
+    background: color-mix(in oklab, var(--pill-gray) 18%, transparent);
+}
+
+.pill.deferred {
+    color: var(--pill-gray);
+    background: color-mix(in oklab, var(--pill-gray) 18%, transparent);
+}
+
 .pill.progress {
     color: var(--pill-blue);
     background: color-mix(in oklab, var(--pill-blue) 18%, transparent);
@@ -209,7 +219,17 @@
     background: color-mix(in oklab, var(--pill-red) 18%, transparent);
 }
 
+.pill.fail {
+    color: var(--pill-red);
+    background: color-mix(in oklab, var(--pill-red) 18%, transparent);
+}
+
 .pill.done {
+    color: var(--pill-green);
+    background: color-mix(in oklab, var(--pill-green) 18%, transparent);
+}
+
+.pill.pass {
     color: var(--pill-green);
     background: color-mix(in oklab, var(--pill-green) 18%, transparent);
 }
@@ -234,6 +254,40 @@
     color: var(--pill-green);
     background: color-mix(in oklab, var(--pill-green) 18%, transparent);
 }
+
+.pill.in-progress {
+    color: var(--pill-blue);
+    background: color-mix(in oklab, var(--pill-blue) 18%, transparent);
+}
+
+.pill.fixed {
+    /* resolved but pending verification – give it a distinct tone (indigo) */
+    color: var(--pill-indigo);
+    background: color-mix(in oklab, var(--pill-indigo) 18%, transparent);
+}
+
+.pill.verified {
+    color: var(--pill-green);
+    background: color-mix(in oklab, var(--pill-green) 18%, transparent);
+}
+
+.pill.deferred {
+    color: var(--pill-gray);
+    background: color-mix(in oklab, var(--pill-gray) 18%, transparent);
+}
+
+.pill.wontfix {
+    color: var(--pill-red);
+    background: color-mix(in oklab, var(--pill-red) 18%, transparent);
+}
+
+.pill.duplicate {
+    /* slight blue bias to differentiate from plain gray */
+    color: var(--pill-blue);
+    background: color-mix(in oklab, var(--pill-blue) 12%, transparent);
+}
+
+
 
 /* Fallback for browsers without color-mix (older Safari/Chromium) */
 @supports not (background: color-mix(in oklab, black 10%, white)) {
@@ -267,5 +321,28 @@
 
     .pill.closed {
         background: #43a0471f;
+    }
+    .pill.in-progress {
+        background: #1e88e51f;
+    }
+
+    .pill.fixed {
+        background: #3f51b51f;
+    }
+
+    .pill.verified {
+        background: #43a0471f;
+    }
+
+    .pill.deferred {
+        background: #9aa0a61f;
+    }
+
+    .pill.wontfix {
+        background: #e539351f;
+    }
+
+    .pill.duplicate {
+        background: #1e88e512;
     }
 }

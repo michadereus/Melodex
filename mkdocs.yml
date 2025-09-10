@@ -88,6 +88,7 @@ nav:
     - Exploratory Charters: test/exploratory-charters.md
 
   - Reports:
+    - Baseline: reports/baseline.md
     - Execution Summary: reports/execution-summary.md
     - Defect Log: reports/bugs.md
 
