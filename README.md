@@ -45,21 +45,22 @@ Melodex/
 ## Local Development
 
 ### Easy Run
-    # repo root
-    npm run install:all   # installs backend + frontend deps
-    npm run dev           # starts both servers (API :8080, Web :3001)
+    # root dir
+    npm i -D concurrently   # installs the root tool
+    npm run install:all     # installs backend + frontend deps
+    npm run dev             # starts both servers (API :8080, Web :3001)
 
 ### Frontend
     cd melodex-front-end
     npm install
     # optional: echo "VITE_API_BASE_URL=http://localhost:8080" > .env.local
-    npm run dev           # → http://localhost:3001
+    npm run dev             # → http://localhost:3001
 
 ### Backend
     cd melodex-back-end
     npm install
-    npm start             # → http://localhost:8080
+    npm start               # → http://localhost:8080
 
 ## Docs
     pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
-    mkdocs serve          # → http://127.0.0.1:8000
+    mkdocs serve            # → http://127.0.0.1:8000
