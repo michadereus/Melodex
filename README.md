@@ -1,15 +1,22 @@
 # Melodex
 
-Melodex is a music discovery and ranking web app. Users pick a genre/subgenre, compare pairs of well-known tracks with 30-second previews, and build personal rankings powered by an ELO system. The app uses AWS Cognito (email/Google), S3 for profile images, Amplify for the React front end, an Elastic Beanstalk Node.js API backed by MongoDB Atlas, OpenAI API for song suggestions, and Deezer API for metadata/previews.
+Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks with 30-second previews, and build personalized leaderboards using an ELO-based ranking algorithm.
 
-> This repository currently features a **case study** focused on a new portfolio-oriented feature: **Spotify Playlist Export**. The case study includes professional requirements, acceptance criteria, a test approach/plan, and CI docs.
+The system integrates:
+
+- **Frontend:** React (Vite) hosted via AWS Amplify, wired to AWS Cognito for authentication and AWS S3 for profile image storage  
+- **Backend:** Node.js/Express deployed on AWS Elastic Beanstalk (EC2), connected to MongoDB Atlas for persistence  
+- **APIs:** OpenAI (generates candidate song lists) and Deezer (enriches tracks with IDs, album art, and preview URLs)  
+- **Auth:** Cognito User Pools with email/password and Google federation  
+
+> This repository currently features a **case study** focused on a new portfolio-oriented feature: **Spotify Playlist Export**.
 
 ---
 
 ## Live Documentation (MkDocs)
 
-- Site: https://michadereus.github.io/Melodex/
-- Start here: https://michadereus.github.io/Melodex/overview/
+- Site: https://michadereus.github.io/Melodex/  
+- Start here: https://michadereus.github.io/Melodex/overview/  
 
 The documentation is intentionally scoped to the **Spotify Playlist Export case study** (not the entire product). The landing page explains the scope.
 
@@ -35,9 +42,24 @@ Melodex/
 
 ---
 
-## Local Development (Docs)
+## Local Development
 
-1. Install Python 3.9+.
-2. Install dependencies:
-   ```bash
-   pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
+### Easy Run
+    # repo root
+    npm run install:all   # installs backend + frontend deps
+    npm run dev           # starts both servers (API :8080, Web :5173 or :3001)
+
+### Frontend
+    cd melodex-front-end
+    npm install
+    # optional: echo "VITE_API_BASE_URL=http://localhost:8080" > .env.local
+    npm run dev           # → http://localhost:5173 (or 3001 if configured)
+
+### Backend
+    cd melodex-back-end
+    npm install
+    npm start             # → http://localhost:8080
+
+## Docs
+    pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
+    mkdocs serve          # → http://127.0.0.1:8000
