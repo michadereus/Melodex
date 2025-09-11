@@ -16,16 +16,16 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 | Purpose                  | Email (masked)             | Provider(s)      | Notes |
 |---------------------------|----------------------------|------------------|-------|
-| Primary QA account        | qa.melodex@gmail.com     | Google (federated via Cognito)   | Short-lived account; loaded with 20 manually ranked songs |
+| Primary QA account        | qa.melodex@gmail.com     | Google (federated via Cognito)   | Short-lived account; loaded with 40 manually ranked songs |
 | Fresh QA account          | qa.melodex@gmail.com       | Cognito (email/password) | Un-registered account; verifies signup/login and empty states |
+| Legacy QA account         | mich*****@...     | Cognito (email/password) | Personal account; explores responses to aged data |
 
 - Network: `Spectrum`, approx `450 up and 11 down`.
 - Notes: `No feature flags in use.`
 
 ## 3. Devices & Browsers
 **Desktop**  
-  - Firefox (primary): `Ver: 142.0.1 (64-bit)`  
-  - Chrome: `Ver: 139.0.7258.155 (Official Build) (64-bit)`  
+  - Firefox: `Ver: 142.0.1 (64-bit)`  
 **Mobile**  
   - Android Firefox: `OS: Android 15 | Ver: 142.0.1 (Build #2016110943)`  
 
@@ -37,34 +37,31 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 ## 5. Smoke Checklist (happy-path and thin guardrail)
 
-| ID     | Account      | Area                        | Scenario                                              | URL         | Platform | Quick Steps                                                                 | Result                                  | Evidence |
+<div class="smoke-table" markdown="1">
+| ID     | Account      | Area                        | Scenario                                              | Endpoint         | Platform | Quick Steps                                                                 | Result                                  | Evidence |
 |--------|--------------|-----------------------------|-------------------------------------------------------|-------------|----------|------------------------------------------------------------------------------|:----------------------------------------:|----------|
-| SMK-00 | Fresh        | Auth                        | Create new account via Email/Password → lands on Rank | `/register` | Desktop  | Visit `/register`, fill form with unique email+password, verify redirect     | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-00.png` |
-| SMK-01 | Fresh        | Auth                        | Login via Email → lands on Rank                       | `/rank`     | Desktop  | Visit `/`, login with Email, verify redirect to `/rank`                      | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-01.png` |
-| SMK-02 | Main         | Auth                        | Login via Google → lands on Rank                      | `/rank`     | Desktop  | Login with Google, verify redirect                                           | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-02.png` |
-| SMK-03 | Main + Fresh | Rank                        | Pair appears and both previews render controls        | `/rank`     | Desktop  | Load page, confirm two items + play controls visible                         | <span class="pill planned">Not Run</span> | HAR: `../assets/evidence/SMK-03.har` |
-| SMK-04 | Main + Fresh | Rank (refresh one)          | Refresh button replaces a single item in pair         | `/rank`     | Desktop  | On a loaded pair, click refresh on one item → confirm it swaps out           | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-04.png` |
-| SMK-05 | Main + Fresh | Rank/Re-rank (refresh both) | Refresh-all replaces both items in pair               | `/rank`, `/rerank` | Desktop | On a loaded pair, click refresh-all → confirm both songs change              | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-05.png` |
-| SMK-06 | Main + Fresh | Rank → Re-rank              | Navigate to `/rerank` and back without error          | `/rerank`   | Desktop  | From header/nav, open `/rerank`, return to `/rank`                           | <span class="pill planned">Not Run</span> |  |
-| SMK-07 | Main + Fresh | Mobile basic                | Load `/rank` and interact with a few pairs            | `/rank`     | Mobile   | Open on mobile, scroll, tap through ~3 pairs to create ranking history       | <span class="pill planned">Not Run</span> | video: `../assets/evidence/SMK-07.mp4` |
-| SMK-08 | Main + Fresh | Mobile rankings             | Load `/rankings` and attempt an old preview           | `/rankings` | Mobile   | Scroll to older entries, tap play                                            | <span class="pill planned">Not Run</span> | DEF-001 if fails; HAR |
-| SMK-09 | Main + Fresh | Rankings list updates       | Ranking a new pair adds both songs to `/rankings`     | `/rankings` | Desktop  | Rank a pair → navigate to `/rankings` → confirm both songs appear in list    | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-09.png` |
-| SMK-10 | Main + Fresh | Rankings (ELO values)       | Ranking a pair updates winner/loser “ranking” values  | `/rankings` | Desktop  | Compare both songs’ ranking values before/after ranking; confirm winner increases and loser decreases | <span class="pill planned">Not Run</span> | screenshot: `../assets/evidence/SMK-10.png` |
-| SMK-11 | Main + Fresh | Rankings (load)             | Rankings list loads with N items                      | `/rankings` | Desktop  | Open page, confirm list count displays                                       | <span class="pill planned">Not Run</span> |  |
-| SMK-12 | Main + Fresh | Rankings (old previews)     | Older items can play audio (known bug candidate)      | `/rankings` | Desktop  | Scroll to older entries, attempt play                                        | <span class="pill planned">Not Run</span> | DEF-001 if fails; HAR |
-| SMK-13 | Main + Fresh | Network health              | Backend API reachable (200)                           | `api/health`| Desktop  | Hit health endpoint, expect 200 with payload                                 | <span class="pill planned">Not Run</span> | response: `../assets/evidence/SMK-13.txt` |
-| SMK-14 | Main + Fresh | Logout                      | Logout returns to public state                        | `/`         | Desktop  | Use header/account menu → Logout → return to public                          | <span class="pill planned">Not Run</span> |  |
-
+| SMK-00 | Fresh        | Auth                        | Create new account via Email/Password → lands on Rank | `/register` | Desktop  | Visit `/register`, fill form with unique email+password, verify redirect     | <span class="pill fail">Failed</span> | [DEF-001](./defects/DEF-001.md) |
+| SMK-01 | Fresh        | Auth                        | Login via Email → lands on Rank                       | `/rank`     | Desktop  | Visit `/`, login with Email, verify redirect to `/rank`                      | <span class="pill pass">Passed</span> | [SMK-01-login](./evidence/SMK-01-login.png)  [SMK-01-redirect](./evidence/SMK-01-redirect.png) |
+| SMK-02 | Main         | Auth                        | Login via Google → lands on Rank                      | `/rank`     | Desktop  | Login with Google, verify redirect                                           | <span class="pill pass">Passed</span> | [SMK-02-login](./evidence/SMK-02-login.png)  [SMK-02-redirect](./evidence/SMK-02-redirect.png) |
+| SMK-03 | Main + Fresh | Rank                        | Pair appears and both previews render controls        | `/rank`     | Desktop  | Load page, confirm two items + play controls visible                         | <span class="pill pass">Passed</span> | [SMK-03-main](./evidence/SMK-03-main.gif)  [SMK-03-fresh](./evidence/SMK-03-fresh.gif) |
+| SMK-04 | Main + Fresh | Rank (refresh one)          | Refresh button replaces a single item in pair         | `/rank`     | Desktop  | On a loaded pair, click refresh on one item → confirm it swaps out           | <span class="pill pass">Passed</span> | [SMK-04-fresh](./evidence/SMK-04-fresh.gif) [SMK-04-main](./evidence/SMK-04-main.gif) |
+| SMK-05 | Main + Fresh | Rank/Re-rank (refresh both) | Refresh-all replaces both items in pair               | `/rank`, `/rerank` | Desktop | On a loaded pair, click refresh-all → confirm both songs change              | <span class="pill pass">Passed</span> | [SMK-05-main](./evidence/SMK-05-main.gif) [SMK-05-fresh](./evidence/SMK-05-fresh.gif) |
+| SMK-06 | Main + Fresh | Profile                     | Profile page loads with correct display name & avatar | `/profile`  | Desktop  | Open `/profile`; verify display name/email present; avatar shows (custom or default fallback); no major console errors | <span class="pill pass">Passed</span> | [SMK-06-main](./evidence/SMK-06-main.png) [SMK-06-fresh](./evidence/SMK-06-fresh.png) |
+| SMK-07 | Main + Fresh | Profile (stats)             | Profile stats reflect recent ranking activity         | `/profile`  | Desktop  | Note current stats (e.g., totals/wins/losses); rank one pair; return to `/profile`; confirm totals +2 and winner/loser counts updated | <span class="pill pass">Passed</span> | [SMK-07-fresh](./evidence/SMK-07-fresh.gif)  [SMK-07-main](./evidence/SMK-07-main.gif) |
+| SMK-08 | Main + Fresh | Rank → Re-rank              | Navigate to `/rerank` and back without error          | `/rerank`   | Desktop  | From header/nav, open `/rerank`, return to `/rank`                           | <span class="pill pass">Passed</span> | [SMK-08-main](./evidence/SMK-08-main.gif) [SMK-08-fresh](./evidence/SMK-08-fresh.gif) |
+| SMK-09 | Main + Fresh | Mobile basic                | Load `/rank` and interact with a few pairs            | `/rank`     | Mobile   | Open on mobile, scroll, tap through ~3 pairs to create ranking history       | <span class="pill pass">Passed</span> | [SMK-09-fresh](./evidence/SMK-09-fresh.gif) [SMK-09-main](./evidence/SMK-09-main.gif) |
+| SMK-10 | Main | Mobile rankings             | Load `/rankings` and attempt an old preview           | `/rankings` | Mobile   | Scroll to older entries, tap play                                            | <span class="pill pass">Passed</span> | [SMK-10](./evidence/SMK-10.gif) |
+| SMK-11 | Main + Fresh | Rankings list updates       | Ranking a new pair adds both songs to `/rankings`     | `/rankings` | Desktop  | Rank a pair → navigate to `/rankings` → confirm both songs appear in list    | <span class="pill pass">Passed</span> | [SMK-11-main-rank](./evidence/SMK-11-main-rank.png) [SMK-11-main-rerank](./evidence/SMK-11-main-rerank.png) [SMK-11-fresh-rank](./evidence/SMK-11-fresh-rank.png) [SMK-11-fresh-rerank](./evidence/SMK-11-fresh-rerank.png) |
+| SMK-12 | Main + Fresh | Rankings (ELO values)       | Re-ranking a pair updates winner/loser “ranking” values  | `/rerank` | Desktop  | Compare both songs’ ranking values before/after ranking; confirm winner increases and loser decreases | <span class="pill pass">Passed</span> | [SMK-12-fresh-1](./evidence/SMK-12-fresh-1.png) [SMK-12-fresh-2](./evidence/SMK-12-fresh-2.png) [SMK-12-main-1](./evidence/SMK-12-main-1.png) [SMK-12-main-2](./evidence/SMK-12-main-2.png) |
+| SMK-13 | Main | Rankings (old previews)     | Older items can play audio (known bug candidate)      | `/rankings` | Desktop  | Scroll to older entries, attempt play                                        | <span class="pill pass">Passed</span> | [SMK-13](./evidence/SMK-13.png) |
+| SMK-14 | Main + Fresh | Logout                      | Logout returns to public state                        | `/`         | Desktop  | Use header/account menu → Logout → return to public                          | <span class="pill pass">Passed</span> | [SMK-14](./evidence/SMK-14.png) |
+</div>
 
 ## 6. Defects Found
-Link any issues discovered during the smoke here. If a row above failed, log a defect and reference it.
 
-- **DEF-001** Rankings audio preview fails for old tracks  
-  - Link: `./defects/DEF-001.md`  
-  - Evidence: HAR `../evidence/DEF-001.har`, screenshot(s)  
-  - Status: `<Open/Investigating/Resolved>`
-
-(Add additional defects as `DEF-002`, `DEF-003`, …)
+**DEF-001**   Verification code error  
+  - Link: [DEF-001](./defects/DEF-001.md)  
+  - Status: `Open`  
 
 ## 7. Quick Performance Snapshot (Coarse)
 One pass per primary page on Desktop Firefox with disk cache disabled (Private window).
@@ -72,7 +69,9 @@ One pass per primary page on Desktop Firefox with disk cache disabled (Private w
 | Page | Metric | Observation | Evidence |
 |---|---|---|---|
 | `/rank` | TTFB / Load | `<e.g., ~200ms / ~1.8s>` | HAR: `../assets/evidence/PERF-rank.har` |
+| `/rerank` | TTFB / Load | `<e.g., ~200ms / ~1.8s>` | HAR: `../assets/evidence/PERF-rerank.har` |
 | `/rankings` | TTFB / Load | `<e.g., ~220ms / ~1.6s>` | HAR: `../assets/evidence/PERF-rankings.har` |
+| `/profile` | TTFB / Load | `<e.g., ~220ms / ~1.6s>` | HAR: `../assets/evidence/PERF-profile.har` |
 | API core | Median response | `<e.g., /ranked 180–250ms>` | HAR/log |
 
 (Values are snapshots, not strict SLOs—used to notice regressions later.)

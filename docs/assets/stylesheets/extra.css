@@ -145,6 +145,160 @@
 }
 
 /* =========================================
+   Smoke Checklist table (no mid-word breaks)
+   ========================================= */
+
+/* Base + defeat theme constraints */
+.md-typeset .smoke-table :is(.md-typeset__table, .md-typeset__scrollwrap)>table,
+.md-typeset .smoke-table>table {
+    table-layout: auto !important;
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.md-typeset .smoke-table :is(.md-typeset__table, .md-typeset__scrollwrap)>table th,
+.md-typeset .smoke-table :is(.md-typeset__table, .md-typeset__scrollwrap)>table td,
+.md-typeset .smoke-table>table th,
+.md-typeset .smoke-table>table td {
+    min-width: 0 !important;
+    padding: 0.45rem 0.55rem !important;
+    vertical-align: top !important;
+
+    /* 🔒 No mid-word cutting anywhere by default */
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+}
+
+/* --- Control widths via <colgroup> so changes actually apply --- */
+.md-typeset .smoke-table table colgroup col {
+    width: auto !important;
+}
+
+/* Column map:
+   1 ID | 2 Account | 3 Area | 4 Scenario | 5 URL | 6 Platform | 7 Quick Steps | 8 Result | 9 Evidence */
+
+/* Skinny columns – keep truly skinny to close gaps */
+.md-typeset .smoke-table table colgroup col:nth-child(1) {
+    width: 7ch !important;
+}
+
+/* ID */
+.md-typeset .smoke-table table colgroup col:nth-child(2) {
+    width: 11ch !important;
+}
+
+/* Account */
+.md-typeset .smoke-table table colgroup col:nth-child(3) {
+    width: 9ch !important;
+}
+
+/* Let the URL column expand as needed */
+.md-typeset .smoke-table table colgroup col:nth-child(5) {
+    width: auto !important;
+    /* allow it to grow to fit */
+}
+
+/* Ensure the URL cell itself doesn't clip or force breaks */
+.md-typeset .smoke-table th:nth-child(5),
+.md-typeset .smoke-table td:nth-child(5) {
+    min-width: 0 !important;
+    white-space: normal !important;
+    /* allow wrapping only at spaces/slashes */
+    word-break: normal !important;
+    /* do NOT break mid-word */
+    overflow-wrap: normal !important;
+    /* do NOT insert arbitrary breaks */
+    overflow: visible !important;
+}
+
+/* Critical: MkDocs Material makes inline <code> break words. Override that here. */
+.md-typeset .smoke-table td:nth-child(5) code {
+    display: inline !important;
+    white-space: normal !important;
+    /* not pre, not pre-wrap */
+    word-break: normal !important;
+    /* keep tokens intact */
+    overflow-wrap: normal !important;
+    /* don't force breaks */
+    hyphens: none !important;
+}
+
+/* URL */
+.md-typeset .smoke-table table colgroup col:nth-child(6) {
+    width: 10ch !important;
+}
+
+/* Platform */
+.md-typeset .smoke-table table colgroup col:nth-child(8) {
+    width: 10ch !important;
+}
+
+/* Result */
+
+/* Content columns – take remaining space, wrap only at spaces */
+.md-typeset .smoke-table table colgroup col:nth-child(4) {
+    width: auto !important;
+}
+
+/* Scenario */
+.md-typeset .smoke-table table colgroup col:nth-child(7) {
+    width: auto !important;
+}
+
+/* Quick Steps */
+.md-typeset .smoke-table table colgroup col:nth-child(9) {
+    width: auto !important;
+}
+
+/* Evidence */
+
+/* Pill column centering */
+.md-typeset .smoke-table td:nth-child(8) {
+    text-align: center !important;
+    white-space: nowrap !important;
+}
+
+.md-typeset .smoke-table td:nth-child(8) .pill {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.md-typeset .smoke-table td:nth-child(9) a,
+.md-typeset .smoke-table td:nth-child(9) code {
+    overflow-wrap: anywhere !important;
+    /* last resort for super-long URLs */
+}
+
+/* Optional: light zebra rows */
+.md-typeset .smoke-table tbody tr:nth-child(odd) td {
+    background: color-mix(in oklab, var(--md-default-bg-color) 96%, black);
+}
+
+/* Narrow screens: shave skinny columns slightly more */
+@media (max-width: 900px) {
+    .md-typeset .smoke-table table colgroup col:nth-child(2) {
+        width: 10ch !important;
+    }
+
+    .md-typeset .smoke-table table colgroup col:nth-child(3) {
+        width: 8ch !important;
+    }
+
+    .md-typeset .smoke-table table colgroup col:nth-child(5) {
+        width: 7ch !important;
+    }
+
+    .md-typeset .smoke-table table colgroup col:nth-child(6) {
+        width: 7ch !important;
+    }
+}
+
+/* =========================================
    Colored Pills (Traceability + Risk)
    Usage:
      <span class="pill planned">Planned</span>
