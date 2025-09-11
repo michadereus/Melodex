@@ -48,8 +48,11 @@ const Register = () => {
       setUserID(user.username);
       setDisplayName(username);
       setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
+      console.log('Profile settings updated');
       await checkUser();
+      console.log('checkUser() complete');
       setErrorMessage('');
+      console.log('Navigating to /rank');
       navigate('/rank');
     } catch (error) {
       console.error('Verification error:', error);

@@ -61,6 +61,7 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 **DEF-001**   Verification code error  
   - Link: [DEF-001](./defects/DEF-001.md)  
+  - Reference: `SMK-000`  
   - Status: `Open`  
 
 ## 7. Quick Performance Snapshot (Coarse)
