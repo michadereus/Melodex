@@ -47,13 +47,13 @@ Melodex/
 ### Easy Run
     # repo root
     npm run install:all   # installs backend + frontend deps
-    npm run dev           # starts both servers (API :8080, Web :5173 or :3001)
+    npm run dev           # starts both servers (API :8080, Web :3001)
 
 ### Frontend
     cd melodex-front-end
     npm install
     # optional: echo "VITE_API_BASE_URL=http://localhost:8080" > .env.local
-    npm run dev           # → http://localhost:5173 (or 3001 if configured)
+    npm run dev           # → http://localhost:3001
 
 ### Backend
     cd melodex-back-end
