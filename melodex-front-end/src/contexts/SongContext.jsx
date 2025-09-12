@@ -1,5 +1,5 @@
 // Filepath: Melodex/melodex-front-end/src/contexts/SongContext.jsx
-import React, { createContext, useState, useCallback, useContext, useEffect } from 'react';
+import React, { createContext, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { useUserContext } from './UserContext';
 
 const SongContext = createContext();
@@ -13,6 +13,7 @@ export const useSongContext = () => {
 export const SongProvider = ({ children }) => {
   const { userID } = useUserContext();
   console.log('SongProvider: userID from UserContext:', userID);
+
   const [songList, setSongList] = useState([]);
   const [songBuffer, setSongBuffer] = useState([]);
   const [currentPair, setCurrentPair] = useState([]);
@@ -26,20 +27,40 @@ export const SongProvider = ({ children }) => {
   const [isBackgroundFetching, setIsBackgroundFetching] = useState(false);
   const [isRankPageActive, setIsRankPageActive] = useState(false);
 
+  // Guard to prevent overlapping background fetches (also reduces StrictMode double-effect spam)
+  const inFlightRef = useRef(false);
+
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
     setContextUserID(userID);
   }, [userID]);
 
-  // Background fetching logic with retries
+  // Background fetching logic with retries + in-flight guard
   useEffect(() => {
     const fetchMoreSongs = async () => {
-      if (!contextUserID || mode !== 'new' || !isRankPageActive || isBackgroundFetching || songList.length >= 20) {
-        console.log('Background fetch skipped:', { contextUserID, mode, isRankPageActive, isBackgroundFetching, songListLength: songList.length });
+      const shouldFetch =
+        !!contextUserID &&
+        mode === 'new' &&
+        isRankPageActive &&
+        !inFlightRef.current &&
+        !isBackgroundFetching &&
+        songList.length < 20; // adjust threshold as desired
+
+      if (!shouldFetch) {
+        console.log('Background fetch skipped:', {
+          contextUserID,
+          mode,
+          isRankPageActive,
+          isBackgroundFetching,
+          songListLength: songList.length
+        });
         return;
       }
+
       console.log('Triggering background fetch for more songs');
+      inFlightRef.current = true;
       setIsBackgroundFetching(true);
+
       let retries = 0;
       const maxRetries = 3;
       let newSongs = [];
@@ -71,6 +92,8 @@ export const SongProvider = ({ children }) => {
           await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
+
+      inFlightRef.current = false;
       setIsBackgroundFetching(false);
     };
 
@@ -327,7 +350,7 @@ export const SongProvider = ({ children }) => {
       const updatedList = songList.filter(song => String(song.deezerID) !== String(winnerId) && String(song.deezerID) !== String(loserId));
       setSongList(updatedList);
       setRankedSongs(prevRanked => {
-        const updated = prevRanked.filter(song => 
+        const updated = prevRanked.filter(song =>
           String(song.deezerID) !== String(winnerSong.deezerID) && String(song.deezerID) !== String(loserSong.deezerID)
         );
         return [
@@ -365,7 +388,7 @@ export const SongProvider = ({ children }) => {
       console.log('skipSong called with songId:', songId, 'userID:', userID);
       const skippedSong = currentPair.find(s => s.deezerID.toString() === songId.toString());
       const keptSong = currentPair.find(s => s.deezerID.toString() !== songId.toString());
-      
+
       if (!skippedSong || !keptSong) {
         console.error('Skipped song or kept song not found in currentPair:', { songId, currentPair });
         resetProcessing?.();
