@@ -1,6 +1,7 @@
+> This is the GitHub for the live site [melodx.io](https://melodx.io).
 # Melodex
 
-This is the GitHub for the live site [Melodx.io](https://docs.melodx.io). Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks with 30-second previews, and build personalized leaderboards using an ELO-based ranking algorithm. 
+Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks with 30-second previews, and build personalized leaderboards using an ELO-based ranking algorithm. 
 
 The system integrates:
 
@@ -16,7 +17,7 @@ The system integrates:
 
 ## Live Documentation
 
-https://docs.melodx.io/
+- [docs.melodx.io](https://docs.melodx.io/)
 
 > The documentation is intentionally scoped to the **Spotify Playlist Export case study** (not the entire product). The landing page explains the scope.
 
