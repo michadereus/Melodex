@@ -40,7 +40,7 @@ This baseline captures the current behavior of Melodex (production) before addin
 <div class="smoke-table" markdown="1">
 | ID     | Account      | Area                        | Scenario                                              | Endpoint         | Platform | Quick Steps                                                                 | Result                                  | Evidence |
 |--------|--------------|-----------------------------|-------------------------------------------------------|-------------|----------|------------------------------------------------------------------------------|:----------------------------------------:|----------|
-| SMK-00 | Fresh        | Auth                        | Create new account via Email/Password → lands on Rank | `/register` | Desktop  | Visit `/register`, fill form with unique email+password, verify redirect     | <span class="pill fail">Failed</span> | [DEF-001](./defects/DEF-001.md) |
+| SMK-00 | Fresh        | Auth                        | Create new account via Email/Password → lands on Rank | `/register` | Desktop  | Visit `/register`, fill form with unique email+password, verify redirect     | <span class="pill pass">Passed</span> | [DEF-001-verify.png](../evidence/DEF-001-verify.png) [DEF-001-verify-rank.png](../evidence/DEF-001-verify-rank.png) [DEF-001-verify-console](../evidence/DEF-001-verify-console.txt) |
 | SMK-01 | Fresh        | Auth                        | Login via Email → lands on Rank                       | `/rank`     | Desktop  | Visit `/`, login with Email, verify redirect to `/rank`                      | <span class="pill pass">Passed</span> | [SMK-01-login](./evidence/SMK-01-login.png)  [SMK-01-redirect](./evidence/SMK-01-redirect.png) |
 | SMK-02 | Main         | Auth                        | Login via Google → lands on Rank                      | `/rank`     | Desktop  | Login with Google, verify redirect                                           | <span class="pill pass">Passed</span> | [SMK-02-login](./evidence/SMK-02-login.png)  [SMK-02-redirect](./evidence/SMK-02-redirect.png) |
 | SMK-03 | Main + Fresh | Rank                        | Pair appears and both previews render controls        | `/rank`     | Desktop  | Load page, confirm two items + play controls visible                         | <span class="pill pass">Passed</span> | [SMK-03-main](./evidence/SMK-03-main.gif)  [SMK-03-fresh](./evidence/SMK-03-fresh.gif) |
@@ -61,7 +61,8 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 **DEF-001**   Verification code error  
   - Link: [DEF-001](./defects/DEF-001.md)  
-  - Status: `Open`  
+  - Reference: `SMK-000`  
+  - Status: <span class="pill pass">Resolved</span>  
 
 ## 7. Quick Performance Snapshot (Coarse)
 One pass per primary page on Desktop Firefox with disk cache disabled (Private window).

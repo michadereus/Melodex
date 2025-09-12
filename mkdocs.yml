@@ -1,5 +1,6 @@
 site_name: Melodex Docs — Spotify Playlist Export Case Study
-site_url: https://michadereus.github.io/Melodex/
+#site_url: https://michadereus.github.io/Melodex/
+site_url: https://docs.melodx.io/
 repo_url: https://github.com/michadereus/Melodex
 repo_name: michadereus/Melodex
 site_description: Technical documentation, test approach, and portfolio artifacts for the Melodex project.

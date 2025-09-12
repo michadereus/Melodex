@@ -12,7 +12,9 @@ const Register = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
-  const { setUserID, setDisplayName, setProfilePicture, checkUser } = useUserContext();
+  const ctx = useUserContext();
+  console.log('UserContext value:', ctx);
+  const { setUserID, setDisplayName, setProfilePicture, checkUser } = ctx;
 
   const handleRegister = async () => {
     if (!email || !username || !password) {
@@ -45,11 +47,16 @@ const Register = () => {
       console.log('Verified');
       const user = await Auth.signIn(email, password);
       console.log('Signed in after verification:', user);
-      setUserID(user.username);
-      setDisplayName(username);
-      setProfilePicture('https://i.imgur.com/uPnNK9Y.png');
-      await checkUser();
-      setErrorMessage('');
+
+
+      try { console.log('before setUserID'); setUserID(user.username); console.log('after setUserID'); } catch (e) { console.error('setUserID failed', e); throw e; }
+      try { console.log('before setDisplayName'); setDisplayName(username); console.log('after setDisplayName'); } catch (e) { console.error('setDisplayName failed', e); throw e; }
+      try { console.log('before setProfilePicture'); setProfilePicture('https://i.imgur.com/uPnNK9Y.png'); console.log('after setProfilePicture'); } catch (e) { console.error('setProfilePicture failed', e); throw e; }
+
+      try { console.log('before checkUser'); await checkUser(); console.log('after checkUser'); } catch (e) { console.error('checkUser failed', e); throw e; }
+
+
+      console.log('Navigating to /rank');
       navigate('/rank');
     } catch (error) {
       console.error('Verification error:', error);
