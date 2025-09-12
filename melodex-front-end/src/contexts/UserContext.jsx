@@ -124,7 +124,20 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ userID, displayName, userPicture, setUserPicture, email, checkUser, loading }}>
+    <UserContext.Provider
+      value={{
+        userID,
+        setUserID,
+        displayName,
+        setDisplayName,
+        userPicture,
+        setUserPicture,
+        setProfilePicture: setUserPicture, // alias for existing callers
+        email,
+        checkUser,
+        loading,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
