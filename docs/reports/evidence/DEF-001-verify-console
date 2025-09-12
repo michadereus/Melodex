@@ -1,0 +1,115 @@
+Local dev: overriding Amplify redirect URLs main.jsx:9:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }
+SongContext.jsx:51:17
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+SongContext.jsx:62:19
+Background fetch added songs to buffer: 15 SongContext.jsx:65:21
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Triggering background fetch for more songs SongContext.jsx:54:15
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+SongContext.jsx:147:15
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 SongContext.jsx:31:11
+SongProvider: userID from UserContext: b418a4f8-c0e1-7096-6f8f-0c6fb23a2756 <anonymous code>:1:150327
+Background fetch skipped: 
+Object { contextUserID: "b418a4f8-c0e1-7096-6f8f-0c6fb23a2756", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 15 }

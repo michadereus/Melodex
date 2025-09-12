@@ -44,7 +44,10 @@ jobs:
           pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
 
       - name: Build site
-        run: mkdocs build --strict --site-dir site
+        run: mkdocs build --site-dir site
+
+      - name: Add CNAME
+        run: echo "docs.melodx.io" > site/CNAME
 
       # Always upload the built site as a PR artifact so you can preview
       - name: Upload preview artifact

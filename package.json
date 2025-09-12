@@ -1,0 +1,19 @@
+{
+  "name": "melodex-root",
+  "private": true,
+  "overrides": {
+    "form-data": "^4.0.4",
+    "tough-cookie": "^4.1.3",
+    "uuid": "^9.0.1"
+  },
+  "scripts": {
+    "predev": "npm run install:all",
+    "dev": "npx -y concurrently -n API,WEB -c auto \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm -C melodex-back-end start",
+    "dev:web": "npm -C melodex-front-end run dev",
+    "install:all": "npm -C melodex-back-end install && npm -C melodex-front-end install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
