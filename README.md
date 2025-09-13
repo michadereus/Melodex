@@ -1,4 +1,3 @@
-> This is the GitHub for the live site [melodx.io](https://melodx.io).
 # Melodex
 
 Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks with 30-second previews, and build personalized leaderboards using an ELO-based ranking algorithm. 
@@ -15,9 +14,10 @@ The system integrates:
 
 ---
 
-## Live Documentation
+## Live Links
 
-- [docs.melodx.io](https://docs.melodx.io/)
+- Site: [melodx.io](https://www.melodx.io)
+- Docs: [docs.melodx.io](https://docs.melodx.io/)
 
 > The documentation is intentionally scoped to the **Spotify Playlist Export case study** (not the entire product). The landing page explains the scope.
 
@@ -46,6 +46,7 @@ Melodex/
 ## Local Development
 
 ### Easy Run
+    # root dir
     npm run dev
 
 ### Frontend
@@ -60,4 +61,4 @@ Melodex/
     
 ### Docs
     pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
-    mkdocs serve            # → http://127.0.0.1:8000
+    mkdocs serve            # → http://localhost:8000
