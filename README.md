@@ -58,7 +58,3 @@ Melodex/
     cd melodex-back-end
     npm install
     npm start               # → http://localhost:8080
-    
-### Docs
-    pip install mkdocs-material mkdocs-git-revision-date-localized-plugin
-    mkdocs serve            # → http://localhost:8000
