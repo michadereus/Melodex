@@ -1,0 +1,1128 @@
+{
+  "log": {
+    "version": "1.2",
+    "creator": {
+      "name": "Firefox",
+      "version": "142.0.1"
+    },
+    "browser": {
+      "name": "Firefox",
+      "version": "142.0.1"
+    },
+    "pages": [
+      {
+        "id": "page_1",
+        "pageTimings": {
+          "onContentLoad": 113,
+          "onLoad": 628
+        },
+        "startedDateTime": "2025-09-13T00:32:50.214-05:00",
+        "title": "https://www.melodx.io/profile"
+      }
+    ],
+    "entries": [
+      {
+        "startedDateTime": "2025-09-13T00:32:50.214-05:00",
+        "request": {
+          "bodySize": 0,
+          "method": "GET",
+          "url": "https://www.melodx.io/profile",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Alt-Used",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Cookie",
+              "value": "g_state={\"i_l\":0}"
+            },
+            {
+              "name": "Upgrade-Insecure-Requests",
+              "value": "1"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "document"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "navigate"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "cross-site"
+            },
+            {
+              "name": "Sec-Fetch-User",
+              "value": "?1"
+            },
+            {
+              "name": "If-Modified-Since",
+              "value": "Sat, 13 Sep 2025 05:28:04 GMT"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "\"50c03fbae6e4c081baf0fba5736caaab\""
+            },
+            {
+              "name": "Priority",
+              "value": "u=0, i"
+            },
+            {
+              "name": "TE",
+              "value": "trailers"
+            }
+          ],
+          "cookies": [
+            {
+              "name": "g_state",
+              "value": "{\"i_l\":0}"
+            }
+          ],
+          "queryString": [],
+          "headersSize": 613
+        },
+        "response": {
+          "status": 304,
+          "statusText": "",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "age",
+              "value": "5"
+            },
+            {
+              "name": "date",
+              "value": "Sat, 13 Sep 2025 05:32:45 GMT"
+            },
+            {
+              "name": "cache-control",
+              "value": "public, max-age=0, s-maxage=31536000"
+            },
+            {
+              "name": "server",
+              "value": "AmazonS3"
+            },
+            {
+              "name": "etag",
+              "value": "\"50c03fbae6e4c081baf0fba5736caaab\""
+            },
+            {
+              "name": "last-modified",
+              "value": "Sat, 13 Sep 2025 05:28:04 GMT"
+            },
+            {
+              "name": "x-cache",
+              "value": "Hit from cloudfront"
+            },
+            {
+              "name": "via",
+              "value": "1.1 92ab95684f6d9316cfffdbce4bd65794.cloudfront.net (CloudFront)"
+            },
+            {
+              "name": "x-amz-cf-pop",
+              "value": "DFW57-P2"
+            },
+            {
+              "name": "alt-svc",
+              "value": "h3=\":443\"; ma=86400"
+            },
+            {
+              "name": "x-amz-cf-id",
+              "value": "pAT0nCar_VqI6Su7pn7Hw4aEBRLdMJR4iyO0a63kLiFjrfAiZfjz9g=="
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "text/html",
+            "size": 433,
+            "text": "<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\" />\n    <title>Ranking App</title>\n    <script type=\"module\" crossorigin src=\"/assets/index-DVkYwxRy.js\"></script>\n    <link rel=\"stylesheet\" crossorigin href=\"/assets/index-Mx1xKyc7.css\">\n  </head>\n  <body>\n    <div id=\"root\"></div>\n  </body>\n</html>\n"
+          },
+          "redirectURL": "",
+          "headersSize": 445,
+          "bodySize": 878
+        },
+        "cache": {
+          "afterRequest": {
+            "expires": "4294967295",
+            "lastFetched": "",
+            "fetchCount": "",
+            "_dataSize": "",
+            "_lastModified": "",
+            "_device": ""
+          }
+        },
+        "timings": {
+          "blocked": -1,
+          "dns": 0,
+          "connect": 0,
+          "ssl": 0,
+          "send": 0,
+          "wait": 69,
+          "receive": 0
+        },
+        "time": 69,
+        "_securityState": "secure",
+        "serverIPAddress": "2600:9000:2464:7400:11:4407:1300:93a1",
+        "connection": "443",
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:50.547-05:00",
+        "request": {
+          "bodySize": 0,
+          "method": "GET",
+          "url": "https://www.melodx.io/assets/index-DVkYwxRy.js",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Alt-Used",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.melodx.io/profile"
+            },
+            {
+              "name": "Cookie",
+              "value": "g_state={\"i_l\":0}"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "script"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-origin"
+            },
+            {
+              "name": "If-Modified-Since",
+              "value": "Sat, 13 Sep 2025 05:28:04 GMT"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "W/\"9e0daeaa507c7ad8ff8559d0dd09281f\""
+            },
+            {
+              "name": "TE",
+              "value": "trailers"
+            }
+          ],
+          "cookies": [
+            {
+              "name": "g_state",
+              "value": "{\"i_l\":0}"
+            }
+          ],
+          "queryString": [],
+          "headersSize": 539
+        },
+        "response": {
+          "status": 304,
+          "statusText": "",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "age",
+              "value": "269"
+            },
+            {
+              "name": "date",
+              "value": "Sat, 13 Sep 2025 05:32:51 GMT"
+            },
+            {
+              "name": "cache-control",
+              "value": "public, max-age=0, s-maxage=31536000"
+            },
+            {
+              "name": "server",
+              "value": "AmazonS3"
+            },
+            {
+              "name": "etag",
+              "value": "W/\"9e0daeaa507c7ad8ff8559d0dd09281f\""
+            },
+            {
+              "name": "vary",
+              "value": "accept-encoding"
+            },
+            {
+              "name": "x-cache",
+              "value": "Hit from cloudfront"
+            },
+            {
+              "name": "via",
+              "value": "1.1 92ab95684f6d9316cfffdbce4bd65794.cloudfront.net (CloudFront)"
+            },
+            {
+              "name": "x-amz-cf-pop",
+              "value": "DFW57-P2"
+            },
+            {
+              "name": "alt-svc",
+              "value": "h3=\":443\"; ma=86400"
+            },
+            {
+              "name": "x-amz-cf-id",
+              "value": "y_MA6qXsFmzBlzCKEVkSYi-ZBUgKS_YNmMQ4Ot3RxZuMPJH817CcSw=="
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "text/javascript",
+            "size": 0,
+            "text": ""
+          },
+          "redirectURL": "",
+          "headersSize": 426,
+          "bodySize": 1149420
+        },
+        "cache": {
+          "afterRequest": null
+        },
+        "timings": {
+          "blocked": -1,
+          "dns": 0,
+          "connect": 0,
+          "ssl": 0,
+          "send": 0,
+          "wait": 41,
+          "receive": 0
+        },
+        "time": 41,
+        "_securityState": "secure",
+        "serverIPAddress": "2600:9000:2464:7400:11:4407:1300:93a1",
+        "connection": "443",
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:50.550-05:00",
+        "request": {
+          "bodySize": 0,
+          "method": "GET",
+          "url": "https://www.melodx.io/assets/index-Mx1xKyc7.css",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "text/css,*/*;q=0.1"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Alt-Used",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.melodx.io/profile"
+            },
+            {
+              "name": "Cookie",
+              "value": "g_state={\"i_l\":0}"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "style"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-origin"
+            },
+            {
+              "name": "If-Modified-Since",
+              "value": "Sat, 13 Sep 2025 05:28:04 GMT"
+            },
+            {
+              "name": "If-None-Match",
+              "value": "W/\"5cfdab970dcd489181970867b536bd0c\""
+            },
+            {
+              "name": "Priority",
+              "value": "u=2"
+            },
+            {
+              "name": "TE",
+              "value": "trailers"
+            }
+          ],
+          "cookies": [
+            {
+              "name": "g_state",
+              "value": "{\"i_l\":0}"
+            }
+          ],
+          "queryString": [],
+          "headersSize": 569
+        },
+        "response": {
+          "status": 304,
+          "statusText": "",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "age",
+              "value": "269"
+            },
+            {
+              "name": "date",
+              "value": "Sat, 13 Sep 2025 05:32:51 GMT"
+            },
+            {
+              "name": "cache-control",
+              "value": "public, max-age=0, s-maxage=31536000"
+            },
+            {
+              "name": "server",
+              "value": "AmazonS3"
+            },
+            {
+              "name": "etag",
+              "value": "W/\"5cfdab970dcd489181970867b536bd0c\""
+            },
+            {
+              "name": "vary",
+              "value": "accept-encoding"
+            },
+            {
+              "name": "x-cache",
+              "value": "Hit from cloudfront"
+            },
+            {
+              "name": "via",
+              "value": "1.1 92ab95684f6d9316cfffdbce4bd65794.cloudfront.net (CloudFront)"
+            },
+            {
+              "name": "x-amz-cf-pop",
+              "value": "DFW57-P2"
+            },
+            {
+              "name": "alt-svc",
+              "value": "h3=\":443\"; ma=86400"
+            },
+            {
+              "name": "x-amz-cf-id",
+              "value": "wuzp3vrfb7EvIStHyCVIbKIBpStFef5QtzMrUBqj2MBycUAZreYcqQ=="
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "text/css",
+            "size": 9589,
+            "text": "@import\"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap\";html{font-size:16px}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#f5f6f5;color:#141820;width:100%;overflow-x:hidden}nav{background:#141820;color:#fff;padding:.5rem 1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;height:3.5rem;box-shadow:0 1px 3px #0003;width:100%;overflow-x:hidden}.nav-left{display:flex;align-items:center;gap:1.5rem}nav .logo{font-size:1.4rem;font-weight:600;color:#fff;text-decoration:none}.nav-links{display:flex;gap:1.25rem}nav a{color:#bdc3c7;text-decoration:none;font-size:1rem;font-weight:400;display:flex;align-items:center;transition:color .2s ease;white-space:nowrap}nav a:hover{color:#3498db}.nav-icon{margin-right:.75rem;font-size:1.2rem}.profile-bubble{width:30px;height:30px;border-radius:50%;background-color:#434957;transition:transform .2s ease;margin:0 auto}.profile-bubble:hover{transform:scale(1.05)}h2{font-family:Inter,sans-serif;font-size:1.5em;font-weight:700}.filter-container{background:#fff;border-radius:6px;box-shadow:0 2px 8px #0000001a;padding:1rem;transition:max-height .3s ease,opacity .2s ease;overflow:hidden;margin:0 auto;width:100%;max-width:700px}.song-ranker-container .filter-container{max-width:700px}.song-ranker-container .filter-rerank{max-width:585px}.filter-container.hidden{max-height:0;opacity:0;padding:0 1rem}.filter-container.visible{max-height:200px;opacity:1}select{padding:8px 10px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;color:#141820;font-size:.9rem;font-weight:400;transition:border-color .2s ease}select:hover,select:focus{border-color:#3498db;outline:none}button{background:#3498db;color:#fff;border:none;padding:8px 12px;border-radius:.5rem;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s ease}button:hover{background:#2980b9}button[style*=\"background: #e74c3c\"]{background:#e74c3c!important}button[style*=\"background: #e74c3c\"]:hover{background:#c0392b!important}.filter-toggle{background:transparent;border:none;padding:.3rem;cursor:pointer;transition:all .2s ease}.filter-toggle:hover .filter-line{fill:#3498db}.song-ranker-container,.rankings-container{padding:.1rem;width:100%;max-width:1000px;margin:0 auto;display:flex;flex-direction:column;align-items:center}.song-ranker-wrapper,.rankings-wrapper{width:100%}.song-pair{display:flex;justify-content:center;gap:3rem;flex-wrap:nowrap;min-width:808px;margin:0 auto}.song-card-container{display:flex;flex-direction:column;align-items:center;width:358px;max-width:100%;overflow-x:hidden}.song-ranker-container .song-box,.rankings-container .song-box{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:.5rem;padding:1.2rem;box-shadow:0 2px 6px #0000000d;transition:transform .2s ease,box-shadow .2s ease}.song-ranker-container .song-box{width:358px;text-align:center;display:flex;flex-direction:column;align-items:center}.rankings-container .song-box{display:flex;flex-direction:row;align-items:center;gap:1.5rem;width:100%}.song-ranker-container .filter-toggle,.rankings-container .filter-toggle{margin-top:.5rem}.song-ranker-container .song-box:hover{transform:translateY(-2px) scale(1.025);box-shadow:0 4px 12px #0000001a}.rankings-container .song-box:hover{transform:translateY(-2px) scale(1.015);box-shadow:0 4px 12px #0000001a}.song-ranker-container .album-cover{width:100%;max-width:320px;height:auto;border-radius:.5rem;margin-top:0;margin-bottom:1.2rem;display:block;margin-left:auto;margin-right:auto}.rankings-container .album-cover{width:80px;height:80px;border-radius:.5rem;flex-shrink:0}.song-ranker-container .song-details{width:100%;max-width:320px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;margin-bottom:0rem}.rankings-container .song-details{flex:1;display:flex;flex-direction:column;gap:.25rem}.song-ranker-container .song-name,.rankings-container .song-name{font-size:1.4rem;font-weight:600;color:#141820;margin:0}.song-ranker-container .song-artist,.rankings-container .song-artist{font-size:1.3rem;color:#7f8c8d;margin:0}.rankings-container .song-ranking{font-size:.9rem;color:#3498db;margin:0}.song-ranker-container .custom-audio-player{max-width:100%;width:320px;margin:0 auto;margin-top:1.5rem;display:block;margin-left:auto;margin-right:auto}.rankings-container .custom-audio-player{width:100%;border-radius:.5rem;background-color:#f4f7fa;padding:5px;box-shadow:0 2px 4px #0000001a;margin-top:.5rem}.rankings-container .custom-audio-player::-webkit-media-controls-panel{background-color:#f4f7fa;border-radius:.5rem}.song-ranker-container .preview-unavailable,.rankings-container .preview-unavailable{display:none;color:#e74c3c;font-size:.9rem}.rankings-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;list-style:none;padding:0}.rankings-container .song-left{display:flex;flex-direction:row;align-items:center;gap:.75rem;min-width:0}.rankings-container .rank-position{font-size:1.5rem;font-weight:700;color:#3498db;min-width:2rem;text-align:center}.refresh-icon-btn{background:transparent;border:none;padding:.23rem;cursor:pointer;position:relative;transition:all .2s ease;margin-top:.5rem}.refresh-icon-btn svg{fill:#bdc3c7;width:25px;height:25px}.refresh-icon-btn:hover svg{fill:#3498db}.refresh-icon-btn:before{content:\"\";position:absolute;top:50%;left:50%;width:0;height:0;background:#3498db33;border-radius:50%;transform:translate(-50%,-50%);transition:width .2s ease,height .2s ease;z-index:-1}button.refresh-icon-btn:hover:before{width:32px!important;height:32px!important}.refresh-icon-btn:disabled svg{fill:#7f8c8d;cursor:not-allowed}.auth-container{padding:2rem;max-width:400px;margin:0 auto;text-align:center;background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:.5rem;box-shadow:0 2px 8px #0000001a}.auth-title{font-size:1.75rem;font-weight:400;color:#141820;margin-bottom:1.5rem}.auth-form{display:flex;flex-direction:column;gap:1rem}.auth-input{padding:.75rem;border:1px solid #e0e0e0;border-radius:.5rem;font-size:.9rem;color:#141820;background:#fff;transition:border-color .2s ease}.auth-input:hover,.auth-input:focus{border-color:#3498db;outline:none}.auth-button{padding:.75rem;border:none;border-radius:.5rem;font-size:.9rem;font-weight:500;cursor:pointer;transition:background .2s ease}.auth-button-primary{background:#3498db;color:#fff}.auth-button-primary:hover{background:#2980b9}.auth-button-secondary{background:#7f8c8d;color:#fff}.auth-button-secondary:hover{background:#6c757d}.auth-button-google{background:#4285f4;color:#fff;display:flex;align-items:center;justify-content:center;gap:.5rem;border-radius:.5rem}.auth-button-google:hover{background:#357abd}.auth-button-google img{width:20px;height:20px;border-radius:10px}.auth-error{color:#e74c3c;font-size:.9rem;margin-top:.5rem}footer{height:3.5rem;display:flex;align-items:center;padding:0 1rem;font-size:.8rem}@media (max-width: 1024px){nav{height:3.25rem}nav .logo{font-size:1.3rem}nav a{font-size:.95rem}.nav-icon{font-size:1.1rem}.profile-bubble{width:30px;height:30px}footer{height:3.25rem;font-size:.75rem}.song-ranker-container,.rankings-container{max-width:700px}.song-pair{gap:2rem;flex-wrap:wrap;min-width:0;margin:0 auto;justify-content:center}.song-ranker-container .song-box,.song-card-container{width:300px;margin:0 auto}.song-ranker-container .album-cover,.song-ranker-container .song-details{max-width:280px}.song-ranker-container .song-name{font-size:1.2rem}.song-ranker-container .song-artist{font-size:1.1rem}.song-ranker-container .custom-audio-player{width:280px;height:40px}.filter-container,.song-ranker-container .filter-container{max-width:600px}.song-ranker-container .filter-rerank{max-width:500px}.song-ranker-container .filter-rank .song-filter-container{flex-direction:column!important;gap:.5rem;align-items:stretch}.song-ranker-container .filter-rank .song-filter-container select,.song-ranker-container .filter-rank .song-filter-container button{width:100%;margin-right:0;font-size:.85rem;padding:6px 8px}.song-ranker-container .filter-rank .song-filter-container button{padding:8px}}@media (max-width: 768px){.rankings-container ul{grid-template-columns:1fr}nav{height:3.5rem;padding:.6rem 1.2rem}nav .logo{display:none}.nav-links{gap:1.5rem;flex-wrap:wrap;justify-content:space-between;width:100%}nav a{font-size:.9rem}.nav-icon{margin-right:.6rem;font-size:.9rem}.profile-bubble{width:30px;height:30px}footer{height:3rem;font-size:.7rem;padding:0 .9rem}.song-ranker-container,.rankings-container{max-width:400px}.song-pair{flex-direction:column;align-items:center;gap:1rem;min-width:0;margin:0 auto;justify-content:center}.song-ranker-container .song-box{width:90%;max-width:350px;margin:0 auto}.song-card-container{width:100%;max-width:350px;margin:0 auto}.rankings-list{grid-template-columns:1fr}.rankings-container .song-box{transition:transform .2s ease}.rankings-container .custom-audio-player{width:100%}.rankings-container .custom-audio-player::-moz-range-track{background-color:#f4f7fa}.rankings-container .song-left{width:100%;justify-content:flex-start}.filter-container{max-width:100%;padding:.5rem}.song-ranker-container .filter-container,.song-ranker-container .filter-rerank{max-width:100%}.song-filter-container{flex-direction:column!important;gap:.5rem;align-items:stretch}.song-filter-container select,.song-filter-container button{width:100%;margin-right:0;font-size:.85rem;padding:6px 8px}.song-filter-container button{padding:8px}}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}\n"
+          },
+          "redirectURL": "",
+          "headersSize": 426,
+          "bodySize": 2478
+        },
+        "cache": {
+          "afterRequest": {
+            "expires": "4294967295",
+            "lastFetched": "",
+            "fetchCount": "",
+            "_dataSize": "",
+            "_lastModified": "1757741565",
+            "_device": ""
+          }
+        },
+        "timings": {
+          "blocked": -1,
+          "dns": 0,
+          "connect": 0,
+          "ssl": 0,
+          "send": 0,
+          "wait": 48,
+          "receive": 0
+        },
+        "time": 48,
+        "_securityState": "secure",
+        "serverIPAddress": "2600:9000:2464:7400:11:4407:1300:93a1",
+        "connection": "443",
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:50.782-05:00",
+        "request": {
+          "bodySize": 0,
+          "method": "GET",
+          "url": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "fonts.googleapis.com"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "text/css,*/*;q=0.1"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            }
+          ],
+          "cookies": [],
+          "queryString": [
+            {
+              "name": "family",
+              "value": "Inter:wght@300;400;600"
+            },
+            {
+              "name": "display",
+              "value": "swap"
+            }
+          ],
+          "headersSize": 0
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "content-type",
+              "value": "text/css; charset=utf-8"
+            },
+            {
+              "name": "vary",
+              "value": "Sec-Fetch-Dest, Sec-Fetch-Mode, Sec-Fetch-Site"
+            },
+            {
+              "name": "access-control-allow-origin",
+              "value": "*"
+            },
+            {
+              "name": "timing-allow-origin",
+              "value": "*"
+            },
+            {
+              "name": "link",
+              "value": "<https://fonts.gstatic.com>; rel=preconnect; crossorigin"
+            },
+            {
+              "name": "strict-transport-security",
+              "value": "max-age=31536000"
+            },
+            {
+              "name": "expires",
+              "value": "Sat, 13 Sep 2025 05:17:53 GMT"
+            },
+            {
+              "name": "date",
+              "value": "Sat, 13 Sep 2025 05:17:53 GMT"
+            },
+            {
+              "name": "cache-control",
+              "value": "private, max-age=86400"
+            },
+            {
+              "name": "cross-origin-resource-policy",
+              "value": "cross-origin"
+            },
+            {
+              "name": "cross-origin-opener-policy",
+              "value": "same-origin-allow-popups"
+            },
+            {
+              "name": "content-encoding",
+              "value": "gzip"
+            },
+            {
+              "name": "server",
+              "value": "ESF"
+            },
+            {
+              "name": "x-xss-protection",
+              "value": "0"
+            },
+            {
+              "name": "x-frame-options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "name": "x-content-type-options",
+              "value": "nosniff"
+            },
+            {
+              "name": "alt-svc",
+              "value": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "text/css",
+            "size": -1,
+            "text": ""
+          },
+          "redirectURL": "",
+          "headersSize": 0,
+          "bodySize": 0
+        },
+        "cache": {},
+        "timings": {},
+        "time": 0,
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:50.832-05:00",
+        "request": {
+          "bodySize": 0,
+          "method": "GET",
+          "url": "https://i.imgur.com/uPnNK9Y.png",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "i.imgur.com"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.melodx.io/"
+            }
+          ],
+          "cookies": [],
+          "queryString": [],
+          "headersSize": 0
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "headers": [],
+          "cookies": [],
+          "content": {
+            "mimeType": "image/png",
+            "size": 24704,
+            "text": ""
+          },
+          "redirectURL": "",
+          "headersSize": 0,
+          "bodySize": 0
+        },
+        "cache": {},
+        "timings": {},
+        "time": 0,
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:51.125-05:00",
+        "request": {
+          "bodySize": 0,
+          "method": "GET",
+          "url": "https://www.melodx.io/favicon.ico",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "image/avif,image/webp,image/png,image/svg+xml,image/*;q=0.8,*/*;q=0.5"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Alt-Used",
+              "value": "www.melodx.io"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.melodx.io/profile"
+            },
+            {
+              "name": "Cookie",
+              "value": "g_state={\"i_l\":0}"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "image"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "no-cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-origin"
+            }
+          ],
+          "cookies": [
+            {
+              "name": "g_state",
+              "value": "{\"i_l\":0}"
+            }
+          ],
+          "queryString": [],
+          "headersSize": 0
+        },
+        "response": {
+          "status": 404,
+          "statusText": "",
+          "httpVersion": "HTTP/3",
+          "headers": [
+            {
+              "name": "content-length",
+              "value": "0"
+            },
+            {
+              "name": "alt-svc",
+              "value": "h3=\":443\"; ma=86400"
+            },
+            {
+              "name": "date",
+              "value": "Wed, 10 Sep 2025 23:38:01 GMT"
+            },
+            {
+              "name": "server",
+              "value": "AmazonS3"
+            },
+            {
+              "name": "x-cache",
+              "value": "Error from cloudfront"
+            },
+            {
+              "name": "via",
+              "value": "1.1 77dc0904034d14a129bafe4c9d954f08.cloudfront.net (CloudFront)"
+            },
+            {
+              "name": "x-amz-cf-pop",
+              "value": "IAD50-C2"
+            },
+            {
+              "name": "x-amz-cf-id",
+              "value": "k489caFzhYgTGl1xRM6onoiAiRhEJXldh4a3gduB4KOTh8ZaH2NC8Q=="
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "text/plain",
+            "size": 0,
+            "text": ""
+          },
+          "redirectURL": "",
+          "headersSize": 0,
+          "bodySize": 0
+        },
+        "cache": {},
+        "timings": {
+          "blocked": 0,
+          "dns": 0,
+          "ssl": 0,
+          "connect": 0,
+          "send": 0,
+          "wait": 0,
+          "receive": 0
+        },
+        "time": 0,
+        "_securityState": "secure",
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:51.138-05:00",
+        "request": {
+          "bodySize": 59,
+          "method": "POST",
+          "url": "https://api.melodx.io/api/user-songs/ranked",
+          "httpVersion": "HTTP/2",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "api.melodx.io"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.melodx.io/"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Content-Length",
+              "value": "59"
+            },
+            {
+              "name": "Origin",
+              "value": "https://www.melodx.io"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "Priority",
+              "value": "u=4"
+            },
+            {
+              "name": "TE",
+              "value": "trailers"
+            }
+          ],
+          "cookies": [],
+          "queryString": [],
+          "headersSize": 470,
+          "postData": {
+            "mimeType": "application/json",
+            "params": [],
+            "text": "{\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\"}"
+          }
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "httpVersion": "HTTP/2",
+          "headers": [
+            {
+              "name": "date",
+              "value": "Sat, 13 Sep 2025 05:32:51 GMT"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "content-length",
+              "value": "35935"
+            },
+            {
+              "name": "server",
+              "value": "nginx"
+            },
+            {
+              "name": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "name": "access-control-allow-origin",
+              "value": "https://www.melodx.io"
+            },
+            {
+              "name": "vary",
+              "value": "Origin"
+            },
+            {
+              "name": "etag",
+              "value": "W/\"8c5f-TGyI/p6+IeFV6J1K9x3yXG2XsWY\""
+            },
+            {
+              "name": "X-Firefox-Spdy",
+              "value": "h2"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "application/json; charset=utf-8",
+            "size": 35935,
+            "text": "[{\"_id\":\"68bf5d5674072efe56c6ab1b\",\"deezerID\":1044157,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d6e9c1a3ce072c0ecfe60abff98f06b9/250x250-000000-80-0-0.jpg\",\"artist\":\"Pt. II\\\", Mobb Deep\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/4/a/5/0/4a5d95e7ea77cdec7aa9873de2792e8f.mp3?hdnea=exp=1757372631~acl=/api/1/1/4/a/5/0/4a5d95e7ea77cdec7aa9873de2792e8f.mp3*~data=user_id=0,application_id=42~hmac=819513934a6cff1a9dc9537b72b236853ebff98f35456b23fdbeb3777e62a664\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Shook Ones\",\"subgenre\":\"any\"},{\"_id\":\"68bf5d5674072efe56c6ab1c\",\"deezerID\":13159670,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/7edbc81197483e75798028a31078391f/250x250-000000-80-0-0.jpg\",\"artist\":\"A Tribe Called Quest\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/2/e/0/62ecdf3de587d66caeb17b24810fe7db.mp3?hdnea=exp=1757372631~acl=/api/1/1/6/2/e/0/62ecdf3de587d66caeb17b24810fe7db.mp3*~data=user_id=0,application_id=42~hmac=8abb66b62e8dcbf01e11a5e2f9f06f35402b9394d5a12f77663e46875ee7a717\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Electric Relaxation\",\"subgenre\":\"any\"},{\"_id\":\"68bf5d5774072efe56c6ab1d\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":541322,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/b7e83ef65099d5f01c84b1e2a8391f02/250x250-000000-80-0-0.jpg\",\"artist\":\"Wu-Tang Clan\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/2/e/5/0/2e5556957eb4b531a9a148013c803a64.mp3?hdnea=exp=1757372631~acl=/api/1/1/2/e/5/0/2e5556957eb4b531a9a148013c803a64.mp3*~data=user_id=0,application_id=42~hmac=64bd4252e83e919ab307ca84552e0d89987e164a76738d16ff04b3707728ade8\",\"ranking\":1216,\"skipped\":false,\"songName\":\"C.R.E.A.M.\",\"subgenre\":\"any\"},{\"_id\":\"68bf5d5774072efe56c6ab1e\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":963042,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/646d6414a24faaccf67c1d7e01f7d095/250x250-000000-80-0-0.jpg\",\"artist\":\"OutKast\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/8/1/0/e81cf633d05ce15ce038684f06edf032.mp3?hdnea=exp=1757372631~acl=/api/1/1/e/8/1/0/e81cf633d05ce15ce038684f06edf032.mp3*~data=user_id=0,application_id=42~hmac=1fc530cf6c7526dc12f6fff2607099a866f261c61dcaecbbe874c134bfae5987\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Ms. Jackson\",\"subgenre\":\"any\"},{\"_id\":\"68bf618e74072efe56c6abd9\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":626546,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d643a74eae0569b71924e5dd800e43a7/250x250-000000-80-0-0.jpg\",\"artist\":\"Pras featuring Ol' Dirty Bastard & Mýa\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/0/a/0/0/0a003360329564ec24ba4953e0bb6f1d.mp3?hdnea=exp=1757372631~acl=/api/1/1/0/a/0/0/0a003360329564ec24ba4953e0bb6f1d.mp3*~data=user_id=0,application_id=42~hmac=66548ebe2b8bd3bf74cef65dc45b7cc82800cb572481c7d3e852de3145594874\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Ghetto Supastar\",\"subgenre\":\"any\"},{\"_id\":\"68bf618e74072efe56c6abda\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":83971991,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/a7709ffb331c444c91341dd6c4e50560/250x250-000000-80-0-0.jpg\",\"artist\":\"The Pharcyde\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/3/1/2/0/312cdd53f08e432a4e48f2e9b593cc2b.mp3?hdnea=exp=1757372631~acl=/api/1/1/3/1/2/0/312cdd53f08e432a4e48f2e9b593cc2b.mp3*~data=user_id=0,application_id=42~hmac=0b1e1e5ffc36e1b1988fcf2d77b6dc073c06bcd4e29961a414be512e5c452200\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Runnin'\",\"subgenre\":\"any\"},{\"_id\":\"68bf618f74072efe56c6abdb\",\"deezerID\":77096688,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/4c2dc31af4f87864afcdb6ab599c7960/250x250-000000-80-0-0.jpg\",\"artist\":\"Nas\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/8/a/6/0/8a6568b9d58f1d988b012195b9f4a276.mp3?hdnea=exp=1757372631~acl=/api/1/1/8/a/6/0/8a6568b9d58f1d988b012195b9f4a276.mp3*~data=user_id=0,application_id=42~hmac=f0ef44f8e278486d3cd7bbfbad9496fc109db369f08056966d9fb503ba14596b\",\"ranking\":1216,\"skipped\":false,\"songName\":\"N.Y. State of Mind\",\"subgenre\":\"any\"},{\"_id\":\"68bf619074072efe56c6abdc\",\"deezerID\":633377802,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/55fb57cfe1b96220bc9688a1ede36bd4/250x250-000000-80-0-0.jpg\",\"artist\":\"Drake\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/5/f/b/0/5fbfb88d49803f3de281619e995d0bae.mp3?hdnea=exp=1757372631~acl=/api/1/1/5/f/b/0/5fbfb88d49803f3de281619e995d0bae.mp3*~data=user_id=0,application_id=42~hmac=3f5f1561b4281bfffc7bef50c47312a21d2cd0aa938b994cbb8ec1bc30693ad9\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Best I Ever Had\",\"subgenre\":\"any\"},{\"_id\":\"68bf619174072efe56c6abdd\",\"deezerID\":962896,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/9aed5495a46ad76c9202589463133991/250x250-000000-80-0-0.jpg\",\"artist\":\"OutKast\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/f/1/c/0/f1cbc3ac8548e00f413c12f99a7abf38.mp3?hdnea=exp=1757372631~acl=/api/1/1/f/1/c/0/f1cbc3ac8548e00f413c12f99a7abf38.mp3*~data=user_id=0,application_id=42~hmac=65d9cf39924ac9165b6b5ba3aea3e60d50b7e3829ea5b9db440f868076fab13b\",\"ranking\":1231,\"skipped\":false,\"songName\":\"SpottieOttieDopaliscious\",\"subgenre\":\"any\"},{\"_id\":\"68bf619174072efe56c6abde\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":2182691877,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/513525f8796e03f191e5496cdf39b192/250x250-000000-80-0-0.jpg\",\"artist\":\"Snoop Dogg\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/9/9/0/e99bbae89e8a2055eb24eb8fe8cc0171.mp3?hdnea=exp=1757372631~acl=/api/1/1/e/9/9/0/e99bbae89e8a2055eb24eb8fe8cc0171.mp3*~data=user_id=0,application_id=42~hmac=daf0dbe220271bbf4f4101cfb90cc38fc486f968cb442b2b8fdc602dd0debf25\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Murder Was the Case\",\"subgenre\":\"any\"},{\"_id\":\"68bf619274072efe56c6abdf\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":6587648,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/45fcaa2eddf6707663fa5a61732c04d5/250x250-000000-80-0-0.jpg\",\"artist\":\"Luniz\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/5/8/0/0/580bc15850b79375c73e2d3b8e0e9592.mp3?hdnea=exp=1757372631~acl=/api/1/1/5/8/0/0/580bc15850b79375c73e2d3b8e0e9592.mp3*~data=user_id=0,application_id=42~hmac=1b376d276cd440cfbccaffe475e7d63fecfceb64048421c05b403b0a72f047f6\",\"ranking\":1216,\"skipped\":false,\"songName\":\"I Got 5 on It\",\"subgenre\":\"any\"},{\"_id\":\"68bf619274072efe56c6abe0\",\"deezerID\":963074,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/be4f08ec67000dcf53749f87eafcb292/250x250-000000-80-0-0.jpg\",\"artist\":\"So Clean\\\", OutKast\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/e/a/0/eea6bf486142b95285e1b040f887b320.mp3?hdnea=exp=1757372631~acl=/api/1/1/e/e/a/0/eea6bf486142b95285e1b040f887b320.mp3*~data=user_id=0,application_id=42~hmac=6b6c584dfed298044476f046a9150453e4d1c09356e1fe1dc421125857eb9f8a\",\"ranking\":1199,\"skipped\":false,\"songName\":\"So Fresh\",\"subgenre\":\"any\"},{\"_id\":\"68bf619374072efe56c6abe1\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":2434186,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/0771f4a672bc6f09f3589bc7dcda4f91/250x250-000000-80-0-0.jpg\",\"artist\":\"Common\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/7/a/0/97a0df9a4e39163228ad5fb55125dfda.mp3?hdnea=exp=1757372631~acl=/api/1/1/9/7/a/0/97a0df9a4e39163228ad5fb55125dfda.mp3*~data=user_id=0,application_id=42~hmac=82bc116b15e7b23476230659965e3a67a2121b1a51b87b6312c4d15ccfeb6cb2\",\"ranking\":1216,\"skipped\":false,\"songName\":\"The Light\",\"subgenre\":\"any\"},{\"_id\":\"68bf619374072efe56c6abe2\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":528869461,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/069a5dba671436da9301aad36fc9a983/250x250-000000-80-0-0.jpg\",\"artist\":\"Kanye West\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/9/2/0/192c3a31f08d0d81710bef0d6dff7ea5.mp3?hdnea=exp=1757372631~acl=/api/1/1/1/9/2/0/192c3a31f08d0d81710bef0d6dff7ea5.mp3*~data=user_id=0,application_id=42~hmac=1a46e295bd06666ec914b438ab0a1b2c55bcce8a80942a4b85f9a99c6abe1a61\",\"ranking\":1184,\"skipped\":false,\"songName\":\"All Falls Down\",\"subgenre\":\"any\"},{\"_id\":\"68bf619474072efe56c6abe3\",\"deezerID\":663465,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/41e2837eecd6bd7a29b990273ce46cbd/250x250-000000-80-0-0.jpg\",\"artist\":\"Lupe Fiasco\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/b/2/0/1b2297d833b24a2a58e51437e7221cd8.mp3?hdnea=exp=1757372631~acl=/api/1/1/1/b/2/0/1b2297d833b24a2a58e51437e7221cd8.mp3*~data=user_id=0,application_id=42~hmac=011f48a09e68b97e1a62e5484e2d1745ab027ec2f068d4bc1b8e83731a786c7d\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Dumb It Down\",\"subgenre\":\"any\"},{\"_id\":\"68bf619474072efe56c6abe4\",\"deezerID\":536484,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d910a6585e4a80f06e6fddce4f6f859d/250x250-000000-80-0-0.jpg\",\"artist\":\"MGMT\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/1/a/0/91a0821300463cd04f48f768546610a5.mp3?hdnea=exp=1757373723~acl=/api/1/1/9/1/a/0/91a0821300463cd04f48f768546610a5.mp3*~data=user_id=0,application_id=42~hmac=e1eb59bbae1eb11899a1277d09bd7fe7cf6e49f3a2730e49bf9038c0d8ce6f6a\",\"ranking\":1200,\"skipped\":false,\"songName\":\"Electric Feel\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf619674072efe56c6abe5\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":66660698,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/e45246b90badf4bd3a9a994729433bf8/250x250-000000-80-0-0.jpg\",\"artist\":\"Lana Del Rey\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/b/1/c/0/b1c6258292942ddd7ccd67329e2b1ade.mp3?hdnea=exp=1757372632~acl=/api/1/1/b/1/c/0/b1c6258292942ddd7ccd67329e2b1ade.mp3*~data=user_id=0,application_id=42~hmac=764973b9b473f953cd315dd884be1bb098a3fcd4451f78ac1ea767af2771ef0e\",\"ranking\":1185,\"skipped\":false,\"songName\":\"Young and Beautiful\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf619674072efe56c6abe6\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":925110,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/91276466fbc876d96be9e6926060af60/250x250-000000-80-0-0.jpg\",\"artist\":\"Rihanna\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/2/c/0/e2c1a79e21db76ffc23510854ecea5af.mp3?hdnea=exp=1757372632~acl=/api/1/1/e/2/c/0/e2c1a79e21db76ffc23510854ecea5af.mp3*~data=user_id=0,application_id=42~hmac=90b03763c0299d46a25db42333d678bf946846819b42ca54e3761f4a174775cc\",\"ranking\":1168,\"skipped\":false,\"songName\":\"Shut Up and Drive\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61a574072efe56c6abeb\",\"deezerID\":1488795132,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/07a80a402650632d6ae93592efe47766/250x250-000000-80-0-0.jpg\",\"artist\":\"Zac Brown Band\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/7/5/0/e75f7e08fe007afa9f1b07f1865b69a0.mp3?hdnea=exp=1757373735~acl=/api/1/1/e/7/5/0/e75f7e08fe007afa9f1b07f1865b69a0.mp3*~data=user_id=0,application_id=42~hmac=ba466a6340734bfdf80919f157ed42b7dac9e56a7b75bf2078e43c7dfb2b0b92\",\"ranking\":1189,\"skipped\":false,\"songName\":\"Chicken Fried\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a574072efe56c6abec\",\"deezerID\":3020136781,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/92d1414337aabababf400b7d39dd9eed/250x250-000000-80-0-0.jpg\",\"artist\":\"Old Crow Medicine Show\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/3/7/f/0/37f7b332cdd6fc0eb1a4e4df759b35f2.mp3?hdnea=exp=1757373735~acl=/api/1/1/3/7/f/0/37f7b332cdd6fc0eb1a4e4df759b35f2.mp3*~data=user_id=0,application_id=42~hmac=cf6a7c323e5898bfc20e61957569e58a209a14ab066d3ac146f78a1fa4b4bf4a\",\"ranking\":1176,\"skipped\":false,\"songName\":\"Wagon Wheel\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a674072efe56c6abed\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":567771,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d47fc7a27a0d40cc2a8c119ed2bc53b7/250x250-000000-80-0-0.jpg\",\"artist\":\"Dolly Parton\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/7/a/0/e7a5c1cdd04358c3c985965f68ad3a96.mp3?hdnea=exp=1757373735~acl=/api/1/1/e/7/a/0/e7a5c1cdd04358c3c985965f68ad3a96.mp3*~data=user_id=0,application_id=42~hmac=9fe5429ab696e818c18b88c738457dc1014e9c8d9bdd74cc3cebfb2194773d8e\",\"ranking\":1231,\"skipped\":false,\"songName\":\"I Will Always Love You\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a674072efe56c6abee\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":82697686,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/31383f3d2c444ca382c19c1def301e95/250x250-000000-80-0-0.jpg\",\"artist\":\"Country Roads, John Denver\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/2/b/0/0/2b04e0f1797578b3521c03c6a43e722b.mp3?hdnea=exp=1757373735~acl=/api/1/1/2/b/0/0/2b04e0f1797578b3521c03c6a43e722b.mp3*~data=user_id=0,application_id=42~hmac=d00f03f13d13f5d558f1e853374a61941251dbf339e980480fed04ac199ce9bc\",\"ranking\":1231,\"skipped\":false,\"songName\":\"Take Me Home\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a774072efe56c6abef\",\"deezerID\":90944585,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/3d53a821f232b3c0a749d5910af9b501/250x250-000000-80-0-0.jpg\",\"artist\":\"Carrie Underwood\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/4/0/0/e40d9c2f44e3a6e2dd3388960b2db84d.mp3?hdnea=exp=1757373735~acl=/api/1/1/e/4/0/0/e40d9c2f44e3a6e2dd3388960b2db84d.mp3*~data=user_id=0,application_id=42~hmac=7fe5829f21958525dd5969375e76eed4ee0e29b2ffcb41c2e88668f9216498c0\",\"ranking\":1176,\"skipped\":false,\"songName\":\"Before He Cheats\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a774072efe56c6abf0\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":3108438,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/787a807cec76f363211117727ec519fc/250x250-000000-80-0-0.jpg\",\"artist\":\"Kenny Rogers\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/c/a/6/0/ca66aef1993f20bd6ee14d40b49ec7e9.mp3?hdnea=exp=1757373735~acl=/api/1/1/c/a/6/0/ca66aef1993f20bd6ee14d40b49ec7e9.mp3*~data=user_id=0,application_id=42~hmac=c6a77c94dea3d9d9cee8dd690a2ac7bfc3751f6f8d82193589669556ee8f9d21\",\"ranking\":1220,\"skipped\":false,\"songName\":\"The Gambler\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a874072efe56c6abf1\",\"deezerID\":75388919,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/39e2b79d24bb11a16af1a6124104a430/250x250-000000-80-0-0.jpg\",\"artist\":\"Johnny Cash\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/a/a/0/aaacbbdd4f12cf699ccf3e77809e777c.mp3?hdnea=exp=1757373735~acl=/api/1/1/a/a/a/0/aaacbbdd4f12cf699ccf3e77809e777c.mp3*~data=user_id=0,application_id=42~hmac=1bb862281045fb6356a4eb1989f7fd1a1cd7ad80d2bd56a3c0b1f32d95bb3185\",\"ranking\":1222,\"skipped\":false,\"songName\":\"Folsom Prison Blues\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a874072efe56c6abf2\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":2673772,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1b08479699103705b64c1ad3582c372b/250x250-000000-80-0-0.jpg\",\"artist\":\"Randy Houser\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/8/a/4/0/8a4e093b8e59817495719cdb9ac3b683.mp3?hdnea=exp=1757373735~acl=/api/1/1/8/a/4/0/8a4e093b8e59817495719cdb9ac3b683.mp3*~data=user_id=0,application_id=42~hmac=4bb4c5ed4648b6ae8f700f01c262bd784cd0be6239f3ebeb06d94ddd42dcb3a2\",\"ranking\":1131,\"skipped\":false,\"songName\":\"Boots On\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a974072efe56c6abf3\",\"deezerID\":106111840,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/67537fd3fdee6e64d658646a420414af/250x250-000000-80-0-0.jpg\",\"artist\":\"Lyle Lovett\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/f/a/2/0/fa2b14931d97fbd23ce01a0298f1c3bd.mp3?hdnea=exp=1757373735~acl=/api/1/1/f/a/2/0/fa2b14931d97fbd23ce01a0298f1c3bd.mp3*~data=user_id=0,application_id=42~hmac=cbb7ab8b20cfda51ae38283a1504f33c8987c7e9b81f2408c7e4b9dba4956dea\",\"ranking\":1185,\"skipped\":false,\"songName\":\"If I Had a Boat\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a974072efe56c6abf4\",\"deezerID\":4210971,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/88ef0c77b40791ebcae863397be66dc5/250x250-000000-80-0-0.jpg\",\"artist\":\"Brooks & Dunn\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/d/a/0/6da80e9ec0789298911aa9a2e42266de.mp3?hdnea=exp=1757373735~acl=/api/1/1/6/d/a/0/6da80e9ec0789298911aa9a2e42266de.mp3*~data=user_id=0,application_id=42~hmac=d0db65723d2c3dd5bc188e63fe8bafd6d5aa9ced92a847345ef6c6d309697f32\",\"ranking\":1156,\"skipped\":false,\"songName\":\"Red Dirt Road\",\"subgenre\":\"any\"},{\"_id\":\"68bf61aa74072efe56c6abf5\",\"deezerID\":1488783442,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/debebfe6cf0cf8edfef9bd17abaa2250/250x250-000000-80-0-0.jpg\",\"artist\":\"Chattahoochee\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/3/f/0/d3fdcf27cb1cdfbf862a88f918f24479.mp3?hdnea=exp=1757373735~acl=/api/1/1/d/3/f/0/d3fdcf27cb1cdfbf862a88f918f24479.mp3*~data=user_id=0,application_id=42~hmac=6edc03095252bf22ce5cb94f027b19005a305e1aa440dfa09e9681c685d2762d\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Alan Jackson\",\"subgenre\":\"any\"},{\"_id\":\"68bf61aa74072efe56c6abf6\",\"deezerID\":1140854232,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/a3eda50cbe5325789d7c8935ee3d40fc/250x250-000000-80-0-0.jpg\",\"artist\":\"Tim McGraw\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/4/9/0/649cea069b23e4a8cfc6d2784eeadb35.mp3?hdnea=exp=1757373735~acl=/api/1/1/6/4/9/0/649cea069b23e4a8cfc6d2784eeadb35.mp3*~data=user_id=0,application_id=42~hmac=9a4fad15a082c894686943b6e7b77be17dd8bb47669a51aca9b5670d5bbbc94b\",\"ranking\":1170,\"skipped\":false,\"songName\":\"Humble and Kind\",\"subgenre\":\"any\"},{\"_id\":\"68bf61ab74072efe56c6abf8\",\"deezerID\":1029321792,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/a6fe193281b96618307a1801e5b4f0a8/250x250-000000-80-0-0.jpg\",\"artist\":\"Joni Mitchell\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/7/4/0/a7430aa1d5063d20e73d9135eff81ee3.mp3?hdnea=exp=1757373735~acl=/api/1/1/a/7/4/0/a7430aa1d5063d20e73d9135eff81ee3.mp3*~data=user_id=0,application_id=42~hmac=48be0e230986bc90568629f43e59f576ddf8a47c5b88bf52797f25f52a54671c\",\"ranking\":1226,\"skipped\":false,\"songName\":\"Tumbleweed\",\"subgenre\":\"any\"},{\"_id\":\"68bf61ab74072efe56c6abf9\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":1332677012,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/cce4e99be496acc9dc2e4365c5b288fc/250x250-000000-80-0-0.jpg\",\"artist\":\"Taylor Swift\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/0/5/b/0/05be7abb83d4cfb192f03e2819e57dd0.mp3?hdnea=exp=1757373735~acl=/api/1/1/0/5/b/0/05be7abb83d4cfb192f03e2819e57dd0.mp3*~data=user_id=0,application_id=42~hmac=4684b4f9c5247abb8078042365b30c33f9447ca6da2334124ce4f708e8daf52e\",\"ranking\":1302,\"skipped\":false,\"songName\":\"You Belong with Me\",\"subgenre\":\"any\"},{\"_id\":\"68bf61ac74072efe56c6abfa\",\"deezerID\":10686127,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/e2fd836cedf9336dc5c725dc3c4df5e0/250x250-000000-80-0-0.jpg\",\"artist\":\"Sade\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/9/e/0/a9e8d37fc08574942bcbcf3f35d1333b.mp3?hdnea=exp=1757373723~acl=/api/1/1/a/9/e/0/a9e8d37fc08574942bcbcf3f35d1333b.mp3*~data=user_id=0,application_id=42~hmac=6fc7c8e1435fe0053518c1901b1a5b17bdc03cd417792a85e775cc4f5e60e6c1\",\"ranking\":1201,\"skipped\":false,\"songName\":\"Smooth Operator\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61ac74072efe56c6abfb\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":580466,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/df7f184abdcc3e630551243ed6eee2f1/250x250-000000-80-0-0.jpg\",\"artist\":\"Lonestar\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/7/f/0/a7f5c031b5fc9957e3a24b6bd21e8a42.mp3?hdnea=exp=1757373735~acl=/api/1/1/a/7/f/0/a7f5c031b5fc9957e3a24b6bd21e8a42.mp3*~data=user_id=0,application_id=42~hmac=33a3d9a6815189e4c463c2e618354486d005c03de81274663c8f5eebd2bc3db3\",\"ranking\":1154,\"skipped\":false,\"songName\":\"My Front Porch Looking In\",\"subgenre\":\"any\"},{\"_id\":\"68bf61b074072efe56c6abfc\",\"deezerID\":821100262,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/ccb7d79e4b15952fffa79c34a53a111c/250x250-000000-80-0-0.jpg\",\"artist\":\"Robyn\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/4/8/c/0/48c82161c2093ca32c655e82b62d8b0f.mp3?hdnea=exp=1757373723~acl=/api/1/1/4/8/c/0/48c82161c2093ca32c655e82b62d8b0f.mp3*~data=user_id=0,application_id=42~hmac=1ecf7369c350a9aed1f03e44c422e0cd53bc6e52eede944cd3ace0aa725ffcf2\",\"ranking\":1204,\"skipped\":false,\"songName\":\"Dancing on My Own\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b074072efe56c6abfd\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":830336922,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/346c524c15ecccbc4a8a78e8972a352c/250x250-000000-80-0-0.jpg\",\"artist\":\"Harry Styles\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/f/7/5/0/f75672f3225537bd26bb33f0f8947618.mp3?hdnea=exp=1757373723~acl=/api/1/1/f/7/5/0/f75672f3225537bd26bb33f0f8947618.mp3*~data=user_id=0,application_id=42~hmac=8dab104f1ccbd784f7e750c7bb784450ab42f286552903e21d0082013441ad6a\",\"ranking\":1172,\"skipped\":false,\"songName\":\"Watermelon Sugar\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b274072efe56c6abfe\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":7561772,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/e4975860d7e182195ec9fb1464676b94/250x250-000000-80-0-0.jpg\",\"artist\":\"Florence + The Machine\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/f/9/0/1f9133da5c693bb0aee1880d7464d6de.mp3?hdnea=exp=1757373723~acl=/api/1/1/1/f/9/0/1f9133da5c693bb0aee1880d7464d6de.mp3*~data=user_id=0,application_id=42~hmac=b08c9ec7b042cbe22b6a94291168d37686865e3140b0ba0d50a94925dae32c88\",\"ranking\":1155,\"skipped\":false,\"songName\":\"Dog Days Are Over\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b374072efe56c6abff\",\"deezerID\":72690686,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/cb0765162a497d07e13a22dfa22f1dfa/250x250-000000-80-0-0.jpg\",\"artist\":\"Hozier\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/7/9/0/d79a8542c7bc920d9ccd28807b0012f4.mp3?hdnea=exp=1757373723~acl=/api/1/1/d/7/9/0/d79a8542c7bc920d9ccd28807b0012f4.mp3*~data=user_id=0,application_id=42~hmac=30c241049fa0afbcf55ad65628d879f6139e52aa7504639ff510a5bd70163860\",\"ranking\":1204,\"skipped\":false,\"songName\":\"Take Me to Church\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b374072efe56c6ac00\",\"deezerID\":63456074,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1a9d855d3443b4189f93a8b384a7989d/250x250-000000-80-0-0.jpg\",\"artist\":\"Tegan and Sara\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/c/7/0/ac7fe1600c858c1c7cdd758a62c9e732.mp3?hdnea=exp=1757373723~acl=/api/1/1/a/c/7/0/ac7fe1600c858c1c7cdd758a62c9e732.mp3*~data=user_id=0,application_id=42~hmac=3c11712e5d756e84236a28444b8d599633a7045053addd3a06ddde0b8ed5c891\",\"ranking\":1172,\"skipped\":false,\"songName\":\"Closer\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68c20bce74072efe56caaaa8\",\"deezerID\":908604612,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/fd00ebd6d30d7253f813dba3bb1c66a9/250x250-000000-80-0-0.jpg\",\"artist\":\"The Weeknd\",\"decade\":\"all decades\",\"genre\":\"Pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/b/2/0/1b27825bf63c36edcdc7fac9f920214e.mp3?hdnea=exp=1757548368~acl=/api/1/1/1/b/2/0/1b27825bf63c36edcdc7fac9f920214e.mp3*~data=user_id=0,application_id=42~hmac=7138413b72a247117d3c360f787bb3816e0ec66ca5c9ee7dd6f815e63effec5f\",\"ranking\":1211,\"skipped\":false,\"songName\":\"Blinding Lights\",\"subgenre\":\"any\"},{\"_id\":\"68c20bce74072efe56caaaa9\",\"deezerID\":1124841682,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/3c5cd0eb919ff9a7767b8ac7acc89e40/250x250-000000-80-0-0.jpg\",\"artist\":\"Dua Lipa\",\"decade\":\"all decades\",\"genre\":\"Pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/c/5/0/9c570bc806fc277bb73ba024e956d057.mp3?hdnea=exp=1757548368~acl=/api/1/1/9/c/5/0/9c570bc806fc277bb73ba024e956d057.mp3*~data=user_id=0,application_id=42~hmac=28042310c7cf2a54d80bd1d5ec43b6ce6e9b780bde40a57bc246cff7033dd1b6\",\"ranking\":1189,\"skipped\":false,\"songName\":\"Levitating\",\"subgenre\":\"any\"},{\"_id\":\"68c21c3474072efe56cab031\",\"deezerID\":92719900,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/de48d988a82fc401f4b9bafc2639f7d0/250x250-000000-80-0-0.jpg\",\"artist\":\"AC/DC\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/7/1/0/d7183d3dd28d85289690100ef5d7c78e.mp3?hdnea=exp=1757552550~acl=/api/1/1/d/7/1/0/d7183d3dd28d85289690100ef5d7c78e.mp3*~data=user_id=0,application_id=42~hmac=67c3f667830cecc7de4127482305e66db0432b87958251e48f713fbf4dae4bfc\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Highway to Hell\",\"subgenre\":\"any\"},{\"_id\":\"68c21c3474072efe56cab032\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":1153182282,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/ed0929a4c44d77c4dc524a10748fc2f6/250x250-000000-80-0-0.jpg\",\"artist\":\"The White Stripes\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/7/d/e/0/7de8805c1993e802810d7ca37a615f81.mp3?hdnea=exp=1757552550~acl=/api/1/1/7/d/e/0/7de8805c1993e802810d7ca37a615f81.mp3*~data=user_id=0,application_id=42~hmac=4056d2b38bf2bed8f7b45269de17bc2bfe6be17f54ea582110ef16f5760f1933\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Seven Nation Army\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7a74072efe56cab07e\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":88003853,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/460a0edd96f743be03b7405eac38c633/250x250-000000-80-0-0.jpg\",\"artist\":\"Led Zeppelin\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/c/1/0/0/c107eecef522651f031e2bd76cb491be.mp3?hdnea=exp=1757553144~acl=/api/1/1/c/1/0/0/c107eecef522651f031e2bd76cb491be.mp3*~data=user_id=0,application_id=42~hmac=10f0eb9acd4ad2ad1bdf3d1d74602fb316c4a7cd6881e8792ecb20062d8654af\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Black Dog\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7a74072efe56cab07f\",\"deezerID\":2058907137,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/50e0efb4b5a9c181bc02536fb034330a/250x250-000000-80-0-0.jpg\",\"artist\":\"Aerosmith\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/d/9/0/9d9ae65eb94a0b773c4aa585a3cb7703.mp3?hdnea=exp=1757553144~acl=/api/1/1/9/d/9/0/9d9ae65eb94a0b773c4aa585a3cb7703.mp3*~data=user_id=0,application_id=42~hmac=e79bf5be8c19f4282967205157a36ef3c49996438b38f6748f21c8b88895420b\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Dream On\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7d74072efe56cab080\",\"deezerID\":74062292,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/2e4dbd533ee46c7a712c5fabfe284fb3/250x250-000000-80-0-0.jpg\",\"artist\":\"Black Sabbath\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/5/6/c/0/56c4b55f193125d3f5e5438a22029e57.mp3?hdnea=exp=1757553144~acl=/api/1/1/5/6/c/0/56c4b55f193125d3f5e5438a22029e57.mp3*~data=user_id=0,application_id=42~hmac=9ea9595fb408a63e5007ba6c3481f723503b77b524882d97e9a966b2b3990489\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Paranoid\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7d74072efe56cab081\",\"deezerID\":568116092,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/8b8fc5d117f9357b79f0a0a410a170e8/250x250-000000-80-0-0.jpg\",\"artist\":\"Queen & David Bowie\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/b/a/e/0/bae65d938e2cac3e858b6d76ee21d2fd.mp3?hdnea=exp=1757553144~acl=/api/1/1/b/a/e/0/bae65d938e2cac3e858b6d76ee21d2fd.mp3*~data=user_id=0,application_id=42~hmac=bfe6751c399f5c58537bec2d0738d89f354b37d878cab6ff6d636432bd82c726\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Under Pressure\",\"subgenre\":\"any\"},{\"_id\":\"68c21e8174072efe56cab083\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":407645032,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/9181983be98170f86e05504da759ceea/250x250-000000-80-0-0.jpg\",\"artist\":\"Stone Temple Pilots\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/9/4/0/69489dca358c226f79607fba6bfdfe8c.mp3?hdnea=exp=1757553144~acl=/api/1/1/6/9/4/0/69489dca358c226f79607fba6bfdfe8c.mp3*~data=user_id=0,application_id=42~hmac=d33053c950f7760a013c26d7803b633c4aaa1f161930a6df2ae1c5124deed111\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Plush\",\"subgenre\":\"any\"},{\"_id\":\"68c21e8174072efe56cab084\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":68094695,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/b7a45d37330235f99a01a2e1e8106d1f/250x250-000000-80-0-0.jpg\",\"artist\":\"Eagles\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/b/5/0/eb5a581c382c0b4f5872ea36f73e8e89.mp3?hdnea=exp=1757553144~acl=/api/1/1/e/b/5/0/eb5a581c382c0b4f5872ea36f73e8e89.mp3*~data=user_id=0,application_id=42~hmac=d3e4534d798a9c6796de13778a2e600b2703a4031668cb7a14f7b6caa94aebd2\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Take It Easy\",\"subgenre\":\"any\"},{\"_id\":\"68c249e574072efe56cab685\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":138547415,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1dd56fd8824492e1a5106c99a00a85ec/250x250-000000-80-0-0.jpg\",\"artist\":\"Radiohead\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/b/9/c/0/b9c4cde36fbe176cc3e84dc08fc0611b.mp3?hdnea=exp=1757564263~acl=/api/1/1/b/9/c/0/b9c4cde36fbe176cc3e84dc08fc0611b.mp3*~data=user_id=0,application_id=42~hmac=56d1b3674d84ba0cf05ba53f230f93ba4918dd4e7162f2e3bfbda2b4b260c73f\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Creep\",\"subgenre\":\"any\"},{\"_id\":\"68c249e574072efe56cab686\",\"deezerID\":78631539,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/94248b664be0890be31cabf62a068293/250x250-000000-80-0-0.jpg\",\"artist\":\"Soundgarden\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/d/f/0/ddfb8e736d8dc5690ad7498ed26e8251.mp3?hdnea=exp=1757564263~acl=/api/1/1/d/d/f/0/ddfb8e736d8dc5690ad7498ed26e8251.mp3*~data=user_id=0,application_id=42~hmac=1e6a53f0ac50ec5ff212952da7bae838cef8f5ed65965485f791b7f82b987d68\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Black Hole Sun\",\"subgenre\":\"any\"},{\"_id\":\"68c24f7174072efe56cab746\",\"deezerID\":776220,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/84ecee5f0d598c5d0b5da405f6a3fa90/250x250-000000-80-0-0.jpg\",\"artist\":\"Chaka Khan\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/6/d/0/16d4d568e35fb4f24d057a876f6cb32d.mp3?hdnea=exp=1757565662~acl=/api/1/1/1/6/d/0/16d4d568e35fb4f24d057a876f6cb32d.mp3*~data=user_id=0,application_id=42~hmac=7cbe2ad1d47f9a4bd73b5c6158fabac82b1fcb050bce417e5a98503869d8e493\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Ain't Nobody\",\"subgenre\":\"any\"},{\"_id\":\"68c24f7174072efe56cab747\",\"deezerID\":2176856,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/3ce985e6653c350c6e6fed077ab7d0d4/250x250-000000-80-0-0.jpg\",\"artist\":\"Amy Winehouse\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/8/c/5/0/8c51a0c8941f72ee783a7b2798cff8c8.mp3?hdnea=exp=1757565662~acl=/api/1/1/8/c/5/0/8c51a0c8941f72ee783a7b2798cff8c8.mp3*~data=user_id=0,application_id=42~hmac=65286a4c2172c3a26b59a656c3fc5022e0628e06f651e48675425761ac43b045\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Back to Black\",\"subgenre\":\"any\"},{\"_id\":\"68c2525b74072efe56cab7f0\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":646327092,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/7beb28379235585e5c8376d11776479f/250x250-000000-80-0-0.jpg\",\"artist\":\"Marvin Gaye & Tammi Terrell\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/2/0/0/d20d39061ad0da62a6181add266ce218.mp3?hdnea=exp=1757566384~acl=/api/1/1/d/2/0/0/d20d39061ad0da62a6181add266ce218.mp3*~data=user_id=0,application_id=42~hmac=ce65c745a290753f8f7519222750c196beb7ed347d22c6b85d4da930e2c25894\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Ain't No Mountain High Enough\",\"subgenre\":\"any\"},{\"_id\":\"68c2525b74072efe56cab7f1\",\"deezerID\":139104015,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1e627aca5ceb452dbc527f06c333e1c7/250x250-000000-80-0-0.jpg\",\"artist\":\"D'Angelo\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/2/b/0/d2b7d0a7a213f7b615e40f3d57289148.mp3?hdnea=exp=1757566384~acl=/api/1/1/d/2/b/0/d2b7d0a7a213f7b615e40f3d57289148.mp3*~data=user_id=0,application_id=42~hmac=acfdad89b38a706db1e841c334044e2a14fdb852b80a368fc86f64e6073911d9\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Lady\",\"subgenre\":\"any\"}]"
+          },
+          "redirectURL": "",
+          "headersSize": 290,
+          "bodySize": 36225
+        },
+        "cache": {},
+        "timings": {
+          "blocked": -1,
+          "dns": 0,
+          "connect": 0,
+          "ssl": 0,
+          "send": 0,
+          "wait": 154,
+          "receive": 1
+        },
+        "time": 155,
+        "_securityState": "secure",
+        "serverIPAddress": "3.218.64.128",
+        "connection": "443",
+        "pageref": "page_1"
+      },
+      {
+        "startedDateTime": "2025-09-13T00:32:51.139-05:00",
+        "request": {
+          "bodySize": 59,
+          "method": "POST",
+          "url": "https://api.melodx.io/api/user-songs/ranked",
+          "httpVersion": "HTTP/2",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "api.melodx.io"
+            },
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:142.0) Gecko/20100101 Firefox/142.0"
+            },
+            {
+              "name": "Accept",
+              "value": "*/*"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.5"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br, zstd"
+            },
+            {
+              "name": "Referer",
+              "value": "https://www.melodx.io/"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Content-Length",
+              "value": "59"
+            },
+            {
+              "name": "Origin",
+              "value": "https://www.melodx.io"
+            },
+            {
+              "name": "Connection",
+              "value": "keep-alive"
+            },
+            {
+              "name": "Sec-Fetch-Dest",
+              "value": "empty"
+            },
+            {
+              "name": "Sec-Fetch-Mode",
+              "value": "cors"
+            },
+            {
+              "name": "Sec-Fetch-Site",
+              "value": "same-site"
+            },
+            {
+              "name": "Priority",
+              "value": "u=4"
+            },
+            {
+              "name": "TE",
+              "value": "trailers"
+            }
+          ],
+          "cookies": [],
+          "queryString": [],
+          "headersSize": 470,
+          "postData": {
+            "mimeType": "application/json",
+            "params": [],
+            "text": "{\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\"}"
+          }
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "httpVersion": "HTTP/2",
+          "headers": [
+            {
+              "name": "date",
+              "value": "Sat, 13 Sep 2025 05:32:51 GMT"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json; charset=utf-8"
+            },
+            {
+              "name": "content-length",
+              "value": "35935"
+            },
+            {
+              "name": "server",
+              "value": "nginx"
+            },
+            {
+              "name": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "name": "access-control-allow-origin",
+              "value": "https://www.melodx.io"
+            },
+            {
+              "name": "vary",
+              "value": "Origin"
+            },
+            {
+              "name": "etag",
+              "value": "W/\"8c5f-TGyI/p6+IeFV6J1K9x3yXG2XsWY\""
+            },
+            {
+              "name": "X-Firefox-Spdy",
+              "value": "h2"
+            }
+          ],
+          "cookies": [],
+          "content": {
+            "mimeType": "application/json; charset=utf-8",
+            "size": 35935,
+            "text": "[{\"_id\":\"68bf5d5674072efe56c6ab1b\",\"deezerID\":1044157,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d6e9c1a3ce072c0ecfe60abff98f06b9/250x250-000000-80-0-0.jpg\",\"artist\":\"Pt. II\\\", Mobb Deep\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/4/a/5/0/4a5d95e7ea77cdec7aa9873de2792e8f.mp3?hdnea=exp=1757372631~acl=/api/1/1/4/a/5/0/4a5d95e7ea77cdec7aa9873de2792e8f.mp3*~data=user_id=0,application_id=42~hmac=819513934a6cff1a9dc9537b72b236853ebff98f35456b23fdbeb3777e62a664\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Shook Ones\",\"subgenre\":\"any\"},{\"_id\":\"68bf5d5674072efe56c6ab1c\",\"deezerID\":13159670,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/7edbc81197483e75798028a31078391f/250x250-000000-80-0-0.jpg\",\"artist\":\"A Tribe Called Quest\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/2/e/0/62ecdf3de587d66caeb17b24810fe7db.mp3?hdnea=exp=1757372631~acl=/api/1/1/6/2/e/0/62ecdf3de587d66caeb17b24810fe7db.mp3*~data=user_id=0,application_id=42~hmac=8abb66b62e8dcbf01e11a5e2f9f06f35402b9394d5a12f77663e46875ee7a717\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Electric Relaxation\",\"subgenre\":\"any\"},{\"_id\":\"68bf5d5774072efe56c6ab1d\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":541322,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/b7e83ef65099d5f01c84b1e2a8391f02/250x250-000000-80-0-0.jpg\",\"artist\":\"Wu-Tang Clan\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/2/e/5/0/2e5556957eb4b531a9a148013c803a64.mp3?hdnea=exp=1757372631~acl=/api/1/1/2/e/5/0/2e5556957eb4b531a9a148013c803a64.mp3*~data=user_id=0,application_id=42~hmac=64bd4252e83e919ab307ca84552e0d89987e164a76738d16ff04b3707728ade8\",\"ranking\":1216,\"skipped\":false,\"songName\":\"C.R.E.A.M.\",\"subgenre\":\"any\"},{\"_id\":\"68bf5d5774072efe56c6ab1e\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":963042,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/646d6414a24faaccf67c1d7e01f7d095/250x250-000000-80-0-0.jpg\",\"artist\":\"OutKast\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/8/1/0/e81cf633d05ce15ce038684f06edf032.mp3?hdnea=exp=1757372631~acl=/api/1/1/e/8/1/0/e81cf633d05ce15ce038684f06edf032.mp3*~data=user_id=0,application_id=42~hmac=1fc530cf6c7526dc12f6fff2607099a866f261c61dcaecbbe874c134bfae5987\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Ms. Jackson\",\"subgenre\":\"any\"},{\"_id\":\"68bf618e74072efe56c6abd9\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":626546,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d643a74eae0569b71924e5dd800e43a7/250x250-000000-80-0-0.jpg\",\"artist\":\"Pras featuring Ol' Dirty Bastard & Mýa\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/0/a/0/0/0a003360329564ec24ba4953e0bb6f1d.mp3?hdnea=exp=1757372631~acl=/api/1/1/0/a/0/0/0a003360329564ec24ba4953e0bb6f1d.mp3*~data=user_id=0,application_id=42~hmac=66548ebe2b8bd3bf74cef65dc45b7cc82800cb572481c7d3e852de3145594874\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Ghetto Supastar\",\"subgenre\":\"any\"},{\"_id\":\"68bf618e74072efe56c6abda\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":83971991,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/a7709ffb331c444c91341dd6c4e50560/250x250-000000-80-0-0.jpg\",\"artist\":\"The Pharcyde\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/3/1/2/0/312cdd53f08e432a4e48f2e9b593cc2b.mp3?hdnea=exp=1757372631~acl=/api/1/1/3/1/2/0/312cdd53f08e432a4e48f2e9b593cc2b.mp3*~data=user_id=0,application_id=42~hmac=0b1e1e5ffc36e1b1988fcf2d77b6dc073c06bcd4e29961a414be512e5c452200\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Runnin'\",\"subgenre\":\"any\"},{\"_id\":\"68bf618f74072efe56c6abdb\",\"deezerID\":77096688,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/4c2dc31af4f87864afcdb6ab599c7960/250x250-000000-80-0-0.jpg\",\"artist\":\"Nas\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/8/a/6/0/8a6568b9d58f1d988b012195b9f4a276.mp3?hdnea=exp=1757372631~acl=/api/1/1/8/a/6/0/8a6568b9d58f1d988b012195b9f4a276.mp3*~data=user_id=0,application_id=42~hmac=f0ef44f8e278486d3cd7bbfbad9496fc109db369f08056966d9fb503ba14596b\",\"ranking\":1216,\"skipped\":false,\"songName\":\"N.Y. State of Mind\",\"subgenre\":\"any\"},{\"_id\":\"68bf619074072efe56c6abdc\",\"deezerID\":633377802,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/55fb57cfe1b96220bc9688a1ede36bd4/250x250-000000-80-0-0.jpg\",\"artist\":\"Drake\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/5/f/b/0/5fbfb88d49803f3de281619e995d0bae.mp3?hdnea=exp=1757372631~acl=/api/1/1/5/f/b/0/5fbfb88d49803f3de281619e995d0bae.mp3*~data=user_id=0,application_id=42~hmac=3f5f1561b4281bfffc7bef50c47312a21d2cd0aa938b994cbb8ec1bc30693ad9\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Best I Ever Had\",\"subgenre\":\"any\"},{\"_id\":\"68bf619174072efe56c6abdd\",\"deezerID\":962896,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/9aed5495a46ad76c9202589463133991/250x250-000000-80-0-0.jpg\",\"artist\":\"OutKast\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/f/1/c/0/f1cbc3ac8548e00f413c12f99a7abf38.mp3?hdnea=exp=1757372631~acl=/api/1/1/f/1/c/0/f1cbc3ac8548e00f413c12f99a7abf38.mp3*~data=user_id=0,application_id=42~hmac=65d9cf39924ac9165b6b5ba3aea3e60d50b7e3829ea5b9db440f868076fab13b\",\"ranking\":1231,\"skipped\":false,\"songName\":\"SpottieOttieDopaliscious\",\"subgenre\":\"any\"},{\"_id\":\"68bf619174072efe56c6abde\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":2182691877,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/513525f8796e03f191e5496cdf39b192/250x250-000000-80-0-0.jpg\",\"artist\":\"Snoop Dogg\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/9/9/0/e99bbae89e8a2055eb24eb8fe8cc0171.mp3?hdnea=exp=1757372631~acl=/api/1/1/e/9/9/0/e99bbae89e8a2055eb24eb8fe8cc0171.mp3*~data=user_id=0,application_id=42~hmac=daf0dbe220271bbf4f4101cfb90cc38fc486f968cb442b2b8fdc602dd0debf25\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Murder Was the Case\",\"subgenre\":\"any\"},{\"_id\":\"68bf619274072efe56c6abdf\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":6587648,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/45fcaa2eddf6707663fa5a61732c04d5/250x250-000000-80-0-0.jpg\",\"artist\":\"Luniz\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/5/8/0/0/580bc15850b79375c73e2d3b8e0e9592.mp3?hdnea=exp=1757372631~acl=/api/1/1/5/8/0/0/580bc15850b79375c73e2d3b8e0e9592.mp3*~data=user_id=0,application_id=42~hmac=1b376d276cd440cfbccaffe475e7d63fecfceb64048421c05b403b0a72f047f6\",\"ranking\":1216,\"skipped\":false,\"songName\":\"I Got 5 on It\",\"subgenre\":\"any\"},{\"_id\":\"68bf619274072efe56c6abe0\",\"deezerID\":963074,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/be4f08ec67000dcf53749f87eafcb292/250x250-000000-80-0-0.jpg\",\"artist\":\"So Clean\\\", OutKast\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/e/a/0/eea6bf486142b95285e1b040f887b320.mp3?hdnea=exp=1757372631~acl=/api/1/1/e/e/a/0/eea6bf486142b95285e1b040f887b320.mp3*~data=user_id=0,application_id=42~hmac=6b6c584dfed298044476f046a9150453e4d1c09356e1fe1dc421125857eb9f8a\",\"ranking\":1199,\"skipped\":false,\"songName\":\"So Fresh\",\"subgenre\":\"any\"},{\"_id\":\"68bf619374072efe56c6abe1\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":2434186,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/0771f4a672bc6f09f3589bc7dcda4f91/250x250-000000-80-0-0.jpg\",\"artist\":\"Common\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/7/a/0/97a0df9a4e39163228ad5fb55125dfda.mp3?hdnea=exp=1757372631~acl=/api/1/1/9/7/a/0/97a0df9a4e39163228ad5fb55125dfda.mp3*~data=user_id=0,application_id=42~hmac=82bc116b15e7b23476230659965e3a67a2121b1a51b87b6312c4d15ccfeb6cb2\",\"ranking\":1216,\"skipped\":false,\"songName\":\"The Light\",\"subgenre\":\"any\"},{\"_id\":\"68bf619374072efe56c6abe2\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":528869461,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/069a5dba671436da9301aad36fc9a983/250x250-000000-80-0-0.jpg\",\"artist\":\"Kanye West\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/9/2/0/192c3a31f08d0d81710bef0d6dff7ea5.mp3?hdnea=exp=1757372631~acl=/api/1/1/1/9/2/0/192c3a31f08d0d81710bef0d6dff7ea5.mp3*~data=user_id=0,application_id=42~hmac=1a46e295bd06666ec914b438ab0a1b2c55bcce8a80942a4b85f9a99c6abe1a61\",\"ranking\":1184,\"skipped\":false,\"songName\":\"All Falls Down\",\"subgenre\":\"any\"},{\"_id\":\"68bf619474072efe56c6abe3\",\"deezerID\":663465,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/41e2837eecd6bd7a29b990273ce46cbd/250x250-000000-80-0-0.jpg\",\"artist\":\"Lupe Fiasco\",\"decade\":\"all decades\",\"genre\":\"Hip-Hop/Rap\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/b/2/0/1b2297d833b24a2a58e51437e7221cd8.mp3?hdnea=exp=1757372631~acl=/api/1/1/1/b/2/0/1b2297d833b24a2a58e51437e7221cd8.mp3*~data=user_id=0,application_id=42~hmac=011f48a09e68b97e1a62e5484e2d1745ab027ec2f068d4bc1b8e83731a786c7d\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Dumb It Down\",\"subgenre\":\"any\"},{\"_id\":\"68bf619474072efe56c6abe4\",\"deezerID\":536484,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d910a6585e4a80f06e6fddce4f6f859d/250x250-000000-80-0-0.jpg\",\"artist\":\"MGMT\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/1/a/0/91a0821300463cd04f48f768546610a5.mp3?hdnea=exp=1757373723~acl=/api/1/1/9/1/a/0/91a0821300463cd04f48f768546610a5.mp3*~data=user_id=0,application_id=42~hmac=e1eb59bbae1eb11899a1277d09bd7fe7cf6e49f3a2730e49bf9038c0d8ce6f6a\",\"ranking\":1200,\"skipped\":false,\"songName\":\"Electric Feel\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf619674072efe56c6abe5\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":66660698,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/e45246b90badf4bd3a9a994729433bf8/250x250-000000-80-0-0.jpg\",\"artist\":\"Lana Del Rey\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/b/1/c/0/b1c6258292942ddd7ccd67329e2b1ade.mp3?hdnea=exp=1757372632~acl=/api/1/1/b/1/c/0/b1c6258292942ddd7ccd67329e2b1ade.mp3*~data=user_id=0,application_id=42~hmac=764973b9b473f953cd315dd884be1bb098a3fcd4451f78ac1ea767af2771ef0e\",\"ranking\":1185,\"skipped\":false,\"songName\":\"Young and Beautiful\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf619674072efe56c6abe6\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":925110,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/91276466fbc876d96be9e6926060af60/250x250-000000-80-0-0.jpg\",\"artist\":\"Rihanna\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/2/c/0/e2c1a79e21db76ffc23510854ecea5af.mp3?hdnea=exp=1757372632~acl=/api/1/1/e/2/c/0/e2c1a79e21db76ffc23510854ecea5af.mp3*~data=user_id=0,application_id=42~hmac=90b03763c0299d46a25db42333d678bf946846819b42ca54e3761f4a174775cc\",\"ranking\":1168,\"skipped\":false,\"songName\":\"Shut Up and Drive\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61a574072efe56c6abeb\",\"deezerID\":1488795132,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/07a80a402650632d6ae93592efe47766/250x250-000000-80-0-0.jpg\",\"artist\":\"Zac Brown Band\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/7/5/0/e75f7e08fe007afa9f1b07f1865b69a0.mp3?hdnea=exp=1757373735~acl=/api/1/1/e/7/5/0/e75f7e08fe007afa9f1b07f1865b69a0.mp3*~data=user_id=0,application_id=42~hmac=ba466a6340734bfdf80919f157ed42b7dac9e56a7b75bf2078e43c7dfb2b0b92\",\"ranking\":1189,\"skipped\":false,\"songName\":\"Chicken Fried\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a574072efe56c6abec\",\"deezerID\":3020136781,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/92d1414337aabababf400b7d39dd9eed/250x250-000000-80-0-0.jpg\",\"artist\":\"Old Crow Medicine Show\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/3/7/f/0/37f7b332cdd6fc0eb1a4e4df759b35f2.mp3?hdnea=exp=1757373735~acl=/api/1/1/3/7/f/0/37f7b332cdd6fc0eb1a4e4df759b35f2.mp3*~data=user_id=0,application_id=42~hmac=cf6a7c323e5898bfc20e61957569e58a209a14ab066d3ac146f78a1fa4b4bf4a\",\"ranking\":1176,\"skipped\":false,\"songName\":\"Wagon Wheel\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a674072efe56c6abed\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":567771,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/d47fc7a27a0d40cc2a8c119ed2bc53b7/250x250-000000-80-0-0.jpg\",\"artist\":\"Dolly Parton\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/7/a/0/e7a5c1cdd04358c3c985965f68ad3a96.mp3?hdnea=exp=1757373735~acl=/api/1/1/e/7/a/0/e7a5c1cdd04358c3c985965f68ad3a96.mp3*~data=user_id=0,application_id=42~hmac=9fe5429ab696e818c18b88c738457dc1014e9c8d9bdd74cc3cebfb2194773d8e\",\"ranking\":1231,\"skipped\":false,\"songName\":\"I Will Always Love You\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a674072efe56c6abee\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":82697686,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/31383f3d2c444ca382c19c1def301e95/250x250-000000-80-0-0.jpg\",\"artist\":\"Country Roads, John Denver\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/2/b/0/0/2b04e0f1797578b3521c03c6a43e722b.mp3?hdnea=exp=1757373735~acl=/api/1/1/2/b/0/0/2b04e0f1797578b3521c03c6a43e722b.mp3*~data=user_id=0,application_id=42~hmac=d00f03f13d13f5d558f1e853374a61941251dbf339e980480fed04ac199ce9bc\",\"ranking\":1231,\"skipped\":false,\"songName\":\"Take Me Home\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a774072efe56c6abef\",\"deezerID\":90944585,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/3d53a821f232b3c0a749d5910af9b501/250x250-000000-80-0-0.jpg\",\"artist\":\"Carrie Underwood\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/4/0/0/e40d9c2f44e3a6e2dd3388960b2db84d.mp3?hdnea=exp=1757373735~acl=/api/1/1/e/4/0/0/e40d9c2f44e3a6e2dd3388960b2db84d.mp3*~data=user_id=0,application_id=42~hmac=7fe5829f21958525dd5969375e76eed4ee0e29b2ffcb41c2e88668f9216498c0\",\"ranking\":1176,\"skipped\":false,\"songName\":\"Before He Cheats\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a774072efe56c6abf0\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":3108438,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/787a807cec76f363211117727ec519fc/250x250-000000-80-0-0.jpg\",\"artist\":\"Kenny Rogers\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/c/a/6/0/ca66aef1993f20bd6ee14d40b49ec7e9.mp3?hdnea=exp=1757373735~acl=/api/1/1/c/a/6/0/ca66aef1993f20bd6ee14d40b49ec7e9.mp3*~data=user_id=0,application_id=42~hmac=c6a77c94dea3d9d9cee8dd690a2ac7bfc3751f6f8d82193589669556ee8f9d21\",\"ranking\":1220,\"skipped\":false,\"songName\":\"The Gambler\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a874072efe56c6abf1\",\"deezerID\":75388919,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/39e2b79d24bb11a16af1a6124104a430/250x250-000000-80-0-0.jpg\",\"artist\":\"Johnny Cash\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/a/a/0/aaacbbdd4f12cf699ccf3e77809e777c.mp3?hdnea=exp=1757373735~acl=/api/1/1/a/a/a/0/aaacbbdd4f12cf699ccf3e77809e777c.mp3*~data=user_id=0,application_id=42~hmac=1bb862281045fb6356a4eb1989f7fd1a1cd7ad80d2bd56a3c0b1f32d95bb3185\",\"ranking\":1222,\"skipped\":false,\"songName\":\"Folsom Prison Blues\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a874072efe56c6abf2\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":2673772,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1b08479699103705b64c1ad3582c372b/250x250-000000-80-0-0.jpg\",\"artist\":\"Randy Houser\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/8/a/4/0/8a4e093b8e59817495719cdb9ac3b683.mp3?hdnea=exp=1757373735~acl=/api/1/1/8/a/4/0/8a4e093b8e59817495719cdb9ac3b683.mp3*~data=user_id=0,application_id=42~hmac=4bb4c5ed4648b6ae8f700f01c262bd784cd0be6239f3ebeb06d94ddd42dcb3a2\",\"ranking\":1131,\"skipped\":false,\"songName\":\"Boots On\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a974072efe56c6abf3\",\"deezerID\":106111840,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/67537fd3fdee6e64d658646a420414af/250x250-000000-80-0-0.jpg\",\"artist\":\"Lyle Lovett\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/f/a/2/0/fa2b14931d97fbd23ce01a0298f1c3bd.mp3?hdnea=exp=1757373735~acl=/api/1/1/f/a/2/0/fa2b14931d97fbd23ce01a0298f1c3bd.mp3*~data=user_id=0,application_id=42~hmac=cbb7ab8b20cfda51ae38283a1504f33c8987c7e9b81f2408c7e4b9dba4956dea\",\"ranking\":1185,\"skipped\":false,\"songName\":\"If I Had a Boat\",\"subgenre\":\"any\"},{\"_id\":\"68bf61a974072efe56c6abf4\",\"deezerID\":4210971,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/88ef0c77b40791ebcae863397be66dc5/250x250-000000-80-0-0.jpg\",\"artist\":\"Brooks & Dunn\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/d/a/0/6da80e9ec0789298911aa9a2e42266de.mp3?hdnea=exp=1757373735~acl=/api/1/1/6/d/a/0/6da80e9ec0789298911aa9a2e42266de.mp3*~data=user_id=0,application_id=42~hmac=d0db65723d2c3dd5bc188e63fe8bafd6d5aa9ced92a847345ef6c6d309697f32\",\"ranking\":1156,\"skipped\":false,\"songName\":\"Red Dirt Road\",\"subgenre\":\"any\"},{\"_id\":\"68bf61aa74072efe56c6abf5\",\"deezerID\":1488783442,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/debebfe6cf0cf8edfef9bd17abaa2250/250x250-000000-80-0-0.jpg\",\"artist\":\"Chattahoochee\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/3/f/0/d3fdcf27cb1cdfbf862a88f918f24479.mp3?hdnea=exp=1757373735~acl=/api/1/1/d/3/f/0/d3fdcf27cb1cdfbf862a88f918f24479.mp3*~data=user_id=0,application_id=42~hmac=6edc03095252bf22ce5cb94f027b19005a305e1aa440dfa09e9681c685d2762d\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Alan Jackson\",\"subgenre\":\"any\"},{\"_id\":\"68bf61aa74072efe56c6abf6\",\"deezerID\":1140854232,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/a3eda50cbe5325789d7c8935ee3d40fc/250x250-000000-80-0-0.jpg\",\"artist\":\"Tim McGraw\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/4/9/0/649cea069b23e4a8cfc6d2784eeadb35.mp3?hdnea=exp=1757373735~acl=/api/1/1/6/4/9/0/649cea069b23e4a8cfc6d2784eeadb35.mp3*~data=user_id=0,application_id=42~hmac=9a4fad15a082c894686943b6e7b77be17dd8bb47669a51aca9b5670d5bbbc94b\",\"ranking\":1170,\"skipped\":false,\"songName\":\"Humble and Kind\",\"subgenre\":\"any\"},{\"_id\":\"68bf61ab74072efe56c6abf8\",\"deezerID\":1029321792,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/a6fe193281b96618307a1801e5b4f0a8/250x250-000000-80-0-0.jpg\",\"artist\":\"Joni Mitchell\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/7/4/0/a7430aa1d5063d20e73d9135eff81ee3.mp3?hdnea=exp=1757373735~acl=/api/1/1/a/7/4/0/a7430aa1d5063d20e73d9135eff81ee3.mp3*~data=user_id=0,application_id=42~hmac=48be0e230986bc90568629f43e59f576ddf8a47c5b88bf52797f25f52a54671c\",\"ranking\":1226,\"skipped\":false,\"songName\":\"Tumbleweed\",\"subgenre\":\"any\"},{\"_id\":\"68bf61ab74072efe56c6abf9\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":1332677012,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/cce4e99be496acc9dc2e4365c5b288fc/250x250-000000-80-0-0.jpg\",\"artist\":\"Taylor Swift\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/0/5/b/0/05be7abb83d4cfb192f03e2819e57dd0.mp3?hdnea=exp=1757373735~acl=/api/1/1/0/5/b/0/05be7abb83d4cfb192f03e2819e57dd0.mp3*~data=user_id=0,application_id=42~hmac=4684b4f9c5247abb8078042365b30c33f9447ca6da2334124ce4f708e8daf52e\",\"ranking\":1302,\"skipped\":false,\"songName\":\"You Belong with Me\",\"subgenre\":\"any\"},{\"_id\":\"68bf61ac74072efe56c6abfa\",\"deezerID\":10686127,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/e2fd836cedf9336dc5c725dc3c4df5e0/250x250-000000-80-0-0.jpg\",\"artist\":\"Sade\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/9/e/0/a9e8d37fc08574942bcbcf3f35d1333b.mp3?hdnea=exp=1757373723~acl=/api/1/1/a/9/e/0/a9e8d37fc08574942bcbcf3f35d1333b.mp3*~data=user_id=0,application_id=42~hmac=6fc7c8e1435fe0053518c1901b1a5b17bdc03cd417792a85e775cc4f5e60e6c1\",\"ranking\":1201,\"skipped\":false,\"songName\":\"Smooth Operator\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61ac74072efe56c6abfb\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":580466,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/df7f184abdcc3e630551243ed6eee2f1/250x250-000000-80-0-0.jpg\",\"artist\":\"Lonestar\",\"decade\":\"all decades\",\"genre\":\"Country\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/7/f/0/a7f5c031b5fc9957e3a24b6bd21e8a42.mp3?hdnea=exp=1757373735~acl=/api/1/1/a/7/f/0/a7f5c031b5fc9957e3a24b6bd21e8a42.mp3*~data=user_id=0,application_id=42~hmac=33a3d9a6815189e4c463c2e618354486d005c03de81274663c8f5eebd2bc3db3\",\"ranking\":1154,\"skipped\":false,\"songName\":\"My Front Porch Looking In\",\"subgenre\":\"any\"},{\"_id\":\"68bf61b074072efe56c6abfc\",\"deezerID\":821100262,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/ccb7d79e4b15952fffa79c34a53a111c/250x250-000000-80-0-0.jpg\",\"artist\":\"Robyn\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/4/8/c/0/48c82161c2093ca32c655e82b62d8b0f.mp3?hdnea=exp=1757373723~acl=/api/1/1/4/8/c/0/48c82161c2093ca32c655e82b62d8b0f.mp3*~data=user_id=0,application_id=42~hmac=1ecf7369c350a9aed1f03e44c422e0cd53bc6e52eede944cd3ace0aa725ffcf2\",\"ranking\":1204,\"skipped\":false,\"songName\":\"Dancing on My Own\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b074072efe56c6abfd\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":830336922,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/346c524c15ecccbc4a8a78e8972a352c/250x250-000000-80-0-0.jpg\",\"artist\":\"Harry Styles\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/f/7/5/0/f75672f3225537bd26bb33f0f8947618.mp3?hdnea=exp=1757373723~acl=/api/1/1/f/7/5/0/f75672f3225537bd26bb33f0f8947618.mp3*~data=user_id=0,application_id=42~hmac=8dab104f1ccbd784f7e750c7bb784450ab42f286552903e21d0082013441ad6a\",\"ranking\":1172,\"skipped\":false,\"songName\":\"Watermelon Sugar\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b274072efe56c6abfe\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":7561772,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/e4975860d7e182195ec9fb1464676b94/250x250-000000-80-0-0.jpg\",\"artist\":\"Florence + The Machine\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/f/9/0/1f9133da5c693bb0aee1880d7464d6de.mp3?hdnea=exp=1757373723~acl=/api/1/1/1/f/9/0/1f9133da5c693bb0aee1880d7464d6de.mp3*~data=user_id=0,application_id=42~hmac=b08c9ec7b042cbe22b6a94291168d37686865e3140b0ba0d50a94925dae32c88\",\"ranking\":1155,\"skipped\":false,\"songName\":\"Dog Days Are Over\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b374072efe56c6abff\",\"deezerID\":72690686,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/cb0765162a497d07e13a22dfa22f1dfa/250x250-000000-80-0-0.jpg\",\"artist\":\"Hozier\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/7/9/0/d79a8542c7bc920d9ccd28807b0012f4.mp3?hdnea=exp=1757373723~acl=/api/1/1/d/7/9/0/d79a8542c7bc920d9ccd28807b0012f4.mp3*~data=user_id=0,application_id=42~hmac=30c241049fa0afbcf55ad65628d879f6139e52aa7504639ff510a5bd70163860\",\"ranking\":1204,\"skipped\":false,\"songName\":\"Take Me to Church\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68bf61b374072efe56c6ac00\",\"deezerID\":63456074,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1a9d855d3443b4189f93a8b384a7989d/250x250-000000-80-0-0.jpg\",\"artist\":\"Tegan and Sara\",\"decade\":\"all decades\",\"genre\":\"pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/a/c/7/0/ac7fe1600c858c1c7cdd758a62c9e732.mp3?hdnea=exp=1757373723~acl=/api/1/1/a/c/7/0/ac7fe1600c858c1c7cdd758a62c9e732.mp3*~data=user_id=0,application_id=42~hmac=3c11712e5d756e84236a28444b8d599633a7045053addd3a06ddde0b8ed5c891\",\"ranking\":1172,\"skipped\":false,\"songName\":\"Closer\",\"subgenre\":\"all subgenres\"},{\"_id\":\"68c20bce74072efe56caaaa8\",\"deezerID\":908604612,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/fd00ebd6d30d7253f813dba3bb1c66a9/250x250-000000-80-0-0.jpg\",\"artist\":\"The Weeknd\",\"decade\":\"all decades\",\"genre\":\"Pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/b/2/0/1b27825bf63c36edcdc7fac9f920214e.mp3?hdnea=exp=1757548368~acl=/api/1/1/1/b/2/0/1b27825bf63c36edcdc7fac9f920214e.mp3*~data=user_id=0,application_id=42~hmac=7138413b72a247117d3c360f787bb3816e0ec66ca5c9ee7dd6f815e63effec5f\",\"ranking\":1211,\"skipped\":false,\"songName\":\"Blinding Lights\",\"subgenre\":\"any\"},{\"_id\":\"68c20bce74072efe56caaaa9\",\"deezerID\":1124841682,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/3c5cd0eb919ff9a7767b8ac7acc89e40/250x250-000000-80-0-0.jpg\",\"artist\":\"Dua Lipa\",\"decade\":\"all decades\",\"genre\":\"Pop\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/c/5/0/9c570bc806fc277bb73ba024e956d057.mp3?hdnea=exp=1757548368~acl=/api/1/1/9/c/5/0/9c570bc806fc277bb73ba024e956d057.mp3*~data=user_id=0,application_id=42~hmac=28042310c7cf2a54d80bd1d5ec43b6ce6e9b780bde40a57bc246cff7033dd1b6\",\"ranking\":1189,\"skipped\":false,\"songName\":\"Levitating\",\"subgenre\":\"any\"},{\"_id\":\"68c21c3474072efe56cab031\",\"deezerID\":92719900,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/de48d988a82fc401f4b9bafc2639f7d0/250x250-000000-80-0-0.jpg\",\"artist\":\"AC/DC\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/7/1/0/d7183d3dd28d85289690100ef5d7c78e.mp3?hdnea=exp=1757552550~acl=/api/1/1/d/7/1/0/d7183d3dd28d85289690100ef5d7c78e.mp3*~data=user_id=0,application_id=42~hmac=67c3f667830cecc7de4127482305e66db0432b87958251e48f713fbf4dae4bfc\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Highway to Hell\",\"subgenre\":\"any\"},{\"_id\":\"68c21c3474072efe56cab032\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":1153182282,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/ed0929a4c44d77c4dc524a10748fc2f6/250x250-000000-80-0-0.jpg\",\"artist\":\"The White Stripes\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/7/d/e/0/7de8805c1993e802810d7ca37a615f81.mp3?hdnea=exp=1757552550~acl=/api/1/1/7/d/e/0/7de8805c1993e802810d7ca37a615f81.mp3*~data=user_id=0,application_id=42~hmac=4056d2b38bf2bed8f7b45269de17bc2bfe6be17f54ea582110ef16f5760f1933\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Seven Nation Army\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7a74072efe56cab07e\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":88003853,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/460a0edd96f743be03b7405eac38c633/250x250-000000-80-0-0.jpg\",\"artist\":\"Led Zeppelin\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/c/1/0/0/c107eecef522651f031e2bd76cb491be.mp3?hdnea=exp=1757553144~acl=/api/1/1/c/1/0/0/c107eecef522651f031e2bd76cb491be.mp3*~data=user_id=0,application_id=42~hmac=10f0eb9acd4ad2ad1bdf3d1d74602fb316c4a7cd6881e8792ecb20062d8654af\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Black Dog\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7a74072efe56cab07f\",\"deezerID\":2058907137,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/50e0efb4b5a9c181bc02536fb034330a/250x250-000000-80-0-0.jpg\",\"artist\":\"Aerosmith\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/9/d/9/0/9d9ae65eb94a0b773c4aa585a3cb7703.mp3?hdnea=exp=1757553144~acl=/api/1/1/9/d/9/0/9d9ae65eb94a0b773c4aa585a3cb7703.mp3*~data=user_id=0,application_id=42~hmac=e79bf5be8c19f4282967205157a36ef3c49996438b38f6748f21c8b88895420b\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Dream On\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7d74072efe56cab080\",\"deezerID\":74062292,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/2e4dbd533ee46c7a712c5fabfe284fb3/250x250-000000-80-0-0.jpg\",\"artist\":\"Black Sabbath\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/5/6/c/0/56c4b55f193125d3f5e5438a22029e57.mp3?hdnea=exp=1757553144~acl=/api/1/1/5/6/c/0/56c4b55f193125d3f5e5438a22029e57.mp3*~data=user_id=0,application_id=42~hmac=9ea9595fb408a63e5007ba6c3481f723503b77b524882d97e9a966b2b3990489\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Paranoid\",\"subgenre\":\"any\"},{\"_id\":\"68c21e7d74072efe56cab081\",\"deezerID\":568116092,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/8b8fc5d117f9357b79f0a0a410a170e8/250x250-000000-80-0-0.jpg\",\"artist\":\"Queen & David Bowie\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/b/a/e/0/bae65d938e2cac3e858b6d76ee21d2fd.mp3?hdnea=exp=1757553144~acl=/api/1/1/b/a/e/0/bae65d938e2cac3e858b6d76ee21d2fd.mp3*~data=user_id=0,application_id=42~hmac=bfe6751c399f5c58537bec2d0738d89f354b37d878cab6ff6d636432bd82c726\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Under Pressure\",\"subgenre\":\"any\"},{\"_id\":\"68c21e8174072efe56cab083\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":407645032,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/9181983be98170f86e05504da759ceea/250x250-000000-80-0-0.jpg\",\"artist\":\"Stone Temple Pilots\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/6/9/4/0/69489dca358c226f79607fba6bfdfe8c.mp3?hdnea=exp=1757553144~acl=/api/1/1/6/9/4/0/69489dca358c226f79607fba6bfdfe8c.mp3*~data=user_id=0,application_id=42~hmac=d33053c950f7760a013c26d7803b633c4aaa1f161930a6df2ae1c5124deed111\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Plush\",\"subgenre\":\"any\"},{\"_id\":\"68c21e8174072efe56cab084\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":68094695,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/b7a45d37330235f99a01a2e1e8106d1f/250x250-000000-80-0-0.jpg\",\"artist\":\"Eagles\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/e/b/5/0/eb5a581c382c0b4f5872ea36f73e8e89.mp3?hdnea=exp=1757553144~acl=/api/1/1/e/b/5/0/eb5a581c382c0b4f5872ea36f73e8e89.mp3*~data=user_id=0,application_id=42~hmac=d3e4534d798a9c6796de13778a2e600b2703a4031668cb7a14f7b6caa94aebd2\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Take It Easy\",\"subgenre\":\"any\"},{\"_id\":\"68c249e574072efe56cab685\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":138547415,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1dd56fd8824492e1a5106c99a00a85ec/250x250-000000-80-0-0.jpg\",\"artist\":\"Radiohead\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/b/9/c/0/b9c4cde36fbe176cc3e84dc08fc0611b.mp3?hdnea=exp=1757564263~acl=/api/1/1/b/9/c/0/b9c4cde36fbe176cc3e84dc08fc0611b.mp3*~data=user_id=0,application_id=42~hmac=56d1b3674d84ba0cf05ba53f230f93ba4918dd4e7162f2e3bfbda2b4b260c73f\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Creep\",\"subgenre\":\"any\"},{\"_id\":\"68c249e574072efe56cab686\",\"deezerID\":78631539,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/94248b664be0890be31cabf62a068293/250x250-000000-80-0-0.jpg\",\"artist\":\"Soundgarden\",\"decade\":\"all decades\",\"genre\":\"Rock\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/d/f/0/ddfb8e736d8dc5690ad7498ed26e8251.mp3?hdnea=exp=1757564263~acl=/api/1/1/d/d/f/0/ddfb8e736d8dc5690ad7498ed26e8251.mp3*~data=user_id=0,application_id=42~hmac=1e6a53f0ac50ec5ff212952da7bae838cef8f5ed65965485f791b7f82b987d68\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Black Hole Sun\",\"subgenre\":\"any\"},{\"_id\":\"68c24f7174072efe56cab746\",\"deezerID\":776220,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/84ecee5f0d598c5d0b5da405f6a3fa90/250x250-000000-80-0-0.jpg\",\"artist\":\"Chaka Khan\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/1/6/d/0/16d4d568e35fb4f24d057a876f6cb32d.mp3?hdnea=exp=1757565662~acl=/api/1/1/1/6/d/0/16d4d568e35fb4f24d057a876f6cb32d.mp3*~data=user_id=0,application_id=42~hmac=7cbe2ad1d47f9a4bd73b5c6158fabac82b1fcb050bce417e5a98503869d8e493\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Ain't Nobody\",\"subgenre\":\"any\"},{\"_id\":\"68c24f7174072efe56cab747\",\"deezerID\":2176856,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/3ce985e6653c350c6e6fed077ab7d0d4/250x250-000000-80-0-0.jpg\",\"artist\":\"Amy Winehouse\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/8/c/5/0/8c51a0c8941f72ee783a7b2798cff8c8.mp3?hdnea=exp=1757565662~acl=/api/1/1/8/c/5/0/8c51a0c8941f72ee783a7b2798cff8c8.mp3*~data=user_id=0,application_id=42~hmac=65286a4c2172c3a26b59a656c3fc5022e0628e06f651e48675425761ac43b045\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Back to Black\",\"subgenre\":\"any\"},{\"_id\":\"68c2525b74072efe56cab7f0\",\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"deezerID\":646327092,\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/7beb28379235585e5c8376d11776479f/250x250-000000-80-0-0.jpg\",\"artist\":\"Marvin Gaye & Tammi Terrell\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/2/0/0/d20d39061ad0da62a6181add266ce218.mp3?hdnea=exp=1757566384~acl=/api/1/1/d/2/0/0/d20d39061ad0da62a6181add266ce218.mp3*~data=user_id=0,application_id=42~hmac=ce65c745a290753f8f7519222750c196beb7ed347d22c6b85d4da930e2c25894\",\"ranking\":1216,\"skipped\":false,\"songName\":\"Ain't No Mountain High Enough\",\"subgenre\":\"any\"},{\"_id\":\"68c2525b74072efe56cab7f1\",\"deezerID\":139104015,\"userID\":\"us-east-1:b1b2b027-6ab9-c9c7-aacb-9370172195fb\",\"albumCover\":\"https://cdn-images.dzcdn.net/images/cover/1e627aca5ceb452dbc527f06c333e1c7/250x250-000000-80-0-0.jpg\",\"artist\":\"D'Angelo\",\"decade\":\"all decades\",\"genre\":\"R&B/Soul\",\"previewURL\":\"https://cdnt-preview.dzcdn.net/api/1/1/d/2/b/0/d2b7d0a7a213f7b615e40f3d57289148.mp3?hdnea=exp=1757566384~acl=/api/1/1/d/2/b/0/d2b7d0a7a213f7b615e40f3d57289148.mp3*~data=user_id=0,application_id=42~hmac=acfdad89b38a706db1e841c334044e2a14fdb852b80a368fc86f64e6073911d9\",\"ranking\":1184,\"skipped\":false,\"songName\":\"Lady\",\"subgenre\":\"any\"}]"
+          },
+          "redirectURL": "",
+          "headersSize": 290,
+          "bodySize": 36225
+        },
+        "cache": {},
+        "timings": {
+          "blocked": -1,
+          "dns": 0,
+          "connect": 0,
+          "ssl": 0,
+          "send": 0,
+          "wait": 153,
+          "receive": 0
+        },
+        "time": 153,
+        "_securityState": "secure",
+        "serverIPAddress": "3.218.64.128",
+        "connection": "443",
+        "pageref": "page_1"
+      }
+    ]
+  }
+}

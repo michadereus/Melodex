@@ -12,16 +12,15 @@ This baseline captures the current behavior of Melodex (production) before addin
 - Repository: `https://github.com/michadereus/Melodex`  
 - Commit (SHA): `a0dad94`  
 - Date init: `<09-09-2025>`  
+- Network: `Spectrum`, approx `450 up and 11 down`.
 - Test data accounts:  
 
 | Purpose                  | Email (masked)             | Provider(s)      | Notes |
 |---------------------------|----------------------------|------------------|-------|
-| Primary QA account        | qa.melodex@gmail.com     | Google (federated via Cognito)   | Short-lived account; loaded with 40 manually ranked songs |
+| Main QA account        | qa.melodex@gmail.com     | Google (federated via Cognito)   | Short-lived account; loaded with 40 manually ranked songs |
 | Fresh QA account          | qa.melodex@gmail.com       | Cognito (email/password) | Un-registered account; verifies signup/login and empty states |
 | Legacy QA account         | mich*****@...     | Cognito (email/password) | Personal account; explores responses to aged data |
 
-- Network: `Spectrum`, approx `450 up and 11 down`.
-- Notes: `No feature flags in use.`
 
 ## 3. Devices & Browsers
 **Desktop**  
@@ -35,7 +34,8 @@ This baseline captures the current behavior of Melodex (production) before addin
 - Seeded data exists to display ranked items (or generate by normal use).
 - Network logs (HAR) can be captured in browser devtools.
 
-## 5. Smoke Checklist (happy-path and thin guardrail)
+## 5. Smoke Checklist 
+> Happy-path and thin guardrail
 
 <div class="smoke-table" markdown="1">
 | ID     | Account      | Area                        | Scenario                                              | Endpoint         | Platform | Quick Steps                                                                 | Result                                  | Evidence |
@@ -61,48 +61,61 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 **DEF-001**   Verification code error  
   - Link: [DEF-001](./defects/DEF-001.md)  
-  - Reference: `SMK-000`  
+  - Reference: `SMK-00`  
   - Status: <span class="pill pass">Resolved</span>  
 
-## 7. Quick Performance Snapshot (Coarse)
+**DEF-002**   Preview link expiry  
+  - Link: [DEF-002](./defects/DEF-002.md)  
+  - Reference: `EXP-00`  
+  - Status: <span class="pill open">Open</span>  
+
+## 7. Coarse Performance Snapshot
 One pass per primary page on Desktop Firefox with disk cache disabled (Private window).
 
 | Page | Metric | Observation | Evidence |
 |---|---|---|---|
-| `/rank` | TTFB / Load | `<e.g., ~200ms / ~1.8s>` | HAR: `../assets/evidence/PERF-rank.har` |
-| `/rerank` | TTFB / Load | `<e.g., ~200ms / ~1.8s>` | HAR: `../assets/evidence/PERF-rerank.har` |
-| `/rankings` | TTFB / Load | `<e.g., ~220ms / ~1.6s>` | HAR: `../assets/evidence/PERF-rankings.har` |
-| `/profile` | TTFB / Load | `<e.g., ~220ms / ~1.6s>` | HAR: `../assets/evidence/PERF-profile.har` |
-| API core | Median response | `<e.g., /ranked 180–250ms>` | HAR/log |
+| `/rank` | TTFB / Load | `~190ms` | HAR: [PERF-rank](./evidence/PERF-rank.har)  |
+| `/rerank` | TTFB / Load | `~340ms` | HAR: [PERF-rerank](./evidence/PERF-rerank.har)  |
+| `/rankings` | TTFB / Load | `~390ms` | HAR: [PERF-rankings](./evidence/PERF-rankings.har)  |
+| `/profile` | TTFB / Load | `~155ms` | HAR: [PERF-profile](./evidence/PERF-profile.har) |
 
-(Values are snapshots, not strict SLOs—used to notice regressions later.)
+## 8. Targeted Exploratory Session 00
+**Charter:** Explore reliability of Deezer preview links in `/rankings`, focusing on expired links in older data.  
+**Env/Build:** main branch: commit `9c876c9`, melodx.io, Firefox (desktop)  
+**Data:**  
+- Legacy account with older ranking data  
+- Main account with recent rankings  
 
-## 8. Targeted Exploratory Session 0 (Baseline Recon)
-**Charter:** “Audio previews across old vs. new items; interruptions, retries, and error states on `/rankings` and `/rank`.”
+**Heuristics:**  
+- CRUD tour (create/view old vs. new data)  
+- Consistency oracle (compare preview behavior across accounts)  
 
-- Timebox: 45–60 minutes  
-- Heuristics: SFDPOT, RCRCRC (Risks, Coverage, Results, Claims, Resources, Constraints)  
-- Notes doc: `./exploratory/EX-000-baseline.md`  
-- If you discover issues → log as DEF-00X and reference here.
+**Notes:**  
+- Refreshing /rankings soemtimes displays songs with broken preview links until more songs are ranked or enriched with a refresh.
+- Expiry may be tied to Deezer preview link lifespan.  
+- Console logs indicate a check for expiration and attempted re-enrichment.  
 
-*(You’ll add your notes & findings after the session; leave as placeholders now.)*
+**Issues:**  
+- Expired Deezer preview links break playback for older ranking data and sometimes newer.
+- Song enrichment triggers inconsistently.
+- Logged as [DEF-002](../reports/defects/DEF-002.md).  
 
-## 9. Known Issues / Limitations (Pre-Feature)
-- Rankings audio preview for older items may fail on web (see DEF-001).
-- Mobile deep linking behavior not yet verified across all browsers.
-- No Spotify export feature yet (this doc is pre-feature baseline).
+**Learned:**  
+- Problem especially reproducible with older ranking data (legacy account).  
+- Fresh rankings generate valid, working preview URLs.  
+- Ranking / reranking songs on legacy account doesn't trigger enrichment like on newer accounts.
 
-## 10. Next Steps
-- Close out smoke (all ✓ or logged as defects).  
-- Complete Exploratory Session 0 and file any defects.  
+**Risks:**  
+- Users returning after inactivity may find rankings unplayable.  
+- Could reduce trust if previews silently fail, especially on songs that were recently added.    
+
+**Next:**  
+- Investigate how long Deezer preview URLs remain valid.  
+- Check when song enrichment is done, should happen on every /rankings load.  
+- Assess whether backend should refresh metadata for stale tracks.  
+
+
+
+## Next Steps  
 - Freeze this baseline by commit SHA and date.  
-- Proceed to Week 1 tasks for the Spotify export feature.
-
----
-
-!!! tip "HAR capture (Chrome)"
-    1. Open DevTools → **Network**  
-    2. Check **Preserve log**  
-    3. Reproduce the action (load/play)  
-    4. Right-click in the request list → **Save all as HAR with content**  
-    5. Save under `docs/assets/evidence/SMK-XX.har` (and link it above)
+- Proceed to Week 1 tasks for the Spotify export feature.  

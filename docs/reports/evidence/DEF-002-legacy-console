@@ -1,0 +1,452 @@
+Failed to generate new songs: TypeError: NetworkError when attempting to fetch resource. <anonymous code>:1:147461
+Network error occurred, possibly backend server is not running index-DVkYwxRy.js:163:99880
+Background fetch result: 
+Array []
+index-DVkYwxRy.js:163:97494
+Background fetch returned no songs on attempt 1 <anonymous code>:1:147461
+Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content. node.js:417:1
+AWS Config: 
+Object { aws_project_region: "us-east-1", aws_cognito_identity_pool_id: "us-east-1:3ca4c0b4-ade5-44fa-9d94-dba385ec32b1", aws_cognito_region: "us-east-1", aws_user_pools_id: "us-east-1_NDrWmC0M9", aws_user_pools_web_client_id: "706qcim5329kgn132129rdb6hi", oauth: {…}, federationTarget: "COGNITO_USER_POOLS", aws_cognito_username_attributes: (1) […], aws_cognito_social_providers: (1) […], aws_cognito_signup_attributes: (1) […], … }
+index-DVkYwxRy.js:727:40123
+SongProvider: userID from UserContext: null index-DVkYwxRy.js:163:96645
+Navbar rendering with userPicture: null loading: true index-DVkYwxRy.js:727:2058
+SongProvider useEffect: Setting contextUserID to null index-DVkYwxRy.js:163:97056
+Background fetch skipped: 
+Object { contextUserID: null, mode: "new", isRankPageActive: false, isBackgroundFetching: false, songListLength: 0 }
+index-DVkYwxRy.js:163:97216
+SongProvider: userID from UserContext: null index-DVkYwxRy.js:163:96645
+Authenticated user: 
+Object { id: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", token: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjljNjI1MTU4Nzk1MDg0NGE2NTZiZTM1NjNkOGM1YmQ2Zjg5NGM0MDciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxNzg4MjkyMTEyNDUtMTlnZWM2djZxYXRuajc0cmJwYjJzdDk3YzNocjFwOGkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxNzg4MjkyMTEyNDUtMTlnZWM2djZxYXRuajc0cmJwYjJzdDk3YzNocjFwOGkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDY1NTAyMzU5NzkxMjgwNjI5OTgiLCJlbWFpbCI6Im1pY2hhZWxkZXJldXNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5iZiI6MTc1Nzg2MDU3OSwibmFtZSI6Ik1pa2UiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS1lvcDRnZU1BSVhBU0c1Uk5HY0JEYzQxVUtHTWM2Q1pIejRuajJ2c1JlMlRfVGVwbWo9czk2LWMiLCJnaXZlbl9uYW1lIjoiTWlrZSIsImlhdCI6MTc1Nzg2MDg3OSwiZXhwIjoxNzU3ODY0NDc5LCJqdGkiOiIzNzg3ZmFjNDc4MWQzYTMxZjNjZjM1NWVhOWMzY2EyNWY2ZWU2MzY1In0.4K010gBFZoMfXVD3kaxR8RRC6voWywkgDVL9_xW6OQuqpz8mcTRwZxmMNmeGCslNoTfM_RA9qdGaB3-K1KdWOQUdoiHRd4HZ-iE937fjTCJx1cl6ipz828-iPTXISVUbEdkaK1nmWmzegvZlLzmMRC2A_VZECS93Tk1OD-cjkN2Kt_GBkx_BbnwOej7--IC5gBPDaSJWSmyArCPXhHeufPl8sV-IjZDadXA-tTs0VRDwYZ2uzpc7jdIZBD9GkxSYLmMbpUHVQ8jlp0rs3dncc3VpCwnephv_D23jvjNNY_26-_2Iwnzdc9suhWFsynODQe2NPWZt5QmbZOz9ykNFcQ" }
+index-DVkYwxRy.js:163:94424
+user.username: undefined index-DVkYwxRy.js:163:94461
+user.attributes?.sub: undefined index-DVkYwxRy.js:163:94502
+user.id: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:94575
+Extracted userID: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:94668
+No attributes available, decoding ID token index-DVkYwxRy.js:163:94753
+Decoded ID token attributes: 
+Object { iss: "https://accounts.google.com", azp: "178829211245-19gec6v6qatnj74rbpb2st97c3hr1p8i.apps.googleusercontent.com", aud: "178829211245-19gec6v6qatnj74rbpb2st97c3hr1p8i.apps.googleusercontent.com", sub: "106550235979128062998", email: "michaeldereus@gmail.com", email_verified: true, nbf: 1757860579, name: "Mike", picture: "https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c", given_name: "Mike", … }
+index-DVkYwxRy.js:163:94825
+Setting displayName to: Mike index-DVkYwxRy.js:163:95331
+Initial profile picture URL: https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c index-DVkYwxRy.js:163:95478
+SongProvider: userID from UserContext: null index-DVkYwxRy.js:163:96645
+Navbar rendering with userPicture: null loading: true index-DVkYwxRy.js:727:2058
+Final profile picture URL: https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c index-DVkYwxRy.js:163:95646
+Setting email to: michaeldereus@gmail.com index-DVkYwxRy.js:163:95718
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:96645
+Navbar rendering with userPicture: https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c loading: false index-DVkYwxRy.js:727:2058
+GET
+https://www.melodx.io/favicon.ico
+[HTTP/3 404  139ms]
+
+SongProvider useEffect: Setting contextUserID to us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:97056
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:96645
+Initial fetch triggered for /rankings index-DVkYwxRy.js:727:19008
+fetchRankedSongs called with userID: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 genre: any subgenre: any index-DVkYwxRy.js:163:100858
+Loading set to true index-DVkYwxRy.js:163:101020
+Fetching ranked songs from: https://api.melodx.io/api/user-songs/ranked index-DVkYwxRy.js:163:101109
+fetchRankedSongs payload: 
+Object { userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455" }
+index-DVkYwxRy.js:163:101226
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: false, isBackgroundFetching: false, songListLength: 0 }
+index-DVkYwxRy.js:163:97216
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:96645
+Raw response from ranked songs: 
+[{"_id":"67e3a0069f84dd56ab51be2e","deezerID":2121805,"userID":"us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455","albumCover":"https://cdn-images.dzcdn.net/images/cover/077c3e89663134e653f97a6e85be7662/250x250-000000-80-0-0.jpg","artist":"The Who","decade":"all decades","genre":"Rock","previewURL":"https://cdnt-preview.dzcdn.net/api/1/1/1/a/4/0/1a4104cbd4b8fb263cfae79dbd21a00e.mp3?hdnea=exp=1742971783~acl=/api/1/1/1/a/4/0/1a4104cbd4b8fb263cfae79dbd21a00e.mp3*~data=user_id=0,application_id=42~hmac=ff0ac7901b8dd81e0300bed49cc240c544c743d5df9f72a19b899a82d8884721","ranking":1242,"skipped":false,"songName":"Baba O'Riley","subgenre":"any"},{"_id":"67e3a0069f84dd56ab51be2f","userID":"us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455","deezerID":767234212,"albumCover":"https://cdn-images.dzcdn.net/images/cover/c3b93d1ab56c02398b0d2fd4b993c805/250x250-000000-80-0-0.jpg","artist":"Whitesnake","decade":"all decades","genre":"Rock","previewURL":"https://cdnt-preview.dzcdn.net/api/1/1/d/c/e/0/dce64b66…
+index-DVkYwxRy.js:163:101527
+Parsed ranked songs: 
+Array(89) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DVkYwxRy.js:163:101612
+Loading set to false index-DVkYwxRy.js:163:101852
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DVkYwxRy.js:163:96645
+Enriching rankedSongs: 
+Array(89) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+​
+0: Object { _id: "67e3a0069f84dd56ab51be2e", deezerID: 2121805, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+1: Object { _id: "67e3a0069f84dd56ab51be2f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 767234212, … }
+​
+2: Object { _id: "67e3a0089f84dd56ab51be30", deezerID: 550518, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+3: Object { _id: "67e3a0089f84dd56ab51be31", deezerID: 670804, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+4: Object { _id: "67e3a00a9f84dd56ab51be32", deezerID: 2289262, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+5: Object { _id: "67e3a00a9f84dd56ab51be33", deezerID: 116348636, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+6: Object { _id: "67e4ffbde7697d6188138e4e", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 542807362, … }
+​
+7: Object { _id: "67e4ffbde7697d6188138e4f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1031007, … }
+​
+8: Object { _id: "67e4ffbfe7697d6188138e50", deezerID: 3443733, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+9: Object { _id: "67e4ffbfe7697d6188138e51", deezerID: 3104591, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+10: Object { _id: "67e50bd6e7697d6188138eaf", deezerID: 639505082, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+11: Object { _id: "67e50bd6e7697d6188138eb0", deezerID: 79845486, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+12: Object { _id: "67e50bd8e7697d6188138eb1", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 7706035, … }
+​
+13: Object { _id: "67e50bd8e7697d6188138eb2", deezerID: 821100262, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+14: Object { _id: "67e50bd9e7697d6188138eb3", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 13141170, … }
+​
+15: Object { _id: "67e50bd9e7697d6188138eb4", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 127354207, … }
+​
+16: Object { _id: "67e50bdbe7697d6188138eb5", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 830336922, … }
+​
+17: Object { _id: "67e50bdbe7697d6188138eb6", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 77879712, … }
+​
+18: Object { _id: "67e50bdee7697d6188138eb7", deezerID: 561856742, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+19: Object { _id: "67e50bdee7697d6188138eb8", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 16670786, … }
+​
+20: Object { _id: "67e50bdfe7697d6188138eb9", deezerID: 536484, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+21: Object { _id: "67e50be0e7697d6188138eba", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 371593461, … }
+​
+22: Object { _id: "67e50be1e7697d6188138ebb", deezerID: 664107, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+23: Object { _id: "67e50be1e7697d6188138ebc", deezerID: 655095912, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+24: Object { _id: "67e50be3e7697d6188138ebd", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 539562302, … }
+​
+25: Object { _id: "67e50be3e7697d6188138ebe", deezerID: 577487252, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+26: Object { _id: "67e50be5e7697d6188138ebf", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1332677012, … }
+​
+27: Object { _id: "67e50be5e7697d6188138ec0", deezerID: 1124841682, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+28: Object { _id: "67e50be6e7697d6188138ec1", deezerID: 119615552, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+29: Object { _id: "67e50be8e7697d6188138ec2", deezerID: 66660698, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+30: Object { _id: "67e50be8e7697d6188138ec3", deezerID: 71220746, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+31: Object { _id: "67e50bebe7697d6188138ec4", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 75981528, … }
+​
+32: Object { _id: "67e50bebe7697d6188138ec5", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1262536082, … }
+​
+33: Object { _id: "67e50beee7697d6188138ec6", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 366297921, … }
+​
+34: Object { _id: "67e50beee7697d6188138ec7", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 136341758, … }
+​
+35: Object { _id: "67e50bf0e7697d6188138ec8", deezerID: 62376277, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+36: Object { _id: "67e50bf0e7697d6188138ec9", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 70403437, … }
+​
+37: Object { _id: "67e50bf2e7697d6188138eca", deezerID: 15546830, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+38: Object { _id: "67e5a8c2ddefce7250d3cf6e", deezerID: 1153182282, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+39: Object { _id: "67e5a8c2ddefce7250d3cf6f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2126030457, … }
+​
+40: Object { _id: "67e5a8d2ddefce7250d3cf70", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1763035977, … }
+​
+41: Object { _id: "67e5a8d3ddefce7250d3cf71", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 14458087, … }
+​
+42: Object { _id: "67e636aeddefce7250d3d552", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2058907137, … }
+​
+43: Object { _id: "67e636aeddefce7250d3d553", deezerID: 549286852, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+44: Object { _id: "67e636c0ddefce7250d3d555", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 84340025, … }
+​
+45: Object { _id: "67e636c0ddefce7250d3d556", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 593645312, … }
+​
+46: Object { _id: "67e636caddefce7250d3d557", deezerID: 82159934, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+47: Object { _id: "67e636caddefce7250d3d558", deezerID: 116914172, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+48: Object { _id: "67e636deddefce7250d3d55a", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 4006895, … }
+​
+49: Object { _id: "67e636deddefce7250d3d55b", deezerID: 63480990, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+50: Object { _id: "67e636e2ddefce7250d3d55c", deezerID: 116914036, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+51: Object { _id: "67e636e2ddefce7250d3d55d", deezerID: 3616289, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+52: Object { _id: "67e751d4ddefce7250d3df0a", deezerID: 17135111, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+53: Object { _id: "67e7528addefce7250d3df0b", deezerID: 77879660, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+54: Object { _id: "67e7528addefce7250d3df0c", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1137657, … }
+​
+55: Object { _id: "67e752c7ddefce7250d3df0d", deezerID: 514437462, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+56: Object { _id: "67e752c7ddefce7250d3df0e", deezerID: 116914018, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+57: Object { _id: "67e752d4ddefce7250d3df0f", deezerID: 3359652, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+58: Object { _id: "67e752d4ddefce7250d3df10", deezerID: 611315, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+59: Object { _id: "67ea3f08ddefce7250d3f456", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 14534054, … }
+​
+60: Object { _id: "67ea3f08ddefce7250d3f457", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 15523335, … }
+​
+61: Object { _id: "67ea3f31ddefce7250d3f458", deezerID: 407645032, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+62: Object { _id: "67ea3f31ddefce7250d3f459", deezerID: 138547415, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+63: Object { _id: "67ea3f59ddefce7250d3f45b", deezerID: 78631539, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+64: Object { _id: "67ea3f59ddefce7250d3f45c", deezerID: 70466227, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+65: Object { _id: "67ea3fb6ddefce7250d3f45f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 4292887, … }
+​
+66: Object { _id: "67ea3fb6ddefce7250d3f460", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1762614667, … }
+​
+67: Object { _id: "67ea3fc7ddefce7250d3f461", deezerID: 1038556, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+68: Object { _id: "67ea3fc7ddefce7250d3f462", deezerID: 15586422, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+69: Object { _id: "67ea9f25ddefce7250d3ff42", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 70179720, … }
+​
+70: Object { _id: "67ea9f25ddefce7250d3ff43", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2676359752, … }
+​
+71: Object { _id: "67ea9f42ddefce7250d3ff44", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 482990352, … }
+​
+72: Object { _id: "67ea9f42ddefce7250d3ff45", deezerID: 67159083, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+73: Object { _id: "67ecc8b83d4e243721278a0a", deezerID: 11390027, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+74: Object { _id: "67ecc8b83d4e243721278a0b", deezerID: 15636898, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+75: Object { _id: "67ecc8c53d4e243721278a0c", deezerID: 14525574, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+76: Object { _id: "67ecc8c53d4e243721278a0d", deezerID: 2660821642, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+77: Object { _id: "67ecc8d13d4e243721278a0e", deezerID: 70266756, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+78: Object { _id: "67ecc8d13d4e243721278a0f", deezerID: 657813082, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+79: Object { _id: "67ecc8e03d4e243721278a10", deezerID: 2362546465, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+80: Object { _id: "67ecc8e13d4e243721278a11", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 60904700, … }
+​
+81: Object { _id: "67ecc8f23d4e243721278a12", deezerID: 60842359, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+82: Object { _id: "67ecc8f23d4e243721278a13", deezerID: 73707710, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+83: Object { _id: "67ecc91c3d4e243721278a14", deezerID: 66609426, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+84: Object { _id: "67ecc91c3d4e243721278a15", deezerID: 7927244, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+85: Object { _id: "67ecc9823d4e243721278a17", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 463558842, … }
+​
+86: Object { _id: "67ecc9823d4e243721278a18", deezerID: 63017512, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+87: Object { _id: "68c6d4a4f59f120a721fd353", deezerID: 9938661, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+88: Object { _id: "68c6d4a5f59f120a721fd354", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2176856, … }
+​
+length: 89
+​
+<prototype>: Array []
+index-DVkYwxRy.js:727:19173
+Enriched songs received: 
+Array(89) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+​
+0: Object { _id: "67e3a0069f84dd56ab51be2e", deezerID: 2121805, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+1: Object { _id: "67e3a0069f84dd56ab51be2f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 767234212, … }
+​
+2: Object { _id: "67e3a0089f84dd56ab51be30", deezerID: 550518, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+3: Object { _id: "67e3a0089f84dd56ab51be31", deezerID: 670804, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+4: Object { _id: "67e3a00a9f84dd56ab51be32", deezerID: 2289262, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+5: Object { _id: "67e3a00a9f84dd56ab51be33", deezerID: 116348122, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+6: Object { _id: "67e4ffbde7697d6188138e4e", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 542807362, … }
+​
+7: Object { _id: "67e4ffbde7697d6188138e4f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1031007, … }
+​
+8: Object { _id: "67e4ffbfe7697d6188138e50", deezerID: 911085, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+9: Object { _id: "67e4ffbfe7697d6188138e51", deezerID: 3104591, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+10: Object { _id: "67e50bd6e7697d6188138eaf", deezerID: 639505082, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+11: Object { _id: "67e50bd6e7697d6188138eb0", deezerID: 79845486, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+12: Object { _id: "67e50bd8e7697d6188138eb1", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 7706035, … }
+​
+13: Object { _id: "67e50bd8e7697d6188138eb2", deezerID: 821100262, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+14: Object { _id: "67e50bd9e7697d6188138eb3", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 13141170, … }
+​
+15: Object { _id: "67e50bd9e7697d6188138eb4", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 127354207, … }
+​
+16: Object { _id: "67e50bdbe7697d6188138eb5", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 830336922, … }
+​
+17: Object { _id: "67e50bdbe7697d6188138eb6", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 82241402, … }
+​
+18: Object { _id: "67e50bdee7697d6188138eb7", deezerID: 561856742, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+19: Object { _id: "67e50bdee7697d6188138eb8", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 16670786, … }
+​
+20: Object { _id: "67e50bdfe7697d6188138eb9", deezerID: 536484, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+21: Object { _id: "67e50be0e7697d6188138eba", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 371593461, … }
+​
+22: Object { _id: "67e50be1e7697d6188138ebb", deezerID: 664107, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+23: Object { _id: "67e50be1e7697d6188138ebc", deezerID: 655095912, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+24: Object { _id: "67e50be3e7697d6188138ebd", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 539562302, … }
+​
+25: Object { _id: "67e50be3e7697d6188138ebe", deezerID: 577487252, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+26: Object { _id: "67e50be5e7697d6188138ebf", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1332677012, … }
+​
+27: Object { _id: "67e50be5e7697d6188138ec0", deezerID: 1124841682, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+28: Object { _id: "67e50be6e7697d6188138ec1", deezerID: 119615552, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+29: Object { _id: "67e50be8e7697d6188138ec2", deezerID: 66660698, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+30: Object { _id: "67e50be8e7697d6188138ec3", deezerID: 71220746, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+31: Object { _id: "67e50bebe7697d6188138ec4", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 75981528, … }
+​
+32: Object { _id: "67e50bebe7697d6188138ec5", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1262536082, … }
+​
+33: Object { _id: "67e50beee7697d6188138ec6", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 366297921, … }
+​
+34: Object { _id: "67e50beee7697d6188138ec7", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 136341758, … }
+​
+35: Object { _id: "67e50bf0e7697d6188138ec8", deezerID: 62376277, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+36: Object { _id: "67e50bf0e7697d6188138ec9", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 70403437, … }
+​
+37: Object { _id: "67e50bf2e7697d6188138eca", deezerID: 15546830, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+38: Object { _id: "67e5a8c2ddefce7250d3cf6e", deezerID: 1153182282, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+39: Object { _id: "67e5a8c2ddefce7250d3cf6f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2126030457, … }
+​
+40: Object { _id: "67e5a8d2ddefce7250d3cf70", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1763035977, … }
+​
+41: Object { _id: "67e5a8d3ddefce7250d3cf71", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 14458087, … }
+​
+42: Object { _id: "67e636aeddefce7250d3d552", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2058907137, … }
+​
+43: Object { _id: "67e636aeddefce7250d3d553", deezerID: 549286852, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+44: Object { _id: "67e636c0ddefce7250d3d555", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 84340025, … }
+​
+45: Object { _id: "67e636c0ddefce7250d3d556", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 593645312, … }
+​
+46: Object { _id: "67e636caddefce7250d3d557", deezerID: 82159934, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+47: Object { _id: "67e636caddefce7250d3d558", deezerID: 116914172, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+48: Object { _id: "67e636deddefce7250d3d55a", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 4006895, … }
+​
+49: Object { _id: "67e636deddefce7250d3d55b", deezerID: 63480990, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+50: Object { _id: "67e636e2ddefce7250d3d55c", deezerID: 116914036, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+51: Object { _id: "67e636e2ddefce7250d3d55d", deezerID: 3616289, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+52: Object { _id: "67e751d4ddefce7250d3df0a", deezerID: 17135111, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+53: Object { _id: "67e7528addefce7250d3df0b", deezerID: 81001890, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+54: Object { _id: "67e7528addefce7250d3df0c", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 1137657, … }
+​
+55: Object { _id: "67e752c7ddefce7250d3df0d", deezerID: 514437462, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+56: Object { _id: "67e752c7ddefce7250d3df0e", deezerID: 116914018, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+57: Object { _id: "67e752d4ddefce7250d3df0f", deezerID: 3359652, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+58: Object { _id: "67e752d4ddefce7250d3df10", deezerID: 611315, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+59: Object { _id: "67ea3f08ddefce7250d3f456", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 14534054, … }
+​
+60: Object { _id: "67ea3f08ddefce7250d3f457", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 15523335, … }
+​
+61: Object { _id: "67ea3f31ddefce7250d3f458", deezerID: 407645032, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+62: Object { _id: "67ea3f31ddefce7250d3f459", deezerID: 138547415, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+63: Object { _id: "67ea3f59ddefce7250d3f45b", deezerID: 78631539, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+64: Object { _id: "67ea3f59ddefce7250d3f45c", deezerID: 70466227, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+65: Object { _id: "67ea3fb6ddefce7250d3f45f", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 4292887, … }
+​
+66: Object { _id: "67ea3fb6ddefce7250d3f460", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 133112298, … }
+​
+67: Object { _id: "67ea3fc7ddefce7250d3f461", deezerID: 1038556, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+68: Object { _id: "67ea3fc7ddefce7250d3f462", deezerID: 72294190, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+69: Object { _id: "67ea9f25ddefce7250d3ff42", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 70179720, … }
+​
+70: Object { _id: "67ea9f25ddefce7250d3ff43", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2676359752, … }
+​
+71: Object { _id: "67ea9f42ddefce7250d3ff44", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 482990352, … }
+​
+72: Object { _id: "67ea9f42ddefce7250d3ff45", deezerID: 67159083, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+73: Object { _id: "67ecc8b83d4e243721278a0a", deezerID: 11390027, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+74: Object { _id: "67ecc8b83d4e243721278a0b", deezerID: 62847142, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+75: Object { _id: "67ecc8c53d4e243721278a0c", deezerID: 14525574, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+76: Object { _id: "67ecc8c53d4e243721278a0d", deezerID: 2102633427, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+77: Object { _id: "67ecc8d13d4e243721278a0e", deezerID: 70266756, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+78: Object { _id: "67ecc8d13d4e243721278a0f", deezerID: 657813082, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+79: Object { _id: "67ecc8e03d4e243721278a10", deezerID: 2362546465, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+80: Object { _id: "67ecc8e13d4e243721278a11", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 60904700, … }
+​
+81: Object { _id: "67ecc8f23d4e243721278a12", deezerID: 60842359, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+82: Object { _id: "67ecc8f23d4e243721278a13", deezerID: 73707710, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+83: Object { _id: "67ecc91c3d4e243721278a14", deezerID: 66609426, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+84: Object { _id: "67ecc91c3d4e243721278a15", deezerID: 7927244, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+85: Object { _id: "67ecc9823d4e243721278a17", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 463558842, … }
+​
+86: Object { _id: "67ecc9823d4e243721278a18", deezerID: 63017512, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+87: Object { _id: "68c6d4a4f59f120a721fd353", deezerID: 9938661, userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", … }
+​
+88: Object { _id: "68c6d4a5f59f120a721fd354", userID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", deezerID: 2176856, … }
+​
+length: 89
+​
+<prototype>: Array []
+index-DVkYwxRy.js:727:19495
+Preview URL expired for Take On Me, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Cake by the Ocean, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Seven Nation Army, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Jessica, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for On the Turning Away, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Shine On You Crazy Diamond, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Linger, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for The Weight, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for I Want You to Want Me, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Plowed, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Creep, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Black Hole Sun, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Lady, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Wake Me Up, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Lean On, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Strobe, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Clarity, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Turn Down for What, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for Gold Skies, refreshing... index-DVkYwxRy.js:727:19600
+Preview URL expired for I Could Be the One, refreshing... index-DVkYwxRy.js:727:19600
+isFetching set to false
