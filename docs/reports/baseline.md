@@ -107,12 +107,16 @@ One pass per primary page on Desktop Firefox with disk cache disabled (Private w
 
 **Risks:**  
 - Users returning after inactivity may find rankings unplayable.  
-- Could reduce trust if previews silently fail, especially on songs that were recently added.    
+- Could reduce trust if previews silently fail, especially on songs that were recently added. 
+
+**Out-of-scope findings:**
+- [DEF-003](../reports/defects/DEF-003.md): Songs loading repeatedly on /rank
+- [DEF-004](../reports/defects/DEF-004.md): /rankings card improperly formatted
 
 **Next:**  
 - Investigate how long Deezer preview URLs remain valid.  
 - Check when song enrichment is done, should happen on every /rankings load.  
-- Assess whether backend should refresh metadata for stale tracks.  
+- Create new exploratory sessions for out of scope findings
 
 
 
