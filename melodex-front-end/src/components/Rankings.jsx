@@ -17,8 +17,77 @@ const Rankings = () => {
   const [selectedSubgenre, setSelectedSubgenre] = useState('any');
   const [lastAppliedFilters, setLastAppliedFilters] = useState({ genre: 'any', subgenre: 'any' });
   const audioRefs = useRef([]);
+  const rehydratingRef = useRef(new Set());
+  const enrichInFlightRef = useRef(false);
 
-  // Trigger initial fetch when userID becomes available
+  const rehydrateSong = async (song, index) => {
+    try {
+      if (!userID || !song) return;
+
+      const key = song._id || song.deezerID;
+      if (rehydratingRef.current.has(key)) return;
+      rehydratingRef.current.add(key);
+
+      console.log('[Rankings] Rehydrate START', {
+        userID,
+        songId: song._id,
+        fallbackDeezerID: song.deezerID,
+        songName: song.songName,
+        artist: song.artist,
+      });
+
+      const url =
+        `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/rehydrate`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userID,
+          songId: song._id,
+          fallbackDeezerID: song.deezerID,
+          songName: song.songName,
+          artist: song.artist,
+        }),
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`rehydrate failed ${res.status} ${txt}`);
+      }
+
+      const updated = await res.json();
+      console.log('[Rankings] Rehydrate OK:', updated);
+
+      setEnrichedSongs(prev =>
+        prev.map(s =>
+          (s._id && updated._id && String(s._id) === String(updated._id)) ||
+          (!s._id && s.deezerID === song.deezerID)
+            ? { ...s, ...updated }
+            : s
+        )
+      );
+      setFilteredSongs(prev =>
+        prev.map(s =>
+          (s._id && updated._id && String(s._id) === String(updated._id)) ||
+          (!s._id && s.deezerID === song.deezerID)
+            ? { ...s, ...updated }
+            : s
+        )
+      );
+
+      const audioEl = audioRefs.current[index];
+      if (audioEl && updated.previewURL) {
+        audioEl.src = updated.previewURL;
+        audioEl.load();
+      }
+    } catch (e) {
+      console.warn('[Rankings] Rehydrate error:', e);
+    } finally {
+      const key = song._id || song.deezerID;
+      rehydratingRef.current.delete(key);
+    }
+  };
+
   useEffect(() => {
     if (userID && !applied) {
       console.log('Initial fetch triggered for /rankings');
@@ -26,36 +95,47 @@ const Rankings = () => {
     }
   }, [userID, applied]);
 
-  // Enrich songs after rankedSongs updates
   const enrichAndFilterSongs = useCallback(async () => {
-    if (!applied || !rankedSongs) return;
+    if (!applied || !rankedSongs || enrichInFlightRef.current) return;
 
-    console.log('Enriching rankedSongs:', rankedSongs);
+    enrichInFlightRef.current = true;
     setIsFetching(true);
-    const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ songs: rankedSongs }),
-      });
 
-      if (!response.ok) throw new Error(`Failed to fetch Deezer info: ${response.status}`);
-      const freshSongs = await response.json();
+    const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+    const url = `${apiBase}/user-songs/deezer-info`;
+
+    async function fetchWithRetry(body, retries = 1) {
+      try {
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!r.ok) throw new Error(`Failed to fetch Deezer info: ${r.status}`);
+        return await r.json();
+      } catch (err) {
+        // Only retry obvious transient network errors once
+        if (retries > 0 && (err.name === 'TypeError' || String(err).includes('NetworkError'))) {
+          return fetchWithRetry(body, retries - 1);
+        }
+        throw err;
+      }
+    }
+
+    try {
+      const freshSongs = await fetchWithRetry({ songs: rankedSongs });
+
       console.log('Enriched songs received:', freshSongs);
 
+      // only re-check the ones that look expired
       const refreshPromises = freshSongs.map(async (song) => {
         if (song.previewURL && !isPreviewValid(song.previewURL)) {
           console.log(`Preview URL expired for ${song.songName}, refreshing...`);
-          const refreshUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/deezer-info`;
-          const refreshResponse = await fetch(refreshUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ songs: [song] }),
-          });
-          if (refreshResponse.ok) {
-            const [refreshedSong] = await refreshResponse.json();
-            return { ...song, previewURL: refreshedSong.previewURL };
+          try {
+            const [refreshedSong] = await fetchWithRetry({ songs: [song] });
+            return { ...song, previewURL: refreshedSong?.previewURL || song.previewURL };
+          } catch {
+            return song; // best-effort
           }
         }
         return song;
@@ -63,20 +143,33 @@ const Rankings = () => {
 
       const updatedSongs = await Promise.all(refreshPromises);
       setEnrichedSongs(updatedSongs);
-      setFilteredSongs(updatedSongs); // Use the enriched songs directly
+      setFilteredSongs(updatedSongs);
     } catch (error) {
-      console.error('Failed to enrich ranked songs:', error);
+      // In dev, StrictMode/HMR can abort in-flight requests; keep this quiet-ish
+      console.warn('Failed to enrich ranked songs (non-fatal):', error?.message || error);
       setEnrichedSongs([]);
-      setFilteredSongs([]); // Clear filtered songs on error
+      setFilteredSongs([]);
     } finally {
       setIsFetching(false);
+      enrichInFlightRef.current = false;
       console.log('isFetching set to false');
     }
   }, [applied, rankedSongs]);
 
+
   useEffect(() => {
     enrichAndFilterSongs();
   }, [enrichAndFilterSongs]);
+
+  useEffect(() => {
+    if (!Array.isArray(filteredSongs) || filteredSongs.length === 0) return;
+    filteredSongs.forEach((s, i) => {
+      if (!s.previewURL || !isPreviewValid(s.previewURL)) {
+        console.log('[Rankings] Preview looks invalid/expired, auto rehydrate:', s.songName, s.artist);
+        rehydrateSong(s, i);
+      }
+    });
+  }, [filteredSongs]);
 
   useEffect(() => {
     audioRefs.current.forEach(audio => {
@@ -104,11 +197,11 @@ const Rankings = () => {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error('Fetch timeout')), 60000)
       );
-      const fetchedSongs = await Promise.race([
+      await Promise.race([
         fetchRankedSongs({ userID, genre: filters.genre, subgenre: filters.subgenre }),
         timeoutPromise
       ]);
-      setApplied(true); // Set applied to true only after fetch completes
+      setApplied(true);
     } catch (error) {
       console.error('handleApply error:', error);
       setApplied(true);
@@ -149,13 +242,21 @@ const Rankings = () => {
     return positions;
   };
 
-  const isPreviewValid = (url) => {
-    if (!url) return false;
-    const urlParams = new URLSearchParams(url.split('?')[1]);
-    const exp = parseInt(urlParams.get('hdnea')?.split('exp=')[1]?.split('~')[0], 10);
-    const now = Math.floor(Date.now() / 1000);
-    return exp && exp > now;
-  };
+  function isPreviewValid(url) {
+    if (!url || typeof url !== 'string') return false;
+    try {
+      const qs = url.split('?')[1] || '';
+      const params = new URLSearchParams(qs);
+      const hdnea = params.get('hdnea') || '';
+      const m = /exp=(\d+)/.exec(hdnea);
+      if (!m) return true;
+      const exp = parseInt(m[1], 10);
+      const now = Math.floor(Date.now() / 1000);
+      return exp - now > 60; // valid if > 60s remain
+    } catch {
+      return true;
+    }
+  }
 
   return (
     <div className="rankings-container" style={{ maxWidth: '1200px', width: '100%' }}>
@@ -287,13 +388,20 @@ const Rankings = () => {
                               setPlayingAudioRef(e.target);
                             }}
                             onError={(e) => {
-                              console.debug('Audio preview failed to load:', song.songName, e.target.error);
+                              console.debug('[Rankings] Audio error, will rehydrate:', {
+                                name: song.songName,
+                                artist: song.artist,
+                                preview: song.previewURL
+                              });
                               e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'block';
+                              rehydrateSong(song, index);
+                              const label = e.target.nextSibling;
+                              if (label) label.style.display = 'block';
                             }}
                             onCanPlay={(e) => {
                               e.target.style.display = 'block';
-                              e.target.nextSibling.style.display = 'none';
+                              const label = e.target.nextSibling;
+                              if (label) label.style.display = 'none';
                             }}
                           />
                         ) : (
