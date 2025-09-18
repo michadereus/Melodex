@@ -23,16 +23,36 @@ function pickBestMatch(items, name, artist) {
     return { it, score };
   });
   scored.sort((a, b) => b.score - a.score);
-  return scored[0]?.it;
+  const top = scored[0]?.it;
+  if (top) {
+    console.log('[rehydrate] pickBestMatch ->', {
+      pickedId: top.id,
+      pickedTitle: top.title || top.title_short,
+      pickedArtist: top.artist?.name,
+      hadPreview: !!top.preview,
+    });
+  }
+  return top;
 }
 
 async function fetchTrackById(id) {
   if (!id) return null;
   try {
+    console.log('[rehydrate] Try Deezer by ID:', id);
     const { data } = await axios.get(`https://api.deezer.com/track/${id}`, { timeout: 10000 });
-    if (!data || !data.id) return null; // Deezer sometimes returns {}
+    if (!data || !data.id) {
+      console.log('[rehydrate] Deezer by ID returned no data/invalid payload for', id);
+      return null; // Deezer sometimes returns {}
+    }
+    console.log('[rehydrate] Deezer by ID hit:', {
+      id: data.id,
+      title: data.title || data.title_short,
+      artist: data.artist?.name,
+      hasPreview: !!data.preview,
+    });
     return data;
-  } catch (_) {
+  } catch (e) {
+    console.log('[rehydrate] Deezer by ID error for', id, '-', e?.message || e);
     return null;
   }
 }
@@ -46,20 +66,64 @@ async function searchDeezerSmart(songName, artist) {
   for (const q of tries) {
     const url = `https://api.deezer.com/search?q=${encodeURIComponent(q)}`;
     try {
+      console.log('[rehydrate] Search Deezer:', q);
       const { data } = await axios.get(url, { timeout: 10000 });
       const items = Array.isArray(data?.data) ? data.data : [];
+      console.log('[rehydrate] Search results:', { query: q, count: items.length });
       if (items.length) {
         const best = (typeof pickBestMatch === 'function')
           ? (pickBestMatch(items, songName, artist) || items[0])
           : items[0];
-        if (best) return best;
+        if (best) {
+          console.log('[rehydrate] Search selected:', {
+            id: best.id,
+            title: best.title || best.title_short,
+            artist: best.artist?.name,
+            hasPreview: !!best.preview,
+          });
+          return best;
+        }
       }
-    } catch (_) {
+    } catch (e) {
+      console.log('[rehydrate] Search error for', q, '-', e?.message || e);
       // swallow and try next strategy
     }
   }
   return null;
 }
+
+// quick TTL parser for signed Deezer preview URLs
+function parsePreviewExpiryFromUrl(u) {
+  try {
+    if (!u) return { exp: null, now: Math.floor(Date.now() / 1000), ttl: null };
+    const q = new URL(u).searchParams;
+    const hdnea = q.get('hdnea') || '';
+    const m = /exp=(\d+)/.exec(hdnea);
+    const now = Math.floor(Date.now() / 1000);
+    if (!m) return { exp: null, now, ttl: null };
+    const exp = parseInt(m[1], 10);
+    return { exp, now, ttl: exp - now };
+  } catch {
+    return { exp: null, now: Math.floor(Date.now() / 1000), ttl: null };
+  }
+}
+
+function isDeezerPreviewLikelyValid(url) {
+  if (!url || typeof url !== 'string') return false;
+  try {
+    const qs = url.split('?')[1] || '';
+    const params = new URLSearchParams(qs);
+    const hdnea = params.get('hdnea') || '';
+    const m = /exp=(\d+)/.exec(hdnea);
+    if (!m) return true; // if no exp present, let it pass
+    const exp = parseInt(m[1], 10);
+    const now = Math.floor(Date.now() / 1000);
+    return exp - now > 60; // “likely valid” if >60s remain
+  } catch {
+    return true;
+  }
+}
+
 
 /* ------------------------------ controller ------------------------------ */
 
@@ -88,6 +152,15 @@ class UserSongsController {
       let best = null;
       if (fallbackDeezerID != null) {
         const byId = await fetchTrackById(fallbackDeezerID);
+        if (byId) {
+          const ttl = parsePreviewExpiryFromUrl(byId.preview);
+          console.log('[rehydrate] By-ID preview TTL:', {
+            id: byId.id,
+            hasPreview: !!byId.preview,
+            ttl: ttl.ttl,
+            exp: ttl.exp,
+          });
+        }
         if (byId && byId.preview) best = byId; // if preview exists, we're done
       }
 
@@ -109,6 +182,16 @@ class UserSongsController {
         previewURL: best.preview || '',
         lastDeezerRefresh: new Date().toISOString(),
       };
+
+      const ttl = parsePreviewExpiryFromUrl(updatedFields.previewURL);
+      console.log('[rehydrate] Selected track:', {
+        id: updatedFields.deezerID,
+        title: updatedFields.songName,
+        artist: updatedFields.artist,
+        hasPreview: !!updatedFields.previewURL,
+        previewTTL: ttl.ttl,
+        previewExp: ttl.exp,
+      });
 
       // Identify the "old" row/document to update
       let oldFilter = null;
@@ -143,6 +226,7 @@ class UserSongsController {
         );
         if (oldDoc) {
           await db.collection('user_songs').deleteOne({ _id: oldDoc._id });
+          console.log('[rehydrate] MERGE: deleted old doc', oldDoc._id.toString(), 'into', existingWithNew._id.toString());
         }
         const merged = await db.collection('user_songs').findOne({ _id: existingWithNew._id });
         console.log('[rehydrate] MERGED into existing doc:', merged?._id?.toString());
@@ -477,30 +561,94 @@ class UserSongsController {
     }
   }
 
-  /* ---------------------------- DEEZER ENRICH --------------------------- */
+ /* ---------------------------- DEEZER ENRICH --------------------------- */
   static async getDeezerInfo(req, res) {
     const { songs } = req.body;
     if (!Array.isArray(songs)) {
       return res.status(400).json({ error: 'songs must be an array' });
     }
-    if (!req.app.locals.db) {
+
+    const db = req.app.locals.db;
+    if (!db) {
       console.error('Database not connected in getDeezerInfo');
       return res.status(500).json({ error: 'Database connection unavailable' });
     }
 
     try {
+      const validPreviewCount = songs.filter(s => s.previewURL && isDeezerPreviewLikelyValid(s.previewURL)).length;
+      console.log('[deezer-info] Incoming songs:', {
+        total: songs.length,
+        alreadyValidPreview: validPreviewCount,
+      });
+
+      // 1) Enrich in memory
       const enriched = await UserSongsController.enrichSongsWithDeezer(songs);
-      return res.status(200).json(enriched);
+
+      // 2) Persist to DB so fixes are permanent and future loads don’t re-trigger
+      const bulk = db.collection('user_songs').initializeUnorderedBulkOp();
+      const toReturn = [];
+
+      for (const s of enriched) {
+        // Prefer _id -> (userID, deezerID) -> (userID, name+artist)
+        let filter = null;
+
+        if (s._id) {
+          try {
+            filter = { _id: new ObjectId(String(s._id)) };
+          } catch {
+            filter = null;
+          }
+        }
+        if (!filter && s.userID && s.deezerID != null) {
+          filter = { userID: s.userID, deezerID: Number(s.deezerID) || s.deezerID };
+        }
+        if (!filter && s.userID && s.songName && s.artist) {
+          filter = { userID: s.userID, songName: s.songName, artist: s.artist };
+        }
+
+        const setFields = {
+          songName: s.songName || '',
+          artist: s.artist || '',
+          deezerID: s.deezerID ?? null,
+          albumCover: s.albumCover || '',
+          previewURL: s.previewURL || '',
+          lastDeezerRefresh: s.lastDeezerRefresh || new Date().toISOString(),
+        };
+
+        if (filter) {
+          bulk.find(filter).upsert().updateOne({ $set: setFields });
+        } else {
+          console.log('[deezer-info] SKIP persist (no filter):', { songName: s.songName, artist: s.artist });
+        }
+
+        toReturn.push({ ...s, ...setFields });
+      }
+
+      if (bulk.length > 0) {
+        try {
+          await bulk.execute();
+        } catch (e) {
+          // If there are dup key races (deezerID unique per user), just log; UI still updates.
+          console.warn('bulk.execute warning in getDeezerInfo:', e?.message || e);
+        }
+      }
+
+      console.log('[deezer-info] Outgoing enriched:', {
+        total: toReturn.length,
+        withPreview: toReturn.filter(x => !!x.previewURL).length,
+      });
+
+      // 3) Send enriched docs back so the UI can merge progressively
+      return res.status(200).json(toReturn);
     } catch (err) {
       console.error('Error in getDeezerInfo:', err.message, err.stack);
       return res.status(500).json({ error: 'Failed to fetch Deezer info' });
     }
   }
 
+
   // CHANGED: quoted→unquoted fallbacks and, if needed, fall back to un-cleaned artist
   static async enrichSongsWithDeezer(songs = []) {
-    const axios = require('axios');
-
     const tryVariants = async (songName, artist, cleanedArtist) => {
       const variants = [
         `track:"${songName}" artist:"${cleanedArtist}"`, // preferred: cleaned + quoted
@@ -513,9 +661,12 @@ class UserSongsController {
         const url = `https://api.deezer.com/search?q=${encodeURIComponent(q)}`;
         let items = [];
         try {
+          console.log('[deezer-info] Search:', q);
           const { data } = await axios.get(url, { timeout: 10000 });
           items = Array.isArray(data?.data) ? data.data : [];
-        } catch {
+          console.log('[deezer-info] Search results:', { query: q, count: items.length });
+        } catch (e) {
+          console.log('[deezer-info] Search error for', q, '-', e?.message || e);
           items = [];
         }
         if (items.length > 0) {
@@ -531,8 +682,26 @@ class UserSongsController {
       const artist = song.artist || '';
       const cleanedArtist = this.cleanArtistName(artist);
 
-      const { items } = await tryVariants(songName, artist, cleanedArtist);
+      // Early return: if we already have a working preview (and basic metadata),
+      if (song.previewURL && isDeezerPreviewLikelyValid(song.previewURL) && song.deezerID && song.albumCover) {
+        const ttl = parsePreviewExpiryFromUrl(song.previewURL);
+        console.log('[deezer-info] Skip (already valid preview):', {
+          songName,
+          artist,
+          deezerID: song.deezerID,
+          ttl: ttl.ttl,
+          exp: ttl.exp,
+        });
+        out.push({
+          ...song,
+          lastDeezerRefresh: song.lastDeezerRefresh || new Date().toISOString(),
+        });
+        continue;
+      }
+
+      const { items, qTried } = await tryVariants(songName, artist, cleanedArtist);
       if (items.length === 0) {
+        console.log('[deezer-info] No results for:', { songName, artist });
         out.push(song);
         continue;
       }
@@ -540,6 +709,19 @@ class UserSongsController {
       const best = (typeof pickBestMatch === 'function')
         ? pickBestMatch(items, songName, artist)
         : items[0];
+
+      const ttl = parsePreviewExpiryFromUrl(best?.preview);
+      console.log('[deezer-info] Selected:', {
+        songName,
+        artist,
+        pickedId: best?.id,
+        pickedTitle: best?.title || best?.title_short,
+        pickedArtist: best?.artist?.name,
+        hasPreview: !!best?.preview,
+        fromQuery: qTried,
+        ttl: ttl.ttl,
+        exp: ttl.exp,
+      });
 
       out.push({
         ...song,
@@ -551,6 +733,13 @@ class UserSongsController {
         lastDeezerRefresh: new Date().toISOString(),
       });
     }
+
+    console.log('[deezer-info] enrichSongsWithDeezer summary:', {
+      input: songs.length,
+      output: out.length,
+      withPreview: out.filter(x => !!x.previewURL).length,
+    });
+
     return out;
   }
 
