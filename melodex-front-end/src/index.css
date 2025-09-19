@@ -95,21 +95,30 @@ h2 {
 .filter-container {
   background: #fff;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   padding: 1rem;
   transition: max-height 0.3s ease, opacity 0.2s ease;
-  overflow: hidden;
   margin: 0 auto;
   width: 100%;
-  max-width: 700px;
+  overflow: hidden; /* keep for collapse */
 }
 
-.song-ranker-container .filter-container {
-  max-width: 700px;
+/* Let content show when open so dropdowns / button aren’t clipped */
+.filter-container.visible {
+  overflow: visible;
 }
 
-.song-ranker-container .filter-rerank {
-  max-width: 585px;
+/* Per-mode max widths (tweak these as you like) */
+.filter-container.rank-mode {
+  width: 100%;
+  max-width: 700px;
+  /* <- set this to your preferred medium width */
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.filter-container.rerank-mode {
+  max-width: 700px;   /* /rerank */
 }
 
 .filter-container.hidden {
@@ -121,6 +130,7 @@ h2 {
 .filter-container.visible {
   max-height: 200px;
   opacity: 1;
+  overflow: visible;
 }
 
 select {
@@ -600,11 +610,21 @@ footer {
   }
 
   .filter-container {
-    max-width: 600px;
+    max-width: 700px;
   }
 
   .song-ranker-container .filter-container {
-    max-width: 600px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+    margin: 0 auto;
+    width: 100% !important;
+    max-width: 1100px !important;
+    /* <— remove this whole block */
+    box-sizing: border-box;
+    overflow: visible;
   }
 
   .song-ranker-container .filter-rerank {

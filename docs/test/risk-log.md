@@ -18,7 +18,7 @@ Scales: Likelihood (L) and Impact (I) use Low / Medium / High. Exposure is a sim
 | R-02 | Token refresh failures (silent 401s) break export mid-flow | Auth / Session | M | H | 6 | 401 during export; partial playlists | Centralized token manager; auto refresh + single retry; Jest for refresh path | On retry fail, surface “reconnect” CTA; log incident; guide user to re-auth | Dev | <span class="pill open">Open</span> |
 | R-03 | Spotify API rate limits (429) during batch add | Third-party Limits | M | H | 6 | 429 responses; delayed export | Backoff + jitter; configurable batch size; preflight estimate | Queue + resume; show “Try again later”; persist progress | Dev | <span class="pill open">Open</span> |
 | R-04 | Deezer↔Spotify track mismatch (wrong tracks added) | Data Quality | M | M | 4 | Unusual playlist contents; user reports | Deterministic mapping; fuzzy match thresholds; add artist+title normalization tests | Provide review modal (remove items); allow re-run with stricter matching | QA | <span class="pill mitigating">Mitigating</span> |
-| R-05 | Deezer preview URL expiry breaks audio in ranking/review | UX / Stability | M | M | 4 | Audio errors; silent players | “Is preview valid” check; refresh metadata endpoint; fallback label | Hide player on error; lazy-refresh preview on demand | Dev | <span class="pill mitigating">Mitigating</span> |
+| R-05 | Deezer preview URL expiry breaks audio in ranking/review | UX / Stability | M | M | 4 | Audio errors; silent players | “Is preview valid” check; refresh metadata endpoint; fallback label; add TTL parsing and cooldown logic; merge refreshed Deezer IDs into Mongo to avoid stale data | Hide player on error; lazy-refresh preview on demand; persist refreshed previews in DB for future sessions | Dev | <span class="pill mitigating">Mitigating</span> |
 | R-06 | Sensitive keys or tokens leaked in repo / logs | Security | L | H | 3 | Secrets appear in commits or build logs | `.gitignore` for env; GitHub secrets; secret scanning; no tokens in client logs | Revoke & rotate keys; invalidate sessions; post-mortem | Dev | <span class="pill open">Open</span> |
 | R-07 | MongoDB outage or slow queries block ranking/export | Reliability | L | H | 3 | Timeouts; 5xx from backend | Connection pooling; timeouts; indexes on `userID, deezerID`; health checks | Serve graceful error; circuit break; retry later | DevOps | <span class="pill open">Open</span> |
 | R-08 | CORS misconfig blocks frontend→backend requests | Config | M | M | 4 | CORS errors in console | Keep allowed origins env-based; add preflight tests in CI | Temporarily widen allowlist while hotfixing | Dev | <span class="pill open">Open</span> |
@@ -49,9 +49,9 @@ Each cell shows: count — list of Risk IDs
 
 |                 | Impact: Low | Impact: Medium | Impact: High |
 |-----------------|-------------|----------------|--------------|
-| Likelihood: High | 0 — (none) | 0 — (none)     | 0 — (none)   |
-| Likelihood: Medium | 2 — R-16, R-20 | 10 — R-04, R-05, R-08, R-09, R-10, R-11, R-13, R-15, R-18, R-19 | 3 — R-01, R-02, R-03 |
-| Likelihood: Low | 0 — (none) | 2 — R-14, R-17 | 3 — R-06, R-07, R-12 |
+| Likelihood: High | 0 — (none) | 0 - (none)    | 0 — (none)   |
+| Likelihood: Medium | 2 — R-16, R-20 | 10 — R-04, R-08, R-09, R-10, R-11, R-13, R-15, R-18, R-19 | 3 — R-01, R-02, R-03 |
+| Likelihood: Low | 0 — (none) | 3 — R-14, R-17, R-05 | 3 — R-06, R-07, R-12 |
 
 ### Notes
 - This log is intentionally feature-focused. Platform-wide risks (e.g., domain/DNS, billing) are tracked separately in project ops docs.

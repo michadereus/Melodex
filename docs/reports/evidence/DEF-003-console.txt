@@ -1,0 +1,250 @@
+Failed to generate new songs: TypeError: NetworkError when attempting to fetch resource. <anonymous code>:1:147461
+Network error occurred, possibly backend server is not running index-DafDxLlU.js:163:99880
+Background fetch result: 
+Array []
+index-DafDxLlU.js:163:97494
+Background fetch returned no songs on attempt 1 <anonymous code>:1:147461
+Layout was forced before the page was fully loaded. If stylesheets are not yet loaded this may cause a flash of unstyled content. node.js:409:1
+AWS Config: 
+Object { aws_project_region: "us-east-1", aws_cognito_identity_pool_id: "us-east-1:3ca4c0b4-ade5-44fa-9d94-dba385ec32b1", aws_cognito_region: "us-east-1", aws_user_pools_id: "us-east-1_NDrWmC0M9", aws_user_pools_web_client_id: "706qcim5329kgn132129rdb6hi", oauth: {…}, federationTarget: "COGNITO_USER_POOLS", aws_cognito_username_attributes: (1) […], aws_cognito_social_providers: (1) […], aws_cognito_signup_attributes: (1) […], … }
+index-DafDxLlU.js:727:44812
+SongProvider: userID from UserContext: null index-DafDxLlU.js:163:96645
+Navbar rendering with userPicture: null loading: true index-DafDxLlU.js:727:2058
+SongProvider useEffect: Setting contextUserID to null index-DafDxLlU.js:163:97056
+Background fetch skipped: 
+Object { contextUserID: null, mode: "new", isRankPageActive: false, isBackgroundFetching: false, songListLength: 0 }
+index-DafDxLlU.js:163:97216
+SongProvider: userID from UserContext: null index-DafDxLlU.js:163:96645
+Authenticated user: 
+Object { id: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", token: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjljNjI1MTU4Nzk1MDg0NGE2NTZiZTM1NjNkOGM1YmQ2Zjg5NGM0MDciLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiIxNzg4MjkyMTEyNDUtMTlnZWM2djZxYXRuajc0cmJwYjJzdDk3YzNocjFwOGkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiIxNzg4MjkyMTEyNDUtMTlnZWM2djZxYXRuajc0cmJwYjJzdDk3YzNocjFwOGkuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDY1NTAyMzU5NzkxMjgwNjI5OTgiLCJlbWFpbCI6Im1pY2hhZWxkZXJldXNAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5iZiI6MTc1Nzg2MDU3OSwibmFtZSI6Ik1pa2UiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jS1lvcDRnZU1BSVhBU0c1Uk5HY0JEYzQxVUtHTWM2Q1pIejRuajJ2c1JlMlRfVGVwbWo9czk2LWMiLCJnaXZlbl9uYW1lIjoiTWlrZSIsImlhdCI6MTc1Nzg2MDg3OSwiZXhwIjoxNzU3ODY0NDc5LCJqdGkiOiIzNzg3ZmFjNDc4MWQzYTMxZjNjZjM1NWVhOWMzY2EyNWY2ZWU2MzY1In0.4K010gBFZoMfXVD3kaxR8RRC6voWywkgDVL9_xW6OQuqpz8mcTRwZxmMNmeGCslNoTfM_RA9qdGaB3-K1KdWOQUdoiHRd4HZ-iE937fjTCJx1cl6ipz828-iPTXISVUbEdkaK1nmWmzegvZlLzmMRC2A_VZECS93Tk1OD-cjkN2Kt_GBkx_BbnwOej7--IC5gBPDaSJWSmyArCPXhHeufPl8sV-IjZDadXA-tTs0VRDwYZ2uzpc7jdIZBD9GkxSYLmMbpUHVQ8jlp0rs3dncc3VpCwnephv_D23jvjNNY_26-_2Iwnzdc9suhWFsynODQe2NPWZt5QmbZOz9ykNFcQ" }
+index-DafDxLlU.js:163:94424
+user.username: undefined index-DafDxLlU.js:163:94461
+user.attributes?.sub: undefined index-DafDxLlU.js:163:94502
+user.id: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:94575
+Extracted userID: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:94668
+No attributes available, decoding ID token index-DafDxLlU.js:163:94753
+Decoded ID token attributes: 
+Object { iss: "https://accounts.google.com", azp: "178829211245-19gec6v6qatnj74rbpb2st97c3hr1p8i.apps.googleusercontent.com", aud: "178829211245-19gec6v6qatnj74rbpb2st97c3hr1p8i.apps.googleusercontent.com", sub: "106550235979128062998", email: "michaeldereus@gmail.com", email_verified: true, nbf: 1757860579, name: "Mike", picture: "https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c", given_name: "Mike", … }
+index-DafDxLlU.js:163:94825
+Setting displayName to: Mike index-DafDxLlU.js:163:95331
+Initial profile picture URL: https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c index-DafDxLlU.js:163:95478
+SongProvider: userID from UserContext: null index-DafDxLlU.js:163:96645
+Navbar rendering with userPicture: null loading: true index-DafDxLlU.js:727:2058
+Final profile picture URL: https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c index-DafDxLlU.js:163:95646
+Setting email to: michaeldereus@gmail.com index-DafDxLlU.js:163:95718
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Navbar rendering with userPicture: https://lh3.googleusercontent.com/a/ACg8ocKYop4geMAIXASG5RNGcBDc41UKGMc6CZHz4nj2vsRe2T_Tepmj=s96-c loading: false index-DafDxLlU.js:727:2058
+SongProvider useEffect: Setting contextUserID to us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:97056
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+Song list and buffer are empty, fetching more songs index-DafDxLlU.js:163:98291
+Loading set to true index-DafDxLlU.js:163:99203
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 0 }
+index-DafDxLlU.js:163:97216
+GET
+https://www.melodx.io/favicon.ico
+[HTTP/3 404  0ms]
+
+Background fetch result: 
+Array(13) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 13 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+Replenished songList from buffer: 13 index-DafDxLlU.js:163:98182
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Loading set to false index-DafDxLlU.js:163:99979
+Fetched new songs due to empty list: 13 index-DafDxLlU.js:163:98390
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 15 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(14) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 14 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(14) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 14 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+generateNewSongs fetch timed out index-DafDxLlU.js:163:99299
+Failed to generate new songs: DOMException: The operation was aborted. 
+    k https://www.melodx.io/assets/index-DafDxLlU.js:163
+    setTimeout handler*ye https://www.melodx.io/assets/index-DafDxLlU.js:163
+    HA https://www.melodx.io/assets/index-DafDxLlU.js:163
+    HA https://www.melodx.io/assets/index-DafDxLlU.js:163
+    Ds https://www.melodx.io/assets/index-DafDxLlU.js:40
+    Xi https://www.melodx.io/assets/index-DafDxLlU.js:40
+    rS https://www.melodx.io/assets/index-DafDxLlU.js:40
+    D https://www.melodx.io/assets/index-DafDxLlU.js:25
+    ye https://www.melodx.io/assets/index-DafDxLlU.js:25
+    wS https://www.melodx.io/assets/index-DafDxLlU.js:25
+    wS https://www.melodx.io/assets/index-DafDxLlU.js:25
+    SS https://www.melodx.io/assets/index-DafDxLlU.js:25
+    bS https://www.melodx.io/assets/index-DafDxLlU.js:33
+    _S https://www.melodx.io/assets/index-DafDxLlU.js:40
+    ES https://www.melodx.io/assets/index-DafDxLlU.js:40
+    <anonymous> https://www.melodx.io/assets/index-DafDxLlU.js:40
+<anonymous code>:1:147461
+Fetch aborted due to timeout index-DafDxLlU.js:163:99800
+Background fetch result: 
+Array []
+index-DafDxLlU.js:163:97494
+Background fetch returned no songs on attempt 1 <anonymous code>:1:147461
+Source map error: Error: request failed with status 404
+Stack in the worker:networkRequest@resource://devtools/client/shared/source-map-loader/utils/network-request.js:43:9
+
+Resource URL: https://www.melodx.io/%3Canonymous%20code%3E
+Source Map URL: installHook.js.map
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+Background fetch result: 
+Array(12) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 12 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 15 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(13) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 13 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(13) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 13 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(14) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 14 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 15 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(15) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 15 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
+Background fetch result: 
+Array(14) [ {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, {…}, … ]
+index-DafDxLlU.js:163:97494
+Background fetch added songs to buffer: 14 index-DafDxLlU.js:163:97566
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Triggering background fetch for more songs index-DafDxLlU.js:163:97355
+generateNewSongs filters: 
+Object { genre: "pop", subgenre: "all subgenres", decade: "all decades" }
+index-DafDxLlU.js:163:99398
+SongProvider: userID from UserContext: us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455 index-DafDxLlU.js:163:96645
+Background fetch skipped: 
+Object { contextUserID: "us-east-1:b1b2b027-6ad6-cd07-577d-5cc64ab89455", mode: "new", isRankPageActive: true, isBackgroundFetching: true, songListLength: 13 }
+index-DafDxLlU.js:163:97216
