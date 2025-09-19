@@ -79,8 +79,18 @@ This baseline captures the current behavior of Melodex (production) before addin
 - Priority: **Medium**  
 - Status: <span class="pill pass">Resolved</span>  
 
-## 7. Coarse Performance Snapshot
-... (table unchanged)
+## 7. Performance Snapshot (Coarse)
+One pass per primary page on Desktop Firefox with disk cache disabled (Private window).
+
+| Page | Metric | Observation | Evidence |
+|---|---|---|---|
+| `/rank` | TTFB / Load | `<e.g., ~200ms / ~1.8s>` | HAR: `../assets/evidence/PERF-rank.har` |
+| `/rerank` | TTFB / Load | `<e.g., ~200ms / ~1.8s>` | HAR: `../assets/evidence/PERF-rerank.har` |
+| `/rankings` | TTFB / Load | `<e.g., ~220ms / ~1.6s>` | HAR: `../assets/evidence/PERF-rankings.har` |
+| `/profile` | TTFB / Load | `<e.g., ~220ms / ~1.6s>` | HAR: `../assets/evidence/PERF-profile.har` |
+| API core | Median response | `<e.g., /ranked 180–250ms>` | HAR/log |
+
+(Values are snapshots, not strict SLOs—used to notice regressions later.)
 
 ## 8. Targeted Exploratory Session EXP-00
 **Charter:** Explore reliability of Deezer preview links in `/rankings`, focusing on expired links in older data.  
