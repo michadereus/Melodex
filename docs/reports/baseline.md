@@ -61,13 +61,13 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 **DEF-001**   Verification code error  
   - Link: [DEF-001](./defects/DEF-001.md)  
-  - Reference: `SMK-00`  
+  - References: `SMK-00`, PR: #2
   - Status: <span class="pill pass">Resolved</span>  
 
 **DEF-002**   Preview link expiry  
   - Link: [DEF-002](./defects/DEF-002.md)  
-  - Reference: `EXP-00`  
-  - Status: <span class="pill open">Open</span>  
+  - References: `EXP-00`, PR: #3
+  - Status: <span class="pill pass">Resolved</span>  
 
 ## 7. Coarse Performance Snapshot
 One pass per primary page on Desktop Firefox with disk cache disabled (Private window).
@@ -81,7 +81,7 @@ One pass per primary page on Desktop Firefox with disk cache disabled (Private w
 
 ## 8. Targeted Exploratory Session 00
 **Charter:** Explore reliability of Deezer preview links in `/rankings`, focusing on expired links in older data.  
-**Env/Build:** main branch: commit `9c876c9`, melodx.io, Firefox (desktop)  
+**Env/Build:** `main` branch: commit `9c876c9`, melodx.io, Firefox (desktop)  
 **Data:**  
 - Legacy account with older ranking data  
 - Main account with recent rankings  
@@ -106,20 +106,54 @@ One pass per primary page on Desktop Firefox with disk cache disabled (Private w
 - Ranking / reranking songs on legacy account doesn't trigger enrichment like on newer accounts.
 
 **Risks:**  
+- Risk: `R-05` (Deezer preview URL expiry breaks audio) 
 - Users returning after inactivity may find rankings unplayable.  
 - Could reduce trust if previews silently fail, especially on songs that were recently added. 
 
 **Out-of-scope findings:**
-- [DEF-003](../reports/defects/DEF-003.md): Songs loading repeatedly on /rank
+- [DEF-003](../reports/defects/DEF-003.md): Songs attempt to load on /rank without filter
 - [DEF-004](../reports/defects/DEF-004.md): /rankings card improperly formatted
 
 **Next:**  
 - Investigate how long Deezer preview URLs remain valid.  
-- Check when song enrichment is done, should happen on every /rankings load.  
-- Create new exploratory sessions for out of scope findings
+- Check when song enrichment is done, should happen on every /rankings load. 
 
+## 9. Targeted Exploratory Session 01  
+**Charter:** Explore default load behavior of `/rank`, focusing on whether background song fetching starts before user applies filters.  
+**Env/Build:** `docs/baseline` branch: commit `6a951eb`, melodx.io, Firefox (desktop)  
+**Data:**  
+- Main account (Google login)  
 
+**Heuristics:**  
+- State-model tour (verify transitions: initial load → filter apply → song fetch)  
+- User-intention oracle (system should defer actions until explicit input)  
+
+**Notes:**  
+- On first load of `/rank`, background fetch is triggered with default filter values (`pop / all / all`).  
+- Multiple cycles of fetch occur before user presses *Apply*.  
+- Console shows “Triggering background fetch for more songs” loops, filling buffer with 13–15 songs repeatedly.  
+- Occasional timeouts (`DOMException: The operation was aborted`) logged when backend doesn’t respond quickly.  
+- Auth state resolves mid-sequence (userContext initially null, then filled).  
+
+**Issues:**  
+- Songs are loaded automatically before any filter is chosen.  
+- Leads to unnecessary network calls, wasted buffer, and error logs.  
+- Behavior contradicts expected UX (user should drive fetch by applying filters).  
+- Logged as [DEF-003](../reports/defects/DEF-003.md).  
+
+**Learned:**  
+- `SongProvider` is tightly coupled to mount lifecycle, not to filter submission.  
+- Default filters act as implicit “apply,” causing fetch loops.  
+
+**Risks:**  
+- Backend/API usage inflated by unneeded requests.  
+- Users may see irrelevant songs, creating confusion.  
+- Timeout errors may impact perceived reliability.  
+
+**Next:**  
+- Update `SongProvider` to suppress fetch until filters are applied.  
+- Add regression check: `/rank` loads idle with no API calls until user action.  
 
 ## Next Steps  
-- Freeze this baseline by commit SHA and date.  
-- Proceed to Week 1 tasks for the Spotify export feature.  
+- File implementation issue to adjust `SongProvider` lifecycle triggers.  
+- QA follow-up: rerun exploratory session after fix to confirm idle load state.  
