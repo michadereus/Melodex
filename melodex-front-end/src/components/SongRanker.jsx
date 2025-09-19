@@ -21,15 +21,18 @@ export const SongRanker = ({ mode }) => {
     songList,
     setSongList,
     userID: contextUserID,
-    setIsRankPageActive
+    setIsRankPageActive,
+    setLastFilters,
+    setFiltersApplied
   } = useSongContext();
-  const { volume, setVolume, playingAudioRef, setPlayingAudioRef } = useVolumeContext(); // Add playingAudioRef
+
+  const { volume, setVolume, playingAudioRef, setPlayingAudioRef } = useVolumeContext();
   const [applied, setApplied] = useState(false);
   const [enrichedPair, setEnrichedPair] = useState([]);
   const [showFilter, setShowFilter] = useState(mode === 'new');
   const [isProcessing, setIsProcessing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-  const [selectedGenre, setSelectedGenre] = useState('');
+  const [selectedGenre, setSelectedGenreState] = useState('');
   const audioRefs = useRef([]);
 
   useEffect(() => {
@@ -38,9 +41,11 @@ export const SongRanker = ({ mode }) => {
     setCurrentPair([]);
     setEnrichedPair([]);
     setFetchError(null);
-    setSelectedGenre('');
-    setIsRankPageActive(mode === 'new');
-  }, [mode, setMode, setCurrentPair, setIsRankPageActive]);
+    setSelectedGenreState('');
+    // Only auto-activate for rerank. Rank becomes active AFTER Apply.
+    setIsRankPageActive(mode === 'rerank');
+    setFiltersApplied(false);
+  }, [mode, setMode, setCurrentPair, setIsRankPageActive, setFiltersApplied]);
 
   useEffect(() => {
     if (mode === 'rerank' && !applied && !loading && currentPair.length === 0 && contextUserID) {
@@ -111,7 +116,12 @@ export const SongRanker = ({ mode }) => {
     setEnrichedPair([]);
     setIsProcessing(true);
     setFetchError(null);
-    setSelectedGenre(filters.genre === 'any' ? '' : filters.genre);
+    setSelectedGenreState(filters.genre === 'any' ? '' : filters.genre);
+
+    setIsRankPageActive(mode === 'new');
+    setLastFilters(filters);
+    setFiltersApplied(mode === 'new'); // only true for /rank
+
     try {
       if (mode === 'new') {
         let newSongs = await generateNewSongs(filters);
@@ -162,8 +172,8 @@ export const SongRanker = ({ mode }) => {
   return (
     <div className="song-ranker-container">
       <div
-        className={`filter-container ${showFilter ? 'visible' : 'hidden'}`}
-        style={{ width: mode === 'new' ? '700px' : '550px', margin: '0 auto' }}
+        className={`filter-container ${showFilter ? 'visible' : 'hidden'} ${mode === 'new' ? 'rank-mode' : 'rerank-mode'}`}
+        style={{ margin: '0 auto' }}
       >
         <SongFilter onApply={handleApply} isRankPage={mode === 'new'} onHide={() => setShowFilter(false)} />
       </div>

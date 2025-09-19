@@ -21,104 +21,155 @@ export const SongProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState('new');
   const [selectedGenre, setSelectedGenre] = useState('any');
-  const [lastFilters, setLastFilters] = useState({ genre: 'pop', subgenre: 'all subgenres', decade: 'all decades' });
-  const [isFetching, setIsFetching] = useState(false);
-  const [contextUserID, setContextUserID] = useState(null);
+
+  // These are controlled by /rank apply
+  const [lastFilters, setLastFilters] = useState({ genre: 'any', subgenre: 'any', decade: 'all decades' });
+  const [filtersApplied, setFiltersApplied] = useState(false);
+
   const [isBackgroundFetching, setIsBackgroundFetching] = useState(false);
   const [isRankPageActive, setIsRankPageActive] = useState(false);
+  const [contextUserID, setContextUserID] = useState(null);
 
-  // Guard to prevent overlapping background fetches (also reduces StrictMode double-effect spam)
+  // Guards/refs
   const inFlightRef = useRef(false);
+  const lastBgFetchAtRef = useRef(0);
+  const unmountedRef = useRef(false);
+
+  // For accurate totals during bursts:
+  const listLenRef = useRef(0);
+  const bufferLenRef = useRef(0);
+  useEffect(() => { listLenRef.current = songList.length; }, [songList.length]);
+  useEffect(() => { bufferLenRef.current = songBuffer.length; }, [songBuffer.length]);
+
+  // Prefetch tuning (feel free to tweak)
+  const PREFETCH_TARGET = 30;       // aim to keep list+buffer around this
+  const LOW_WATERMARK   = 10;       // when list drops below this, refill from buffer
+  const PREFETCH_COOLDOWN_MS = 6000;
+  const MAX_PAGES_PER_BURST = 2;    // smaller burst
+  const MAX_BUFFER = 40;            // hard cap on buffer size
+
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => { unmountedRef.current = true; };
+  }, []);
 
   useEffect(() => {
     console.log('SongProvider useEffect: Setting contextUserID to', userID);
     setContextUserID(userID);
   }, [userID]);
 
-  // Background fetching logic with retries + in-flight guard
+  // ---- Burst background prefetch (only /rank after filters applied) ----
   useEffect(() => {
-    const fetchMoreSongs = async () => {
-      const shouldFetch =
+    const runBurstPrefetch = async () => {
+      const totalAvailableStart = songList.length + songBuffer.length;
+      const now = Date.now();
+      const cooledDown = now - lastBgFetchAtRef.current >= PREFETCH_COOLDOWN_MS;
+
+      const canFetch =
         !!contextUserID &&
         mode === 'new' &&
         isRankPageActive &&
+        filtersApplied &&
+        cooledDown &&
         !inFlightRef.current &&
         !isBackgroundFetching &&
-        songList.length < 20; // adjust threshold as desired
+        totalAvailableStart > 0 &&                  // <-- wait for *some* songs to exist (avoids overlap with initial fetch)
+        totalAvailableStart < PREFETCH_TARGET;
 
-      if (!shouldFetch) {
+      if (!canFetch) {
         console.log('Background fetch skipped:', {
           contextUserID,
           mode,
           isRankPageActive,
+          filtersApplied,
           isBackgroundFetching,
-          songListLength: songList.length
+          cooledDown,
+          totalAvailable: totalAvailableStart,
+          songListLength: songList.length,
+          songBufferLength: songBuffer.length
         });
         return;
       }
 
-      console.log('Triggering background fetch for more songs');
+      console.log('Triggering background fetch BURST (start totalAvailable:', totalAvailableStart, ')');
       inFlightRef.current = true;
       setIsBackgroundFetching(true);
+      lastBgFetchAtRef.current = now;
 
-      let retries = 0;
-      const maxRetries = 3;
-      let newSongs = [];
+      try {
+        let pagesFetched = 0;
 
-      while (retries < maxRetries) {
-        try {
-          newSongs = await generateNewSongs(lastFilters, true);
-          console.log('Background fetch result:', newSongs);
-          if (newSongs.length > 0) {
-            setSongBuffer(prevBuffer => [...prevBuffer, ...newSongs]);
-            console.log('Background fetch added songs to buffer:', newSongs.length);
+        while (pagesFetched < MAX_PAGES_PER_BURST) {
+          // live totals from refs so we count changes during the burst
+          const liveTotal = listLenRef.current + bufferLenRef.current;
+          if (liveTotal >= PREFETCH_TARGET) break;
+
+          const newSongs = await generateNewSongs(lastFilters, true);
+          pagesFetched += 1;
+
+          if (!newSongs || newSongs.length === 0) {
+            console.warn('Burst prefetch: page returned 0 songs; stopping burst.');
             break;
-          } else {
-            console.warn(`Background fetch returned no songs on attempt ${retries + 1}`);
-            retries++;
-            if (retries === maxRetries) {
-              console.error('Max retries reached, no songs fetched');
-              break;
+          }
+
+          setSongBuffer(prev => {
+            // Append but enforce hard cap
+            const updated = [...prev, ...newSongs];
+            let final = updated;
+            if (updated.length > MAX_BUFFER) {
+              final = updated.slice(0, MAX_BUFFER);
             }
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          }
-        } catch (error) {
-          console.error(`Background fetch failed on attempt ${retries + 1}:`, error);
-          retries++;
-          if (retries === maxRetries) {
-            console.error('Max retries reached, failed to fetch songs');
-            break;
-          }
-          await new Promise(resolve => setTimeout(resolve, 2000));
+            console.log(`Burst page ${pagesFetched}: +${newSongs.length} songs -> buffer size now: ${final.length}`);
+            return final;
+          });
         }
+      } catch (err) {
+        console.error('Burst prefetch error:', err);
+      } finally {
+        inFlightRef.current = false;
+        if (!unmountedRef.current) setIsBackgroundFetching(false);
+        console.log('Background fetch BURST complete.');
       }
-
-      inFlightRef.current = false;
-      setIsBackgroundFetching(false);
     };
 
-    fetchMoreSongs();
-  }, [songList, contextUserID, mode, isBackgroundFetching, lastFilters, isRankPageActive]);
+    runBurstPrefetch();
+  }, [
+    songList.length,          // only lengths (not arrays) to avoid identity churn
+    songBuffer.length,
+    contextUserID,
+    mode,
+    isRankPageActive,
+    filtersApplied
+  ]);
 
+  // ---- Refill visible list from buffer when it gets low ----
   useEffect(() => {
-    if (songList.length < 10 && songBuffer.length > 0) {
-      const batchSize = Math.min(30, songBuffer.length);
+    if (songList.length < LOW_WATERMARK && songBuffer.length > 0) {
+      const want = LOW_WATERMARK * 2; // ~20 at a time
+      const batchSize = Math.min(want, songBuffer.length);
       const newSongs = songBuffer.slice(0, batchSize);
       setSongList(prevList => [...prevList, ...newSongs]);
       setSongBuffer(prevBuffer => prevBuffer.slice(batchSize));
-      console.log('Replenished songList from buffer:', newSongs.length);
-    } else if (songList.length === 0 && songBuffer.length === 0 && mode === 'new' && contextUserID && isRankPageActive) {
-      console.log('Song list and buffer are empty, fetching more songs');
+      console.log('Replenished songList from buffer:', newSongs.length, 'list size now:', (songList.length + newSongs.length));
+    } else if (
+      songList.length === 0 &&
+      songBuffer.length === 0 &&
+      mode === 'new' &&
+      contextUserID &&
+      isRankPageActive &&
+      filtersApplied
+    ) {
+      console.log('Song list and buffer empty after filters; fetching initial songs');
       generateNewSongs(lastFilters).then(newSongs => {
         if (newSongs.length > 0) {
           setSongList(newSongs);
-          console.log('Fetched new songs due to empty list:', newSongs.length);
+          console.log('Initial fetch (post-apply):', newSongs.length);
         } else {
-          console.warn('No new songs available to fetch');
+          console.warn('Initial fetch returned no songs');
         }
       });
     }
-  }, [songList, songBuffer, mode, contextUserID, lastFilters, isRankPageActive]);
+  }, [songList.length, songBuffer.length, mode, contextUserID, lastFilters, isRankPageActive, filtersApplied]);
 
   const getNextPair = useCallback((songsToUse = songList) => {
     if (!Array.isArray(songsToUse)) {
@@ -146,7 +197,7 @@ export const SongProvider = ({ children }) => {
     console.log('getNextPair: New pair set:', newPair);
   }, [songList]);
 
-  const generateNewSongs = async (filters = lastFilters, isBackground = false) => {
+  const generateNewSongs = async (filters = lastFilters ?? { genre: 'any', subgenre: 'any', decade: 'all decades' }, isBackground = false) => {
     if (!userID) return [];
     if (!isBackground) {
       setLoading(true);
@@ -177,11 +228,6 @@ export const SongProvider = ({ children }) => {
       return songs;
     } catch (error) {
       console.error('Failed to generate new songs:', error);
-      if (error.name === 'AbortError') {
-        console.log('Fetch aborted due to timeout');
-      } else if (error.message.includes('NetworkError')) {
-        console.log('Network error occurred, possibly backend server is not running');
-      }
       return [];
     } finally {
       if (!isBackground) {
@@ -246,13 +292,8 @@ export const SongProvider = ({ children }) => {
 
     try {
       const payload = { userID: idToUse };
-      if (genre !== 'any') {
-        payload.genre = genre;
-      }
-      if (subgenre !== 'any') {
-        payload.subgenre = subgenre;
-      }
-      console.log('fetchRankedSongs payload:', payload);
+      if (genre !== 'any') payload.genre = genre;
+      if (subgenre !== 'any') payload.subgenre = subgenre;
 
       const response = await fetch(url, {
         method: 'POST',
@@ -260,21 +301,14 @@ export const SongProvider = ({ children }) => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        console.error(`HTTP error fetching ranked songs! Status: ${response.status}`);
-        throw new Error('Failed to fetch ranked songs');
-      }
+      if (!response.ok) throw new Error('Failed to fetch ranked songs');
 
       const text = await response.text();
-      console.log('Raw response from ranked songs:', text);
-
       try {
         const ranked = JSON.parse(text);
-        console.log('Parsed ranked songs:', ranked);
         setRankedSongs(ranked);
         return ranked;
-      } catch (parseError) {
-        console.error('JSON parse error in fetchRankedSongs:', parseError, 'Raw response:', text);
+      } catch {
         setRankedSongs([]);
         return [];
       }
@@ -297,13 +331,8 @@ export const SongProvider = ({ children }) => {
     setLoading(true);
     console.log('Loading set to true');
     try {
-      console.log('selectSong called with:', { winnerId, loserId, userID, currentPair });
-      // Ensure consistent type conversion for deezerID comparison
       const winnerSong = currentPair.find(s => s.deezerID.toString() === winnerId.toString());
       const loserSong = currentPair.find(s => s.deezerID.toString() === loserId.toString());
-      console.log('Winner song:', winnerSong);
-      console.log('Loser song:', loserSong);
-
       if (!winnerSong || !loserSong) {
         console.error('Winner or loser song not found in currentPair', { winnerId, loserId, currentPair });
         resetProcessing?.();
@@ -330,7 +359,6 @@ export const SongProvider = ({ children }) => {
         loserAlbumCover: loserSong.albumCover,
         loserPreviewURL: loserSong.previewURL,
       };
-      console.log('Sending payload to /api/user-songs/upsert:', payload);
 
       const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/upsert`;
       const response = await fetch(url, {
@@ -339,26 +367,20 @@ export const SongProvider = ({ children }) => {
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to update song ratings: ${errorText}`);
-      }
+      if (!response.ok) throw new Error('Failed to update song ratings');
 
       const { newRatingA, newRatingB } = await response.json();
-      console.log(`Updated ratings - Winner: ${newRatingA}, Loser: ${newRatingB}`);
 
       const updatedList = songList.filter(song => String(song.deezerID) !== String(winnerId) && String(song.deezerID) !== String(loserId));
       setSongList(updatedList);
-      setRankedSongs(prevRanked => {
-        const updated = prevRanked.filter(song =>
-          String(song.deezerID) !== String(winnerSong.deezerID) && String(song.deezerID) !== String(loserSong.deezerID)
-        );
-        return [
-          ...updated,
-          { ...winnerSong, ranking: newRatingA },
-          { ...loserSong, ranking: newRatingB }
-        ];
-      });
+      setRankedSongs(prev => ([
+        ...prev.filter(s =>
+          String(s.deezerID) !== String(winnerSong.deezerID) &&
+          String(s.deezerID) !== String(loserSong.deezerID)
+        ),
+        { ...winnerSong, ranking: newRatingA },
+        { ...loserSong, ranking: newRatingB }
+      ]));
 
       if (mode === 'new') {
         getNextPair(updatedList);
@@ -385,10 +407,8 @@ export const SongProvider = ({ children }) => {
     setLoading(true);
     console.log('Loading set to true');
     try {
-      console.log('skipSong called with songId:', songId, 'userID:', userID);
       const skippedSong = currentPair.find(s => s.deezerID.toString() === songId.toString());
       const keptSong = currentPair.find(s => s.deezerID.toString() !== songId.toString());
-
       if (!skippedSong || !keptSong) {
         console.error('Skipped song or kept song not found in currentPair:', { songId, currentPair });
         resetProcessing?.();
@@ -408,7 +428,6 @@ export const SongProvider = ({ children }) => {
         albumCover: skippedSong.albumCover || '',
         previewURL: skippedSong.previewURL || '',
       };
-      console.log('Sending skip payload to /api/user-songs/upsert:', payload);
 
       const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/upsert`;
       const response = await fetch(url, {
@@ -416,23 +435,13 @@ export const SongProvider = ({ children }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Failed to skip song: ${errorText}`);
-      }
-
-      console.log('Song skipped successfully:', songId);
+      if (!response.ok) throw new Error('Failed to skip song');
 
       if (mode === 'rerank') {
         const reRankSongs = await fetchReRankingData();
         if (reRankSongs.length > 0) {
           const newSong = reRankSongs.find(s => String(s.deezerID) !== String(keptSong.deezerID));
-          if (newSong) {
-            setCurrentPair([keptSong, newSong]);
-          } else {
-            setCurrentPair([keptSong]);
-          }
+          setCurrentPair(newSong ? [keptSong, newSong] : [keptSong]);
         } else {
           setCurrentPair([]);
         }
@@ -493,6 +502,8 @@ export const SongProvider = ({ children }) => {
       value={{
         songList,
         setSongList,
+        songBuffer,
+        setSongBuffer,
         currentPair,
         setCurrentPair,
         rankedSongs,
@@ -510,7 +521,9 @@ export const SongProvider = ({ children }) => {
         selectedGenre,
         setSelectedGenre,
         userID: contextUserID,
-        setIsRankPageActive
+        setIsRankPageActive,
+        setLastFilters,
+        setFiltersApplied
       }}
     >
       {children}
