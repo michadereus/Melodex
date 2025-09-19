@@ -112,7 +112,6 @@ One pass per primary page on Desktop Firefox with disk cache disabled (Private w
 
 **Out-of-scope findings:**
 - [DEF-003](../reports/defects/DEF-003.md): Songs attempt to load on /rank without filter
-- [DEF-004](../reports/defects/DEF-004.md): /rankings card improperly formatted
 
 **Next:**  
 - Investigate how long Deezer preview URLs remain valid.  

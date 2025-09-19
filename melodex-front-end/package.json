@@ -16,6 +16,7 @@
     "aws-amplify": "^5.3.12",
     "dig": "^0.0.6",
     "dns-utils": "^1.0.2",
+    "melodex-root": "file:..",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.3.0"
