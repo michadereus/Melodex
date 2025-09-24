@@ -1,6 +1,6 @@
 # Melodex
 
-Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks with 30-second previews, and build personalized leaderboards using an ELO-based ranking algorithm. 
+Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks, and build personalized leaderboards using an ELO-based ranking algorithm. 
 
 The system integrates:
 
@@ -45,7 +45,7 @@ Melodex/
 
 ## Local Development
 
-### Easy Run
+### Build All
     # root dir
     npm run dev
 
