@@ -34,11 +34,12 @@ Scales: Likelihood (L) and Impact (I) use Low / Medium / High. Exposure is a sim
 | R-18 | Flaky E2E tests slow delivery | Quality / Process | M | M | 4 | Intermittent CI failures | Test isolation; data seeding; network stubbing for 3rd-party | Quarantine flaky tests; fix before merging | QA | <span class="pill open">Open</span> |
 | R-19 | Environment parity gaps (local vs. prod) | Config Drift | M | M | 4 | Works local, fails prod | `.env.example`; config docs; smoke tests post-deploy | Feature flag; quick rollback | DevOps | <span class="pill open">Open</span> |
 | R-20 | User confusion about export scope (filters vs. selection) | UX / Clarity | M | L | 2 | Support questions; wrong expectations | Clear summary: N songs, filters applied; confirm modal | Undo/redo; simple re-export | UX | <span class="pill mitigating">Mitigating</span> |
+| R-21| Unbounded background fetch inflates API usage / cloud costs  | Reliability / Cost| M | M | 4  | Repeating fetch logs; buffer keeps growing; cost spike| Strict in-flight guard; cooldown; cap bursts (~33 items); fetch gated on isRankPageActive + filtersApplied + buffer/list thresholds; dedupe initial vs bg| Temporarily disable bg fetch; lower caps; hotfix guard checks  | Dev   | <span class="pill mitigating">Mitigating</span> |
 </div>
 
 ---
 
-## Risk Heat Map (Initial)
+## Risk Heat Map
 
 This qualitative heat map groups risks by Likelihood (rows) and Impact (columns). It reflects the current risk register values and will be updated as we re-assess.
 
@@ -50,7 +51,7 @@ Each cell shows: count — list of Risk IDs
 |                 | Impact: Low | Impact: Medium | Impact: High |
 |-----------------|-------------|----------------|--------------|
 | Likelihood: High | 0 — (none) | 0 - (none)    | 0 — (none)   |
-| Likelihood: Medium | 2 — R-16, R-20 | 10 — R-04, R-08, R-09, R-10, R-11, R-13, R-15, R-18, R-19 | 3 — R-01, R-02, R-03 |
+| Likelihood: Medium | 2 — R-16, R-20 | 10 — R-04, R-08, R-09, R-10, R-11, R-13, R-15, R-18, R-19, R-21 | 3 — R-01, R-02, R-03 |
 | Likelihood: Low | 0 — (none) | 3 — R-14, R-17, R-05 | 3 — R-06, R-07, R-12 |
 
 ### Notes

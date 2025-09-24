@@ -51,6 +51,6 @@ Acceptance criteria are organized by user story for clear traceability. Each cri
 
 ## Notes and Constraints
 
-- Track Matching: Exported tracks are matched using the Deezer-backed metadata already stored in Melodex. If a Spotify track cannot be matched, the flow follows the error handling criteria in US-007.
-- Authentication Architecture: The chosen authentication flow (e.g., Authorization Code with PKCE) and any hybrid approach for service calls are recorded separately in the technical design. Acceptance criteria focus on observable user outcomes rather than internal implementation details.
-- Ordering Guarantee: The exported playlist order must mirror the ranking order presented to the user at the time of export.
+- Track Matching: Exported tracks are matched using the Deezer-backed metadata already stored in Melodex. If a Spotify track cannot be matched, the flow follows the error handling criteria in US-007.  
+- Authentication Architecture: The chosen authentication flow (e.g., Authorization Code with PKCE) and any hybrid approach for service calls are recorded separately in the technical design. Acceptance criteria focus on observable user outcomes rather than internal implementation details.  
+- Ordering Guarantee: The exported playlist order must mirror the ranking order presented to the user at the time of export.  

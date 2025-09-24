@@ -5,24 +5,27 @@ Date: 2025-09-02
 Owner: QA (Michael DeReus)
 
 ## 1. References
-- Test Approach: test/test-approach.md  
-- Requirements (User Stories): requirements/index.md  
-- Acceptance Criteria: requirements/acceptance-criteria.md  
-- Non-Functional Requirements: requirements/nfrs.md  
-- Traceability Matrix (will be populated after initial test case authoring): test/traceability.md
+- Test Approach: [test-approach](./test-approach.md)  
+- Requirements (User Stories): [user-stories](../requirements/user-stories.md)  
+- Acceptance Criteria: [acceptance-criteria](../requirements/acceptance-criteria.md)  
+- Non-Functional Requirements: [nfrs](../requirements/nfrs.md)  
+- Traceability Matrix: [traceability](../test/traceability.md)
 
 ## 2. Objectives & Scope
-Goal: Plan and execute testing for the Spotify Playlist Export feature and a thin guardrail regression on core flows, within a ~10-week window (~20 hrs/week).  
-In scope:
-- New export flow end-to-end: authenticate, select songs (filtered), review/remove, name/describe, create playlist, error handling, confirmation link, revoke access.
-- Minimal regression on authentication and ranked-songs retrieval contract; one smoke across /rank → /rerank → /rankings.
-Out of scope (this iteration):
-- Full accessibility audit
-- Broad cross-browser/device matrix beyond specified smoke
-- Legacy features not interacting with export
+**Goal**  
+Plan and execute testing for the Spotify Playlist Export feature and a thin guardrail regression on core flows, within a ~10-week window (~20 hrs/week).  
+
+**In scope**  
+- New export flow end-to-end: authenticate, select songs (filtered), review/remove, name/describe, create playlist, error handling, confirmation link, revoke access.  
+- Minimal regression on authentication and ranked-songs retrieval contract; one smoke across /rank → /rerank → /rankings.  
+
+**Out of scope**  
+- Full accessibility audit  
+- Broad cross-browser/device matrix beyond specified smoke  
+- Legacy features not interacting with export   
 
 ## 3. Features to Be Tested
-User stories and acceptance criteria IDs are aligned to requirements docs.
+> *User stories and acceptance criteria IDs are aligned to requirements docs.*
 
 ### US-1 Authenticate with Spotify
 - AC-1.1 Redirect to and back from Spotify hosted login with valid session  
@@ -63,39 +66,39 @@ User stories and acceptance criteria IDs are aligned to requirements docs.
 - One smoke journey across /rank → /rerank → /rankings
 
 ## 4. Test Items (What we test)
-Backend
-- POST /api/spotify/export (proposed) or equivalent controller
-- Existing endpoints used by export: /api/user-songs/ranked, /api/user-songs/deezer-info
-- Export service modules: token handling, chunking, backoff, mapping Deezer to Spotify
+**Backend**  
+- POST /api/spotify/export (proposed) or equivalent controller  
+- Existing endpoints used by export: /api/user-songs/ranked, /api/user-songs/deezer-info  
+- Export service modules: token handling, chunking, backoff, mapping Deezer to Spotify  
 
-Frontend
-- ExportModal component (list, remove, default naming, validation)
-- Progress/feedback UI
-- Confirmation UI with deep link
-- Settings view: revoke integration
+**Frontend**  
+- ExportModal component (list, remove, default naming, validation)  
+- Progress/feedback UI  
+- Confirmation UI with deep link  
+- Settings view: revoke integration  
 
 ## 5. Test Strategy Summary
-See Test Approach (test/test-approach.md) for full details. In brief:
-- Unit (Jest) for export services, token refresh, 429 backoff, selector logic, tiny ELO guard.
-- Integration/API (Jest + Supertest) for export endpoints with mocked Spotify SDK.
-- Component/UI (React Testing Library) for modal, validation, and states.
-- E2E (Cypress) desktop + mobile viewport for happy path and key edges (empty selection, 429, OAuth cancel, song not found).
-- Non-functional sanity: performance, security basics, resilience.
-- Exploratory, timeboxed around error recovery and mobile UX.
+> See [Test Approach](../test/test-approach.md) for full details.
+
+- Unit (Jest) for export services, token refresh, 429 backoff, selector logic, tiny ELO guard.  
+- Integration/API (Jest + Supertest) for export endpoints with mocked Spotify SDK.  
+- Component/UI (React Testing Library) for modal, validation, and states.  
+- E2E (Cypress) desktop + mobile viewport for happy path and key edges (empty selection, 429, OAuth cancel, song not found).  
+- Non-functional sanity: performance, security basics, resilience.  
+- Exploratory, timeboxed around error recovery and mobile UX.  
 
 ## 6. Test Environment
-Local
+**Local**  
 - Node 18+, MongoDB Atlas test cluster, backend on 8080, frontend on 3001
 - External API calls mocked/stubbed by default
 
-Staging (if available)
+**Staging**  
 - One Spotify test account (tokens via CI secrets)
 - Minimal live-call runs to validate deep link and playlist creation
 
-Browsers / Devices
-- Primary: Chrome (latest), Firefox (latest) desktop
-- Mobile emulation: Chrome iPhone 12 viewport in Cypress
-- Optional smoke: Playwright WebKit one-path run
+**Browsers / Devices**  
+- Primary: Firefox (latest) desktop (optional: Chrome, Edge)
+- Mobile: Firefox Android 15 (latest) (optional: Chrome, Edge)
 
 ## 7. Test Data & Accounts
 - Spotify test user: seeded by QA; client ID/secret stored in CI secrets
@@ -123,67 +126,165 @@ Week 10
 - Portfolio packaging, final sign-off
 
 ## 10. Entry & Exit Criteria
-Entry
-- Acceptance Criteria finalized
-- Draft API contract for export agreed
-- Secrets configured (locally and in CI)
+**Entry**  
+- Baseline complete and merged; Auth & Ranking smokes (*SMK-00/01/02/03*) passing on main.  
+- Secrets configured for local + CI; mock Spotify client available for tests.  
+- Acceptance Criteria finalized  
+- Draft API contract for export agreed  
+- Secrets configured (locally and in CI)  
 
-Exit (Feature)
-- All Acceptance Criteria covered by automated tests
-- New/modified code coverage ≥ 80%
-- Cypress happy path green desktop + mobile viewport
-- No open Critical/High defects (or explicit, documented deferral)
+**Exit** — Spotify Export  
+- All US-01…US-08 acceptance criteria covered by automated tests (Unit/Integration/E2E) and passing.  
+- No *High* (or above) open defects affecting export (auth, mapping, 429 handling, confirmation link).  
+- *E2E-001-Export* desktop + *E2E-008-Mobile* both green in CI.  
+- Export API contract documented and linked (request/response, error shapes).  
 
 ## 11. Test Design & Traceability
 Design techniques
-- Equivalence/boundaries (empty selection, minimal set of 1–2, large set)
-- State transitions (auth → modal → exporting → done/error)
-- Error guessing (401/refresh, 429/backoff, 404 track not found)
+- Equivalence/boundaries (empty selection, minimal set of 1–2, large set)  
+- State transitions (auth → modal → exporting → done/error)  
+- Error guessing (401/refresh, 429/backoff, 404 track not found)  
+- Traceability matrix maintained in [traceability.md](./traceability.md)  
 
-Traceability (sample)
-- AC-2.2 → E2E: EX-EMPTY-FILTER; UI: MODAL-RENDER-EMPTY
-- AC-3.2 → UI: MODAL-REMOVE-REALTIME; E2E: EX-REMOVE-BEFORE-EXPORT
-- AC-6.2 → API: RATE-LIMIT-BACKOFF; E2E: EX-429-MESSAGE
-- AC-7.2 → E2E: EX-DEEPLINK-APP
+## 12. Test Cases Inventory
+> *IDs are indicative; detailed steps live in component/feature spec files.*
 
-A full matrix will be maintained in test/traceability.md and linked from PRs.
+### Unit (Jest)  
 
-## 12. Test Cases Inventory (initial)
-IDs are indicative; detailed steps live in component/feature spec files.
+- **UT-001-Auth** — Token exchange success/failure & “no tokens on cancel”  
+  _Service logic for handling Spotify OAuth callback outcomes; cancel path leaves storage empty._  
 
-### Unit (Jest)
+- **UT-002-Auth** — Revoke clears server-side tokens  
+  _Revocation call removes tokens/refresh data and returns a clean state._  
 
-- SVC-TOKEN-REFRESH-401: refresh on 401 then retry  
-- SVC-CHUNK-ADD-TRACKS: batch add in chunks of N  
-- SVC-BACKOFF-429: exponential backoff and final user-facing message  
-- SVC-SELECTOR-FILTERS: apply genre/subgenre/decade rules  
-- SVC-SELECTOR-EMPTY: empty result returns proper status  
-- GUARD-ELO-MATH: sanity update calc
+- **UT-003-Export** — Filter builder (genre/subgenre/empty)  
+  _Selector creates correct filter payload; empty filters handled consistently._  
 
-### Integration/API (Jest + Supertest)
+- **UT-004-Export** — Deezer→Spotify mapping & payload shape  
+  _Deterministic mapping rules and final request schema validation._  
 
-- API-EXPORT-VALID: validates payload, calls Spotify client correctly  
-- API-EXPORT-EMPTY: returns “no songs” response  
-- API-EXPORT-ERROR-404: per-track not found list returned  
-- API-EXPORT-ERROR-429: backoff path exercised, message surfaced  
-- API-RANKED-CONTRACT: ranked endpoint returns required fields
+- **UT-005-Export** — 429 rate-limit backoff  
+  _Backoff/jitter policy applied; surfaces “try again later” on terminal state._  
 
-### Component/UI (React Testing Library)
+- **UT-006-Export** — Name/description metadata in request  
+  _Playlist name/description included and validated._  
 
-- MODAL-RENDER: modal shows list and confirm disabled with 0 items  
-- MODAL-REMOVE-REALTIME: removing updates count and enables confirm  
-- MODAL-DEFAULT-NAME: default name uses yyyy-mm-dd format  
-- UI-PROGRESS-STATES: pending → success/error transitions  
-- UI-ERROR-MESSAGES: show “try again later” on rate limit
+- **UT-007-Export** — Per-item error surfacing (partial failures)  
+  _Accumulates per-track errors while continuing the batch._  
 
-### E2E (Cypress)
+- **UT-008-Auth** — Token refresh on 401, then retry  
+  _Refreshes access token and retries once; bubbles error if still unauthorized._  
 
-- EX-HAPPY-PATH-DESKTOP: login → filter → modal → remove → export → confirm link  
-- EX-MOBILE-VIEWPORT: repeat happy path on mobile viewport  
-- EX-EMPTY-FILTER: export with 0 matches → user message  
-- EX-OAUTH-CANCEL: cancel hosted UI → no tokens stored, retry path  
-- EX-429-MESSAGE: simulated rate-limit → message and recovery path  
-- EX-TRACK-NOT-FOUND: verify per-track errors, export continues
+- **UT-009-Export** — Batch add in chunks of N  
+  _Chunks requests to Spotify; correct boundaries and final totals._  
+
+- **UT-010-Export** — Selector empty result returns proper status  
+  _Signals “no songs available” state to callers._  
+
+- **UT-011-Export** — Selector rules (genre/subgenre/decade)  
+  _Correct inclusion/exclusion based on combined rules._  
+
+- **UT-012-Ranking** — ELO/ranking math sanity guard  
+  _Quick invariant checks on rank updates (non-regression)._  
+
+
+### Component / UI (React Testing Library + Vitest)  
+
+- **UI-001-AuthGuard** — Route guard prompts login when unauthenticated  
+  _Protected routes redirect or render login CTA._  
+
+- **UI-002-ExportModal** — Remove updates list in real time  
+  _Removing an item immediately updates the visible list._  
+
+- **UI-003-ExportModal** — Count/summary reflect removals  
+  _Badge/summary updates as items are removed._  
+
+- **UI-004-ExportModal** — Default name “Melodex Playlist [YYYY-MM-DD]”  
+  _Default value formatting and editability._  
+
+- **UI-005-Progress** — idle → loading → success/error  
+  _State machine renders correct visuals and disables/enables actions appropriately._  
+
+- **UI-006-Errors** — Error list rendering + skip/retry actions  
+  _Per-track error display and actionable buttons wired to callbacks._  
+
+- **UI-007-Confirm** — Confirmation link present & correct  
+  _Renders returned playlist URL; opens in new tab._  
+
+- **UI-008-DeepLink** — Deep-link formatting & web fallback  
+  _Builds app link; falls back to web URL when needed._  
+
+- **UI-009-ExportModal** — Renders with 0 items; confirm disabled  
+  _Edge case of empty list handled gracefully._  
+
+
+### Integration / API (Supertest + Vitest)  
+
+- **IT-001-Auth** — OAuth redirect + callback stores valid session  
+  _End-to-end server flow with mocked Spotify returns a session._  
+
+- **IT-002-Auth** — Cancel login → no tokens stored  
+  _Callback with error/cancel results in clean storage._  
+
+- **IT-003-Export** — Creates playlist with only filtered tracks  
+  _Server constructs payload from filters; posts to Spotify client._  
+
+- **IT-004-Export** — Empty filter → “no songs available”  
+  _Server returns appropriate 2xx/4xx contract + message._  
+
+- **IT-005-Export** — Respects removed songs in payload  
+  _Server excludes user-removed items prior to POST._  
+
+- **IT-006-Export** — Name/description present in Spotify payload  
+  _Asserts request body includes final name/description._  
+
+- **IT-007-Errors** — Forced backend failure → error surfaced to UI contract  
+  _Simulated Spotify failure returns API error payload your UI expects._  
+
+- **IT-008-Export** — Inject 429 → backoff + “try again later” contract  
+  _Server applies policy; response communicates retry guidance._  
+
+- **IT-009-Confirm** — Response includes playlist URL  
+  _Returns the created playlist’s web URL._  
+
+- **IT-010-Auth** — Revoke → subsequent export requires reconnect  
+  _After revoke, export endpoint rejects until re-auth._  
+
+- **IT-011-Errors** — Per-track 404 (“not found”) list returned  
+  _Aggregates track-level failures in the response._  
+
+- **IT-012-Ranked** — Ranked endpoint contract (deezerID, songName, artist, ranking)  
+  _Ensures export depends on a stable, documented schema._  
+
+
+### End-to-End (Cypress)  
+
+- **E2E-001-Export** — Happy path desktop  
+  _Auth → filter → review/remove → name/desc → export → confirm link works._  
+
+- **E2E-002-Export** — Empty filter path  
+  _Shows “no songs to export” message and no playlist created._  
+
+- **E2E-003-Auth** — Cancel login → no tokens; blocked until login  
+  _Hosted UI cancel behaves correctly._  
+
+- **E2E-004-Errors** — Backend failure → progress shows error state  
+  _User-visible error and recovery guidance displayed._  
+
+- **E2E-005-RateLimit** — 429 → “try again later”  
+  _Contract message presented; action disabled/enabled appropriately._  
+
+- **E2E-006-DeepLink** — Deep link behavior; fallback to web  
+  _Deep link attempted; web fallback verified._  
+
+- **E2E-007-Revoke** — Revoke → export prompts reconnect  
+  _From settings, revoke and confirm export is blocked._  
+
+- **E2E-008-Mobile** — Mobile viewport happy path  
+  _Responsive flow succeeds on mobile viewport._  
+
+- **E2E-009-Errors** — Per-track “not found” handled; export proceeds  
+  _Partial success path with error list and final confirmation._  
 
 ## 13. Execution Process
 - Pull latest main; run unit/integration locally
@@ -212,11 +313,7 @@ IDs are indicative; detailed steps live in component/feature spec files.
 ## 17. Configuration Management
 - Tests live beside code (feature branches), PR reviewed
 - CI: GitHub Actions; required checks before merge
-- Env via .env.local (dev) and GitHub Actions secrets (CI); never commit secrets
+- Env via .env.local (dev) and GitHub Actions secrets (CI)
 
 ## 18. Communication & Approvals
-- Progress via PR descriptions and weekly summary
-- Sign-off: Michael DeReus
-
-## 19. Revision History
-- 1.0 (2025-09-02): Initial plan for Spotify export feature
+- Progress via PR descriptions

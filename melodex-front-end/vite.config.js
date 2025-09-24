@@ -1,6 +1,7 @@
-// vite.config.ts (or .js)
+// vite.config.ts
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { defineProject } from 'vitest/config'
 
 export default defineConfig({
   plugins: [react()],
@@ -12,7 +13,7 @@ export default defineConfig({
     outDir: 'dist',          // default, but explicit
     assetsDir: 'assets',     // default, but explicit (matches your URLs)
     sourcemap: false,        // prod sourcemaps off
-    // Avoid accidentally inlining huge assets and keep hashed filenames
+    // Avoid accidentally inlining huge assets and keep hashed asset names
     assetsInlineLimit: 4096,
     rollupOptions: {
       // Ensure single HTML entry and let Vite manage hashed asset names
@@ -41,4 +42,6 @@ export default defineConfig({
     // Some AWS libs expect `global`
     global: 'window'
   }
+
+  // Base Vitest config (shared defaults)
 })

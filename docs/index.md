@@ -30,6 +30,5 @@ Use the sidebar for full navigation, or jump in with these quick links.
 - [Coding Standards](ci-cd-quality/coding-standards/)
 - [Quality Gates](ci-cd-quality/quality-gates/)
 
-
 If you encounter a broken link, please open an issue in the repository:
 https://github.com/michadereus/Melodex

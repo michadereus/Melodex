@@ -60,27 +60,27 @@ This baseline captures the current behavior of Melodex (production) before addin
 
 **DEF-001**   Verification code error  
 - Link: [DEF-001](./defects/DEF-001.md)  
-- References: `SMK-00`, PR: #2  
+- References: `SMK-00`, `PR #2`, `R-01`  
 - Severity: **Major**  
 - Priority: **Medium**  
 - Status: <span class="pill pass">Resolved</span>  
 
 **DEF-002**   Preview link expiry  
 - Link: [DEF-002](./defects/DEF-002.md)  
-- References: `EXP-00`, PR: #3  
+- References: `EXP-00`, `PR #3`, `R-05`  
 - Severity: **Major**  
 - Priority: **High**  
 - Status: <span class="pill pass">Resolved</span>  
 
 **DEF-003**   Songs attempt to load on /rank without filter  
 - Link: [DEF-003](./defects/DEF-003.md)  
-- References: `EXP-01`, PR: #4  
+- References: `EXP-01`, `PR #4`  
 - Severity: **Minor**  
 - Priority: **Medium**  
 - Status: <span class="pill pass">Resolved</span>  
 
 ## 7. Performance Snapshot (Coarse)
-One pass per primary page on Desktop Firefox with disk cache disabled (Private window).
+One pass per primary page on Desktop Firefox with disk cache disabled (Private window).  
 
 | Page | Metric | Observation | Evidence |
 |---|---|---|---|
@@ -171,13 +171,14 @@ One pass per primary page on Desktop Firefox with disk cache disabled (Private w
 - Add regression check: `/rank` loads idle with no API calls until user action.  
 
 ## 10. Traceability
-This section maps requirements → smoke tests → defects, ensuring coverage and visibility into quality.  
 
-| Requirement / Feature               | Smoke Test(s)   | Related Defect(s)   |
-|-------------------------------------|-----------------|---------------------|
-| User authentication (Email/Password) | SMK-00, SMK-01  | DEF-001             |
-| Ranking workflow (/rank)            | SMK-02, SMK-03, SMK-04 | DEF-003   |
-| Re-ranking workflow (/rerank)       | SMK-05          | –                   |
-| Rankings page (/rankings)           | SMK-06, SMK-07  | DEF-002             |
-| Filters (genre, subgenre, decade)   | SMK-08          | DEF-003             |
-| Export / Data persistence           | SMK-09          | –                   |
+This section maps requirements → smoke tests → defects → risks, ensuring coverage and visibility into quality.
+
+| Requirement / Feature                | Smoke Test(s)            | Related Defect(s)               | Related Risk(s) |
+|-------------------------------------|---------------------------|---------------------------------|-----------------|
+| User authentication (Email/Password)| SMK-00, SMK-01            | DEF-001                         | R-01            |
+| Ranking workflow (/rank)            | SMK-02, SMK-03, SMK-04    | DEF-003                         | R-21            |
+| Re-ranking workflow (/rerank)       | SMK-05                    | –                               | –               |
+| Rankings page (/rankings)           | SMK-06, SMK-07            | DEF-002                         | R-05            |
+| Filters (genre, subgenre, decade)   | SMK-08                    | DEF-003                         | R-21            |
+| Export / Data persistence           | SMK-09                    | –                               | –               |

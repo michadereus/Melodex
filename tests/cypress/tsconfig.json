@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "types": ["cypress"]
+  },
+  "include": [
+    "e2e/**/*.cy.*",
+    "../support/cypress/**/*.ts"
+  ],
+  "exclude": ["node_modules", "../../dist", "../../build"]
+}

@@ -72,7 +72,6 @@ nav:
   - Home: index.md
 
   - Overview:
-    - About These Docs: overview/about-docs.md
     - Overview: overview/index.md
     - Architecture: overview/architecture.md
 
