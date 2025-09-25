@@ -1,0 +1,81 @@
+name: E2E — Cypress (local)
+
+on:
+  pull_request:
+    paths:
+      - "melodex-front-end/**"
+      - "melodex-back-end/**"
+      - "tests/cypress/**"
+      - "cypress.config.*"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/e2e.yml"
+  push:
+    branches: ["**"]
+    paths:
+      - "melodex-front-end/**"
+      - "melodex-back-end/**"
+      - "tests/cypress/**"
+      - "cypress.config.*"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/e2e.yml"
+  workflow_dispatch:
+    inputs:
+      spec:
+        description: "Spec glob (default: all e2e)"
+        required: true
+        default: "tests/cypress/e2e/**/*.cy.{ts,tsx,js,jsx}"
+      browser:
+        description: "Browser"
+        required: true
+        default: "chrome"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    # Run automatically only when the flag is on; always allow manual dispatch
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.E2E_LIVE_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CYPRESS_BASE_URL: http://localhost:3001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      # Start both API (8080) + WEB (3001)
+      - name: Start dev servers
+        run: npm run dev &
+
+      - name: Wait for servers
+        run: npx wait-on -v tcp:localhost:8080 tcp:localhost:3001
+        # ensure `wait-on` is a devDependency: npm i -D wait-on
+
+      - name: Run Cypress (E2E)
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: ${{ github.event_name == 'workflow_dispatch' && inputs.browser || 'chrome' }}
+          spec: ${{ github.event_name == 'workflow_dispatch' && inputs.spec || 'tests/cypress/e2e/**/*.cy.{ts,tsx,js,jsx}' }}
+          config: baseUrl=${{ env.CYPRESS_BASE_URL }}
+
+      - name: Upload Cypress artifacts (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-e2e-artifacts
+          path: |
+            tests/cypress/screenshots
+            tests/cypress/videos
+          if-no-files-found: ignore

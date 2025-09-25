@@ -1,0 +1,51 @@
+name: Tests — Vitest (fast)
+
+on:
+  pull_request:
+    paths:
+      - "melodex-front-end/**"
+      - "melodex-back-end/**"
+      - "src/**"
+      - "tests/**"
+      - "vitest.config.*"
+      - "tsconfig*.json"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/pr-tests.yml"
+  push:
+    branches: [ "**" ]   # any branch
+    paths:
+      - "melodex-front-end/**"
+      - "melodex-back-end/**"
+      - "src/**"
+      - "tests/**"
+      - "vitest.config.*"
+      - "tsconfig*.json"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/pr-tests.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vitest:
+    name: Vitest (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ["unit-ui", "integration"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run Vitest (${{ matrix.project }})
+        run: npx vitest run --project ${{ matrix.project }}
