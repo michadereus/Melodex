@@ -11,19 +11,18 @@ on:
       - "tsconfig*.json"
       - "package.json"
       - "package-lock.json"
-      - ".github/workflows/pr-tests.yml"
+      - ".github/workflows/**"
   push:
     branches: [ "**" ]   # any branch
     paths:
       - "melodex-front-end/**"
       - "melodex-back-end/**"
-      - "src/**"
       - "tests/**"
       - "vitest.config.*"
       - "tsconfig*.json"
       - "package.json"
       - "package-lock.json"
-      - ".github/workflows/pr-tests.yml"
+      - ".github/workflows/**"
 
 permissions:
   contents: read

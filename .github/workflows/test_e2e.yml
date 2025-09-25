@@ -9,7 +9,7 @@ on:
       - "cypress.config.*"
       - "package.json"
       - "package-lock.json"
-      - ".github/workflows/e2e.yml"
+      - ".github/workflows/**"
   push:
     branches: ["**"]
     paths:
@@ -19,7 +19,7 @@ on:
       - "cypress.config.*"
       - "package.json"
       - "package-lock.json"
-      - ".github/workflows/e2e.yml"
+      - ".github/workflows/**"
   workflow_dispatch:
     inputs:
       spec:
