@@ -21,32 +21,27 @@ const allowedOrigins = process.env.CORS_ORIGIN
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
+    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+    else callback(new Error('Not allowed by CORS'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
   optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions), (req, res) => {
-  res.sendStatus(204);
-});
+app.options('*', cors(corsOptions), (_req, res) => res.sendStatus(204));
 
 app.use((req, res, next) => {
   console.log(`Incoming: ${req.method} ${req.url} from ${req.ip}`);
-  res.on('finish', () => {
-    console.log(`Outgoing: ${req.method} ${req.url} - ${res.statusCode}`);
-  });
+  res.on('finish', () => console.log(`Outgoing: ${req.method} ${req.url} - ${res.statusCode}`));
   next();
 });
 
 app.use(express.json());
 
+// --- DB connect ---
 const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 let client;
 
@@ -61,19 +56,25 @@ async function connectDB() {
   }
 }
 
-async function startServer() {
-  await connectDB();
-  const apiRoutes = require('./routes/api');
-  app.use('/api', apiRoutes);
-  console.log('API routes mounted');
-
-  const PORT = process.env.PORT || 8080;
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server started on port ${PORT}`);
-  });
+// --- Mount routers (API under /api, Auth at root) ---
+async function mountRoutes() {
+  const { apiRouter, authRouter } = require('./routes/api');
+  app.use('/api', apiRouter);
+  app.use(authRouter);
+  console.log('Routers mounted: /api/* and /auth/*');
 }
 
-startServer();
+// --- Start server only when run directly ---
+async function startServer() {
+  await connectDB();
+  await mountRoutes();
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, '0.0.0.0', () => console.log(`Server started on port ${PORT}`));
+}
+
+if (require.main === module) {
+  startServer();
+}
 
 process.on('SIGINT', async () => {
   if (client) await client.close();
@@ -81,12 +82,13 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-// Error handling middleware for CORS errors
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
   if (err.message === 'Not allowed by CORS') {
-    res.set('Access-Control-Allow-Origin', '*'); // Temporary for debugging
+    res.set('Access-Control-Allow-Origin', '*');
     res.status(403).json({ error: 'CORS error', message: err.message });
   } else {
     res.status(500).json({ error: 'Server error', message: err.message });
   }
 });
+
+module.exports = app;
