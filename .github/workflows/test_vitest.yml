@@ -1,3 +1,4 @@
+# .github/workflows/test_vitest.yml
 name: Tests — Vitest (fast)
 
 on:
@@ -45,6 +46,8 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: |
+          npm ci
+          npm run install:all:ci
       - name: Run Vitest (${{ matrix.project }})
         run: npx vitest run --project ${{ matrix.project }}
