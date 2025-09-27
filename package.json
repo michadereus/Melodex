@@ -17,7 +17,9 @@
     "test:integration": "vitest run --project integration",
     "test:watch": "vitest",
     "cy:open": "cypress open",
-    "cy:run": "cypress run"
+    "cy:run": "cypress run",
+    "install:all:ci": "npm -C melodex-back-end ci && npm -C melodex-front-end ci"
+
   },
   "devDependencies": {
     "@cypress/webpack-dev-server": "^5.1.2",
