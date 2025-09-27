@@ -9,6 +9,7 @@
     "node-fetch": "^3.3.2"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "install:all:ci": "npm -C melodex-back-end ci && npm -C melodex-front-end ci"
   }
 }
