@@ -124,9 +124,6 @@ function isDeezerPreviewLikelyValid(url) {
   }
 }
 
-
-/* ------------------------------ controller ------------------------------ */
-
 class UserSongsController {
   // ----- ALIAS added to match router wiring -----
   static async rehydrateSong(req, res) {
