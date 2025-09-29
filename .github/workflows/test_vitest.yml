@@ -3,10 +3,10 @@ name: Tests — Vitest (fast)
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - "melodex-front-end/**"
       - "melodex-back-end/**"
-      - "src/**"
       - "tests/**"
       - "vitest.config.*"
       - "tsconfig*.json"
@@ -14,7 +14,7 @@ on:
       - "package-lock.json"
       - ".github/workflows/**"
   push:
-    branches: [ "**" ]   # any branch
+    branches: [main]
     paths:
       - "melodex-front-end/**"
       - "melodex-back-end/**"
@@ -24,6 +24,7 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/**"
+
 
 permissions:
   contents: read
