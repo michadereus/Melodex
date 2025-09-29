@@ -20,5 +20,6 @@ const AuthController = require('../controllers/AuthController');
 authRouter.get('/auth/start', AuthController.start);
 // Callback (validate state, exchange code, set cookies, redirect to /rankings)
 authRouter.get('/auth/callback', AuthController.callback);
+authRouter.get('/auth/session',  AuthController.session); 
 
 module.exports = { apiRouter, authRouter };

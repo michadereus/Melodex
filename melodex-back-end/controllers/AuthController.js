@@ -128,6 +128,15 @@ const AuthController = {
       res.redirect('/login?error=unexpected');
     }
   },
+
+   /** GET /auth/session — tiny probe for “am I connected to Spotify?” */
+  async session(req, res) {
+    const cookie = req.headers.cookie || "";
+    // simplest check: do we have an "access" cookie set by /auth/callback?
+    const connected = /(?:^|;\s*)access=/.test(cookie);
+    res.json({ connected });
+  }
+
 };
 
 module.exports = AuthController;

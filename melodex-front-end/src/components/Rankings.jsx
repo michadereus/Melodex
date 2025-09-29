@@ -1,9 +1,23 @@
-// Filepath: Melodex/melodex-front-end/src/components/Rankings.jsx
+// Filepath: melodex-front-end/src/components/Rankings.jsx
 import { useSongContext } from '../contexts/SongContext';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useVolumeContext } from '../contexts/VolumeContext';
 import SongFilter from './SongFilter';
 import '../index.css';
+
+// ===== Exportable helper so UI tests can import it =====
+export async function ensureSpotifyConnected(authRoot = '') {
+  const base = String(authRoot || '').replace(/\/+$/, '');
+  try {
+    const r = await fetch(`${base}/auth/session`, { credentials: 'include' });
+    if (!r.ok) return { shouldRedirect: true, to: `${base}/auth/start` };
+    const { connected } = await r.json();
+    if (!connected) return { shouldRedirect: true, to: `${base}/auth/start` };
+    return { shouldRedirect: false };
+  } catch {
+    return { shouldRedirect: true, to: `${base}/auth/start` };
+  }
+}
 
 const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
@@ -38,6 +52,7 @@ const Rankings = () => {
   const normalizeNoTrail = (s) => String(s).replace(/\/+$/, '');
   const baseNoTrail = normalizeNoTrail(RAW_BASE);
   const API_ROOT = /\/api$/.test(baseNoTrail) ? baseNoTrail : `${baseNoTrail}/api`;
+  const AUTH_ROOT = baseNoTrail;
 
   const joinUrl = (...parts) =>
     parts
@@ -161,7 +176,7 @@ const Rankings = () => {
       // merge into lists
       const matches = (s) =>
         (s._id && updated._id && String(s._id) === String(updated._id)) ||
-        (!!s.deezerID && !!updated.deezerID && String(s.deezerID) === String(updated.deezerID)) ||
+        (!!s.deezerID && !!updated.deezerID && String(s.deezerID) === String(s.deezerID)) ||
         (s.songName === song.songName && s.artist === song.artist);
 
       setEnrichedSongs((prev) => prev.map((s) => (matches(s) ? { ...s, ...updated } : s)));
@@ -401,6 +416,16 @@ const Rankings = () => {
       setFilteredSongs([]);
     }
   };
+
+  async function onExportClick() {
+    const decision = await ensureSpotifyConnected(AUTH_ROOT);
+    if (decision.shouldRedirect) {
+      window.location.href = decision.to;
+      return;
+    }
+    // connected → open your export UI (drawer/modal)
+    console.log('Spotify connected — ready to open export UI');
+  }
 
   const toggleFilter = () => setShowFilter((prev) => !prev);
 
@@ -648,7 +673,7 @@ const Rankings = () => {
                             marginTop: '0.5rem',
                           }}
                         >
-                        
+                          {/* No preview available */}
                         </span>
                       )}
                     </div>
