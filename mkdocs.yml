@@ -80,17 +80,17 @@ nav:
     - Acceptance Criteria: requirements/acceptance-criteria.md
     - Non-Functional Requirements: requirements/nfrs.md
 
-  - Reports:
-    - Baseline: reports/baseline.md
-    - Execution Summary: reports/execution-summary.md
-    - Defect Log: reports/bugs.md
-
   - Test:
     - Test Approach: test/test-approach.md
     - Test Plan: test/test-plan.md
     - Traceability Matrix: test/traceability.md
     - Risk Log: test/risk-log.md
     - Exploratory Charters: test/exploratory-charters.md
+
+  - Reports:
+    - Baseline: reports/baseline.md
+    - Execution Summary: reports/execution-summary.md
+    - Defect Log: reports/bugs.md
 
   - How-To:
     - Local Development: how-to/local-dev.md

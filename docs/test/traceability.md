@@ -1,145 +1,174 @@
-# Requirements Traceability Matrix
-
 # Traceability Matrix — Spotify Playlist Export (Melodex)
 ---
 
 ## Legend
 
-- US-xx  = User Story  
-- AC-xx.x = Acceptance Criterion for a given story  
-- UT-… = Unit tests (Jest / RTL / Supertest)  
-- IT-… = Integration/API tests (Supertest)  
-- E2E-… = End-to-end tests (Cypress)  
+- **US-xx**  = User Story  
+- **AC-xx.x** = Acceptance Criterion for a given story  
+- **UT-…** = Unit tests (Jest / RTL / Supertest)  
+- **IT-…** = Integration/API tests (Supertest)  
+- **E2E-…** = End-to-end tests (Cypress)  
 - Status: Planned | In Progress | Passed | Blocked
 
 ---
 
 ## Matrix
-> *This matrix maps User Stories (US) → Acceptance Criteria (AC) → Test Cases (Unit / Integration / E2E), and links Smokes, Defects, and Risks.*
+> *This matrix maps User Stories (US) → Acceptance Criteria (AC) → Test Cases (Unit / Integration / E2E), and links Smokes, Defects, and Risks.*  
 
 <div class="trace-table" markdown="1">
-| Story ID | User Story (short) | Acceptance Criteria | Unit Tests | UI Tests | Integration Tests | E2E Tests | Smoke(s) | Defects | Risks | Status |
+| Story ID | User Story (short) | Acceptance Criteria | Unit Tests | UI Tests | Integration Tests | E2E Tests | Smokes | Defects | Risks | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| **US-01** | Authenticate with Spotify | **AC-01.1** Redirect back with valid session<br>**AC-01.2** Prompt login if unauthenticated (protected action)<br>**AC-01.3** No tokens stored on cancel<br>**AC-01.4** Tokens stored securely<br>**AC-01.5** Token refresh works | **UT-001-Auth**<br>**UT-002-Auth**<br>**UT-008-Auth** | **UI-001-AuthGuard** (protected action: Export CTA prompts connect if unauthenticated) | **IT-001-Auth**<br>**IT-002-Auth**<br>**IT-010-Auth** | **E2E-001-Export** (auth included)<br>**E2E-003-Auth** (cancel) | **SMK-00** (Login)<br>**SMK-01** (Protected action) | **DEF-001** | **R-01** (Auth/OAuth config)<br>**R-02** (Token refresh) | <span class="pill progress">In Progress</span> |
-| **US-02** | Export ranked songs by current filter | **AC-02.1** Creates playlist with filtered songs<br>**AC-02.2** Empty filter → “no songs to export”<br>**AC-02.3** Spotify track mapping applied<br>**AC-02.4** Only ranked/unskipped included | **UT-003-Export**<br>**UT-004-Export**<br>**UT-011-Export** | **UI-009-ExportModal** (renders 0 items; confirm disabled) | **IT-003-Export**<br>**IT-004-Export**<br>**IT-012-Ranked** | **E2E-001-Export**<br>**E2E-002-Export** | **SMK-09** (Export/data persistence) | – | **R-04** (Mapping quality)<br>**R-14** (Ranking integrity) | <span class="pill planned">Planned</span> |
-| **US-03** | Review & remove before export | **AC-03.1** Remove before export<br>**AC-03.2** Only remaining songs exported<br>**AC-03.3** Count/summary updates | **UI-002-ExportModal**<br>**UI-003-ExportModal** | **UI-002-ExportModal** (remove updates list)<br>**UI-003-ExportModal** (count/summary updates) | **IT-005-Export** | **E2E-001-Export** | **SMK-09** | – | **R-15** (Duplicates)<br>**R-20** (Export scope clarity) | <span class="pill planned">Planned</span> |
-| **US-04** | Add playlist name/description | **AC-04.1** Name/description applied<br>**AC-04.2** Default name format | **UT-006-Export** | **UI-004-ExportModal** (default name formatting; editable) | **IT-006-Export** | **E2E-001-Export** | **SMK-09** | – | **R-10** (Perception/progress)<br>**R-20** (Scope clarity) | <span class="pill planned">Planned</span> |
-| **US-05** | Real-time feedback during export | **AC-05.1** Progress shown<br>**AC-05.2** Success state<br>**AC-05.3** Error state | – | **UI-005-Progress** (idle→loading→success/error) | **IT-007-Errors** | **E2E-004-Errors**<br>**E2E-001-Export** | **SMK-09** | – | **R-10** (Perception/progress) | <span class="pill planned">Planned</span> |
-| **US-06** | Error handling | **AC-06.1** Per-song errors surfaced<br>**AC-06.2** 429 shows “try again later”<br>**AC-06.3** Retry/skip available | **UT-005-Export**<br>**UT-007-Export** | **UI-006-Errors** (list + skip/retry actions) | **IT-008-Export**<br>**IT-011-Errors** | **E2E-005-RateLimit**<br>**E2E-009-Errors** | **SMK-09** | – | **R-03** (Rate limit 429)<br>**R-11** (Partial failures UX) | <span class="pill planned">Planned</span> |
-| **US-07** | Confirmation with playlist link | **AC-07.1** Confirmation link present<br>**AC-07.2** Deep link with fallback | – | **UI-007-Confirm** (link present & correct)<br>**UI-008-DeepLink** (deep link + web fallback) | **IT-009-Confirm** | **E2E-001-Export**<br>**E2E-006-DeepLink** | **SMK-09** | – | **R-09** (Mobile deep link)<br>**R-10** (Perception) | <span class="pill planned">Planned</span> |
-| **US-08** | Revoke Spotify access | **AC-08.1** Disconnect invalidates tokens<br>**AC-08.2** Export prompts reconnect | **UT-002-Auth** | – | **IT-010-Auth** | **E2E-007-Revoke** | **SMK-00** (Auth basics) | – | **R-02** (Token refresh/session) | <span class="pill planned">Planned</span> |
-| **Baseline** | Ranking flows & filters | **AC-F.1** No auto-fetch until Apply<br>**AC-F.2** Background burst capped ~33<br>**AC-F.3** Filters don’t clip UI | **UT-012-Ranking** | – | – | – | **SMK-02/03/08** | **DEF-003** | **R-21** (Unbounded fetch → infra costs) | <span class="pill pass">Resolved</span> |
-| **Baseline** | Rankings playback stability | **AC-P.1** Older previews refresh<br>**AC-P.2** No broken players | – | – | **IT-012-Ranked** (contract basis) | – | **SMK-06/07** | **DEF-002** | **R-05** (Preview expiry) | <span class="pill pass">Resolved</span> |
+| **US-01** | Authenticate with Spotify | **AC-01.1** Redirect back with valid session<br>**AC-01.2** Prompt login if unauthenticated protected action<br>**AC-01.3** No tokens stored on cancel<br>**AC-01.4** Tokens stored securely<br>**AC-01.5** Token refresh works | **UT-001-Auth** Cookie flags httpOnly SameSite Secure max-age<br>**UT-002-Auth** Revoke clears tokens<br>**UT-008-Auth** Refresh on 401 | **UI-001-AuthGuard** Export CTA prompts connect when unauthenticated | **IT-001-Auth** Callback success sets cookies plus 302<br>**IT-002-Auth** Auth session connected flag<br>**IT-010-Auth** Revoke blocks export | **E2E-001-Export** Happy path including auth<br>**E2E-003-Auth** Cancel flow leaves no tokens | **SMK-00** Login basics<br>**SMK-01** Protected action | **DEF-001** | **R-01** OAuth config<br>**R-02** Token refresh | <span class="pill progress">In Progress</span> |
+| **US-02** | Export ranked songs by current filter | **AC-02.1** Creates playlist with filtered songs<br>**AC-02.2** Empty filter shows no songs to export<br>**AC-02.3** Spotify track mapping applied<br>**AC-02.4** Only ranked and unskipped included | **UT-003-Export** Filter builder<br>**UT-004-Export** Deezer to Spotify mapping<br>**UT-011-Export** Selector rules | **UI-009-ExportModal** Renders zero items confirm disabled | **IT-003-Export** Creates playlist with only filtered<br>**IT-004-Export** Empty filter message<br>**IT-012-Ranked** Ranked contract deps | **E2E-001-Export** Happy path<br>**E2E-002-Export** Empty filter path | **SMK-09** Export data persistence | – | **R-04** Mapping quality<br>**R-14** Ranking integrity | <span class="pill planned">Planned</span> |
+| **US-03** | Review and remove before export | **AC-03.1** Remove before export<br>**AC-03.2** Only remaining songs exported<br>**AC-03.3** Count and summary updates | **UI-002-ExportModal** Remove updates list<br>**UI-003-ExportModal** Count and summary updates | **UI-002-ExportModal** Remove updates list<br>**UI-003-ExportModal** Count and summary updates | **IT-005-Export** Respects removals | **E2E-001-Export** Happy path | **SMK-09** Export data persistence | – | **R-15** Duplicates<br>**R-20** Export scope clarity | <span class="pill planned">Planned</span> |
+| **US-04** | Add playlist name and description | **AC-04.1** Name and description applied<br>**AC-04.2** Default name format | **UT-006-Export** Name and description in payload | **UI-004-ExportModal** Default name formatting editable | **IT-006-Export** Name and description in Spotify payload | **E2E-001-Export** Happy path | **SMK-09** Export data persistence | – | **R-10** Perception and progress<br>**R-20** Scope clarity | <span class="pill planned">Planned</span> |
+| **US-05** | Real-time feedback during export | **AC-05.1** Progress shown<br>**AC-05.2** Success state<br>**AC-05.3** Error state | – | **UI-005-Progress** Idle to loading to success or error | **IT-007-Errors** Backend failure returns error contract | **E2E-004-Errors** Progress shows error<br>**E2E-001-Export** Happy path | **SMK-09** Export data persistence | – | **R-10** Perception and progress | <span class="pill planned">Planned</span> |
+| **US-06** | Error handling | **AC-06.1** Per-song errors surfaced<br>**AC-06.2** 429 shows try again later<br>**AC-06.3** Retry or skip available | **UT-005-Export** 429 backoff policy<br>**UT-007-Export** Per-item error surfacing | **UI-006-Errors** List plus skip or retry actions | **IT-008-Export** Inject 429 with retry guidance<br>**IT-011-Errors** Per-track 404 list | **E2E-005-RateLimit** 429 path<br>**E2E-009-Errors** Partial failures | **SMK-09** Export data persistence | – | **R-03** 429 rate limit<br>**R-11** Partial failures UX | <span class="pill planned">Planned</span> |
+| **US-07** | Confirmation with playlist link | **AC-07.1** Confirmation link present<br>**AC-07.2** Deep link with fallback | – | **UI-007-Confirm** Link present and correct<br>**UI-008-DeepLink** App deep link and web fallback | **IT-009-Confirm** Response includes playlist URL | **E2E-001-Export** Happy path<br>**E2E-006-DeepLink** App versus web fallback | **SMK-09** Export data persistence | – | **R-09** Mobile deep link<br>**R-10** Perception | <span class="pill planned">Planned</span> |
+| **US-08** | Revoke Spotify access | **AC-08.1** Disconnect invalidates tokens<br>**AC-08.2** Export prompts reconnect<br>**AC-08.3** Removed from Spotify connected apps | **UT-002-Auth** Revoke clears tokens | – | **IT-010-Auth** Revoke requires reconnect to export | **E2E-007-Revoke** Blocked until reconnect | **SMK-00** Auth basics | – | **R-02** Token refresh and session | <span class="pill planned">Planned</span> |
+| **Baseline** | Ranking flows and filters | **AC-F.1** No auto-fetch until Apply<br>**AC-F.2** Background burst capped about 33<br>**AC-F.3** Filters do not clip UI | **UT-012-Ranking** ELO math sanity | – | – | – | **SMK-02** Filter and nav<br>**SMK-03** Filter and nav<br>**SMK-08** Filter and nav | **DEF-003** | **R-21** Unbounded fetch costs | <span class="pill pass">Passed</span> |
+| **Baseline** | Rankings playback stability | **AC-P.1** Older previews refresh<br>**AC-P.2** No broken players | – | – | **IT-012-Ranked** Ranked endpoint contract | – | **SMK-06** Preview robustness<br>**SMK-07** Preview robustness | **DEF-002** | **R-05** Preview expiry | <span class="pill pass">Passed</span> |
+
 </div>
 
 ---
 
-## Acceptance Criteria Reference
-
-- US-01 Authenticate with Spotify  
-  - **AC-01.1** Given I connect, when I complete Spotify login, then I’m redirected to Melodex with a valid session token.  
-  - **AC-01.2** Given I’m not authenticated, when I try to export, then I’m prompted to log in first.  
-  - **AC-01.3** Given I cancel Spotify login, when I return to Melodex, then no tokens are stored.
-
-- US-02 Export ranked songs by current filter  
-  - **AC-02.1** Given I have ranked songs and a filter, when I export, then a Spotify playlist is created with only the filtered songs.  
-  - **AC-02.2** Given a filter yields no matches, when I export, then I see “no songs available for export.”
-
-- US-03 Review & remove songs before export  
-  - **AC-03.1** Given I open the export list, when I remove songs, then the list updates in real time.  
-  - **AC-03.2** Given removals, when I confirm export, then only remaining songs are included and the UI reflects removals in real time.
-
-- US-04 Add playlist name/description  
-  - **AC-04.1** Given I enter a name/description, when I export, then Spotify reflects those values.  
-  - **AC-04.2** Given no name entered, when I export, then the default is “Melodex Playlist [Date].”
-
-- US-05 Real-time feedback during export  
-  - **AC-05.1** Given export starts, when processing, then a progress indicator is shown.  
-  - **AC-05.2** Given export completes, then the indicator shows completion.  
-  - **AC-05.3** Given export fails, then the indicator shows an error state.
-
-- US-06 Error handling  
-  - **AC-06.1** Given a song can’t be added, then I see an error for that item.  
-  - **AC-06.2** Given multiple errors, then I see a list with options (skip/retry).  
-  - **AC-06.3** Given API rate limits (429), then I see “try again later.”
-
-- US-07 Confirmation with playlist link  
-  - **AC-07.1** Given export succeeds, then I see a confirmation with a clickable link.  
-  - **AC-07.2** Given the link is clicked and Spotify app is installed, it opens in the app (else web fallback).
-
-- US-08 Revoke Spotify access  
-  - **AC-08.1** Given I’m connected, when I disconnect, tokens are invalidated.  
-  - **AC-08.2** Given I revoked, when I try to export, I’m prompted to reconnect.  
-  - **AC-08.3** Given I revoked, when I check Spotify connected apps, Melodex no longer appears.
-
----
-
-## Test Case Inventory (IDs Only)
+## Acceptance Criteria + Test Inventory Reference
 > *For full inventory with descriptors see test plan.*
 
-### Unit (Jest)
+### Feature Testing
 
-- UT-001-Auth
-- UT-002-Auth
-- UT-003-Export
-- UT-004-Export
-- UT-005-Export
-- UT-006-Export
-- UT-007-Export
-- UT-008-Auth
-- UT-009-Export
-- UT-010-Export
-- UT-011-Export
-- UT-012-Ranking
+- **US-01 — Authenticate with Spotify**
+    - **AC-01.1** — Given I complete Spotify OAuth successfully, when Melodex receives the callback with a valid code and state/PKCE, then Melodex establishes a valid session (secure httpOnly, SameSite cookies) and redirects to the post-login route (e.g., `/rank`).
+        - UT-001-Auth  
+        - IT-001-Auth  
+    - **AC-01.2** — Given I am not authenticated, when I navigate to a protected route or attempt an export, then I am prompted to log in to Spotify first.
+        - UI-001-AuthGuard  
+        - IT-002-Auth  
+        - IT-010-Auth  
+        - E2E-003-Auth  
+    - **AC-01.3** — Given I cancel at Spotify (callback contains `error=access_denied`), when Melodex handles the callback, then no access/refresh tokens are stored anywhere and I remain unauthenticated.
+        - IT-001-Auth  
+    - **AC-01.4** — Given a successful token exchange, when the app stores credentials, then access/refresh tokens are stored only in secure, httpOnly, SameSite cookies and never in web storage.
+        - UT-001-Auth  
+        - IT-001-Auth  
+    - **AC-01.5** — Given my access token expires, when a protected request returns 401, then the app attempts a single refresh and retries once on success or logs me out and prompts reconnect on failure.
+        - UT-008-Auth  
+        - IT-010-Auth  
 
-### Component / UI (React Testing Library + Jest)
+- **US-02 — Export ranked songs by current filter**
+    - **AC-02.1** — Given I have ranked songs and an active filter, when I select “Export to Spotify,” then a new Spotify playlist is created containing only the songs that match the current filter.
+        - UT-003-Export  
+        - UT-004-Export  
+        - IT-003-Export  
+        - IT-004-Export  
+        - E2E-001-Export  
+    - **AC-02.2** — Given the current filter matches no songs, when I attempt export, then I see a “No songs available for export” message and no playlist is created.
+        - IT-004-Export  
+        - E2E-002-Export  
+    - **AC-02.3** — Given Melodex holds Deezer-backed metadata for my ranked list, when songs are exported to Spotify, then each exported track resolves to the correct Spotify track using the mapping rules and unmapped tracks follow error handling.
+        - UT-004-Export  
+        - UT-011-Export  
+        - IT-004-Export  
+        - IT-012-Ranked  
+    - **AC-02.4** — Given I removed or skipped some items in the review step, when I export, then only ranked and not-removed items are sent to Spotify.
+        - UT-009-Export  
+        - IT-005-Export  
+        - IT-006-Export  
 
-- UI-001-AuthGuard
-- UI-002-ExportModal
-- UI-003-ExportModal
-- UI-004-ExportModal
-- UI-005-Progress
-- UI-006-Errors
-- UI-007-Confirm
-- UI-008-DeepLink
-- UI-009-ExportModal
+- **US-03 — Review & remove before export**
+    - **AC-03.1** — Given I click “Export to Spotify,” when the export modal opens, then I can see the list of songs to be exported including song title and artist.
+        - UI-002-ExportModal  
+        - IT-005-Export  
+    - **AC-03.2** — Given I remove one or more songs in the modal, when I proceed with export, then only the remaining songs are included in the playlist.
+        - UI-003-ExportModal  
+        - IT-005-Export  
+    - **AC-03.3** — Given I change filters or close the modal, when I reopen the modal, then the list reflects the latest filter and prior removals are reset unless I explicitly saved changes, and counts/summary update accordingly.
+        - UI-003-ExportModal  
+        - IT-005-Export  
 
-### Integration / API (Supertest + Jest)
+- **US-04 — Add playlist name/description**
+    - **AC-04.1** — Given I am exporting a playlist, when I enter a name and/or description, then the created Spotify playlist uses those values.
+        - UT-006-Export  
+        - UI-004-ExportModal  
+        - IT-006-Export  
+    - **AC-04.2** — Given I do not enter a name, when I confirm export, then the playlist name defaults to “Melodex Playlist YYYY-MM-DD.”
+        - UT-006-Export  
+        - UI-004-ExportModal  
+        - IT-006-Export  
 
-- IT-001-Auth
-- IT-002-Auth
-- IT-003-Export
-- IT-004-Export
-- IT-005-Export
-- IT-006-Export
-- IT-007-Errors
-- IT-008-Export
-- IT-009-Confirm
-- IT-010-Auth
-- IT-011-Errors
-- IT-012-Ranked
+- **US-05 — Real-time feedback during export**
+    - **AC-05.1** — Given I start export, when processing is underway, then a progress or loading indicator remains visible until completion or failure.
+        - UI-005-Progress  
+        - IT-007-Errors  
+        - E2E-004-Errors  
+    - **AC-05.2** — Given the playlist is successfully created, when export completes, then the progress indicator shows completion and a success confirmation is displayed.
+        - E2E-001-Export  
+    - **AC-05.3** — Given an error prevents completion, when the process stops, then I see an error state with clear next steps such as retry.
+        - UI-005-Progress  
+        - IT-007-Errors  
+        - E2E-004-Errors  
 
-### End-to-End (Cypress)
+- **US-06 — Error handling**
+    - **AC-06.1** — Given a song cannot be added to Spotify (for example, not found or region-restricted), when the export runs, then I see an error message identifying the issue and options to skip the song and continue or cancel the export.
+        - UT-005-Export  
+        - UI-006-Errors  
+        - IT-011-Errors  
+        - E2E-009-Errors  
+    - **AC-06.2** — Given Spotify rate limits are reached, when the export runs, then I see a “Try again later” message that explains the condition and suggests a retry.
+        - UT-005-Export  
+        - IT-008-Export  
+        - E2E-005-RateLimit  
+    - **AC-06.3** — Given one or more errors occur, when I choose how to proceed, then I can retry, skip all failing songs, or cancel the export.
+        - UT-007-Export  
+        - UI-006-Errors  
+        - IT-011-Errors  
+        - E2E-009-Errors  
 
-- E2E-001-Export
-- E2E-002-Export
-- E2E-003-Auth
-- E2E-004-Errors
-- E2E-005-RateLimit
-- E2E-006-DeepLink
-- E2E-007-Revoke
-- E2E-008-Mobile
-- E2E-009-Errors
+- **US-07 — Confirmation with playlist link**
+    - **AC-07.1** — Given export succeeds, when the flow completes, then I see a confirmation with a clickable link to the new Spotify playlist.
+        - UI-007-Confirm  
+        - IT-009-Confirm  
+    - **AC-07.2** — Given I click the confirmation link, when the Spotify app is installed, then the playlist opens in the app; otherwise, it opens in the browser with a web fallback.
+        - UI-008-DeepLink  
+        - E2E-006-DeepLink  
 
+- **US-08 — Revoke Spotify access**
+    - **AC-08.1** — Given I am connected to Spotify, when I choose “Disconnect Spotify” in settings, then the integration is revoked and tokens are invalidated so protected Spotify calls are no longer possible.
+        - IT-010-Auth  
+        - E2E-007-Revoke  
+    - **AC-08.2** — Given I have revoked access, when I attempt to export again, then I am prompted to reconnect to Spotify.
+        - UI-001-AuthGuard  
+        - IT-010-Auth  
+        - E2E-007-Revoke  
+    - **AC-08.3** — Given I revoke access in Melodex, when I check my Spotify account’s connected apps, then Melodex no longer appears in the list of authorized applications (subject to Spotify’s propagation timing).
+        - IT-010-Auth  
+
+### Baseline Testing
+
+- **Baseline — Ranking flows & filters**
+    - **AC-F.1** — Given I adjust ranking filters, when I have not clicked Apply, then no background fetch occurs.
+        - UT-012-Ranking  
+    - **AC-F.2** — Given the app preloads or refreshes previews/data, when background fetching occurs, then the burst is capped at approximately 33 items to control cost and latency.
+        - UT-012-Ranking  
+    - **AC-F.3** — Given I apply filters, when the list updates, then UI elements are not clipped or truncated and remain navigable.
+        - UI-009-ExportModal  
+
+- **Baseline — Rankings playback stability**
+    - **AC-P.1** — Given a preview URL has expired, when I attempt playback, then the preview refreshes and playback resumes without manual reload.
+        - IT-012-Ranked  
+    - **AC-P.2** — Given I navigate or refresh the page, when previews are displayed, then no broken player states persist and controls remain responsive.
+        - IT-012-Ranked  
 
 ---
 
 ## Coverage Status (roll-up)
 
-| Layer | Planned | In Progress | Passed | Notes |
-|---|---:|---:|---:|---|
-| Unit | 15 | 0 | 0 | Target ≥ 80% lines/branches for new code |
-| Integration | 10 | 0 | 0 | Critical paths: auth, export, revoke |
-| E2E | 7 | 0 | 0 | Run on PR + nightly |
+| Layer        | Planned | In Progress | Passed | Notes                                        |
+|--------------|-------:|------------:|------:|----------------------------------------------|
+| Unit         |    15  |           2 |     1 | Target ≥ 80% lines/branches for new code     |
+| UI (component)|     9 |           0 |     1 | RTL + Vitest                                 |
+| Integration  |    12  |           0 |     2 | Critical paths: auth, export, revoke         |
+| E2E          |     9  |           0 |     0 | Run on PR + nightly                          |
 
 ---
