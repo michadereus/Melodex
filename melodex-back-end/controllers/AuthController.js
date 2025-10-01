@@ -139,4 +139,28 @@ const AuthController = {
 
 };
 
-module.exports = AuthController;
+// controllers/AuthController.js
+
+// --- Spotify guard: checks your "access" cookie set by /auth/callback ---
+function requireSpotifyAuth(req, res, next) {
+  const cookie = req.headers.cookie || "";
+  const hasSpotifyAccess = /(?:^|;\s*)access=/.test(cookie);
+  if (!hasSpotifyAccess) return res.status(401).json({ code: "AUTH_SPOTIFY_REQUIRED" });
+  return next();
+}
+
+// --- Export stub: does NOT talk to Spotify; just acknowledges payload ---
+function exportPlaylistStub(req, res) {
+  const { name, uris } = req.body || {};
+  return res.status(200).json({
+    ok: true,
+    received: { name: name ?? null, count: Array.isArray(uris) ? uris.length : 0 }
+  });
+}
+
+// export everything you already export, plus the new items
+module.exports = {
+  ...AuthController,
+  requireSpotifyAuth,
+  exportPlaylistStub
+};

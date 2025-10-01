@@ -4,22 +4,24 @@ const express = require('express');
 // ---- API router (/api/**) ----
 const apiRouter = express.Router();
 const UserSongsController = require('../controllers/UserSongsController');
+const { requireSpotifyAuth, exportPlaylistStub } = require('../controllers/AuthController');
 
-apiRouter.post('/user-songs/new', UserSongsController.getNewSongsForUser);
-apiRouter.post('/user-songs/rerank', UserSongsController.getReRankSongsForUser);
-apiRouter.post('/user-songs/upsert', UserSongsController.upsertUserSong);
-apiRouter.post('/user-songs/ranked', UserSongsController.getRankedSongsForUser);
+// Existing endpoints…
+apiRouter.post('/user-songs/new',         UserSongsController.getNewSongsForUser);
+apiRouter.post('/user-songs/rerank',      UserSongsController.getReRankSongsForUser);
+apiRouter.post('/user-songs/upsert',      UserSongsController.upsertUserSong);
+apiRouter.post('/user-songs/ranked',      UserSongsController.getRankedSongsForUser);
 apiRouter.post('/user-songs/deezer-info', UserSongsController.getDeezerInfo);
-apiRouter.post('/user-songs/rehydrate', UserSongsController.rehydrateSongMetadata);
+apiRouter.post('/user-songs/rehydrate',   UserSongsController.rehydrateSongMetadata);
+
+// Stubbed export endpoint (auth-gated)
+apiRouter.post('/playlist/export', requireSpotifyAuth, exportPlaylistStub);
 
 // ---- Auth router (top-level /auth/**) ----
 const authRouter = express.Router();
 const AuthController = require('../controllers/AuthController');
-
-// Start OAuth (state + PKCE)
-authRouter.get('/auth/start', AuthController.start);
-// Callback (validate state, exchange code, set cookies, redirect to /rankings)
+authRouter.get('/auth/start',    AuthController.start);
 authRouter.get('/auth/callback', AuthController.callback);
-authRouter.get('/auth/session',  AuthController.session); 
+authRouter.get('/auth/session',  AuthController.session);
 
 module.exports = { apiRouter, authRouter };
