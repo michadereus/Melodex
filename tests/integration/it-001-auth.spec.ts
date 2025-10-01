@@ -1,13 +1,93 @@
-import { describe, it, expect } from 'vitest';
-import request from 'supertest';
+// tests/integration/auth/it-auth.spec.ts
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import request from "supertest";
+import nock from "nock";
+// ⬇️ adjust to your Express app export (NOT .listen())
+const app = require("../../melodex-back-end/app");
 
-// TODO: replace with your server import or factory
-// import { app } from '../../server/app';
+function asCookieArray(v: unknown): string[] {
+  if (Array.isArray(v)) return v as string[];
+  if (typeof v === "string") return [v];
+  return [];
+}
 
-describe('IT-001', () => {
-  it('placeholder API call', async () => {
-    // const res = await request(app).get('/health');
-    // expect(res.status).toBe(200);
-    expect(true).toBe(true);
+describe("AC-01.1 — OAuth callback establishes session and redirects", () => {
+  beforeAll(() => {
+    nock.disableNetConnect();
+    nock.enableNetConnect(/127\.0\.0\.1|localhost/);
+  });
+  afterAll(() => {
+    nock.cleanAll();
+    nock.enableNetConnect();
+  });
+  beforeEach(() => nock.cleanAll());
+
+  it("IT-001a: success → 302 to /rank + secure cookies", async () => {
+    nock("https://accounts.spotify.com")
+      .post("/api/token")
+      .reply(200, {
+        access_token: "acc-token",
+        refresh_token: "ref-token",
+        token_type: "Bearer",
+        expires_in: 3600,
+        scope: "playlist-modify-private",
+      });
+
+    const res = await request(app)
+      .get("/auth/callback?code=ok&state=xyz")
+      // include state cookie if your handler expects it
+      .set("Cookie", ["oauth_state=xyz"])
+      .expect(302);
+    
+    const cookiesHdr = res.headers["set-cookie"];
+    expect(res.headers.location).toBe("/rankings");
+
+    const setCookie = (Array.isArray(cookiesHdr) ? cookiesHdr : cookiesHdr ? [cookiesHdr] : []).join("; ");
+    expect(setCookie).toMatch(/access=/i);
+    expect(setCookie).toMatch(/refresh=/i);
+    expect(setCookie).toMatch(/HttpOnly/i);
+    expect(setCookie).toMatch(/Secure/i);
+    expect(setCookie).toMatch(/SameSite=(Lax|Strict)/i);
+    expect(setCookie).toMatch(/Path=\//i);
+    expect(setCookie).toMatch(/Max-Age=\d+/i);
+  });
+
+  it("IT-001b: uses PKCE code_verifier and matches state", async () => {
+    nock("https://accounts.spotify.com")
+      .post("/api/token", (body) => {
+        const s = typeof body === "string" ? body : new URLSearchParams(body as any).toString();
+        return s.includes("code=ok") && s.includes("code_verifier=s3cr3t");
+      })
+      .reply(200, {
+        access_token: "acc",
+        refresh_token: "ref",
+        token_type: "Bearer",
+        expires_in: 3600,
+      });
+
+    await request(app)
+      .get("/auth/callback?code=ok&state=xyz")
+      .set("Cookie", ["oauth_state=xyz", "pkce_verifier=s3cr3t"])
+      .expect(302);
+  });
+
+  it("IT-001c: clears temp cookies (oauth_state, pkce_verifier) after success", async () => {
+    nock("https://accounts.spotify.com")
+      .post("/api/token")
+      .reply(200, { access_token: "a", refresh_token: "r", token_type: "Bearer", expires_in: 3600 });
+
+    const res = await request(app)
+      .get("/auth/callback?code=ok&state=xyz")
+      .set("Cookie", ["oauth_state=xyz", "pkce_verifier=abc"])
+      .expect(302);
+
+    const set = asCookieArray(res.headers["set-cookie"]);
+    const joined = set.join("; ");
+
+    const stateCleared = !/oauth_state=/.test(joined) || /oauth_state=.*Max-Age=0/i.test(joined);
+    const pkceCleared  = !/pkce_verifier=/.test(joined) || /pkce_verifier=.*Max-Age=0/i.test(joined);
+
+    expect(stateCleared).toBe(true);
+    expect(pkceCleared).toBe(true);
   });
 });

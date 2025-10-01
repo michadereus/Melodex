@@ -1,13 +1,18 @@
-import { describe, it, expect } from 'vitest';
-import request from 'supertest';
+import { describe, it, expect } from "vitest";
+import request from "supertest";
+const app = require("../../melodex-back-end/app");
 
-// TODO: replace with your server import or factory
-// import { app } from '../../server/app';
+describe("IT-002 — /auth/session", () => {
+  it("returns connected=false with no access cookie", async () => {
+    const res = await request(app).get("/auth/session").expect(200);
+    expect(res.body).toEqual({ connected: false });
+  });
 
-describe('IT-002', () => {
-  it('placeholder API call', async () => {
-    // const res = await request(app).get('/health');
-    // expect(res.status).toBe(200);
-    expect(true).toBe(true);
+  it("returns connected=true when access cookie present", async () => {
+    const res = await request(app)
+      .get("/auth/session")
+      .set("Cookie", ["access=acc-token"]) // mirrors your cookie name
+      .expect(200);
+    expect(res.body).toEqual({ connected: true });
   });
 });

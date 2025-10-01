@@ -1,13 +1,36 @@
-import { describe, it, expect } from 'vitest';
-import request from 'supertest';
+// tests/integration/it-010-auth.spec.ts
+import { describe, it, expect } from "vitest";
+import request from "supertest";
+const app = require("../../melodex-back-end/app");
 
-// TODO: replace with your server import or factory
-// import { app } from '../../server/app';
+describe("IT-010-Auth — revoke blocks Spotify actions", () => {
+  const EXPORT_PATH = "/api/playlist/export"; // your stubbed route
 
-describe('IT-010', () => {
-  it('placeholder API call', async () => {
-    // const res = await request(app).get('/health');
-    // expect(res.status).toBe(200);
-    expect(true).toBe(true);
+  // Minimal payload your stub accepts
+  const payload = { name: "Test Playlist", uris: ["spotify:track:123"] };
+
+  it("unauthenticated → 401", async () => {
+    const res = await request(app)
+      .post(EXPORT_PATH)
+      .send(payload); // <- put it here
+    expect(res.status).toBe(401);
+    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
+  });
+
+  it("authenticated → 200 (auth passes)", async () => {
+    const res = await request(app)
+      .post(EXPORT_PATH)
+      .set("Cookie", ["access=acc-token"]) // your Spotify cookie key
+      .send(payload); // <- and here
+    expect(res.status).toBe(200); // stub returns 200 with { ok: true, received: { ... } }
+    expect(res.body).toMatchObject({ ok: true });
+  });
+
+  it("after revoke → 401 again", async () => {
+    // simulate revoke by just not sending the cookie again
+    const res = await request(app)
+      .post(EXPORT_PATH)
+      .send(payload); // <- and here
+    expect(res.status).toBe(401);
   });
 });

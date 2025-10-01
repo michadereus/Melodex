@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "types": ["vitest/globals", "vite/client", "node"],
+    "types": ["vitest/globals", "vite/client", "node", "cypress"],
     "moduleResolution": "Bundler",
     "target": "ES2020",
     "module": "ESNext",
@@ -10,6 +10,6 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "tests/**/*", "vite.config.*", "env.d.ts"],
+  "include": ["src/**/*", "tests/**/*", "vite.config.*", "env.d.ts", "**/*.ts", "**/*.tsx", "melodex-back-end/auth/cookies.js"],
   "exclude": ["node_modules", "dist", "build"]
 }

@@ -108,9 +108,9 @@
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* Status compact */
-.md-typeset .trace-table table th:nth-child(8),
-.md-typeset .trace-table table td:nth-child(8) {
+/* Status column (always last) */
+.md-typeset .trace-table table th:last-child,
+.md-typeset .trace-table table td:last-child {
     width: 9ch;
     white-space: nowrap;
     text-align: center;
