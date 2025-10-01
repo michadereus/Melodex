@@ -28,29 +28,29 @@ The system integrates:
 
 Melodex/
 
-├─ melodex-back-end/ # Node.js/Express API (Elastic Beanstalk)
-├─ melodex-front-end/ # React app (Amplify)
-├─ tests/ # Centralized test suites
-│ ├─ unit/ # Vitest unit tests
-│ ├─ integration/ # Supertest integration tests
-│ ├─ cypress/ # Cypress end-to-end specs
-│ └─ fixtures/ # Shared test data/mocks
-├─ docs/ # MkDocs site (case study docs)
-│ ├─ overview/ # Case study overview & architecture
-│ ├─ requirements/ # User stories & acceptance criteria
-│ ├─ test/ # Test approach, plan, traceability, risks
-│ ├─ reports/ # Baseline, execution summary, defects
-│ ├─ how-to/ # Local dev, running tests, etc.
-│ ├─ ci-cd-quality/ # Coding standards, quality gates
-│ ├─ case-studies/ # Case study narrative
-│ └─ index.md # Landing page for docs
-├─ .github/workflows/ # GitHub Actions workflows
-│ ├─ docs.yml # Build & publish docs
-│ ├─ test.yml # CI for unit/integration tests
-│ └─ e2e.yml # Cypress E2E pipeline
-├─ mkdocs.yml # MkDocs configuration
-├─ package.json # Root scripts & dependencies
-└─ README.md # Project overview
+├─ melodex-back-end/ # Node.js/Express API (Elastic Beanstalk)  
+├─ melodex-front-end/ # React app (Amplify)  
+├─ tests/ # Centralized test suites  
+│ ├─ unit/ # Vitest unit tests  
+│ ├─ integration/ # Supertest integration tests  
+│ ├─ cypress/ # Cypress end-to-end specs  
+│ └─ fixtures/ # Shared test data/mocks  
+├─ docs/ # MkDocs site (case study docs)  
+│ ├─ overview/ # Case study overview & architecture  
+│ ├─ requirements/ # User stories & acceptance criteria  
+│ ├─ test/ # Test approach, plan, traceability, risks  
+│ ├─ reports/ # Baseline, execution summary, defects  
+│ ├─ how-to/ # Local dev, running tests, etc.  
+│ ├─ ci-cd-quality/ # Coding standards, quality gates  
+│ ├─ case-studies/ # Case study narrative  
+│ └─ index.md # Landing page for docs  
+├─ .github/workflows/ # GitHub Actions workflows  
+│ ├─ docs.yml # Build & publish docs  
+│ ├─ test.yml # CI for unit/integration tests  
+│ └─ e2e.yml # Cypress E2E pipeline  
+├─ mkdocs.yml # MkDocs configuration  
+├─ package.json # Root scripts & dependencies  
+└─ README.md # Project overview  
 
 ---
 
