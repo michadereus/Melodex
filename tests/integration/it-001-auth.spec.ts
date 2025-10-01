@@ -90,4 +90,31 @@ describe("AC-01.1 — OAuth callback establishes session and redirects", () => {
     expect(stateCleared).toBe(true);
     expect(pkceCleared).toBe(true);
   });
+
+  it("IT-001d: cancel at Spotify → no tokens + redirect to /login?error=access_denied", async () => {
+    // Simulate Spotify sending back an error + valid state
+    const res = await request(app)
+      .get("/auth/callback?error=access_denied&state=xyz")
+      .set("Cookie", ["oauth_state=xyz", "pkce_verifier=s3cr3t"])
+      .expect(302);
+
+    // Redirect target preserves the error
+    expect(res.headers.location).toMatch(/^\/login\?error=access_denied/);
+
+    // No auth cookies should be set
+    const set = Array.isArray(res.headers["set-cookie"]) ? res.headers["set-cookie"] : [];
+    const joined = set.join("; ");
+
+    expect(joined).not.toMatch(/(?:^|;\s*)access=/i);
+    expect(joined).not.toMatch(/(?:^|;\s*)refresh=/i);
+
+    // Temp cookies should be cleared
+    const stateCleared  = /oauth_state=.*Max-Age=0/i.test(joined) || !/oauth_state=/.test(joined);
+    const pkceCleared   = /pkce_verifier=.*Max-Age=0/i.test(joined) || !/pkce_verifier=/.test(joined);
+
+    expect(stateCleared).toBe(true);
+    expect(pkceCleared).toBe(true);
+  });
+
+
 });
