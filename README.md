@@ -9,7 +9,7 @@ The system integrates:
 - **APIs:** OpenAI (generates candidate song lists) and Deezer (enriches tracks with IDs, album art, and preview URLs)  
 - **Auth:** Cognito User Pools with email/password and Google federation
 - **Docs:** MkDocs (Material) published via GitHub Pages at docs.melodx.io
-- **Tests:** Vitest (unit/integration), Cypress (E2E), GitHub Actions CI pipelines
+- **Tests:** Vitest (unit/integration/ui), Cypress (E2E), GitHub Actions CI pipelines
 
 > This repository currently features a **case study** focused on a new portfolio-oriented feature: **Spotify Playlist Export**.
 
