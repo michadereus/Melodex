@@ -11,71 +11,95 @@ Owner: QA (Michael DeReus)
 - Non-Functional Requirements: [nfrs](../requirements/nfrs.md)  
 - Traceability Matrix: [traceability](../test/traceability.md)
 
+---
+
 ## 2. Objectives & Scope
-**Goal**  
+
+### Goal  
 Plan and execute testing for the Spotify Playlist Export feature and a thin guardrail regression on core flows, within a ~10-week window (~20 hrs/week).  
 
-**In scope**  
+### In scope  
 - New export flow end-to-end: authenticate, select songs (filtered), review/remove, name/describe, create playlist, error handling, confirmation link, revoke access.  
 - Minimal regression on authentication and ranked-songs retrieval contract; one smoke across /rank → /rerank → /rankings.  
 
-**Out of scope**  
+### Out of scope  
 - Full accessibility audit  
 - Broad cross-browser/device matrix beyond specified smoke  
 - Legacy features not interacting with export   
 
+---
+
 ## 3. Features to Be Tested
 > *User stories and acceptance criteria IDs are aligned to requirements docs.*
 
-### US-1 Authenticate with Spotify
-- AC-1.1 Redirect to and back from Spotify hosted login with valid session  
-- AC-1.2 Prompt to log in when unauthenticated and attempting export  
-- AC-1.3 Cancel login → no tokens stored
+### US-01 Authenticate with Spotify
+- **AC-01.1** Redirect back with valid session (secure httpOnly, SameSite cookies)  
+- **AC-01.2** Prompt login when unauthenticated and attempting export or protected route  
+- **AC-01.3** Cancel login → no tokens stored  
+- **AC-01.4** Tokens stored only in secure cookies; never in web storage  
+- **AC-01.5** On 401, single refresh + retry; otherwise logout + reconnect prompt
 
-### US-2 Export Ranked Songs to Spotify
-- AC-2.1 Export uses current filters (genre/subgenre/decade)  
-- AC-2.2 Edge: empty filter result → “no songs to export” message
+### US-02 Export ranked songs by current filter
+- **AC-02.1** Creates playlist with only filtered songs  
+- **AC-02.2** Empty filter → “No songs available for export”  
+- **AC-02.3** Correct Spotify track mapping; unmapped follow error handling  
+- **AC-02.4** Removed/skipped items excluded
 
-### US-3 Review/Remove Songs Before Export
-- AC-3.1 Modal shows export list; remove song(s)  
-- AC-3.2 Only remaining songs added; UI updates in real time
+### US-03 Review & remove before export
+- **AC-03.1** Export modal lists songs (title/artist)  
+- **AC-03.2** After removals, only remaining songs exported  
+- **AC-03.3** Reopen reflects latest filter; removals reset unless saved; counts/summary update
 
-### US-4 Add Playlist Name/Description
-- AC-4.1 Name/description applied to Spotify playlist  
-- AC-4.2 Default name format “Melodex Playlist [YYYY-MM-DD]”
+### US-04 Add playlist name/description
+- **AC-04.1** Name/description applied on created playlist  
+- **AC-04.2** Default name “Melodex Playlist YYYY-MM-DD” when blank
 
-### US-5 Real-Time Feedback During Export
-- AC-5.1 Progress indicator/feedback while exporting  
-- AC-5.2 On failure, indicator shows error state
+### US-05 Real-time feedback during export
+- **AC-05.1** Progress/loader while processing  
+- **AC-05.2** Success state on completion  
+- **AC-05.3** Error state with next steps on failure
 
-### US-6 Error Handling
-- AC-6.1 Per-track errors surfaced (“not found”, etc.)  
-- AC-6.2 429 rate limit → “try again later” message and retry guidance
+### US-06 Error handling
+- **AC-06.1** Per-song errors (e.g., not found/region) surfaced with skip/continue/cancel  
+- **AC-06.2** 429 shows “Try again later” with guidance  
+- **AC-06.3** Retry, skip-all, or cancel options for failures
 
-### US-7 Confirmation with Playlist Link
-- AC-7.1 Confirmation view with direct link  
-- AC-7.2 If Spotify app installed, deep link opens app
+### US-07 Confirmation with playlist link
+- **AC-07.1** Confirmation shows clickable playlist link  
+- **AC-07.2** Deep link to app with web fallback
 
-### US-8 Revoke Spotify Access
-- AC-8.1 Disconnect in profile invalidates tokens and blocks export until reconnect  
-- AC-8.2 Spotify account no longer shows Melodex under connected apps
+### US-08 Revoke Spotify access
+- **AC-08.1** Disconnect invalidates tokens; protected calls blocked  
+- **AC-08.2** After revoke, export prompts reconnect  
+- **AC-08.3** Spotify connected apps no longer show Melodex (subject to propagation)
 
-### Guardrail Regression (thin)
-- Login happy path (email/Google) and redirect to /rank  
-- Ranked songs retrieval contract for export (deezerID, songName, artist, ranking)  
-- One smoke journey across /rank → /rerank → /rankings
+### Baseline — Ranking flows & filters
+- **AC-F.1** No background fetch until Apply  
+- **AC-F.2** Background burst capped ~33  
+- **AC-F.3** No clipped UI after apply; remains navigable
+
+### Baseline — Rankings playback stability
+- **AC-P.1** Expired preview auto-refreshes; playback resumes  
+- **AC-P.2** No broken player states persist across nav/refresh
+
+---
 
 ## 4. Test Items (What we test)
-**Backend**  
+
+### Backend  
+
 - POST /api/spotify/export (proposed) or equivalent controller  
 - Existing endpoints used by export: /api/user-songs/ranked, /api/user-songs/deezer-info  
 - Export service modules: token handling, chunking, backoff, mapping Deezer to Spotify  
 
-**Frontend**  
+### Frontend  
+
 - ExportModal component (list, remove, default naming, validation)  
 - Progress/feedback UI  
 - Confirmation UI with deep link  
 - Settings view: revoke integration  
+
+---
 
 ## 5. Test Strategy Summary
 > See [Test Approach](../test/test-approach.md) for full details.
@@ -87,18 +111,23 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - Non-functional sanity: performance, security basics, resilience.  
 - Exploratory, timeboxed around error recovery and mobile UX.  
 
+---
+
 ## 6. Test Environment
-**Local**  
+
+### Local  
 - Node 18+, MongoDB Atlas test cluster, backend on 8080, frontend on 3001
 - External API calls mocked/stubbed by default
 
-**Staging**  
+### Staging  
 - One Spotify test account (tokens via CI secrets)
 - Minimal live-call runs to validate deep link and playlist creation
 
-**Browsers / Devices**  
+### Browsers / Devices  
 - Primary: Firefox (latest) desktop (optional: Chrome, Edge)
 - Mobile: Firefox Android 15 (latest) (optional: Chrome, Edge)
+
+---
 
 ## 7. Test Data & Accounts
 - Spotify test user: seeded by QA; client ID/secret stored in CI secrets
@@ -106,45 +135,59 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - Mongo seed: a mix of genres/subgenres/decades, including duplicates and tracks prone to “not found”
 - Naming default checks use the current date in UTC
 
+---
+
 ## 8. Roles & Responsibilities
 - QA (Michael DeReus): author tests, execute automation and exploratory, triage bugs, report
 - Dev (Michael DeReus/paired AI): implement/export endpoints and UI with TDD where feasible
 - Reviewer (Michael DeReus/peer): code review, test review, sign-off
 
+---
+
 ## 9. Schedule & Milestones (high level)
-Week 1–2
-- Finalize Acceptance Criteria, draft/commit tests skeletons, set up CI secrets
-Week 3–5
-- Implement + TDD export backend, modal, progress, confirmation
-Week 6
-- Thin regression guards; Cypress E2E edges; revoke access
-Week 7
-- Non-functional sanity; flake fixes
-Week 8–9
-- Stabilization, documentation (reports, videos)
-Week 10
-- Portfolio packaging, final sign-off
+
+- Week 1–2  
+    - Finalize Acceptance Criteria, draft/commit tests skeletons, set up CI secrets  
+- Week 3–5  
+    - Implement + TDD export backend, modal, progress, confirmation  
+- Week 6-7  
+    - Thin regression guards; Cypress E2E edges; revoke access  
+- Week 8  
+    - Non-functional sanity; flake fixes  
+- Week 9  
+    - Stabilization, documentation (reports, videos)  
+- Week 10  
+    - Portfolio packaging, final sign-off  
+
+---
 
 ## 10. Entry & Exit Criteria
-**Entry**  
+
+### Entry  
 - Baseline complete and merged; Auth & Ranking smokes (*SMK-00/01/02/03*) passing on main.  
 - Secrets configured for local + CI; mock Spotify client available for tests.  
 - Acceptance Criteria finalized  
 - Draft API contract for export agreed  
 - Secrets configured (locally and in CI)  
 
-**Exit** — Spotify Export  
+### Exit — Spotify Export  
 - All US-01…US-08 acceptance criteria covered by automated tests (Unit/Integration/E2E) and passing.  
 - No *High* (or above) open defects affecting export (auth, mapping, 429 handling, confirmation link).  
 - *E2E-001-Export* desktop + *E2E-008-Mobile* both green in CI.  
 - Export API contract documented and linked (request/response, error shapes).  
 
+---
+
 ## 11. Test Design & Traceability
-Design techniques
+
+### Design techniques
+
 - Equivalence/boundaries (empty selection, minimal set of 1–2, large set)  
 - State transitions (auth → modal → exporting → done/error)  
 - Error guessing (401/refresh, 429/backoff, 404 track not found)  
 - Traceability matrix maintained in [traceability.md](./traceability.md)  
+
+---
 
 ## 12. Test Cases Inventory
 > *IDs are indicative; detailed steps live in component/feature spec files.*
@@ -286,34 +329,55 @@ Design techniques
 - **E2E-009-Errors** — Per-track “not found” handled; export proceeds  
   _Partial success path with error list and final confirmation._  
 
+---
+
 ## 13. Execution Process
+
 - Pull latest main; run unit/integration locally
 - For E2E: seed data, run Cypress with tags (e.g., yarn cypress run --env grepTags=@export)
 - Record exploratory notes per charter and file defects immediately with repro and logs
 - CI: per-PR pipeline runs Jest suites; nightly runs Cypress full suite
 
+---
+
 ## 14. Defect Management
+
 - File issues with template: steps, expected/actual, env, logs, screenshots/video
 - Severity/Priority agreed at triage
 - Link failing test IDs and PRs
 - Retest on fix; close with evidence (test green, video/screenshot if UI)
 
+---
+
 ## 15. Metrics & Reporting
+
 - Coverage (new code ≥ 80%)
 - Pass/fail counts by suite (unit/integration/E2E)
 - Flake rate (Cypress retries)
 - p95 export time (local stubbed vs staging)
 - Weekly status note in reports/execution-summary.md
 
+---
+
 ## 16. Risks & Contingencies
+
 - Spotify API instability → retry/backoff, toggle to stub for local/CI
 - Token/secret misconfig → verify with smoke before E2E
 - Schedule compression → prioritize AC coverage and happy-path E2E first
 
+---
+
 ## 17. Configuration Management
+
 - Tests live beside code (feature branches), PR reviewed
 - CI: GitHub Actions; required checks before merge
 - Env via .env.local (dev) and GitHub Actions secrets (CI)
 
+---
+
+
 ## 18. Communication & Approvals
+
 - Progress via PR descriptions
+
+---
