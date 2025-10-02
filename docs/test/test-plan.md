@@ -145,18 +145,19 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 ---
 
 ## 9. Schedule & Milestones (high level)
-Week 1–2
-- Finalize Acceptance Criteria, draft/commit tests skeletons, set up CI secrets
-Week 3–5
-- Implement + TDD export backend, modal, progress, confirmation
-Week 6
-- Thin regression guards; Cypress E2E edges; revoke access
-Week 7
-- Non-functional sanity; flake fixes
-Week 8–9
-- Stabilization, documentation (reports, videos)
-Week 10
-- Portfolio packaging, final sign-off
+
+- Week 1–2  
+    - Finalize Acceptance Criteria, draft/commit tests skeletons, set up CI secrets  
+- Week 3–5  
+    - Implement + TDD export backend, modal, progress, confirmation  
+- Week 6-7  
+    - Thin regression guards; Cypress E2E edges; revoke access  
+- Week 8  
+    - Non-functional sanity; flake fixes  
+- Week 9  
+    - Stabilization, documentation (reports, videos)  
+- Week 10  
+    - Portfolio packaging, final sign-off  
 
 ---
 

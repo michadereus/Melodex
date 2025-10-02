@@ -69,6 +69,17 @@ const AuthController = {
     try {
       const code = req.query.code;
       const state = req.query.state;
+      const err = req.query.error;
+
+      if (err === 'access_denied') {
+        // Clear temp cookies and bounce back to login with the error
+        res.setHeader('Set-Cookie', [
+          serializeCookie('oauth_state', '',   { maxAge: 0 }),
+          serializeCookie('pkce_verifier', '', { maxAge: 0 })
+        ]);
+        return res.redirect('/login?error=access_denied');
+      }
+
       if (!code || !state) return res.redirect('/login?error=missing_params');
 
       // 1) Read temp cookies (no cookie-parser needed)
