@@ -27,10 +27,9 @@ describe("IT-010-Auth — revoke blocks Spotify actions", () => {
   });
 
   it("after revoke → 401 again", async () => {
-    // simulate revoke by just not sending the cookie again
-    const res = await request(app)
-      .post(EXPORT_PATH)
-      .send(payload); // <- and here
+    await request(app).post("/auth/revoke");
+    const res = await request(app).post(EXPORT_PATH).send(payload);
     expect(res.status).toBe(401);
+    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
   });
 });
