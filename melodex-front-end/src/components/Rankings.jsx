@@ -520,7 +520,7 @@ const Rankings = () => {
       ) : applied ? (
         <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
           <h2 style={{ textAlign: 'center', color: '#141820', marginBottom: '1.5rem', marginTop: '4rem' }}>
-            Your{' '}
+            {' '}
             {selectedSubgenre !== 'any'
               ? selectedSubgenre
               : selectedGenre !== 'any'
