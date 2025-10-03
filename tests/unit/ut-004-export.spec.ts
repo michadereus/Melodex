@@ -1,6 +1,7 @@
 // tests/unit/export/ut-004-mapping.spec.ts
+// @ts-nocheck
 import { describe, it, expect, vi } from 'vitest';
-const  { mapDeezerToSpotifyUris, buildCreatePayload } = require('@/export/mapping');
+import { mapDeezerToSpotifyUris, buildCreatePayload } from '../../melodex-front-end/src/utils/spotifyExport';
 
 const mkItem = (over = {}) => ({
   deezerId: 'dz1',

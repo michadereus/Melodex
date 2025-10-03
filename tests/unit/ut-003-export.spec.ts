@@ -1,6 +1,7 @@
 // tests/unit/export/ut-003-filters.spec.ts
+// @ts-nocheck
 import { describe, it, expect } from 'vitest';
-const { buildFilters } = require('@/export/filters');
+import { buildFilters } from '../../melodex-front-end/src/utils/spotifyExport';
 
 describe('UT-003-Export — Filter builder', () => {
   it('empty -> type:none', () => {
