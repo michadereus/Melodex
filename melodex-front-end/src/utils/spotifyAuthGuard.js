@@ -1,7 +1,6 @@
-// melodex-front-end/src/utils/spotifyAuthGuard.js
 // Minimal helper that asks backend if Spotify is connected.
 // If /auth/session returns 401, attempt one refresh (/auth/refresh) then retry once.
-export default async function ensureSpotifyConnected(baseUrl = "") {
+export async function ensureSpotifyConnected(baseUrl = "") {
   const root = String(baseUrl).replace(/\/$/, ""); // strip trailing slash
 
   async function sessionProbe() {
@@ -23,9 +22,7 @@ export default async function ensureSpotifyConnected(baseUrl = "") {
           s = await sessionProbe();
           if (s.ok && s.connected) return { shouldRedirect: false };
         }
-      } catch {
-        // ignore; we'll fall through to redirect
-      }
+      } catch {/* fall through */}
     }
 
     // Either not connected or failed refresh → go to connect flow
@@ -35,3 +32,13 @@ export default async function ensureSpotifyConnected(baseUrl = "") {
     return { shouldRedirect: true, to: `${root}/auth/start` };
   }
 }
+
+// ESM exports (for UI tests / Vite)
+export default ensureSpotifyConnected;
+export { ensureSpotifyConnected };
+
+// CJS exports (for unit tests using require)
+try {
+  module.exports = ensureSpotifyConnected;
+  module.exports.ensureSpotifyConnected = ensureSpotifyConnected;
+} catch {}

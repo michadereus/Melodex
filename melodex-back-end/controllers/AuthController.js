@@ -198,7 +198,3 @@ module.exports = {
   revoke,
   refresh,
 };
-
-export default ensureSpotifyConnected;
-export { ensureSpotifyConnected };
-try { module.exports = ensureSpotifyConnected; } catch {}
