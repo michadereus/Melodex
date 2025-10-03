@@ -22,7 +22,7 @@ describe("AC-01.1 — OAuth callback establishes session and redirects", () => {
   });
   beforeEach(() => nock.cleanAll());
 
-  it("IT-001a: success → 302 to /rank + secure cookies", async () => {
+  it("IT-001a: success → 302 to /rankings + secure cookies", async () => {
     nock("https://accounts.spotify.com")
       .post("/api/token")
       .reply(200, {
@@ -36,15 +36,21 @@ describe("AC-01.1 — OAuth callback establishes session and redirects", () => {
     const res = await request(app)
       .get("/auth/callback?code=ok&state=xyz")
       // include state cookie if your handler expects it
-      .set("Cookie", ["oauth_state=xyz"])
+      .set("Cookie", ["oauth_state=xyz", "pkce_verifier=s3cr3t"])
       .expect(302);
-    
-    const cookiesHdr = res.headers["set-cookie"];
+
+    // Redirect to post-login route
     expect(res.headers.location).toBe("/rankings");
 
-    const setCookie = (Array.isArray(cookiesHdr) ? cookiesHdr : cookiesHdr ? [cookiesHdr] : []).join("; ");
-    expect(setCookie).toMatch(/access=/i);
-    expect(setCookie).toMatch(/refresh=/i);
+    // Validate auth cookies + security flags
+    const setCookieHdrs = asCookieArray(res.headers["set-cookie"]);
+    const setCookie = setCookieHdrs.join("; ");
+
+    // At least access + refresh should be present
+    expect(setCookie).toMatch(/(?:^|;\s*)access=/i);
+    expect(setCookie).toMatch(/(?:^|;\s*)refresh=/i);
+
+    // Security flags present on the cookies
     expect(setCookie).toMatch(/HttpOnly/i);
     expect(setCookie).toMatch(/Secure/i);
     expect(setCookie).toMatch(/SameSite=(Lax|Strict)/i);
@@ -81,11 +87,33 @@ describe("AC-01.1 — OAuth callback establishes session and redirects", () => {
       .set("Cookie", ["oauth_state=xyz", "pkce_verifier=abc"])
       .expect(302);
 
-    const set = asCookieArray(res.headers["set-cookie"]);
-    const joined = set.join("; ");
+    const set = asCookieArray(res.headers["set-cookie"]).join("; ");
 
-    const stateCleared = !/oauth_state=/.test(joined) || /oauth_state=.*Max-Age=0/i.test(joined);
-    const pkceCleared  = !/pkce_verifier=/.test(joined) || /pkce_verifier=.*Max-Age=0/i.test(joined);
+    const stateCleared = !/oauth_state=/.test(set) || /oauth_state=.*Max-Age=0/i.test(set);
+    const pkceCleared  = !/pkce_verifier=/.test(set) || /pkce_verifier=.*Max-Age=0/i.test(set);
+
+    expect(stateCleared).toBe(true);
+    expect(pkceCleared).toBe(true);
+  });
+
+  it("IT-001d: cancel at Spotify → no tokens + redirect to /login?error=access_denied", async () => {
+    // Simulate Spotify sending back an error + valid state
+    const res = await request(app)
+      .get("/auth/callback?error=access_denied&state=xyz")
+      .set("Cookie", ["oauth_state=xyz", "pkce_verifier=s3cr3t"])
+      .expect(302);
+
+    // Redirect target preserves the error
+    expect(res.headers.location).toMatch(/^\/login\?error=access_denied/);
+
+    // No auth cookies should be set
+    const set = asCookieArray(res.headers["set-cookie"]).join("; ");
+    expect(set).not.toMatch(/(?:^|;\s*)access=/i);
+    expect(set).not.toMatch(/(?:^|;\s*)refresh=/i);
+
+    // Temp cookies should be cleared
+    const stateCleared  = /oauth_state=.*Max-Age=0/i.test(set) || !/oauth_state=/.test(set);
+    const pkceCleared   = /pkce_verifier=.*Max-Age=0/i.test(set) || !/pkce_verifier=/.test(set);
 
     expect(stateCleared).toBe(true);
     expect(pkceCleared).toBe(true);

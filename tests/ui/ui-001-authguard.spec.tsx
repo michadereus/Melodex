@@ -1,18 +1,13 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-// @ts-ignore – JS module without types; we’re fine with that here
-import { ensureSpotifyConnected } from "../../melodex-front-end/src/utils/spotifyAuthGuard.js";
+/* @ts-expect-error no types for this JS helper */
+import ensureSpotifyConnected from "../../melodex-front-end/src/utils/spotifyAuthGuard.js";
 
-const oldFetch = global.fetch;
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+
+const realFetch = global.fetch;
 
 describe("UI-001 — AuthGuard (export action)", () => {
-  beforeEach(() => {
-    // @ts-ignore
-    global.fetch = vi.fn();
-  });
-  afterEach(() => {
-    global.fetch = oldFetch;
-    vi.restoreAllMocks();
-  });
+  beforeEach(() => { /* @ts-ignore */ global.fetch = vi.fn(); });
+  afterEach(() => { global.fetch = realFetch; vi.restoreAllMocks(); });
 
   it("unauthenticated → shouldRedirect:/auth/start", async () => {
     // @ts-ignore
