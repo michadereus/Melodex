@@ -1,6 +1,6 @@
 // tests/unit/export/ut-003-filters.spec.ts
 import { describe, it, expect } from 'vitest';
-const  buildFilters = require('@/export/filters');
+const { buildFilters } = require('@/export/filters');
 
 describe('UT-003-Export — Filter builder', () => {
   it('empty -> type:none', () => {
