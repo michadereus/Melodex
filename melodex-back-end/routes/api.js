@@ -23,5 +23,7 @@ const AuthController = require('../controllers/AuthController');
 authRouter.get('/auth/start',    AuthController.start);
 authRouter.get('/auth/callback', AuthController.callback);
 authRouter.get('/auth/session',  AuthController.session);
+authRouter.post('/auth/revoke',  AuthController.revoke); 
+authRouter.post('/auth/refresh', AuthController.refresh);
 
 module.exports = { apiRouter, authRouter };

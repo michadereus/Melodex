@@ -169,9 +169,32 @@ function exportPlaylistStub(req, res) {
   });
 }
 
-// export everything you already export, plus the new items
+// --- Clear auth cookies (revoke) ---
+function revoke(req, res) {
+  res.setHeader('Set-Cookie', [
+    serializeCookie('access', '', { maxAge: 0 }),
+    serializeCookie('refresh', '', { maxAge: 0 }),
+  ]);
+  res.json({ ok: true });
+}
+
+// --- Minimal refresh: requires refresh cookie; issues new short-lived access ---
+async function refresh(req, res) {
+  const cookie = req.headers.cookie || "";
+  const hasRefresh = /(?:^|;\s*)refresh=/.test(cookie);
+  if (!hasRefresh) return res.status(401).json({ code: "AUTH_REFRESH_REQUIRED" });
+
+  // Issue a new access cookie (stub value/TTL)
+  res.setHeader('Set-Cookie', [
+    serializeCookie('access', 'new-access', { maxAge: 900 }) // example: 15 minutes
+  ]);
+  return res.status(200).json({ ok: true });
+}
+
 module.exports = {
   ...AuthController,
   requireSpotifyAuth,
-  exportPlaylistStub
+  exportPlaylistStub,
+  revoke,
+  refresh,
 };
