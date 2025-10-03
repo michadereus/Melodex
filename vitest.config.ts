@@ -1,5 +1,14 @@
 // vitest.config.ts (repo root)
 import { defineConfig } from 'vitest/config';
+import { config as dotenvConfig } from 'dotenv';
+import path from 'node:path';
+
+
+// Load backend test env BEFORE tests import your app
+dotenvConfig({
+  // adjust the path to where your backend test env actually lives
+  path: path.resolve(process.cwd(), 'melodex-back-end/.env')
+});
 
 export default defineConfig({
   test: {

@@ -37,6 +37,11 @@ jobs:
   vitest:
     name: Vitest (${{ matrix.project }})
     runs-on: ubuntu-latest
+    env:
+      FRONTEND_ORIGIN: http://localhost:3001
+      SPOTIFY_CLIENT_ID: test-client
+      SPOTIFY_CLIENT_SECRET: test-secret
+      SPOTIFY_REDIRECT_URI: http://localhost:8080/auth/callback
     strategy:
       fail-fast: false
       matrix:
