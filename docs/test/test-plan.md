@@ -229,7 +229,6 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - **UT-012-Ranking** — ELO/ranking math sanity guard  
   _Quick invariant checks on rank updates (non-regression)._  
 
-
 ### Component / UI (React Testing Library + Vitest)  
 
 - **UI-001-AuthGuard** — Route guard prompts login when unauthenticated  
@@ -259,6 +258,20 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - **UI-009-ExportModal** — Renders with 0 items; confirm disabled  
   _Edge case of empty list handled gracefully._  
 
+- **UI-010-SelectionInline** — Enter inline selection mode; all items checked by default  
+  _Clicking the Spotify CTA flips the page into “Select songs for export”; each card shows a checkbox pre-checked._  
+
+- **UI-011-SelectionInline** — Export disabled at 0 selected; hint visible  
+  _When all items are unchecked or filter resolves to zero, the confirm/export button is disabled and an inline hint is shown._  
+
+- **UI-012-SelectionSummary** — Count/summary updates as items are toggled  
+  _Live badge (e.g., “Selected: N”) stays in sync with checkbox state across the list._  
+
+- **UI-013-SelectionLifecycle** — Re-enter/filters reset selection to defaults  
+  _Leaving and re-entering selection mode or changing filters reinitializes selection (all eligible items checked)._  
+
+- **UI-014-NameFields** — Default name visible/editable; description optional  
+  _Inline name field shows default formatted value; user edits persist through selection changes; description is optional and saved if present._
 
 ### Integration / API (Supertest + Vitest)  
 
