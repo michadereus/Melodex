@@ -37,92 +37,79 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
   beforeEach(() => {
     cy.viewport(1440, 900);
 
-    // Auth: connected
-    cy.intercept('GET', '**/auth/session', {
-      statusCode: 200,
-      body: { connected: true },
-    }).as('authSession');
+    // Ensure app believes we're authenticated (stub BEFORE visit)
+    cy.intercept('GET', '**/auth/session', { statusCode: 200, body: { connected: true } }).as('authSession');
 
-    // Ranked songs for current filter (adjust method/path if yours differs)
-    cy.intercept(
-      { method: 'POST', url: '**/api/user-songs/ranked' },
-      { statusCode: 200, body: songs }
-    ).as('rankedSongs');
+    // Guard: fail fast if app tries to redirect to auth
+    cy.intercept('GET', '**/auth/start', (req) => {
+      throw new Error('Unexpected redirect to /auth/start during happy path.');
+    });
+
+    // Ranked songs request — match any method and query string
+    cy.intercept({ method: /GET|POST/i, url: '**/api/user-songs/ranked*' }, {
+      statusCode: 200,
+      body: songs,
+    }).as('rankedSongs');
 
     // Export success
     cy.intercept('POST', '**/api/playlist/export', (req) => {
-      // Let test assert request later
-      req.reply({
-        statusCode: 200,
-        body: { ok: true, playlistUrl, added: 2 },
-      });
+      // Let assertions inspect req.body
+      req.reply({ statusCode: 200, body: { ok: true, playlistUrl, added: 2 } });
     }).as('exportCall');
   });
 
   it('Auth → filter → inline selection → uncheck one → name/desc → export → confirm link', () => {
-    // Spy on window.open in case UI opens the playlist in a new tab
     cy.visit('/rankings');
-    cy.window().then((win) => {
-      cy.spy(win, 'open').as('winOpen');
-    });
 
-    // Wait for initial ranked songs load (if your UI fetches on Apply, trigger that first)
-    cy.wait('@rankedSongs');
+    // Prefer waiting for visible UI instead of timing alias
+    cy.get('li.song-box', { timeout: 10000 }).should('have.length.greaterThan', 0);
 
-    // Enter inline selection mode
+    // Spy for optional window.open behavior
+    cy.window().then((win) => cy.spy(win, 'open').as('winOpen'));
+
+    // Enter inline selection mode via CTA
     cy.get('[data-testid="export-spotify-cta"]').should('be.visible').click();
 
-    // Inline selection header visible
-    cy.contains(/Select songs for export/i).should('be.visible');
+    // Header switches to selection mode
+    cy.contains(/Export to Spotify/i).should('be.visible');
 
     // All checkboxes initially checked
     cy.get('input[type="checkbox"]').as('songCheckboxes');
     cy.get('@songCheckboxes').should('have.length.at.least', 2);
-    cy.get('@songCheckboxes').each(($cb) => {
-      cy.wrap($cb).should('be.checked');
-    });
+    cy.get('@songCheckboxes').each(($cb) => cy.wrap($cb).should('be.checked'));
 
-    // Uncheck exactly one (last) to export N-1
+    // Uncheck exactly one (export N-1)
     cy.get('@songCheckboxes').last().uncheck().should('not.be.checked');
 
     // Fill name/description
     const name = 'My Happy Path Playlist';
     const description = 'Created via Cypress (E2E-001).';
-
     cy.get('input[name="playlistName"]').should('exist').clear().type(name);
     cy.get('textarea[name="playlistDescription"]').should('exist').clear().type(description);
 
     // Export
     cy.get('[data-testid="export-confirm"]').should('not.be.disabled').click();
 
-    // Assert export request payload
+    // Assert export payload
     cy.wait('@exportCall')
       .its('request.body')
-      .then((body: any) => {
+      .then((body) => {
         expect(body).to.have.property('name', name);
         expect(body).to.have.property('description', description);
         expect(body).to.have.property('uris').that.is.an('array');
-
-        // Because we unchecked one of three, expect 2 URIs
-        expect(body.uris.length).to.equal(2);
-
-        // Optional: ensure no duplicates
-        const unique = new Set(body.uris);
-        expect(unique.size).to.equal(body.uris.length);
+        // 3 songs total, 1 unchecked → expect 2 URIs
+        expect((body as any).uris.length).to.equal(2);
+        const unique = new Set((body as any).uris);
+        expect(unique.size).to.equal((body as any).uris.length);
       });
 
-    // Confirm success UI: either inline link or window.open fallback
-    // 1) Inline confirmation link (preferred)
+    // Success link inline (preferred)
     cy.get('a[data-testid="export-success-link"]')
       .should('exist')
       .and('have.attr', 'href')
-      .and('match', /^https:\/\/open\.spotify\.com\/playlist\//)
-      .then(() => {
-        // If the link exists, we're done
-        return;
-      });
+      .and('match', /^https:\/\/open\.spotify\.com\/playlist\//);
 
-    // 2) Or validate a window.open happened to the playlist URL
+    // Or window.open fallback
     cy.get('@winOpen').then((spy: any) => {
       if (spy && spy.callCount > 0) {
         const calledWith = spy.getCall(0).args[0];
