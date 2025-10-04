@@ -41,12 +41,12 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
     cy.intercept('GET', '**/auth/session', { statusCode: 200, body: { connected: true } }).as('authSession');
 
     // Guard: fail fast if app tries to redirect to auth
-    cy.intercept('GET', '**/auth/start', (req) => {
+    cy.intercept('GET', '**/auth/start', () => {
       throw new Error('Unexpected redirect to /auth/start during happy path.');
     });
 
-    // Ranked songs request — match any method and query string
-    cy.intercept({ method: /GET|POST/i, url: '**/api/user-songs/ranked*' }, {
+    // 🔧 Ranked songs request — match the app’s POST exactly (stability)
+    cy.intercept('POST', '**/api/user-songs/ranked*', {
       statusCode: 200,
       body: songs,
     }).as('rankedSongs');
@@ -59,7 +59,17 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
   });
 
   it('Auth → filter → inline selection → uncheck one → name/desc → export → confirm link', () => {
-    cy.visit('/rankings');
+    cy.visit('/rankings', {
+      onBeforeLoad(win) {
+        (win as any).__E2E_REQUIRE_AUTH__ = false; // BYPASS ON
+      },
+    });
+
+    // 🔧 Early assertion that we did not get redirected (fast failure if guard trips)
+    cy.location('pathname', { timeout: 10000 }).should('eq', '/rankings');
+
+    // 🔧 Wait for songs API before asserting DOM (reduces flake on slow CI)
+    cy.wait('@rankedSongs');
 
     // Prefer waiting for visible UI instead of timing alias
     cy.get('li.song-box', { timeout: 10000 }).should('have.length.greaterThan', 0);
@@ -73,8 +83,8 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
     // Header switches to selection mode
     cy.contains(/Export to Spotify/i).should('be.visible');
 
-    // All checkboxes initially checked
-    cy.get('input[type="checkbox"]').as('songCheckboxes');
+    // 🔧 Scope checkboxes to song cards to avoid catching unrelated inputs
+    cy.get('li.song-box input[type="checkbox"]').as('songCheckboxes');
     cy.get('@songCheckboxes').should('have.length.at.least', 2);
     cy.get('@songCheckboxes').each(($cb) => cy.wrap($cb).should('be.checked'));
 
@@ -93,14 +103,14 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
     // Assert export payload
     cy.wait('@exportCall')
       .its('request.body')
-      .then((body) => {
+      .then((body: any) => {
         expect(body).to.have.property('name', name);
         expect(body).to.have.property('description', description);
         expect(body).to.have.property('uris').that.is.an('array');
         // 3 songs total, 1 unchecked → expect 2 URIs
-        expect((body as any).uris.length).to.equal(2);
-        const unique = new Set((body as any).uris);
-        expect(unique.size).to.equal((body as any).uris.length);
+        expect(body.uris.length).to.equal(2);
+        const unique = new Set(body.uris);
+        expect(unique.size).to.equal(body.uris.length);
       });
 
     // Success link inline (preferred)

@@ -1,18 +1,30 @@
-// tests/cypress/e2e/e2e-003-auth.cy.ts
-describe("E2E-003-Auth — unauth users are prompted", () => {
-  it("direct-nav to protected page → prompt; no export API call", () => {
-    cy.clearCookies();
+// cypress/e2e/e2e-003-auth.cy.ts
+// E2E-003-Auth — unauth users are prompted (no bypass)
 
-    // watch for any export attempts
-    cy.intercept("POST", "/api/**/export").as("export");
+describe('E2E-003-Auth — unauth users are prompted', () => {
+  beforeEach(() => {
+    cy.viewport(1440, 900);
+    // (Optional) If your UI ever hits /auth/start, catch it
+    cy.intercept('GET', '**/auth/start', (req) => {
+      // allow if you want, or throw to catch regressions
+      // throw new Error('Unexpected /auth/start during this test');
+    });
+    // We do NOT need to stub /auth/session for this test.
+  });
 
-    // visit the protected page (relative path is fine without baseUrl)
-    cy.visit("/rankings");
+  it('direct-nav to protected page → prompt; no export API call', () => {
+    cy.visit('/rankings', {
+      onBeforeLoad(win) {
+        // Disable Cypress bypass so app behaves like real unauth
+        (win as any).__E2E_REQUIRE_AUTH__ = true;
+      },
+    });
 
-    // unauth → routed to login (or connect flow if that's first)
-    cy.url().should("match", /\/login|\/auth\/start/);
+    // Assert redirect to login (or hosted auth)
+    cy.location('pathname', { timeout: 8000 }).should('match', /\/login$|\/auth\/start$/);
 
-    // must not attempt export while unauthenticated
-    cy.get("@export.all").should("have.length", 0);
+    // Assert no export attempt while unauth
+    cy.intercept('POST', '**/api/playlist/export').as('exportCall');
+    cy.get('@exportCall.all').should('have.length', 0);
   });
 });

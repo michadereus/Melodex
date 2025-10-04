@@ -15,14 +15,16 @@ const isCypressEnv = typeof window !== 'undefined' && !!(window).Cypress;
 
 const ProtectedRoute = ({ children }) => {
   const { userID, loading } = useUserContext();
-
+  const requireAuth = typeof window !== 'undefined' && !!(window).__E2E_REQUIRE_AUTH__;
   // In real app, still show loading; in Cypress, don't block rendering
   if (loading && !isCypressEnv) return <div>Loading...</div>;
 
   // Allow route when:
   //  - real userID exists (normal behavior), OR
   //  - Cypress is running (E2E bypass)
-  return (userID || isCypressEnv) ? children : <Navigate to="/login" replace />;
+  // Bypass only if Cypress AND not explicitly requiring real auth
+  const allowBypass = isCypressEnv && !requireAuth;
+  return (userID || allowBypass) ? children : <Navigate to="/login" replace />;
 };
 
 function App() {

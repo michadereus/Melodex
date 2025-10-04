@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 const isCypressEnv = typeof window !== 'undefined' && !!(window).Cypress;
 
-// Utility function to decode JWT token
 const decodeJwt = (token) => {
   try {
     const base64Url = token.split('.')[1];
@@ -23,7 +22,6 @@ const decodeJwt = (token) => {
   }
 };
 
-// Utility function to test if an image URL is accessible
 const testImageUrl = (url) => {
   return new Promise((resolve) => {
     const img = new Image();
@@ -44,14 +42,14 @@ export const UserProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Test-only toggle set by Cypress: window.__E2E_REQUIRE_AUTH__ = true to disable bypass
+  const requireAuth =
+    typeof window !== 'undefined' && !!(window).__E2E_REQUIRE_AUTH__;
+
   const checkUser = async () => {
     try {
       const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
       console.log('Authenticated user:', user);
-
-      console.log('user.username:', user.username);
-      console.log('user.attributes?.sub:', user.attributes?.sub);
-      console.log('user.id:', user.id);
 
       const extractedUserID = user.username || user.attributes?.sub || user.id;
       console.log('Extracted userID:', extractedUserID);
@@ -66,7 +64,11 @@ export const UserProvider = ({ children }) => {
       }
 
       // Fetch user attributes from Cognito if not already present
-      if (!attributeMap['custom:uploadedPicture'] && !attributeMap['custom:picture'] && !attributeMap.picture) {
+      if (
+        !attributeMap['custom:uploadedPicture'] &&
+        !attributeMap['custom:picture'] &&
+        !attributeMap.picture
+      ) {
         try {
           const attributes = await Auth.userAttributes(user);
           console.log('Fetched Cognito user attributes:', attributes);
@@ -81,28 +83,30 @@ export const UserProvider = ({ children }) => {
       }
 
       const name = attributeMap.name || attributeMap['given_name'] || 'User';
-      console.log('Setting displayName to:', name);
       setDisplayName(name);
 
-      // Use custom:uploadedPicture if available, otherwise fall back to custom:picture or picture
-      let picture = attributeMap['custom:uploadedPicture'] || attributeMap['custom:picture'] || attributeMap.picture || 'https://i.imgur.com/uPnNK9Y.png';
-      console.log('Initial profile picture URL:', picture);
+      let picture =
+        attributeMap['custom:uploadedPicture'] ||
+        attributeMap['custom:picture'] ||
+        attributeMap.picture ||
+        'https://i.imgur.com/uPnNK9Y.png';
       const isPictureValid = await testImageUrl(picture);
       if (!isPictureValid) {
-        console.log('Profile picture URL is not accessible, using default:', picture);
         picture = 'https://i.imgur.com/uPnNK9Y.png';
       }
-      console.log('Final profile picture URL:', picture);
       setUserPicture(picture);
 
       const userEmail = attributeMap.email || 'N/A';
-      console.log('Setting email to:', userEmail);
       setEmail(userEmail);
 
       setUserID(extractedUserID);
       setLoading(false);
-      
-      if (!isCypressEnv && (location.pathname === '/login' || location.pathname === '/')) {
+
+      // ✅ Only auto-redirect to /rank if we're on login/root, and only when not bypassing
+      if (
+        (!isCypressEnv || requireAuth) &&
+        (location.pathname === '/login' || location.pathname === '/')
+      ) {
         console.log('User authenticated, redirecting to /rank');
         navigate('/rank');
       }
@@ -114,7 +118,12 @@ export const UserProvider = ({ children }) => {
       setEmail(null);
       setLoading(false);
 
-      if (!isCypressEnv && (location.pathname === '/login' || location.pathname === '/')) {
+      // ✅ Redirect unauthenticated users to /login in prod OR when E2E requires auth
+      if (
+        (!isCypressEnv || requireAuth) &&
+        location.pathname !== '/login' &&
+        location.pathname !== '/register'
+      ) {
         console.log('No user authenticated, redirecting to /login');
         navigate('/login');
       }
@@ -122,16 +131,17 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-   if (isCypressEnv) {
-     // Fast-path for E2E: skip Amplify, mark as "logged in"
-     setUserID('e2e-user');
-     setDisplayName('E2E User');
-     setUserPicture('https://i.imgur.com/uPnNK9Y.png');
-     setEmail('e2e@example.com');
-     setLoading(false);
-     return;
-   }
-   checkUser();
+    if (isCypressEnv && !requireAuth) {
+      // Fast-path for E2E: skip Amplify, mark as "logged in"
+      setUserID('e2e-user');
+      setDisplayName('E2E User');
+      setUserPicture('https://i.imgur.com/uPnNK9Y.png');
+      setEmail('e2e@example.com');
+      setLoading(false);
+      return;
+    }
+    checkUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
