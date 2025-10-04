@@ -39,20 +39,20 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - **AC-01.4** Tokens stored only in secure cookies; never in web storage  
 - **AC-01.5** On 401, single refresh + retry; otherwise logout + reconnect prompt
 
-### US-02 Export ranked songs by current filter
-- **AC-02.1** Creates playlist with only filtered songs  
-- **AC-02.2** Empty filter → “No songs available for export”  
+### US-02 Export ranked songs by current filter (Inline)
+- **AC-02.1** Enter inline selection mode; playlist created with only currently filtered songs that remain checked  
+- **AC-02.2** Empty filter or zero songs selected → “No songs available for export” and Export button disabled  
 - **AC-02.3** Correct Spotify track mapping; unmapped follow error handling  
-- **AC-02.4** Removed/skipped items excluded
+- **AC-02.4** Only checked, ranked, and not-skipped items included in the export  
 
-### US-03 Review & remove before export
-- **AC-03.1** Export modal lists songs (title/artist)  
-- **AC-03.2** After removals, only remaining songs exported  
-- **AC-03.3** Reopen reflects latest filter; removals reset unless saved; counts/summary update
+### US-03 Review & remove before export (Inline)
+- **AC-03.1** Clicking “Export to Spotify” enters inline selection mode where all songs are initially checked and visible (title/artist shown)  
+- **AC-03.2** After unchecking one or more songs, only the remaining checked songs are exported  
+- **AC-03.3** Exiting selection or changing filters resets the selection; re-entering reflects the latest filters with all visible songs checked by default  
 
-### US-04 Add playlist name/description
-- **AC-04.1** Name/description applied on created playlist  
-- **AC-04.2** Default name “Melodex Playlist YYYY-MM-DD” when blank
+### US-04 Add playlist name/description (Inline)
+- **AC-04.1** Name/description entered in inline fields are applied to the created playlist  
+- **AC-04.2** Default name “{genre} {subgenre} Playlist” when name is left blank  
 
 ### US-05 Real-time feedback during export
 - **AC-05.1** Progress/loader while processing  
@@ -87,17 +87,16 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 ## 4. Test Items (What we test)
 
 ### Backend  
-
-- POST /api/spotify/export (proposed) or equivalent controller  
+- POST /api/spotify/export (proposed) or equivalent controller   
 - Existing endpoints used by export: /api/user-songs/ranked, /api/user-songs/deezer-info  
 - Export service modules: token handling, chunking, backoff, mapping Deezer to Spotify  
 
-### Frontend  
-
-- ExportModal component (list, remove, default naming, validation)  
-- Progress/feedback UI  
-- Confirmation UI with deep link  
-- Settings view: revoke integration  
+### Frontend
+- Inline Selection UI on `/rankings` (enter via Spotify CTA; all visible songs default checked; uncheck to exclude; export disabled at 0 selected; selection resets on exit/filter change)  
+- Name/Description inputs inline (default name: “{genre} {subgenre} Playlist” when blank; validation)  
+- Progress/feedback UI inline (loading → success/error states during export)  
+- Confirmation UI inline with deep link (renders playlist URL; deep-link with web fallback)  
+- Settings view: revoke integration (disconnect flow blocks protected calls)  
 
 ---
 

@@ -153,7 +153,6 @@ describe("AC-01.1 — OAuth callback establishes session and redirects", () => {
     const set = asCookieArray(res.headers["set-cookie"]);
     expect(cookiePresent("access", set)).toBe(false);
     expect(cookiePresent("refresh", set)).toBe(false);
-    // (Optional) If you later decide to clear temps here too, flip these on)
     // expect(cookieCleared("oauth_state", set)).toBe(true);
     // expect(cookieCleared("pkce_verifier", set)).toBe(true);
   });

@@ -14,9 +14,6 @@ apiRouter.post('/user-songs/ranked',      UserSongsController.getRankedSongsForU
 apiRouter.post('/user-songs/deezer-info', UserSongsController.getDeezerInfo);
 apiRouter.post('/user-songs/rehydrate',   UserSongsController.rehydrateSongMetadata);
 
-// Stubbed export endpoint (auth-gated)
-apiRouter.post('/playlist/export', requireSpotifyAuth, exportPlaylistStub);
-
 // ---- Auth router (top-level /auth/**) ----
 const authRouter = express.Router();
 const AuthController = require('../controllers/AuthController');
@@ -25,5 +22,6 @@ authRouter.get('/auth/callback', AuthController.callback);
 authRouter.get('/auth/session',  AuthController.session);
 authRouter.post('/auth/revoke',  AuthController.revoke); 
 authRouter.post('/auth/refresh', AuthController.refresh);
+apiRouter.post('/playlist/export', requireSpotifyAuth, exportPlaylistStub);
 
 module.exports = { apiRouter, authRouter };
