@@ -58,46 +58,46 @@
         - UT-008-Auth — Refresh on 401  
         - IT-010-Auth — Revoke requires reconnect to export  
 
-- **US-02 — Export ranked songs by current filter**
-    - **AC-02.1** Creates playlist with filtered songs  
+- **US-02 — Export ranked songs by current filter (Inline)**
+    - **AC-02.1** Inline selection creates playlist with checked/filtered songs  
         - UT-003-Export — Filter builder  
-        - UT-004-Export — Deezer to Spotify mapping  
-        - IT-003-Export — Creates playlist with only filtered  
+        - UT-004-Export — Deezer→Spotify mapping  
+        - UI-010-SelectionInline — Enter selection mode; all checked by default  
+        - IT-003-Export — Creates playlist with only selected (filtered)  
+        - E2E-001-Export — Happy path including auth (inline)  
+    - **AC-02.2** Empty filter or zero selected disables export  
+        - UI-011-SelectionInline — Export disabled at 0 selected; hint visible  
         - IT-004-Export — Empty filter message  
-        - E2E-001-Export — Happy path including auth  
-    - **AC-02.2** Empty filter shows no songs to export  
-        - IT-004-Export — Empty filter message  
-        - E2E-002-Export — Empty filter path  
+        - E2E-002-Export — Empty selection path (inline)  
     - **AC-02.3** Spotify track mapping applied  
-        - UT-004-Export — Deezer to Spotify mapping  
+        - UT-004-Export — Deezer→Spotify mapping  
         - UT-011-Export — Selector rules  
-        - IT-004-Export — Empty filter message  
         - IT-012-Ranked — Ranked contract deps  
-    - **AC-02.4** Only ranked and unskipped included  
+    - **AC-02.4** Only checked, ranked, unskipped included  
         - UT-009-Export — Selector rules  
-        - IT-005-Export — Respects removals  
+        - IT-005-Export — Respects unselected/unchecked items  
         - IT-006-Export — Name and description in Spotify payload  
 
-- **US-03 — Review and remove before export**
-    - **AC-03.1** Remove before export  
-        - UI-002-ExportModal — Remove updates list  
-        - IT-005-Export — Respects removals  
-    - **AC-03.2** Only remaining songs exported  
-        - UI-003-ExportModal — Count and summary updates  
-        - IT-005-Export — Respects removals  
-    - **AC-03.3** Count and summary updates  
-        - UI-003-ExportModal — Count and summary updates  
-        - IT-005-Export — Respects removals  
+- **US-03 — Review and remove before export (Inline)**
+    - **AC-03.1** Inline uncheck updates list  
+        - UI-010-SelectionInline — Checkbox toggles update selection  
+        - IT-005-Export — Respects unchecked  
+    - **AC-03.2** Only remaining checked songs exported  
+        - UI-012-SelectionSummary — Count/summary updates  
+        - IT-005-Export — Respects unchecked  
+    - **AC-03.3** Re-enter reflects latest filters; defaults checked  
+        - UI-013-SelectionLifecycle — Cancel/filter change resets selection  
+        - IT-005-Export — Respects reset state  
 
-- **US-04 — Add playlist name and description**
-    - **AC-04.1** Name and description applied  
-        - UT-006-Export — Name and description in payload  
-        - UI-004-ExportModal — Default name formatting editable  
-        - IT-006-Export — Name and description in Spotify payload  
+- **US-04 — Add playlist name and description (Inline)**
+    - **AC-04.1** Name/description applied  
+        - UT-006-Export — Name/description in payload  
+        - UI-014-NameFields — Default name editable; description optional  
+        - IT-006-Export — Name/description in Spotify payload  
     - **AC-04.2** Default name format  
-        - UT-006-Export — Name and description in payload  
-        - UI-004-ExportModal — Default name formatting editable  
-        - IT-006-Export — Name and description in Spotify payload  
+        - UT-006-Export — Default name formatting  
+        - UI-014-NameFields — Default name visible/editable  
+        - IT-006-Export — Payload contains final name  
 
 - **US-05 — Real-time feedback during export**
     - **AC-05.1** Progress shown  

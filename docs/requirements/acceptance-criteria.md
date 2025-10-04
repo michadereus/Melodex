@@ -10,27 +10,27 @@
 
 ---
 
-## US-02 — Export ranked songs by current filter
+## US-02 — Export ranked songs by current filter (Inline)
 
-- **AC-02.1** — Given I have ranked songs and an active filter, when I select “Export to Spotify,” then a new Spotify playlist is created containing only the songs that match the current filter.
-- **AC-02.2** — Given the current filter matches no songs, when I attempt export, then I see a “No songs available for export” message and no playlist is created.
-- **AC-02.3** — Given Melodex holds Deezer-backed metadata for my ranked list, when songs are exported to Spotify, then each exported track resolves to the correct Spotify track using the mapping rules and unmapped tracks follow error handling.
-- **AC-02.4** — Given I removed or skipped some items in the review step, when I export, then only ranked and not-removed items are sent to Spotify.
-
----
-
-## US-03 — Review & remove before export
-
-- **AC-03.1** — Given I click “Export to Spotify,” when the export modal opens, then I can see the list of songs to be exported including song title and artist.
-- **AC-03.2** — Given I remove one or more songs in the modal, when I proceed with export, then only the remaining songs are included in the playlist.
-- **AC-03.3** — Given I change filters or close the modal, when I reopen the modal, then the list reflects the latest filter and prior removals are reset unless I explicitly saved changes, and counts/summary update accordingly.
+- **AC-02.1** — Given I have ranked songs and an active filter, when I click “Export to Spotify,” then the Rankings page enters **inline selection mode** and a new Spotify playlist is created containing only the currently checked songs that match the filter.  
+- **AC-02.2** — Given the current filter matches no songs or I uncheck all songs, when I attempt export, then I see a “No songs available for export” message and the Export button is disabled (no playlist is created).  
+- **AC-02.3** — Given Melodex holds Deezer-backed metadata for my ranked list, when songs are exported to Spotify, then each exported track resolves to the correct Spotify track using the mapping rules and unmapped tracks follow error handling.  
+- **AC-02.4** — Given I uncheck or skip some items in inline selection mode, when I export, then only the checked, ranked, and not-skipped items are sent to Spotify.  
 
 ---
 
-## US-04 — Add playlist name/description
+## US-03 — Review & remove before export (Inline)
 
-- **AC-04.1** — Given I am exporting a playlist, when I enter a name and/or description, then the created Spotify playlist uses those values.
-- **AC-04.2** — Given I do not enter a name, when I confirm export, then the playlist name defaults to “Melodex Playlist YYYY-MM-DD.”
+- **AC-03.1** — Given I click “Export to Spotify,” when inline selection mode appears on the Rankings page, then I can see the list of songs (title and artist) with all songs initially checked.  
+- **AC-03.2** — Given I uncheck one or more songs inline, when I proceed with export, then only the remaining checked songs are included in the playlist.  
+- **AC-03.3** — Given I change filters or exit selection mode, when I re-enter selection mode, then the list reflects the latest filter and defaults back to all visible songs checked, with counts/summary updated accordingly.  
+
+---
+
+## US-04 — Add playlist name/description (Inline)
+
+- **AC-04.1** — Given I am exporting a playlist in inline selection mode, when I enter a name and/or description, then the created Spotify playlist uses those values.  
+- **AC-04.2** — Given I do not enter a name, when I confirm export, then the playlist name defaults to **“{genre} {subgenre} Playlist.”**  
 
 ---
 
