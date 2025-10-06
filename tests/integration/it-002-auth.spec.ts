@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
-const app = require("../../melodex-back-end/app");
+import app from "../../melodex-back-end/app.js";
 
 describe("IT-002 — /auth/session", () => {
   it("returns connected=false with no access cookie", async () => {

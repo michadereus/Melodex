@@ -13,8 +13,8 @@ dotenvConfig({
 export default defineConfig({
   test: {
     // ---- Global defaults shared by ALL projects ----
+    environment: 'jsdom', // or 'node' per-suite, but jsdom is fine here
     globals: true,
-    css: true,
     setupFiles: ['./tests/support/vitest.setup.ts'],
 
     // coverage is global (not per-project)
@@ -22,7 +22,10 @@ export default defineConfig({
       reporter: ['text', 'html'],
       reportsDirectory: './coverage'
     },
-
+    deps: {
+      interopDefault: true,   // <- key bit for CJS default imports
+    },
+    css: false,
     // ---- Multiple projects (names must match what you pass to --project) ----
     projects: [
       // UI + Unit (runs in jsdom)

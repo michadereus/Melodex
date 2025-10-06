@@ -2,8 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import request from 'supertest';
 import nock from 'nock';
-
-const app = require('../../melodex-back-end/app');
+import app from "../../melodex-back-end/app.js";
 
 const EXPORT_PATH = '/api/playlist/export';
 const AUTH_COOKIE = 'access=it-test-access; Path=/; HttpOnly; SameSite=Lax';
