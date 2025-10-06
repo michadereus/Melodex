@@ -1,21 +1,24 @@
 // support/vitest.setup.ts
+import { vi } from 'vitest';
+
+// Neutral default fetch (tests override with vi.stubGlobal('fetch', mock))
+vi.stubGlobal('fetch', undefined);
+
+// Testing Library helpers & fetch poly (kept after mocks)
 import '@testing-library/jest-dom';
 import 'whatwg-fetch';
 
-// ---- Melodex test-only globals (bypass auth for inline selection) ----
+// E2E-style bypass flags used by your contexts
 // @ts-expect-error
 globalThis.Cypress = true;
 globalThis.__E2E_REQUIRE_AUTH__ = false;
 
-// ---- Small browser API shims that components expect ----
-import { vi } from 'vitest';
-
-// requestAnimationFrame (used by libs/React)
+// requestAnimationFrame (a few libs & React use it)
 if (!globalThis.requestAnimationFrame) {
   globalThis.requestAnimationFrame = (cb: FrameRequestCallback) => setTimeout(cb, 0);
 }
 
-// Audio usage in preview buttons
+// Simple HTMLAudioElement mock for preview buttons
 class HTMLAudioElementMock {
   play = vi.fn().mockResolvedValue(undefined);
   pause = vi.fn();
@@ -23,10 +26,9 @@ class HTMLAudioElementMock {
   addEventListener = vi.fn();
   removeEventListener = vi.fn();
 }
-// @ts-expect-error
-globalThis.Audio = HTMLAudioElementMock;
+globalThis.Audio = HTMLAudioElementMock as any;
 
-// Intersection/Resize observers (grids, lazy images)
+// Observers (grids, lazy images, etc.)
 class NoopObserver {
   observe() {}
   unobserve() {}
@@ -35,7 +37,7 @@ class NoopObserver {
 globalThis.IntersectionObserver = NoopObserver as any;
 globalThis.ResizeObserver = NoopObserver as any;
 
-// matchMedia (some UI libs check this)
+// matchMedia (some UI/Router bits probe this)
 if (!globalThis.matchMedia) {
   globalThis.matchMedia = vi.fn().mockImplementation(() => ({
     matches: false,
@@ -44,5 +46,5 @@ if (!globalThis.matchMedia) {
     addListener: () => {},      // legacy
     removeListener: () => {},   // legacy
     dispatchEvent: () => false,
-  }));
+  })) as any;
 }
