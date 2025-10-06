@@ -57,6 +57,27 @@ export default defineConfig({
     },
   },
 
+  projects: [
+      // UI + Unit (runs in jsdom)
+      {
+        test: {
+          name: 'unit-ui',
+          environment: 'jsdom',
+          include: [
+            'tests/unit/**/*.{test,spec}.ts?(x)',
+            'tests/ui/**/*.{test,spec}.ts?(x)'
+          ],
+          exclude: [
+            '**/node_modules/**',
+            '**/dist/**',
+            '**/cypress/**',
+            '**/.{idea,git,cache,output,temp}/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*'
+          ]
+        }
+      }
+  ],
+
   resolve: {
     alias: {
       // keep your react/router aliases only
