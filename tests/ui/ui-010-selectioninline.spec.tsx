@@ -2,7 +2,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
 import request from "supertest";
 import nock from "nock";
-
 import app from "../../melodex-back-end/app.js";
 
 const EXPORT_PATH = "/api/playlist/export";

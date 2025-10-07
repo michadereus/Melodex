@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
-/* @ts-expect-error no types for this JS helper */
 import ensureSpotifyConnected from "../../melodex-front-end/src/utils/spotifyAuthGuard.js";
 
 const realFetch = global.fetch;

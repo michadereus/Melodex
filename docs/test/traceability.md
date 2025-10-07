@@ -167,11 +167,12 @@
 
 ## Coverage Status (roll-up)
 
-| Layer        | Planned | In Progress | Passed | Notes                                        |
-|--------------|-------:|------------:|------:|----------------------------------------------|
-| Unit         |    15  |           2 |     1 | Target ≥ 80% lines/branches for new code     |
-| UI (component)|     9 |           0 |     1 | RTL + Vitest                                 |
-| Integration  |    12  |           0 |     2 | Critical paths: auth, export, revoke         |
-| E2E          |     9  |           0 |     0 | Run on PR + nightly                          |
+| Layer          | Planned | In Progress | Passed | Notes                                                                  |
+| -------------- | ------: | ----------: | -----: | ---------------------------------------------------------------------- |
+| Unit           |      15 |           0 |      5 | UT-001, UT-008 (auth); UT-003, UT-004 (export); UT-012 (ELO sanity)    |
+| UI (component) |       9 |           0 |      2 | UI-001 (AuthGuard); UI-009 (zero items → confirm disabled)             |
+| Integration    |      12 |           0 |      5 | IT-001, IT-002, IT-010 (auth); IT-003 (export create); IT-012 (ranked) |
+| E2E            |       9 |           0 |      2 | E2E-001 (happy path inline), E2E-003 (unauth redirect)                 |
+
 
 ---

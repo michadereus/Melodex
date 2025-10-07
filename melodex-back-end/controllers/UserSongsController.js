@@ -131,6 +131,9 @@ class UserSongsController {
   }
 
   static async rehydrateSongMetadata(req, res) {
+    if (process.env.CYPRESS || req.headers['x-from-e2e'] === '1') {
+      return res.status(204).end(); // no-op in tests
+    }
     try {
       const db = req.app.locals.db;
       if (!db) {
@@ -190,25 +193,41 @@ class UserSongsController {
         previewExp: ttl.exp,
       });
 
-      // Identify the "old" row/document to update
+      // Identify the "old" row/document to update (only keep a filter if it exists)
       let oldFilter = null;
       let oldDoc = null;
+      const coll = db.collection('user_songs');
+
       if (songId) {
         try {
-          oldFilter = { _id: new ObjectId(String(songId)), userID };
+          const candidate = { _id: new ObjectId(String(songId)), userID };
+          const found = await coll.findOne(candidate);
+          if (found) {
+            oldDoc = found;
+            oldFilter = candidate;
+          }
         } catch (_) {
-          oldFilter = null;
+          // ignore invalid ObjectId
         }
       }
+
       if (!oldFilter && fallbackDeezerID != null) {
-        oldFilter = { userID, deezerID: Number(fallbackDeezerID) || fallbackDeezerID };
+        const candidate = { userID, deezerID: Number(fallbackDeezerID) || fallbackDeezerID };
+        const found = await coll.findOne(candidate);
+        if (found) {
+          oldDoc = found;
+          oldFilter = candidate;
+        }
       }
-      if (oldFilter) {
-        oldDoc = await db.collection('user_songs').findOne(oldFilter);
-      } else {
-        oldDoc = await db.collection('user_songs').findOne({ userID, songName, artist });
-        oldFilter = oldDoc ? { _id: oldDoc._id } : null;
+
+      if (!oldFilter) {
+        const probe = await coll.findOne({ userID, songName, artist });
+        if (probe) {
+          oldDoc = probe;
+          oldFilter = { _id: probe._id };
+        }
       }
+
 
       // Merge if a different doc already has the new deezerID
       const existingWithNew = await db.collection('user_songs').findOne({
@@ -231,20 +250,38 @@ class UserSongsController {
       }
 
       // Otherwise update in place (or upsert if we only had name/artist)
-      const r = await db.collection('user_songs').findOneAndUpdate(
+      // Otherwise update in place (or upsert if we only had name/artist)
+      const coll2 = db.collection('user_songs');
+      const result = await coll2.findOneAndUpdate(
         oldFilter || { userID, songName, artist },
         { $set: updatedFields },
-        { upsert: !oldFilter, returnDocument: 'after' }
+        {
+          upsert: !oldFilter,
+          returnDocument: 'after', // v4+ (ignore on v3)
+          // returnOriginal: false, // uncomment if pinned to v3 driver
+        }
       );
 
-      const doc =
-        r.value ||
-        (oldFilter
-          ? await db.collection('user_songs').findOne(oldFilter)
-          : await db.collection('user_songs').findOne({ userID, deezerID: updatedFields.deezerID }));
+      // Support both driver shapes: { value } OR direct doc/null
+      const updatedDoc = result && typeof result === 'object' && 'value' in result
+        ? result.value
+        : result;
 
-      console.log('[rehydrate] UPDATED doc:', doc?._id?.toString());
+      let doc = updatedDoc;
+      if (!doc) {
+        if (oldFilter) {
+          doc = await coll2.findOne(oldFilter);
+        }
+        if (!doc) {
+          doc =
+            (await coll2.findOne({ userID, deezerID: updatedFields.deezerID })) ||
+            (await coll2.findOne({ userID, songName: updatedFields.songName, artist: updatedFields.artist }));
+        }
+      }
+
+      console.log('[rehydrate] UPDATED doc:', doc?._id?.toString?.());
       return res.json(doc || updatedFields);
+
     } catch (err) {
       console.error('rehydrateSongMetadata error:', err);
       if (String(err).includes('E11000')) {

@@ -1,4 +1,3 @@
-/* @ts-expect-error no types for this JS helper */
 import ensureSpotifyConnected from "../../melodex-front-end/src/utils/spotifyAuthGuard.js";
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";

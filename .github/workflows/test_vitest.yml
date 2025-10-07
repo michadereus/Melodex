@@ -56,4 +56,4 @@ jobs:
           npm ci
           npm run install:all:ci
       - name: Run Vitest (${{ matrix.project }})
-        run: npx vitest run --project ${{ matrix.project }}
+        run: npx vitest run --config ./vitest.config.mjs --project ${{ matrix.project }}
