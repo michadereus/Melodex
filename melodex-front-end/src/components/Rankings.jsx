@@ -49,7 +49,7 @@ const Rankings = () => {
   const rehydrateAvailableRef = useRef(null); // null=unknown, true/false after first attempt
 
   const RECENTLY_DONE_WINDOW_MS = 5 * 60 * 1000;
-  const isCypressEnv = typeof window !== 'undefined' && !!window.Cypress;
+  const isCypressEnv = typeof window !== 'undefined' && (!!window.Cypress || window.__E2E_REQUIRE_AUTH__ === false);
 
   // ---- API base (handles with/without trailing /api) ----
   const RAW_BASE =
@@ -433,11 +433,14 @@ const Rankings = () => {
     const payload = {
       name: (playlistName || '').trim() || defaultName,
       description: (playlistDescription || '').trim(),
-      // For E2E length assertions, URIs can be derived simply from deezerID placeholder
       uris: chosen
         .filter((s) => s && (s.spotifyUri || s.deezerID || s._id))
         .map((s) => s.spotifyUri || `spotify:track:${s.deezerID || s._id}`),
     };
+
+    if (isCypressEnv && typeof window !== 'undefined') {
+      window.__LAST_EXPORT_PAYLOAD__ = payload;
+    }
 
     try {
       setExporting(true);
@@ -603,6 +606,19 @@ const Rankings = () => {
                   rows={1}
                   style={{ padding: '0.5rem', borderRadius: 8, border: '1px solid #ddd', resize: 'vertical' }}
                 />
+
+                {/* 🔹 Empty-selection hint (new) */}
+                {zeroSelected && (
+                  <p
+                    data-testid="export-hint-empty"
+                    role="alert"
+                    aria-live="polite"
+                    style={{ margin: 0, fontSize: '0.9rem', opacity: 0.8, justifySelf: 'end' }}
+                  >
+                    Select at least one song to export.
+                  </p>
+                )}
+
                 <button
                   type="submit"
                   data-testid="export-confirm"
@@ -618,6 +634,7 @@ const Rankings = () => {
                 >
                   {exporting ? 'Exporting…' : 'Export'}
                 </button>
+
                 <button
                   type="button"
                   onClick={onCancelSelection}
@@ -681,6 +698,7 @@ const Rankings = () => {
                     {selectionMode && (
                       <input
                         type="checkbox"
+                        data-testid={`song-checkbox-${k}`}
                         checked={isChecked}
                         onChange={(e) => {
                           const next = new Set(selected);
@@ -692,7 +710,6 @@ const Rankings = () => {
                         style={{ transform: 'scale(1.2)' }}
                       />
                     )}
-
                     <span
                       style={{
                         fontSize: '1.5rem',
