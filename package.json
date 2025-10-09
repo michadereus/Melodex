@@ -1,5 +1,7 @@
 {
-  "engines": { "node": ">=20 <21" },
+  "engines": {
+    "node": ">=20 <21"
+  },
   "name": "melodex-root",
   "private": true,
   "overrides": {
@@ -37,11 +39,14 @@
     "dotenv": "^17.2.3",
     "jsdom": "^27.0.0",
     "nock": "^14.0.10",
-    "react": "^18.3.1",
+    "react": "18.3.1",
     "react-dom": "^18.3.1",
     "supertest": "^7.1.4",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4",
     "whatwg-fetch": "^3.6.20"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.9.3"
   }
 }
