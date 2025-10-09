@@ -1,6 +1,7 @@
 // tests/integration/it-012-ranked.spec.ts
 // @ts-nocheck
 import { describe, it, expect, beforeAll } from 'vitest';
+import { apiRouter, authRouter } from '../../melodex-back-end/routes/api';
 
 // Build an in-process Express app using your real routers
 let app: any;
@@ -9,9 +10,6 @@ let request: any;
 beforeAll(async () => {
   const express = require('express');
   const supertest = require('supertest');
-
-  // Import your routers (already defined in melodex-back-end/routes/api.js)
-  const { apiRouter, authRouter } = require('../../melodex-back-end/routes/api');
 
   // Minimal seed to make responses deterministic
   // NOTE: keep only documented/allowed fields for contract tests
