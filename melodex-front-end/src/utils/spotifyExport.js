@@ -1,4 +1,38 @@
 // melodex-front-end/src/utils/spotifyExport.js
+
+/**
+ * Post Spotify track URIs in fixed-size chunks.
+ * - Keeps original order
+ * - No mutation of input array
+ * - Validates chunkSize
+ * - Awaits each batch sequentially (preserves playlist order guarantees)
+ *
+ * @param {string[]} uris
+ * @param {number} chunkSize
+ * @param {(batch: string[]) => Promise<void>} postFn  // e.g., client.post(`/tracks`, { uris: batch })
+ * @returns {Promise<{batches: number, total: number}>}
+ */
+export async function postUrisInChunks(uris = [], chunkSize = 100, postFn = async () => {}) {
+  const list = Array.isArray(uris) ? [...uris] : [];
+  const size = Number(chunkSize);
+
+  if (!Number.isFinite(size) || size <= 0) {
+    throw new Error('chunkSize must be a positive integer');
+  }
+  if (list.length === 0) return { batches: 0, total: 0 };
+
+  let batches = 0;
+  let total = 0;
+
+  for (let i = 0; i < list.length; i += size) {
+    const batch = list.slice(i, i + size);
+    await postFn(batch);
+    batches += 1;
+    total += batch.length;
+  }
+  return { batches, total };
+}
+
 /** ---------- Filters ---------- **/
 export function buildFilters(selection = {}) {
   const norm = (v) =>
