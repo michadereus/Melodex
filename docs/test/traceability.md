@@ -70,6 +70,7 @@
     - **AC-02.3** Spotify track mapping applied  
         - UT-004-Export — Deezer→Spotify mapping  
         - IT-012-Ranked — Ranked contract deps  
+        - UT-011-Export — Selector rules (genre/subgenre/decade)  
     - **AC-02.4** Only checked, ranked, unskipped included  
         - UT-009-Export — Batch add in chunks of N  
         - UT-010-Export — Selector empty result returns proper status  
