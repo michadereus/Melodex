@@ -3,6 +3,7 @@ name: E2E — Cypress (local)
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - "melodex-front-end/**"
       - "melodex-back-end/**"
