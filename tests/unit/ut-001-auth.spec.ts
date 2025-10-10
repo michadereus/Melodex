@@ -1,6 +1,6 @@
 // tests/unit/auth/ut-001-auth.spec.ts
 import { describe, it, expect } from "vitest";
-import { buildAuthCookies } from "../../melodex-back-end/auth/cookies";
+import { buildAuthCookies } from "../../melodex-back-end/utils/cookies";
 
 describe("UT-001-Auth — Cookie flags httpOnly SameSite Secure max-age", () => {
   it("UT-001: sets HttpOnly, Secure, SameSite, Path=/, and Max-Age", () => {

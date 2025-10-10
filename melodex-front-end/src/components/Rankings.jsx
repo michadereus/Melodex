@@ -1,9 +1,11 @@
 // Filepath: melodex-front-end/src/components/Rankings.jsx
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSongContext } from '../contexts/SongContext';
-import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useVolumeContext } from '../contexts/VolumeContext';
 import SongFilter from './SongFilter';
 import '../index.css';
+import { formatDefaultPlaylistName } from '../utils/formatDefaultPlaylistName';
+import { buildDeepLink } from '../utils/deeplink';
 
 // ===== Exportable helper so UI tests can import it =====
 export async function ensureSpotifyConnected(authRoot = '') {
@@ -35,10 +37,22 @@ const Rankings = () => {
   // Inline export selection mode
   const [selectionMode, setSelectionMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
-  const [playlistName, setPlaylistName] = useState('');
+  const [playlistName, setPlaylistName] = useState(() => formatDefaultPlaylistName());
   const [playlistDescription, setPlaylistDescription] = useState('');
   const [exporting, setExporting] = useState(false);
   const [exportSuccessUrl, setExportSuccessUrl] = useState('');
+
+  // Export progress states (idle → loading → success|error)
+  const ExportState = {
+    Idle: 'idle',
+    Validating: 'validating',
+    Creating: 'creating',
+    Adding: 'adding',
+    Success: 'success',
+    Error: 'error',
+  };
+  const [exportState, setExportState] = useState(ExportState.Idle);
+  const [exportError, setExportError] = useState(null);
 
   // Map<stableKey, HTMLAudioElement>
   const audioRefs = useRef(new Map());
@@ -182,7 +196,7 @@ const Rankings = () => {
 
       const matches = (s) =>
         (s._id && updated._id && String(s._id) === String(updated._id)) ||
-        (!!s.deezerID && !!updated.deezerID && String(s.deezerID) === String(s.deezerID)) ||
+        (!!s.deezerID && !!updated.deezerID && String(s.deezerID) === String(updated.deezerID)) ||
         (s.songName === song.songName && s.artist === song.artist);
 
       setEnrichedSongs((prev) => prev.map((s) => (matches(s) ? { ...s, ...updated } : s)));
@@ -421,40 +435,67 @@ const Rankings = () => {
 
   const doExport = async () => {
     if (exporting) return;
+
     const chosen = sortedSongs.filter((s) => selected.has(stableKey(s)));
     if (chosen.length === 0) return;
 
+    // default name (use your existing genre/subgenre rule; fall back to util if you added it)
     const defaultNameParts = [];
     if (selectedGenre !== 'any') defaultNameParts.push(selectedGenre);
     if (selectedSubgenre !== 'any') defaultNameParts.push(selectedSubgenre);
     const defaultName =
-      defaultNameParts.length > 0 ? `${defaultNameParts.join(' ')} Playlist` : 'Melodex Playlist';
+      defaultNameParts.length > 0
+        ? `${defaultNameParts.join(' ')} Playlist`
+        : 'Melodex Playlist';
+
+    // Build URIs for the current stub path (uses cached spotifyUri if present; otherwise dz/_id fallback)
+    const stubUris = chosen
+      .filter((s) => s && (s.spotifyUri || s.deezerID || s._id))
+      .map((s) => s.spotifyUri || `spotify:track:${s.deezerID || s._id}`);
+
+    // Also include a rich items array to support the real mapping path later
+    const items = chosen.map((s) => ({
+      deezerID: s.deezerID ?? s._id ?? null,
+      songName: s.songName,
+      artist: s.artist,
+      isrc: s.isrc ?? null,
+      spotifyUri: s.spotifyUri ?? null, // cached hit if you have it
+      ranking: s.ranking ?? null,
+    }));
 
     const payload = {
       name: (playlistName || '').trim() || defaultName,
       description: (playlistDescription || '').trim(),
-      uris: chosen
-        .filter((s) => s && (s.spotifyUri || s.deezerID || s._id))
-        .map((s) => s.spotifyUri || `spotify:track:${s.deezerID || s._id}`),
+      // keep both so tests + future real mapping are happy:
+      uris: stubUris,           // legacy/stub consumers
+      __testUris: stubUris,     // integration tests use this short-circuit
+      items,                    // real mapping path will use this
+      // include filters if your backend reads them (optional):
+      // filters: { genre: selectedGenre, subgenre: selectedSubgenre }
     };
 
+    // expose for Cypress when present
     if (isCypressEnv && typeof window !== 'undefined') {
       window.__LAST_EXPORT_PAYLOAD__ = payload;
     }
 
     try {
       setExporting(true);
+
+      // ✅ fix endpoint path to match backend/tests
       const res = await fetch(`${API_ROOT}/playlist/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload),
       });
+
       if (!res.ok) throw new Error(`Export failed ${res.status}`);
+
       const { ok, playlistUrl } = await res.json();
+
       if (ok && playlistUrl) {
         setExportSuccessUrl(playlistUrl);
-        // Also open in new tab to satisfy flows that prefer that UX
         try {
           window.open(playlistUrl, '_blank', 'noopener');
         } catch {}
@@ -465,6 +506,7 @@ const Rankings = () => {
       setExporting(false);
     }
   };
+
 
   const toggleFilter = () => setShowFilter((prev) => !prev);
 
@@ -569,6 +611,16 @@ const Rankings = () => {
                   : '') + ' Rankings'}
           </h2>
 
+          {/* Live selection summary (AC-03.2) */}
+          {selectionMode && (
+            <div
+              data-testid="selection-summary"
+              style={{ textAlign: 'center', fontSize: '0.95rem', color: '#7f8c8d', marginTop: '-0.5rem', marginBottom: '0.75rem' }}
+            >
+              Selected: {selected?.size ?? 0}
+            </div>
+          )}
+
           {/* Inline selection controls / CTA */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.25rem', gap: '0.75rem' }}>
             {!selectionMode ? (
@@ -607,7 +659,7 @@ const Rankings = () => {
                   style={{ padding: '0.5rem', borderRadius: 8, border: '1px solid #ddd', resize: 'vertical' }}
                 />
 
-                {/* 🔹 Empty-selection hint (new) */}
+                {/* Empty-selection hint */}
                 {zeroSelected && (
                   <p
                     data-testid="export-hint-empty"
@@ -647,17 +699,33 @@ const Rankings = () => {
             )}
           </div>
 
+          {/* Progress readout (UI-005 scaffold) */}
+          {selectionMode && exportState !== ExportState.Idle && (
+            <div data-testid="export-progress" style={{ textAlign: 'center', marginTop: '-0.5rem', marginBottom: '0.75rem', color: '#7f8c8d' }}>
+              {exportState === ExportState.Validating && 'Validating…'}
+              {exportState === ExportState.Creating && 'Creating playlist…'}
+              {exportState === ExportState.Adding && 'Adding tracks…'}
+              {exportState === ExportState.Success && 'Done!'}
+              {exportState === ExportState.Error && `Error: ${exportError || 'Something went wrong'}`}
+            </div>
+          )}
+
           {exportSuccessUrl && (
             <p style={{ textAlign: 'center', marginBottom: '1rem' }}>
               Playlist created:{' '}
-              <a
-                href={exportSuccessUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-testid="export-success-link"
-              >
-                Open in Spotify
-              </a>
+              {(() => {
+                const links = buildDeepLink(null, exportSuccessUrl);
+                return (
+                  <a
+                    href={links.web}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-testid="export-success-link"
+                  >
+                    Open in Spotify
+                  </a>
+                );
+              })()}
             </p>
           )}
 
