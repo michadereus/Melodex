@@ -1,122 +1,159 @@
-// tests/integration/it-010-auth.spec.ts
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
-import request from "supertest";
-import nock from "nock";
-import app from "../../melodex-back-end/app.js";
+// tests/ui/ui-010-selectioninline.spec.tsx
+import { describe, it, beforeEach, afterEach, expect, vi } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
+import { MemoryRouter } from "react-router-dom";
+import Rankings from "../../melodex-front-end/src/components/Rankings.jsx";
+import { SongProvider } from "../../melodex-front-end/src/contexts/SongContext.jsx";
+import { VolumeProvider } from "../../melodex-front-end/src/contexts/VolumeContext.jsx";
+import { UserContext } from "../../melodex-front-end/src/contexts/UserContext.jsx";
 
-const EXPORT_PATH = "/api/playlist/export";
-const payload = { name: "Test Playlist", uris: ["spotify:track:123"] };
-
-function asCookieArray(v: unknown): string[] {
-  if (Array.isArray(v)) return v as string[];
-  if (typeof v === "string") return [v];
-  return [];
+function MockUser({ children }: { children: React.ReactNode }) {
+  return (
+    <UserContext.Provider
+      value={{
+        userID: "test-user",
+        displayName: "Tester",
+        userPicture: null,
+        setUserID: () => {},
+        setDisplayName: () => {},
+        setUserPicture: () => {},
+      } as any}
+    >
+      {children}
+    </UserContext.Provider>
+  );
 }
 
-// Pull a single "name=value" pair out of a Set-Cookie string array
-function pickCookie(name: string, setCookies: string[]): string | null {
-  for (const line of setCookies) {
-    const m = line.match(new RegExp(`\\b${name}=([^;]+)`));
-    if (m) return `${name}=${m[1]}`;
-  }
-  return null;
+function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <MemoryRouter initialEntries={["/rankings"]}>
+      <MockUser>
+        <VolumeProvider>
+          <SongProvider>{children}</SongProvider>
+        </VolumeProvider>
+      </MockUser>
+    </MemoryRouter>
+  );
 }
 
-beforeAll(() => {
-  // Block real network; allow localhost (the app under test)
-  nock.disableNetConnect();
-  nock.enableNetConnect(/127\.0\.0\.1|localhost/);
-});
+const API_BASE = "http://localhost:8080";
 
-afterAll(() => {
-  nock.cleanAll();
-  nock.enableNetConnect();
-});
+const rankedSongs = [
+  { deezerID: "AAA111", songName: "Alpha", artist: "One", ranking: 200 },
+  { deezerID: "BBB222", songName: "Bravo", artist: "Two", ranking: 180 },
+  { deezerID: "CCC333", songName: "Charlie", artist: "Three", ranking: 150 },
+];
 
-beforeEach(() => nock.cleanAll());
+function okJson(data: unknown, init?: Partial<ResponseInit>): Response {
+  return new Response(JSON.stringify(data), {
+    status: init?.status ?? 200,
+    headers: { "Content-Type": "application/json" },
+    ...init,
+  });
+}
+function okText(text: string, init?: Partial<ResponseInit>): Response {
+  return new Response(text, {
+    status: init?.status ?? 200,
+    headers: { "Content-Type": "text/plain" },
+    ...init,
+  });
+}
 
-describe("IT-010-Auth — revoke blocks Spotify actions", () => {
-  it("unauthenticated → 401", async () => {
-    const res = await request(app).post(EXPORT_PATH).send(payload);
-    expect(res.status).toBe(401);
-    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
+describe("UI-010 — SelectionInline: Checkbox toggles update selection", () => {
+  const originalFetch = globalThis.fetch as any;
+
+  beforeEach(() => {
+    const mockFetch = vi.fn(async (input: RequestInfo | URL) => {
+      const url = typeof input === "string" ? input : (input as URL).toString();
+
+      // session
+      if (url.endsWith("/auth/session") || url === `${API_BASE}/auth/session`) {
+        return okJson({ connected: true });
+      }
+
+      // ranked
+      if (url.endsWith("/user-songs/ranked") || url === `${API_BASE}/api/user-songs/ranked`) {
+        // Controller responds with JSON string; keep that behavior
+        return okText(JSON.stringify(rankedSongs));
+      }
+
+      // deezer-info background fix pass → return enriched items (now "valid")
+      if (url.endsWith("/user-songs/deezer-info") || url === `${API_BASE}/api/user-songs/deezer-info`) {
+        const enriched = rankedSongs.map((s) => ({
+          ...s,
+          albumCover: `https://img/${s.deezerID}.jpg`,
+          previewURL: `https://cdn/${s.deezerID}.mp3`,
+          lastDeezerRefresh: new Date().toISOString(),
+        }));
+        return okJson(enriched);
+      }
+
+      // export (not essential here)
+      if (url.endsWith("/playlist/export") || url === `${API_BASE}/api/playlist/export`) {
+        return okJson({ ok: true, playlistUrl: "https://open.spotify.com/playlist/test" });
+      }
+
+      // default
+      return okJson({ ok: true });
+    });
+
+    // Make sure *every* reference sees the same mock
+    vi.stubGlobal("fetch", mockFetch);
+    (globalThis as any).fetch = mockFetch;
+    (window as any).fetch = mockFetch;
   });
 
-  it("authenticated (manual cookie from real callback) → 200", async () => {
-    // Mock Spotify token exchange for the callback
-    const scope = nock("https://accounts.spotify.com")
-      .post("/api/token")
-      .reply(200, {
-        access_token: "acc-token",
-        refresh_token: "ref-token",
-        token_type: "Bearer",
-        expires_in: 3600,
-        scope: "playlist-modify-private",
-      });
-
-    // Hit the callback with temp cookies (as if /auth/start had run)
-    const cb = await request(app)
-      .get("/auth/callback?code=ok&state=abc123")
-      .set("Cookie", ["oauth_state=abc123", "pkce_verifier=s3cr3t"])
-      .expect(302);
-
-    const setCookies = asCookieArray(cb.headers["set-cookie"]);
-    expect(setCookies.length).toBeGreaterThan(0);
-
-    // Manually extract and send the auth cookie(s) to bypass Secure-on-HTTP issues in the jar
-    const access = pickCookie("access", setCookies);
-    const refresh = pickCookie("refresh", setCookies); // optional for this stub path
-
-    // Sanity: we must have at least access
-    expect(access).toBeTruthy();
-
-    const cookieHeader = refresh ? [access!, refresh] : [access!];
-
-    // Now call the protected export with the cookies explicitly set
-    const res = await request(app)
-      .post(EXPORT_PATH)
-      .set("Cookie", cookieHeader)
-      .send(payload);
-
-    expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ ok: true, received: { name: "Test Playlist", count: 1 } });
-
-    expect(scope.isDone()).toBe(true);
+  afterEach(() => {
+    // restore order: clear mocks and restore original fetch everywhere
+    vi.unstubAllGlobals?.();
+    (globalThis as any).fetch = originalFetch;
+    (window as any).fetch = originalFetch;
+    vi.restoreAllMocks();
   });
 
-  it("after revoke → 401 again (must reconnect)", async () => {
-    // First authenticate via callback to obtain cookies
-    nock("https://accounts.spotify.com")
-      .post("/api/token")
-      .reply(200, {
-        access_token: "acc-token",
-        refresh_token: "ref-token",
-        token_type: "Bearer",
-        expires_in: 3600,
-      });
+  it("enters selection mode with all items pre-checked; toggling updates selection and Export enablement", async () => {
+    render(
+      <Providers>
+        <Rankings />
+      </Providers>
+    );
 
-    const cb = await request(app)
-      .get("/auth/callback?code=ok&state=xyz")
-      .set("Cookie", ["oauth_state=xyz", "pkce_verifier=abc"])
-      .expect(302);
+    // Wait until list has rendered (spinner gone) by checking for any one song name
+    await screen.findByText(/Alpha/i);
 
-    const setCookies = asCookieArray(cb.headers["set-cookie"]);
-    const access = pickCookie("access", setCookies);
-    const refresh = pickCookie("refresh", setCookies);
+    // Use the app's own testid for the CTA (icon button has no accessible name)
+    const cta = await screen.findByTestId("export-spotify-cta");
+    fireEvent.click(cta);
 
-    // Confirm we can call export with cookies present
-    await request(app)
-      .post(EXPORT_PATH)
-      .set("Cookie", [access!, ...(refresh ? [refresh] : [])])
-      .send(payload)
-      .expect(200);
+    // Heading flips (keep this if your heading text is reliable)
+    await screen.findByRole("heading", { name: /export to spotify/i });
 
-    // Call revoke to clear tokens on the server side (sends Set-Cookie Max-Age=0)
-    await request(app).post("/auth/revoke").expect(200);
+    const cbA = await screen.findByTestId("song-checkbox-dz_AAA111");
+    const cbB = await screen.findByTestId("song-checkbox-dz_BBB222");
+    const cbC = await screen.findByTestId("song-checkbox-dz_CCC333");
+    expect(cbA).toBeChecked();
+    expect(cbB).toBeChecked();
+    expect(cbC).toBeChecked();
 
-    // Now call export WITHOUT sending cookies -> should be blocked
-    const res = await request(app).post(EXPORT_PATH).send(payload);
-    expect(res.status).toBe(401);
-    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
+    const exportBtn = await screen.findByTestId("export-confirm");
+    expect(exportBtn).toBeEnabled();
+
+    // Uncheck one → still enabled
+    fireEvent.click(cbB);
+    expect(cbB).not.toBeChecked();
+    expect(exportBtn).toBeEnabled();
+
+    // Uncheck the rest → disabled
+    fireEvent.click(cbA);
+    fireEvent.click(cbC);
+
+    await waitFor(() => {
+      expect(exportBtn).toBeDisabled();
+    });
+
+    // Re-check one → enabled again
+    fireEvent.click(cbC);
+    expect(exportBtn).toBeEnabled();
   });
 });
