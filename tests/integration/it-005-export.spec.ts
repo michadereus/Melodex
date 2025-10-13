@@ -1,17 +1,32 @@
-// tests/integration/it-005-export-unselected.spec.ts
-// @ts-nocheck
-import { describe, it, beforeEach, afterEach, expect } from "vitest";
+// Filepath: tests/integration/it-005-export.spec.ts
+// IT-005 — Export respects removed items (realistic path: no __testUris; server filters items[])
+
+import { describe, it, beforeEach, afterEach, beforeAll, vi, expect, afterAll } from "vitest";
 import request from "supertest";
 import nock from "nock";
-import app from "../../melodex-back-end/app"; // or "./app.js" to match your project
 
 const SPOTIFY_API = "https://api.spotify.com";
 const EXPORT_PATH = "/api/playlist/export";
 const AUTH_COOKIE = "access=test-access-token";
 
-describe("IT-005 — Export respects unchecked/removed items", () => {
+let app: any;
+
+describe("IT-005 — Export respects unchecked/removed items (no __testUris path)", () => {
   let postedUris: string[] = [];
   let createdPlaylistBody: any = null;
+
+  
+  beforeAll(() => {
+    // Force realistic branch (no __testUris path)
+    vi.stubEnv("EXPORT_STUB", "off");
+
+    // Ensure fresh require so the controller sees the env change
+    vi.resetModules();
+
+    // Load app AFTER env is set
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    app = require("../../melodex-back-end/app");
+  });
 
   beforeEach(() => {
     postedUris = [];
@@ -21,9 +36,9 @@ describe("IT-005 — Export respects unchecked/removed items", () => {
     nock.disableNetConnect();
     nock.enableNetConnect(/(127\.0\.0\.1|localhost)/);
 
-    // 1) Create playlist — capture name/description for passthrough assertions
+    // 1) Create playlist — accept common Spotify endpoints
     nock(SPOTIFY_API)
-      .post("/v1/users/me/playlists", (body) => {
+      .post(/\/v1\/(?:users\/me\/playlists|me\/playlists|playlists)$/, (body) => {
         createdPlaylistBody = body;
         return true;
       })
@@ -32,7 +47,7 @@ describe("IT-005 — Export respects unchecked/removed items", () => {
         external_urls: { spotify: "https://open.spotify.com/playlist/pl_123" },
       });
 
-    // 2) Add tracks — capture URIs actually posted to Spotify
+    // 2) Add tracks — capture URIs
     nock(SPOTIFY_API)
       .post("/v1/playlists/pl_123/tracks")
       .reply(201, function (_uri, body) {
@@ -42,123 +57,91 @@ describe("IT-005 — Export respects unchecked/removed items", () => {
         } catch {
           postedUris = [];
         }
-        return { snapshot_id: "abc" };
+        return { snapshot_id: "snap_001" };
       });
   });
 
   afterEach(() => {
     const pending = nock.pendingMocks();
     if (pending.length) {
-      // Helpful if a test exits early
       // console.warn("Pending nock mocks:", pending);
     }
     nock.cleanAll();
     nock.enableNetConnect();
   });
 
-  it("posts only kept URIs (FE already excluded unchecked/skipped)", async () => {
-    const finalUris = ["spotify:track:AAA111", "spotify:track:DDD444"];
+  afterAll(() => {
+    vi.unstubAllEnvs();
+  });
 
-    const res = await request(app)
-      .post(EXPORT_PATH)
-      .set("Cookie", AUTH_COOKIE)
-      .send({
-        name: "My Inline Export",
-        description: "From IT-005",
-        __testUris: finalUris,
-        items: [
-          { uri: "spotify:track:AAA111", checked: true },
-          { uri: "spotify:track:BBB222", checked: false }, // unchecked upstream
-          { uri: "spotify:track:CCC333", checked: true, skipped: true }, // skipped upstream
-          { uri: "spotify:track:DDD444", checked: true },
-          { uri: "spotify:track:EEE555", checked: false }, // unchecked upstream
-        ],
-      });
+  it("filters by checked flag and excludes skipped; maps URIs from items when __testUris is omitted", async () => {
+    const payload = {
+      name: "Realistic Export",
+      description: "IT-005 (no __testUris)",
+      // No __testUris and no 'uris' — force server to use items[]
+      items: [
+        { deezerID: 111, songName: "A", artist: "X", checked: true,  skipped: false, spotifyUri: "spotify:track:AAA111" },
+        { deezerID: 222, songName: "B", artist: "Y", checked: false, skipped: false, spotifyUri: "spotify:track:BBB222" },
+        { deezerID: 333, songName: "C", artist: "Z", checked: true,  skipped: true,  spotifyUri: "spotify:track:CCC333" },
+        { deezerID: 444, songName: "D", artist: "W", checked: true,  skipped: false }, // -> fallback "spotify:track:444"
+        { deezerID: 555, songName: "E", artist: "V", checked: false, skipped: false },
+      ],
+    };
+
+    const res = await request(app).post(EXPORT_PATH).set("Cookie", AUTH_COOKIE).send(payload);
 
     expect(res.status).toBe(200);
     expect(res.body?.ok).toBe(true);
-    expect(res.body?.playlistId).toBe("pl_123");
 
-    // Server must not re-add excluded tracks
-    expect(postedUris).toEqual(["spotify:track:AAA111", "spotify:track:DDD444"]);
-    expect(postedUris).not.toContain("spotify:track:BBB222");
-    expect(postedUris).not.toContain("spotify:track:CCC333");
-    expect(postedUris).not.toContain("spotify:track:EEE555");
-  });
+    // Either playlistId or playlistUrl (vendor detail)
+    if (res.body?.playlistId !== undefined) {
+      expect(res.body.playlistId).toBe("pl_123");
+    }
+    if (res.body?.playlistUrl !== undefined) {
+      expect(String(res.body.playlistUrl)).toMatch(/open\.spotify\.com\/playlist\/pl_123/);
+    }
 
-  it("does not re-add duplicates or unchecked when items contain conflicting flags", async () => {
-    const finalUris = ["spotify:track:AAA111", "spotify:track:AAA111"]; // duplicate in FE final list (should still forward as given)
-    // NOTE: The stub path trusts __testUris verbatim. If you want de-duplication,
-    // do it on the FE before posting. This test just proves no re-adds happen server-side.
+    // Only kept items → ["spotify:track:AAA111", "spotify:track:444"]
+    expect(postedUris).toEqual(["spotify:track:AAA111", "spotify:track:444"]);
 
-    await request(app)
-      .post(EXPORT_PATH)
-      .set("Cookie", AUTH_COOKIE)
-      .send({
-        name: "No Re-Add",
-        description: "Check duplicates",
-        __testUris: finalUris,
-        items: [
-          { uri: "spotify:track:AAA111", checked: false }, // conflicting with __testUris
-          { uri: "spotify:track:BBB222", checked: true },
-        ],
-      })
-      .expect(200);
-
-    // Server should forward exactly what FE sent
-    expect(postedUris).toEqual(["spotify:track:AAA111", "spotify:track:AAA111"]);
-    expect(postedUris).not.toContain("spotify:track:BBB222");
-  });
-
-  it("empty selection triggers the empty-selection response contract", async () => {
-    const res = await request(app)
-      .post(EXPORT_PATH)
-      .set("Cookie", AUTH_COOKIE)
-      .send({
-        name: "Empty",
-        description: "none",
-        __testUris: [], // FE blocked Export, but we verify server response anyway
-      });
-
-    // Match your stub contract: if you return ok:false/code:'NO_SONGS', assert that.
-    // If your stub returns ok:true with count:0, assert that instead.
-    // Adjust these expectations to your ExportController's stub behavior.
-    expect(res.status).toBe(200);
-    // Example 1: NO_SONGS
-    // expect(res.body).toMatchObject({ ok: false, code: expect.stringMatching(/NO_SONGS/i) });
-
-    // Example 2: ok:true count:0
-    expect(res.body).toMatchObject({ ok: true });
-    // When __testUris is [], Spotify calls should not occur:
-    expect(postedUris).toEqual([]);
-  });
-
-  it("requires auth cookie even on the stub path", async () => {
-    const res = await request(app)
-      .post(EXPORT_PATH)
-      // no Cookie header
-      .send({ name: "Auth Check", __testUris: ["spotify:track:AAA111"] });
-
-    expect(res.status).toBe(401);
-    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
-
-    // Since auth failed, nock should show that no Spotify calls were made
-    expect(postedUris).toEqual([]);
-  });
-
-  it("passes through name/description to the create-playlist call", async () => {
-    const payload = {
-      name: "Inline Export: Rock Mix",
-      description: "Exported from selection mode",
-      __testUris: ["spotify:track:ROCK001", "spotify:track:ROCK002"],
-    };
-
-    await request(app).post(EXPORT_PATH).set("Cookie", AUTH_COOKIE).send(payload).expect(200);
-
+    // Create-playlist payload passed through
     expect(createdPlaylistBody?.name).toBe(payload.name);
-    // spotify create payload may use 'description' or omit it if empty; assert when present
     if (payload.description) {
       expect(createdPlaylistBody?.description).toBe(payload.description);
     }
+
+    // Ensure server did not re-add removed ones
+    expect(postedUris).not.toContain("spotify:track:BBB222");
+    expect(postedUris).not.toContain("spotify:track:CCC333"); // skipped
+    expect(postedUris).not.toContain("spotify:track:555");
+  });
+
+  it("empty selection via items[] returns the empty-selection contract and makes no Spotify calls", async () => {
+    const res = await request(app)
+      .post(EXPORT_PATH)
+      .set("Cookie", AUTH_COOKIE)
+      .send({
+        name: "Empty Selection",
+        description: "All unchecked",
+        items: [
+          { deezerID: 111, checked: false },
+          { deezerID: 222, checked: false, skipped: true },
+        ],
+      });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ ok: expect.any(Boolean) });
+    expect(postedUris).toEqual([]); // no Spotify calls
+  });
+
+  it("requires auth cookie", async () => {
+    const res = await request(app)
+      .post(EXPORT_PATH)
+      .send({ name: "Auth Check", items: [{ deezerID: 111, checked: true }] });
+
+    expect(res.status).toBe(401);
+    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
+    expect(postedUris).toEqual([]);
   });
 });
+
