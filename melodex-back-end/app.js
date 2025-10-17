@@ -1,6 +1,6 @@
 // melodex-back-end/app.js
 const express = require('express');
-const { MongoClient } = require('mongodb');
+let MongoClient; // lazy-loaded
 require('dotenv').config();
 const cors = require('cors');
 
@@ -55,7 +55,15 @@ const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 let client;
 
 async function connectDB() {
+  // Allow tests to disable Mongo entirely
+  if (process.env.MONGO_DISABLED_FOR_TESTS === '1') {
+    console.log('Mongo disabled for tests — skipping connect');
+    return; // no db in app.locals; routes that don’t need it will still work
+  }
   try {
+    if (!MongoClient) {
+      ({ MongoClient } = require('mongodb')); // lazy require
+    }
     client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
     await client.connect();
     console.log('Connected to MongoDB:', uri.includes('localhost') ? 'Local' : 'Atlas');
