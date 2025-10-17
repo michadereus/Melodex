@@ -29,17 +29,39 @@ function awsAmplifyVirtualPlugin() {
   }
 }
 
+// NEW: serve mongodb's deep file as a virtual no-op module (no repo file needed)
+function mongoSearchIndexesVirtualPlugin() {
+  // Target the exact deep import the driver performs
+  const TARGET_ID = 'mongodb/lib/operations/search_indexes/update'
+  const VIRTUAL_ID = '\0mongo-update-search-index'
+  return {
+    name: 'virtual-mongo-search-index-update',
+    enforce: 'pre',
+    resolveId(id) {
+      if (id === TARGET_ID) return VIRTUAL_ID
+      return null
+    },
+    load(id) {
+      if (id !== VIRTUAL_ID) return null
+      // CommonJS export since the driver requires() this file
+      return `module.exports = function updateSearchIndex() {};`
+    },
+  }
+}
+
 export default defineConfig({
-  // Put Vite-level bits here; UI project will opt-in via `extends: true`
-  plugins: [awsAmplifyVirtualPlugin()],
+  // Vite-level bits
+  plugins: [awsAmplifyVirtualPlugin(), mongoSearchIndexesVirtualPlugin()],
   resolve: {
     alias: {
+      // React aliases for UI project
       react: path.resolve(__dirname, 'node_modules/react'),
       'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
       'react-router': path.resolve(__dirname, 'node_modules/react-router'),
       'react-router-dom': path.resolve(__dirname, 'node_modules/react-router-dom'),
       'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
       'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
+      // ⛔️ NOTE: no file-based alias for mongodb here anymore—the plugin handles it
     },
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
@@ -50,11 +72,22 @@ export default defineConfig({
   test: {
     globals: true,
 
-    // 👈 IMPORTANT: projects belong under test.projects
+    // Root-level (used by projects that `extends: true`)
+    server: {
+      deps: {
+        // Keep these inlined so mocks/virtuals apply early
+        inline: [
+          'mongodb',
+          /^mongodb\//,
+          'connect-mongo',
+          'mongoose',
+        ],
+      },
+    },
+
     projects: [
       // ---------- UI + unit (jsdom) ----------
       {
-        // Inherit root plugins/resolve/etc. Only this project gets them.
         extends: true,
         test: {
           name: 'unit-ui',
@@ -71,24 +104,16 @@ export default defineConfig({
             '**/.{idea,git,cache,output,temp}/**',
             '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
           ],
-          // (Deprecated warning is fine; can move to server.deps.inline later)
           deps: {
             interopDefault: true,
-            inline: [
-              /^react($|\/)/,
-              /^react-dom($|\/)/,
-              /^react-router($|\/)/,
-              /^react-router-dom($|\/)/,
-              /melodex-front-end/,
-            ],
+            inline: []
           },
         },
       },
 
       // ---------- Integration (node) ----------
       {
-        // Do NOT inherit root plugins/resolve/etc.
-        extends: false,
+        extends: false, // don’t inherit test options; Vite plugins still apply
         test: {
           name: 'integration',
           environment: 'node',
@@ -101,6 +126,18 @@ export default defineConfig({
             '**/.{idea,git,cache,output,temp}/**',
             '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
           ],
+          server: {
+            deps: {
+              inline: [
+                'mongodb',
+                /^mongodb\//,
+                'connect-mongo',
+                'mongoose',
+              ],
+            },
+          },
+          // If you hit bundling quirks in some setups:
+          // ssr: { noExternal: ['mongodb'] },
         },
       },
     ],

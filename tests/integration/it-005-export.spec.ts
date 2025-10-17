@@ -1,31 +1,35 @@
-// Filepath: tests/integration/it-005-export.spec.ts
-// IT-005 — Export respects removed items (realistic path: no __testUris; server filters items[])
+// IT-005 — Export respects removed/unchecked items (realistic path: no __testUris; server filters items[])
 
-import { describe, it, beforeEach, afterEach, beforeAll, vi, expect, afterAll } from "vitest";
-import request from "supertest";
-import nock from "nock";
+import { describe, it, beforeEach, afterEach, beforeAll, afterAll, expect } from 'vitest';
+import request from 'supertest';
+import nock from 'nock';
+import express from 'express';
 
-const SPOTIFY_API = "https://api.spotify.com";
-const EXPORT_PATH = "/api/playlist/export";
-const AUTH_COOKIE = "access=test-access-token";
+/* No mocks here — all mocking is done in tests/support/integration.setup.ts */
 
-let app: any;
+const SPOTIFY_API = 'https://api.spotify.com';
+const EXPORT_PATH = '/api/playlist/export';
+const AUTH_COOKIE = 'access=test-access-token';
 
-describe("IT-005 — Export respects unchecked/removed items (no __testUris path)", () => {
-  let postedUris: string[] = [];
-  let createdPlaylistBody: any = null;
+/** @type {import('express').Express} */
+let app;
 
-  
+describe('IT-005 — Export respects unchecked/removed items (no __testUris path)', () => {
+  /** @type {string[]} */ let postedUris = [];
+  let createdPlaylistBody = null;
+
   beforeAll(() => {
-    // Force realistic branch (no __testUris path)
-    vi.stubEnv("EXPORT_STUB", "off");
+    // force realistic export path (server should use items[])
+    process.env.EXPORT_STUB = 'off';
 
-    // Ensure fresh require so the controller sees the env change
-    vi.resetModules();
-
-    // Load app AFTER env is set
+    // Load router AFTER global mocks are applied by setup file
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    app = require("../../melodex-back-end/app");
+    const { apiRouter } = require('../../melodex-back-end/routes/api');
+
+    const e = express();
+    e.use(express.json());
+    e.use('/api', apiRouter);
+    app = e;
   });
 
   beforeEach(() => {
@@ -43,86 +47,75 @@ describe("IT-005 — Export respects unchecked/removed items (no __testUris path
         return true;
       })
       .reply(201, {
-        id: "pl_123",
-        external_urls: { spotify: "https://open.spotify.com/playlist/pl_123" },
+        id: 'pl_123',
+        external_urls: { spotify: 'https://open.spotify.com/playlist/pl_123' },
       });
 
-    // 2) Add tracks — capture URIs
+    // 2) Add tracks — capture URIs we send
     nock(SPOTIFY_API)
-      .post("/v1/playlists/pl_123/tracks")
+      .post('/v1/playlists/pl_123/tracks')
       .reply(201, function (_uri, body) {
         try {
-          const parsed = typeof body === "string" ? JSON.parse(body) : body;
+          const parsed = typeof body === 'string' ? JSON.parse(body) : body;
           postedUris = Array.isArray(parsed?.uris) ? parsed.uris : [];
         } catch {
           postedUris = [];
         }
-        return { snapshot_id: "snap_001" };
+        return { snapshot_id: 'snap_001' };
       });
   });
 
   afterEach(() => {
-    const pending = nock.pendingMocks();
-    if (pending.length) {
-      // console.warn("Pending nock mocks:", pending);
-    }
     nock.cleanAll();
     nock.enableNetConnect();
   });
 
   afterAll(() => {
-    vi.unstubAllEnvs();
+    delete process.env.EXPORT_STUB;
   });
 
-  it("filters by checked flag and excludes skipped; maps URIs from items when __testUris is omitted", async () => {
+  it('filters by checked flag and excludes skipped; maps URIs from items when __testUris is omitted', async () => {
     const payload = {
-      name: "Realistic Export",
-      description: "IT-005 (no __testUris)",
-      // No __testUris and no 'uris' — force server to use items[]
+      name: 'Realistic Export',
+      description: 'IT-005 (no __testUris)',
       items: [
-        { deezerID: 111, songName: "A", artist: "X", checked: true,  skipped: false, spotifyUri: "spotify:track:AAA111" },
-        { deezerID: 222, songName: "B", artist: "Y", checked: false, skipped: false, spotifyUri: "spotify:track:BBB222" },
-        { deezerID: 333, songName: "C", artist: "Z", checked: true,  skipped: true,  spotifyUri: "spotify:track:CCC333" },
-        { deezerID: 444, songName: "D", artist: "W", checked: true,  skipped: false }, // -> fallback "spotify:track:444"
-        { deezerID: 555, songName: "E", artist: "V", checked: false, skipped: false },
+        { deezerID: 111, songName: 'A', artist: 'X', checked: true,  skipped: false, spotifyUri: 'spotify:track:AAA111' },
+        { deezerID: 222, songName: 'B', artist: 'Y', checked: false, skipped: false, spotifyUri: 'spotify:track:BBB222' },
+        { deezerID: 333, songName: 'C', artist: 'Z', checked: true,  skipped: true,  spotifyUri: 'spotify:track:CCC333' },
+        { deezerID: 444, songName: 'D', artist: 'W', checked: true,  skipped: false }, // -> fallback "spotify:track:444"
+        { deezerID: 555, songName: 'E', artist: 'V', checked: false, skipped: false },
       ],
     };
 
-    const res = await request(app).post(EXPORT_PATH).set("Cookie", AUTH_COOKIE).send(payload);
+    const res = await request(app).post(EXPORT_PATH).set('Cookie', AUTH_COOKIE).send(payload);
 
     expect(res.status).toBe(200);
     expect(res.body?.ok).toBe(true);
 
-    // Either playlistId or playlistUrl (vendor detail)
     if (res.body?.playlistId !== undefined) {
-      expect(res.body.playlistId).toBe("pl_123");
+      expect(res.body.playlistId).toBe('pl_123');
     }
     if (res.body?.playlistUrl !== undefined) {
       expect(String(res.body.playlistUrl)).toMatch(/open\.spotify\.com\/playlist\/pl_123/);
     }
 
-    // Only kept items → ["spotify:track:AAA111", "spotify:track:444"]
-    expect(postedUris).toEqual(["spotify:track:AAA111", "spotify:track:444"]);
-
-    // Create-playlist payload passed through
+    expect(postedUris).toEqual(['spotify:track:AAA111', 'spotify:track:444']);
     expect(createdPlaylistBody?.name).toBe(payload.name);
     if (payload.description) {
       expect(createdPlaylistBody?.description).toBe(payload.description);
     }
-
-    // Ensure server did not re-add removed ones
-    expect(postedUris).not.toContain("spotify:track:BBB222");
-    expect(postedUris).not.toContain("spotify:track:CCC333"); // skipped
-    expect(postedUris).not.toContain("spotify:track:555");
+    expect(postedUris).not.toContain('spotify:track:BBB222');
+    expect(postedUris).not.toContain('spotify:track:CCC333');
+    expect(postedUris).not.toContain('spotify:track:555');
   });
 
-  it("empty selection via items[] returns the empty-selection contract and makes no Spotify calls", async () => {
+  it('empty selection via items[] returns the empty-selection contract and makes no Spotify calls', async () => {
     const res = await request(app)
       .post(EXPORT_PATH)
-      .set("Cookie", AUTH_COOKIE)
+      .set('Cookie', AUTH_COOKIE)
       .send({
-        name: "Empty Selection",
-        description: "All unchecked",
+        name: 'Empty Selection',
+        description: 'All unchecked',
         items: [
           { deezerID: 111, checked: false },
           { deezerID: 222, checked: false, skipped: true },
@@ -134,14 +127,38 @@ describe("IT-005 — Export respects unchecked/removed items (no __testUris path
     expect(postedUris).toEqual([]); // no Spotify calls
   });
 
-  it("requires auth cookie", async () => {
+  it('requires auth cookie', async () => {
     const res = await request(app)
       .post(EXPORT_PATH)
-      .send({ name: "Auth Check", items: [{ deezerID: 111, checked: true }] });
+      .send({ name: 'Auth Check', items: [{ deezerID: 111, checked: true }] });
 
     expect(res.status).toBe(401);
     expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
     expect(postedUris).toEqual([]);
   });
-});
 
+  it('reset state (all provided visible items checked) exports them all, honoring skipped flags', async () => {
+    const payload = {
+      name: 'Reset State Export',
+      description: 'All visible re-checked after re-enter',
+      items: [
+        { deezerID: 101, songName: 'R1', artist: 'AA', checked: true,  skipped: false, spotifyUri: 'spotify:track:R1' },
+        { deezerID: 202, songName: 'R2', artist: 'BB', checked: true,  skipped: false, spotifyUri: 'spotify:track:R2' },
+        { deezerID: 303, songName: 'R3', artist: 'CC', checked: true,  skipped: true,  spotifyUri: 'spotify:track:R3' }, // excluded
+        { deezerID: 404, songName: 'R4', artist: 'DD' }, // fallback -> spotify:track:404
+      ],
+    };
+
+    const res = await request(app).post(EXPORT_PATH).set('Cookie', AUTH_COOKIE).send(payload);
+
+    expect(res.status).toBe(200);
+    expect(res.body?.ok).toBe(true);
+
+    expect(postedUris).toEqual([
+      'spotify:track:R1',
+      'spotify:track:R2',
+      'spotify:track:404',
+    ]);
+    expect(postedUris).not.toContain('spotify:track:R3');
+  });
+});
