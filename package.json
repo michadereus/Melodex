@@ -21,7 +21,8 @@
     "test:watch": "vitest",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "install:all:ci": "npm -C melodex-back-end ci && npm -C melodex-front-end ci"
+    "install:all:ci": "npm -C melodex-back-end ci && npm -C melodex-front-end ci",
+    "postinstall": "node tests/support/mongo-search-indexes-shim.js"
   },
   "devDependencies": {
     "@cypress/webpack-dev-server": "^5.1.2",
