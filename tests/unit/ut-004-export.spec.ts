@@ -180,4 +180,40 @@ describe('UT-004-Export — buildCreatePayload', () => {
     expect(payload.uris.includes('spotify:track:ok1')).toBe(true);
     expect(payload.uris.includes('spotify:track:ok2')).toBe(true);
   });
+
+  it('prefers canonical over variants when both returned', async () => {
+    const items = [mkItem({ isrc: null, title: 'Blue Monday', artist: 'New Order' })];
+    const search = vi.fn(async (q) => ({
+      items: [
+        { uri: 'spotify:track:var1', name: 'Blue Monday - 2011 Remaster', duration_ms: 446000 },
+        { uri: 'spotify:track:canon', name: 'Blue Monday', duration_ms: 446000 },
+      ],
+    }));
+    const { uris } = await mapDeezerToSpotifyUris(items, search);
+    expect(uris).toEqual(['spotify:track:canon']);
+  });
+
+  it('picks the candidate within ±3000ms of Deezer duration', async () => {
+    const items = [mkItem({ isrc: null, title: 'Crazy Eyes', artist: 'Hall & Oates', durationMs: 180800 })];
+    const search = vi.fn(async () => ({
+      items: [
+        { uri: 'spotify:track:a', name: 'Crazy Eyes', duration_ms: 182300 },
+        { uri: 'spotify:track:b', name: 'Crazy Eyes', duration_ms: 180900 }, // 100ms away
+      ],
+    }));
+    const { uris } = await mapDeezerToSpotifyUris(items, search);
+    expect(uris).toEqual(['spotify:track:b']);
+  });
+
+  it('handles parentheses/punctuation in title', async () => {
+    const items = [mkItem({ isrc: null, title: 'Song (feat. X) – Remastered 2011', artist: 'Artist Y' })];
+    const search = vi.fn(async ({ title, artist }) => {
+      expect(title).toBe('song');      // scrubbed
+      expect(artist).toBe('artist y');
+      return { uri: 'spotify:track:ok' };
+    });
+    const { uris } = await mapDeezerToSpotifyUris(items, search);
+    expect(uris).toEqual(['spotify:track:ok']);
+  });
+
 });

@@ -197,15 +197,18 @@ export function selectRankedByRules(songs, rules = {}) {
 /** ---------- Mapping ---------- **/
 /**
  * Map a list of ranked items (possibly Deezer-origin) to Spotify URIs.
- * Rules expected by tests:
+ * Rules:
  *  - Prefer ISRC lookup when available
- *  - Fallback to title+artist search (normalized to lower-case, trimmed)
+ *  - Fallback to title+artist search (normalized)
+ *  - Scrub parens/punctuation from title; tolerate common variant terms
+ *  - Use duration tie-break within ±3000ms when candidates returned
  *  - Skip `removed` or `skipped` items
  *  - Deduplicate by URI, preserving first occurrence (rank order)
  *  - Return shape: { uris: string[] }
  *
- * @param {Array<Object>} items
- * @param {(q: {isrc?: string, title?: string, artist?: string}) => Promise<{uri: string} | null>} search
+ * The `search` function may return either:
+ *  - `{ uri }`  OR
+ *  - `{ items: [{ uri, name, duration_ms }, ...] }`
  */
 export async function mapDeezerToSpotifyUris(items = [], search = async () => null) {
   const uris = [];
@@ -218,10 +221,51 @@ export async function mapDeezerToSpotifyUris(items = [], search = async () => nu
       .toLowerCase()
       .replace(/\s+/g, " ");
 
+  // inside spotifyExport.js (Mapping section helpers)
+  const scrubTitle = (s) => {
+    // normalize, drop anything in parentheses, normalize dashes to spaces
+    let base = normText(s)
+      .replace(/\([^)]*\)/g, " ")  // remove (feat. …), (Live), etc
+      .replace(/[–—-]/g, " ")      // em/en dashes → space
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // Strip common variant suffixes at the end (e.g., "Remastered 2011", "Live", "Remix", "Radio Edit")
+    // Handles forms like: " - Remastered", " – Remastered 2011", " — Radio Edit"
+    base = base
+      .replace(
+        /\b(remaster(?:ed)?(?:\s+\d{4})?|live|remix|acoustic|instrumental|edit|single version|radio edit)\b.*$/i,
+        ""
+      )
+      // Also catch "... 2011 Remaster" style endings
+      .replace(/\s+\d{4}\s+remaster(?:ed)?$/i, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return base;
+  };
+
+
+  const isVariant = (name) => /\b(remaster|live|remix|acoustic|instrumental|edit)\b/i.test(name || "");
+
+  const pickBest = (candidates = [], wantMs) => {
+    // Prefer canonical (non-variant) if present
+    const canon = candidates.filter((c) => !isVariant(c.name));
+    const pool = canon.length ? canon : candidates;
+    if (!pool.length) return null;
+    if (!Number.isFinite(wantMs)) return pool[0];
+    // Duration tie-break within ±3s
+    const within = pool
+      .map((c) => ({ c, diff: Math.abs((c.duration_ms ?? Infinity) - wantMs) }))
+      .filter((x) => x.diff <= 3000)
+      .sort((a, b) => a.diff - b.diff);
+    return (within[0]?.c) ?? pool[0];
+  };
+
   for (const it of items) {
     if (!it || it.removed || it.skipped) continue;
 
-    // If the item already contains a Spotify URI, use it directly
+    // Short-circuit if item already has a valid uri
     const rawUri = it.spotifyUri || it.spotify_uri || it.uri;
     if (typeof rawUri === "string" && /^spotify:track:[A-Za-z0-9]+$/.test(rawUri.trim())) {
       const uri = rawUri.trim();
@@ -232,26 +276,40 @@ export async function mapDeezerToSpotifyUris(items = [], search = async () => nu
       continue;
     }
 
+    const wantMs = Number(it.durationMs);
+    let foundUri = null;
+
     // Prefer ISRC
-    let found = null;
     const isrc = typeof it.isrc === "string" ? it.isrc.trim() : null;
     if (isrc) {
-      found = await search({ isrc });
-    }
-
-    // Fallback to title + artist
-    if (!found) {
-      const title = normText(it.title);
-      const artist = normText(it.artist);
-      if (title && artist) {
-        found = await search({ title, artist });
+      const r = await search({ isrc });
+      if (r?.uri) {
+        foundUri = r.uri;
+      } else if (Array.isArray(r?.items)) {
+        const best = pickBest(r.items, wantMs);
+        foundUri = best?.uri ?? null;
       }
     }
 
-    if (found?.uri && /^spotify:track:[A-Za-z0-9]+$/.test(found.uri)) {
-      if (!seen.has(found.uri)) {
-        seen.add(found.uri);
-        uris.push(found.uri);
+    // Fallback to title + artist
+    if (!foundUri) {
+      const title = scrubTitle(it.title ?? it.songName);
+      const artist = normText(it.artist);
+      if (title && artist) {
+        const r = await search({ title, artist });
+        if (r?.uri) {
+          foundUri = r.uri;
+        } else if (Array.isArray(r?.items)) {
+          const best = pickBest(r.items, wantMs);
+          foundUri = best?.uri ?? null;
+        }
+      }
+    }
+
+    if (foundUri && /^spotify:track:[A-Za-z0-9]+$/.test(foundUri)) {
+      if (!seen.has(foundUri)) {
+        seen.add(foundUri);
+        uris.push(foundUri);
       }
     }
   }
@@ -262,9 +320,10 @@ export async function mapDeezerToSpotifyUris(items = [], search = async () => nu
 /** ---------- Create Payload ---------- **/
 /**
  * Build the final create-playlist payload.
- * Tests expect:
- *  - Defaults: name "Melodex Playlist YYYY-MM-DD", description "Generated by Melodex"
- *  - If `uris` provided, carry it through as-is (don’t remap here)
+ * Defaults:
+ *  - name: "Melodex Playlist YYYY-MM-DD"
+ *  - description: "Generated by Melodex"
+ * If `uris` provided, carry through as-is (don’t remap here).
  */
 export function buildCreatePayload({ name, description, uris = [] } = {}) {
   const today = new Date();

@@ -234,12 +234,17 @@ async function exportPlaylistStub(req, res) {
   // 2b) Real path (feature-flagged): when no __testUris or stub explicitly disabled
   if (!Array.isArray(__testUris) && !EXPORT_STUB) {
     try {
-      const cookies = parseCookies(req.headers.cookie || '');
-      const token = cookies['access'] || 'test-access';
-
       // 2b.1) Map selected items → Spotify URIs
       const items = Array.isArray(req.body?.items) ? req.body.items : [];
-      const { uris, skipped } = await MappingService.mapMany(items, {});
+      const { mapperForEnv, realMapper } = require('../utils/mappingService');
+      const fetch = require('node-fetch'); // or global fetch if available
+      const cookies = parseCookies(req.headers.cookie || '');
+      const token = cookies['access'] || req.headers.authorization?.replace(/^Bearer\s+/i, '');
+      const mapper =
+        (process.env.MAPPING_MODE || '').toLowerCase() === 'real'
+          ? realMapper({ fetch, token, market: process.env.MARKET || 'US' })
+          : mapperForEnv();
+      const { uris, skipped } = await mapper.mapMany(items);
 
       if (!uris.length) {
         return res.status(200).json(fail(CODES.NO_SONGS, 'No songs could be mapped for export.'));
