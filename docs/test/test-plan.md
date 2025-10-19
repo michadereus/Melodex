@@ -1,4 +1,4 @@
-# Test Plan — Spotify Playlist Export (Melodex)
+# Test Plan — Spotify Playlist Export
 
 Version: 1.0  
 Date: 2025-09-02  
@@ -143,33 +143,34 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 
 ---
 
-## 9. Schedule & Milestones (high level)
+## 9. Schedule & Milestones
 
-### 9.a Technical Milestones (implementation gates)
+# 9.a Technical Milestones (implementation gates)
 
-## Milestone A — Mapping service (after AC-03.3, before US-04/05)  
-- **Why:** US-04/05/06 assert real payloads, errors, and retries; needs actual Spotify mapping.  
-- **Deliverables:**  
-    - UT-004 — Deezer→Spotify mapping (unit, pure functions).  
-    - IT-006 — Mapping integration (`/api/playlist/export` **without** `__testUris`; nock Search + Add-Tracks).  
-    - Controller toggle: `EXPORT_STUB=on|off` so CI can run stub vs real.  
-- **Unlocks:** US-04 name/description on real payloads; base for progress/error handling.  
+### Milestone A — Mapping service (after AC-03.3, before US-04/05)
+- **Why:** US-04/05/06 assert real payloads, errors, and retries; requires correct Spotify mapping first.
+- **Deliverables:**
+  - **UT-004 — Deezer→Spotify mapping** *(expanded cases: ISRC canonical, variant filtering, duration ±3s tie, normalization, cover-guard, graceful fallback)*.
+  - **IT-013 — Mapping integration** *(toggle stub|real; request shape to `/v1/search`; auth; per-batch caching; 429/timeout reasons)*.
+  - **Mapping toggle:** `MAPPING_MODE=stub|real` (default **stub** in CI; programmatic override in tests).
+- **Unlocks:** US-04 name/description on **real** payloads; foundation for progress/error handling in US-05/06.
 
-## Milestone B — Progress + error contract (start of US-05)
-- **Why:** UI progress (idle→loading→success/error) needs stable backend error shape.  
-- **Deliverables:**  
-    - UI state machine transitions for export.  
-    - Backend failure shape: `{ ok:false, code, message, details? }` + per-track pass-through when applicable.  
-    - IT-007 — Forced backend failure; UI-005 + E2E-004 verify state changes.  
+### Milestone B — Progress + error contract (start of US-05)
+- **Why:** UI progress (idle→loading→success/error) needs a stable backend error envelope.
+- **Deliverables:**
+  - **UI state machine transitions** for export (idle → loading → success/error; controls disabled during in-flight).
+  - **Backend failure shape:** `{ ok:false, code, message, details? }` and success `{ ok:true, playlistId, playlistUrl, kept, skipped, failed? }`; preserve partial outcomes when applicable.
+  - **IT-007 — Errors contract** *(forced backend failure paths)*; **UI-005 — Progress**; **E2E-004 — Errors** *(end-to-end state transitions)*.
 
-## Milestone C — Per-track pipeline + 429 policy (US-06)  
-- **Why:** ACs require chunking, partial failures, and rate-limit handling.  
-- **Deliverables:**  
-    - Export worker: map → chunk (≤100) → add → aggregate `{ kept, skipped, failed:[{id,reason}] }`.  
-    - 429 backoff policy (bounded, uses Retry-After).  
-    - UT-007 / IT-011 / E2E-009 per-track 404; UT-005 / IT-008 / E2E-005 rate limit path.  
+### Milestone C — Per-track pipeline + 429 policy (US-06)
+- **Why:** ACs require chunking, partial failures, and robust rate-limit handling.
+- **Deliverables:**
+  - **Export worker:** map → **chunk ≤100** → add → aggregate `{ kept, skipped, failed:[{ id, reason }] }` with stable ordering.
+  - **429 policy:** honors **Retry-After**, bounded backoff; marks unprocessed on exhaustion with `RATE_LIMIT`.
+  - **UT-007 / IT-011 / E2E-009** — per-track 404/region-blocked surface & continue.
+  - **UT-005 / IT-008 / E2E-005** — rate-limit path (backoff, partial, informative UI).
 
-### 9.b Schedule
+# 9.b Schedule
 
 - **Week 1–2**  
     - Finalize Acceptance Criteria, draft/commit tests skeletons, set up CI secrets  
