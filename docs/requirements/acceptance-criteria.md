@@ -2,6 +2,21 @@
 
 ## US-01 — Authenticate with Spotify
 
+## Baseline — Ranking flows & filters
+
+- **AC-F.1** — Given I adjust ranking filters, when I have not clicked Apply, then no background fetch occurs.
+- **AC-F.2** — Given the app preloads or refreshes previews/data, when background fetching occurs, then the burst is capped at approximately 33 items to control cost and latency.
+- **AC-F.3** — Given I apply filters, when the list updates, then UI elements are not clipped or truncated and remain navigable.
+
+---
+
+## Baseline — Rankings playback stability
+
+- **AC-P.1** — Given a preview URL has expired, when I attempt playback, then the preview refreshes and playback resumes without manual reload.
+- **AC-P.2** — Given I navigate or refresh the page, when previews are displayed, then no broken player states persist and controls remain responsive.
+
+---
+
 - **AC-01.1** — Given I complete Spotify OAuth successfully, when Melodex receives the callback with a valid code and state/PKCE, then Melodex establishes a valid session (secure httpOnly, SameSite cookies) and redirects to the post-login route (e.g., `/rank`).
 - **AC-01.2** — Given I am not authenticated, when I navigate to a protected route or attempt an export, then I am prompted to log in to Spotify first.
 - **AC-01.3** — Given I cancel at Spotify (callback contains `error=access_denied`), when Melodex handles the callback, then no access/refresh tokens are stored anywhere and I remain unauthenticated.
@@ -65,18 +80,42 @@
 
 ---
 
-## Baseline — Ranking flows & filters
+## TS-01 — Mapping service toggle & rules (Milestone A)
 
-- **AC-F.1** — Given I adjust ranking filters, when I have not clicked Apply, then no background fetch occurs.
-- **AC-F.2** — Given the app preloads or refreshes previews/data, when background fetching occurs, then the burst is capped at approximately 33 items to control cost and latency.
-- **AC-F.3** — Given I apply filters, when the list updates, then UI elements are not clipped or truncated and remain navigable.
+*Parent:* US-02 → **AC-02.3** (Spotify track mapping applied)  
+*Non-user-visible:* No UI changes; CI default remains deterministic (**stub**)
+
+- **AC-TS2.3.A** — Given mapping runs in **test/CI**, when no override is provided, then the mapping service uses **stub mode** by default; when explicitly switched, **real mode** uses Spotify `/v1/search`.
+- **AC-TS2.3.B** — Given a track has an **ISRC**, when mapping occurs in real mode, then the query uses `q=isrc:<code>` and any result with that exact ISRC is accepted without title heuristics.
+- **AC-TS2.3.C** — Given a track lacks ISRC, when mapping by **title+artist**, then normalization removes punctuation/diacritics, collapses “feat./ft./with/and”, filters `Live|Commentary|Short Film|Karaoke`, and applies a **±3s duration** tiebreak when multiple candidates remain.
+- **AC-TS2.3.D** — Given Spotify returns no acceptable candidates after filtering, when mapping completes, then the result contains `uri: null` with a structured `reason` (e.g., `NO_MATCH`, `FILTERED_ALL_CANDIDATES`, `DURATION_OUT_OF_TOLERANCE`) and the batch continues.
+- **AC-TS2.3.E** — Given multiple inputs normalize to the same search, when mapping runs in real mode, then duplicate outbound requests are avoided within the batch (per-batch caching) and results remain 1:1 and stable-ordered.
+- **AC-TS2.3.F** — Given Spotify responds with **429** or a network **timeout**, when mapping completes, then affected items return `uri: null` with `reason: RATE_LIMIT` or `TIMEOUT` and no silent success is reported.
 
 ---
 
-## Baseline — Rankings playback stability
+## TS-02 — Progress & error contract (Milestone B)
 
-- **AC-P.1** — Given a preview URL has expired, when I attempt playback, then the preview refreshes and playback resumes without manual reload.
-- **AC-P.2** — Given I navigate or refresh the page, when previews are displayed, then no broken player states persist and controls remain responsive.
+*Parent:* US-05 — Real-time feedback during export  
+*Non-user-visible:* Establishes stable backend envelope used by UI state machine
+
+- **AC-TS2.1** — Given any export request succeeds, when the backend responds, then the body uses a **success envelope** `{ ok: true, playlistId, playlistUrl, kept, skipped, failed? }`.
+- **AC-TS2.2** — Given any export request fails, when the backend responds, then the body uses a **failure envelope** `{ ok: false, code, message, details? }` and the HTTP status reflects the failure class (4xx/5xx).
+- **AC-TS2.3** — Given a failure occurs **after** some items were processed, when the backend responds, then it **passes through per-track outcomes** when available via `failed: [{ id, reason }]` and preserves `kept`/`skipped` counts computed so far.
+- **AC-TS2.4** — Given the UI dispatches an export, when a request is **in-flight**, then the UI enters **loading** (controls disabled, progress visible) and transitions to **success** on `{ ok: true }` or **error** on `{ ok: false }`, showing `message` and a retry affordance.
+
+---
+
+## TS-03 — Per-track pipeline & 429 policy (Milestone C)
+
+*Parent:* US-06 — Error handling  
+*Non-user-visible:* Orchestrates server-side batch behavior; UI consumes results
+
+- **AC-TS3.1** — Given tracks are ready to add, when sending to Spotify, then requests are **chunked ≤100 URIs** per call and executed sequentially per playlist to respect API limits while preserving input order.
+- **AC-TS3.2** — Given the export completes (fully or partially), when the backend aggregates outcomes, then the response includes `{ kept, skipped, failed: [{ id, reason }] }` with **stable IDs** and reasons suitable for UI display and retry.
+- **AC-TS3.3** — Given Spotify rejects a specific track (e.g., 404/not found or region-blocked), when processing that item, then it is recorded in `failed` with `reason` such as `NOT_FOUND` or `REGION_BLOCKED` without aborting the remaining batch.
+- **AC-TS3.4** — Given Spotify returns **429**, when retrying, then the worker **honors `Retry-After`**, uses **bounded backoff** (e.g., capped total wait), and resumes; on exhaustion, remaining unprocessed items are marked `RATE_LIMIT` in `failed` and partial progress is returned.
+- **AC-TS3.5** — Given repeated exports of the same input set, when processed, then the pipeline is **deterministic** in ordering of added tracks and in the shape of `failed`/`skipped`, barring external Spotify ranking variability.
 
 ---
 

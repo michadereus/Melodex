@@ -3,7 +3,6 @@ const crypto = require('crypto');
 const axios = require('axios');
 const { CODES, ok, fail } = require('../utils/errorContract');
 const { chunk, MAX_URIS_PER_ADD } = require('../utils/chunk');
-const MappingService = require('../utils/mappingService');
 
 /** tiny base64url helper */
 function b64url(buf) {
@@ -41,7 +40,13 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;   // https://loca
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 const front = (path) => `${FRONTEND_ORIGIN}${path}`;
 // Switch between stubbed export and real mapping path
-const EXPORT_STUB = String(process.env.EXPORT_STUB || 'on').toLowerCase() !== 'off';
+// Evaluate flags at request time so tests can toggle via process.env
+function exportStubEnabled() {
+  return String(process.env.EXPORT_STUB || 'on').toLowerCase() !== 'off';
+}
+function mappingMode() {
+  return String(process.env.MAPPING_MODE || 'stub').toLowerCase();
+}
 
 const AuthController = {
   /** GET /auth/start */
@@ -231,15 +236,28 @@ async function exportPlaylistStub(req, res) {
     }
   }
 
-  // 2b) Real path (feature-flagged): when no __testUris or stub explicitly disabled
-  if (!Array.isArray(__testUris) && !EXPORT_STUB) {
+  // 2b) Real path (feature-flagged): when no __testUris and stub explicitly disabled
+  if (!Array.isArray(__testUris) && !exportStubEnabled()) {
     try {
-      const cookies = parseCookies(req.headers.cookie || '');
-      const token = cookies['access'] || 'test-access';
-
       // 2b.1) Map selected items → Spotify URIs
       const items = Array.isArray(req.body?.items) ? req.body.items : [];
-      const { uris, skipped } = await MappingService.mapMany(items, {});
+
+      // choose mapper based on env; prefer global fetch if available
+      const { mapperForEnv, realMapper } = require('../utils/mappingService');
+      const fetchImpl = global.fetch || require('node-fetch');
+
+      const cookies = parseCookies(req.headers.cookie || '');
+      const token =
+        cookies['access'] ||
+        (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+
+      const mode = mappingMode();
+      const mapper =
+        mode === 'real'
+          ? realMapper({ fetch: fetchImpl, token, market: process.env.MARKET || 'US' })
+          : mapperForEnv();
+
+      const { uris, skipped, reasons } = await mapper.mapMany(items);
 
       if (!uris.length) {
         return res.status(200).json(fail(CODES.NO_SONGS, 'No songs could be mapped for export.'));
@@ -273,8 +291,10 @@ async function exportPlaylistStub(req, res) {
         playlistUrl,
         added: uris.length,
         skipped: skipped.length,
+        reasons: reasons || [],
       }));
     } catch (err) {
+      console.error('[export] mapping/spotify error', err?.message || err);
       return res.status(502).json(fail(CODES.SPOTIFY_FAIL, 'Failed to create playlist on Spotify.'));
     }
   }

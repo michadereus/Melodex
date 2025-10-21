@@ -1,5 +1,5 @@
 # .github/workflows/e2e.yml
-name: E2E — Cypress (local)
+name: Test — Cypress [E2E]
 
 on:
   pull_request:

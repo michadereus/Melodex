@@ -1,5 +1,5 @@
 # .github/workflows/test_vitest.yml
-name: Tests — Vitest (fast)
+name: Tests — Vitest [Unit - UI - IT]
 
 on:
   pull_request:

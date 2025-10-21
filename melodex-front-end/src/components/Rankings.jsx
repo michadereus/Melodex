@@ -75,7 +75,8 @@ const Rankings = () => {
   const normalizeNoTrail = (s) => String(s).replace(/\/+$/, '');
   const baseNoTrail = normalizeNoTrail(RAW_BASE);
   const API_ROOT = /\/api$/.test(baseNoTrail) ? baseNoTrail : `${baseNoTrail}/api`;
-  const AUTH_ROOT = baseNoTrail;
+  const hasApiSuffix = /\/api$/.test(baseNoTrail);
+  const AUTH_ROOT = hasApiSuffix ? baseNoTrail.replace(/\/api$/, '') : baseNoTrail;
 
   const joinUrl = (...parts) =>
     parts
