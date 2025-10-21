@@ -3,7 +3,6 @@ const crypto = require('crypto');
 const axios = require('axios');
 const { CODES, ok, fail } = require('../utils/errorContract');
 const { chunk, MAX_URIS_PER_ADD } = require('../utils/chunk');
-const MappingService = require('../utils/mappingService');
 
 /** tiny base64url helper */
 function b64url(buf) {
@@ -231,20 +230,27 @@ async function exportPlaylistStub(req, res) {
     }
   }
 
-  // 2b) Real path (feature-flagged): when no __testUris or stub explicitly disabled
+    // 2b) Real path (feature-flagged): when no __testUris or stub explicitly disabled
   if (!Array.isArray(__testUris) && !EXPORT_STUB) {
     try {
       // 2b.1) Map selected items → Spotify URIs
       const items = Array.isArray(req.body?.items) ? req.body.items : [];
+
+      // choose mapper based on env; prefer global fetch if available
       const { mapperForEnv, realMapper } = require('../utils/mappingService');
-      const fetch = require('node-fetch'); // or global fetch if available
+      const fetchImpl = global.fetch || require('node-fetch');
+
       const cookies = parseCookies(req.headers.cookie || '');
-      const token = cookies['access'] || req.headers.authorization?.replace(/^Bearer\s+/i, '');
+      const token =
+        cookies['access'] ||
+        (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+
       const mapper =
         (process.env.MAPPING_MODE || '').toLowerCase() === 'real'
-          ? realMapper({ fetch, token, market: process.env.MARKET || 'US' })
+          ? realMapper({ fetch: fetchImpl, token, market: process.env.MARKET || 'US' })
           : mapperForEnv();
-      const { uris, skipped } = await mapper.mapMany(items);
+
+      const { uris, skipped, reasons } = await mapper.mapMany(items);
 
       if (!uris.length) {
         return res.status(200).json(fail(CODES.NO_SONGS, 'No songs could be mapped for export.'));
@@ -278,8 +284,10 @@ async function exportPlaylistStub(req, res) {
         playlistUrl,
         added: uris.length,
         skipped: skipped.length,
+        reasons: reasons || [],
       }));
     } catch (err) {
+      console.error('[export] mapping/spotify error', err?.message || err);
       return res.status(502).json(fail(CODES.SPOTIFY_FAIL, 'Failed to create playlist on Spotify.'));
     }
   }
