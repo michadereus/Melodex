@@ -40,7 +40,13 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;   // https://loca
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 const front = (path) => `${FRONTEND_ORIGIN}${path}`;
 // Switch between stubbed export and real mapping path
-const EXPORT_STUB = String(process.env.EXPORT_STUB || 'on').toLowerCase() !== 'off';
+// Evaluate flags at request time so tests can toggle via process.env
+function exportStubEnabled() {
+  return String(process.env.EXPORT_STUB || 'on').toLowerCase() !== 'off';
+}
+function mappingMode() {
+  return String(process.env.MAPPING_MODE || 'stub').toLowerCase();
+}
 
 const AuthController = {
   /** GET /auth/start */
@@ -230,8 +236,8 @@ async function exportPlaylistStub(req, res) {
     }
   }
 
-    // 2b) Real path (feature-flagged): when no __testUris or stub explicitly disabled
-  if (!Array.isArray(__testUris) && !EXPORT_STUB) {
+  // 2b) Real path (feature-flagged): when no __testUris and stub explicitly disabled
+  if (!Array.isArray(__testUris) && !exportStubEnabled()) {
     try {
       // 2b.1) Map selected items → Spotify URIs
       const items = Array.isArray(req.body?.items) ? req.body.items : [];
@@ -245,8 +251,9 @@ async function exportPlaylistStub(req, res) {
         cookies['access'] ||
         (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
 
+      const mode = mappingMode();
       const mapper =
-        (process.env.MAPPING_MODE || '').toLowerCase() === 'real'
+        mode === 'real'
           ? realMapper({ fetch: fetchImpl, token, market: process.env.MARKET || 'US' })
           : mapperForEnv();
 
