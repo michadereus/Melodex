@@ -29,7 +29,7 @@
 | US-06 | Error handling | AC-06.1 <br>AC-06.2 <br>AC-06.3 | UT-005-Export<br>UT-007-Export | UI-006-Errors | IT-008-Export<br>IT-011-Errors | E2E-005-RateLimit<br>E2E-009-Errors | SMK-09 | – | R-03<br>R-11 | <span class="pill planned">Planned</span> |
 | US-07 | Confirmation with playlist link | AC-07.1 <br>AC-07.2 | – | UI-007-Confirm<br>UI-008-DeepLink | IT-009-Confirm | E2E-001-Export<br>E2E-006-DeepLink | SMK-09 | – | R-09<br>R-10 | <span class="pill planned">Planned</span> |
 | US-08 | Revoke Spotify access | AC-08.1 <br>AC-08.2 <br>AC-08.3 | UT-002-Auth | UI-001-AuthGuard | IT-010-Auth | E2E-007-Revoke | SMK-00 | – | R-02 | <span class="pill planned">Planned</span> |
-| TS-01 | Mapping service toggle & rules (Milestone A) | AC-TS2.3.A<br>AC-TS2.3.B<br>AC-TS2.3.C<br>AC-TS2.3.D<br>AC-TS2.3.E<br>AC-TS2.3.F | UT-004-Export | – | IT-013-MappingSearch | – | – | – | R-04 | <span class="pill progress">In Progress</span> |
+| TS-01 | Mapping service toggle & rules (Milestone A) | AC-TS2.3.A<br>AC-TS2.3.B<br>AC-TS2.3.C<br>AC-TS2.3.D<br>AC-TS2.3.E<br>AC-TS2.3.F | UT-004-Export | – | IT-013-MappingSearch | – | – | – | R-04 | <span class="pill pass">Passed</span> |
 | TS-02 | Progress & error contract (Milestone B) | AC-TS2.1<br>AC-TS2.2<br>AC-TS2.3<br>AC-TS2.4 | – | UI-005-Progress | IT-007-Errors | E2E-004-Errors | – | – | R-10 | <span class="pill planned">Planned</span> |
 | TS-03 | Per-track pipeline & 429 policy (Milestone C) | AC-TS3.1<br>AC-TS3.2<br>AC-TS3.3<br>AC-TS3.4<br>AC-TS3.5 | UT-005-Export<br>UT-007-Export | UI-006-Errors | IT-008-Export<br>IT-011-Errors | E2E-005-RateLimit<br>E2E-009-Errors | – | – | R-03<br>R-11 | <span class="pill planned">Planned</span> |
 | Baseline | Ranking flows and filters | AC-F.1 <br>AC-F.2<br>AC-F.3 | UT-012-Ranking | UI-009-ExportModal | – | – | SMK-02<br>SMK-03<br>SMK-08 | DEF-003 | R-21 | <span class="pill pass">Passed</span> |
@@ -64,7 +64,7 @@
 - **US-02 — Export ranked songs by current filter (Inline)**
     - **AC-02.1** Inline selection creates playlist with checked/filtered songs  
         - UT-003-Export — Filter builder  
-        - **UT-004-Export — Deezer→Spotify mapping (expanded)**  
+        - UT-004-Export — Deezer→Spotify mapping (expanded)  
         - UI-010-SelectionInline — Enter selection mode; all checked by default  
         - IT-003-Export — Creates playlist with only selected (filtered)  
         - E2E-001-Export — Happy path including auth (inline)  
@@ -73,8 +73,8 @@
         - IT-004-Export — Empty filter message  
         - E2E-002-Export — Empty selection path (inline)  
     - **AC-02.3** Spotify track mapping applied  
-        - **UT-004-Export — Expanded mapping rules**  
-        - **IT-013-MappingSearch — Toggle, search shape, caching, errors**  
+        - UT-004-Export — Expanded mapping rules  
+        - IT-013-MappingSearch — Toggle, search shape, caching, errors  
         - IT-012-Ranked — Ranked contract deps  
         - UT-011-Export — Selector rules (genre/subgenre/decade)  
     - **AC-02.4** Only checked, ranked, unskipped included  
@@ -100,8 +100,8 @@
 
 - **TS-01 — Mapping service toggle & rules (Milestone A)**
     - **AC-TS2.3.A–F** toggle/defaults, ISRC canonical, variant rules + duration tie, structured reasons, per-batch caching, 429/timeout 
-        - **UT-004-Export — Expanded cases**  
-        - **IT-013-MappingSearch — Toggle/search/caching/error paths**
+        - UT-004-Export — Expanded cases  
+        - IT-013-MappingSearch — Toggle/search/caching/error paths
 
 - **US-04 — Add playlist name and description (Inline)**
     - **AC-04.1** Name/description applied  
@@ -116,43 +116,43 @@
 
 - **US-05 — Real-time feedback during export**
     - **AC-05.1** Progress shown  
-        - **UI-005-Progress** — Idle → loading → success/error  
-        - **IT-007-Errors** — Backend failure returns error contract  
-        - **E2E-004-Errors** — Progress shows error  
+        - UI-005-Progress — Idle → loading → success/error  
+        - IT-007-Errors — Backend failure returns error contract  
+        - E2E-004-Errors — Progress shows error  
     - **AC-05.2** Success state  
         - E2E-001-Export — Happy path including auth  
     - **AC-05.3** Error state  
-        - **UI-005-Progress** — Idle → loading → success/error  
-        - **IT-007-Errors** — Backend failure returns error contract  
-        - **E2E-004-Errors** — Progress shows error  
+        - UI-005-Progress — Idle → loading → success/error  
+        - IT-007-Errors — Backend failure returns error contract  
+        - E2E-004-Errors — Progress shows error  
 
 - **TS-02 — Progress & error contract (Milestone B)**
     - **AC-TS2.1–2.4** success/failure envelopes; partial passthrough; UI transitions  
-        - **UI-005-Progress** — State machine  
-        - **IT-007-Errors** — Contract enforcement  
-        - **E2E-004-Errors** — End-to-end state changes
+        - UI-005-Progress — State machine  
+        - IT-007-Errors — Contract enforcement  
+        - E2E-004-Errors — End-to-end state changes
 
 - **US-06 — Error handling**
     - **AC-06.1** Per-song errors surfaced  
-        - **UT-007-Export** — Per-item error surfacing  
+        - UT-007-Export — Per-item error surfacing  
         - UI-006-Errors — List plus skip or retry actions  
-        - **IT-011-Errors** — Per-track 404 list  
-        - **E2E-009-Errors** — Partial failures  
+        - IT-011-Errors — Per-track 404 list  
+        - E2E-009-Errors — Partial failures  
     - **AC-06.2** 429 shows try again later  
-        - **UT-005-Export** — 429 backoff policy  
-        - **IT-008-Export** — Inject 429 with retry guidance  
-        - **E2E-005-RateLimit** — 429 path  
+        - UT-005-Export — 429 backoff policy  
+        - IT-008-Export — Inject 429 with retry guidance  
+        - E2E-005-RateLimit — 429 path  
     - **AC-06.3** Retry or skip available  
-        - **UT-007-Export** — Per-item error surfacing  
+        - UT-007-Export — P-item error surfacing  
         - UI-006-Errors — List plus skip or retry actions  
-        - **IT-011-Errors** — Per-track 404 list  
-        - **E2E-009-Errors** — Partial failures  
+        - IT-011-Errors — Per-track 404 list  
+        - E2E-009-Errors — Partial failures  
 
 - **TS-03 — Per-track pipeline & 429 policy (Milestone C)**
     - **AC-TS3.1–3.5** chunking, aggregate results, per-track failures, Retry-After/bounded backoff, determinism  
-        - **UT-005-Export**, **UT-007-Export**  
-        - **IT-008-Export**, **IT-011-Errors**  
-        - **E2E-005-RateLimit**, **E2E-009-Errors**
+        - UT-005-Export, UT-007-Export  
+        - IT-008-Export, IT-011-Errors  
+        - E2E-005-RateLimit, E2E-009-Errors
 
 - **US-07 — Confirmation with playlist link**
     - **AC-07.1** Confirmation link present  
@@ -194,12 +194,12 @@
 
 ## Coverage Status (roll-up)
 
-| Layer          | Planned | In Progress | Passed | Notes                                                                  |
-| -------------- | ------: | ----------: | -----: | ---------------------------------------------------------------------- |
-| Unit           |      15 |           0 |      5 | UT-001, UT-008 (auth); UT-003, UT-004 (export); UT-012 (ELO sanity)    |
-| UI (component) |       9 |           0 |      2 | UI-001 (AuthGuard); UI-009 (zero items → confirm disabled)             |
-| Integration    |      12 |           0 |      5 | IT-001, IT-002, IT-010 (auth); IT-003 (export create); IT-012 (ranked) |
-| E2E            |       9 |           0 |      2 | E2E-001 (happy path inline), E2E-003 (unauth redirect)                 |
+| Layer          | Planned | In Progress | Passed | Notes                                                                                                                                                                      |
+| -------------- | ------: | ----------: | -----: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit           |      12 |           1 |      9 | UT-001, UT-002, UT-008 (auth); UT-003, **UT-004** (mapping), UT-009, UT-010, UT-011; UT-012 (ranking). UT-006 is in progress.                                            |
+| UI (component) |      14 |           1 |      8 | UI-001 (AuthGuard), UI-009 (ExportModal), UI-010/011 (SelectionInline), UI-012 (Summary), UI-013 (Lifecycle), UI-002/003 (ExportModal); UI-014 (NameFields) in progress. |
+| Integration    |      13 |           0 |      9 | IT-001, IT-002, IT-010 (auth); IT-003, IT-004, IT-005, IT-013 (MappingSearch), IT-012 (ranked). (Counting unique IDs; excludes duplicates across rows.)              |
+| E2E            |       9 |           0 |      4 | E2E-001 (export happy path), E2E-002 (export), E2E-003 (unauth redirect), E2E-008 (mobile).                                                                              |
 
 
 ---
