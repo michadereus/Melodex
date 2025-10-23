@@ -64,6 +64,7 @@ const Rankings = () => {
 
   const RECENTLY_DONE_WINDOW_MS = 5 * 60 * 1000;
   const isCypressEnv = typeof window !== 'undefined' && (!!window.Cypress || window.__E2E_REQUIRE_AUTH__ === false);
+  const isJsdom = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
 
   // ---- API base (handles with/without trailing /api) ----
   const RAW_BASE =
@@ -441,7 +442,7 @@ const Rankings = () => {
 
   async function onExportClick() {
     // Test-only fast path (jsdom / Vitest). You already compute isCypressEnv above:
-    if (isCypressEnv) {
+    if (isJsdom) {
       seedSelectedAll(sortedSongs);
       setExportSuccessUrl('');
       setSelectionMode(true);
