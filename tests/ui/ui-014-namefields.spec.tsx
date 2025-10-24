@@ -119,4 +119,47 @@ describe("UI-014 — NameFields (inline)", () => {
     expect(desc.value).toBe("Curated by Melodex");
     expect(exportBtn).toBeEnabled();
   });
+
+  it("clearing name field falls back to default on export", async () => {
+    await enterSelectionMode();
+
+    const nameInput = (await screen.findByTestId("playlist-name")) as HTMLInputElement;
+    // clear it
+    fireEvent.change(nameInput, { target: { value: "" } });
+
+    const exportBtn = await screen.findByTestId("export-confirm");
+    await import("react-dom/test-utils").then(async ({ act }) => {
+      await act(async () => {
+        fireEvent.click(exportBtn);
+      });
+    });
+
+    // Inline path exposes last payload for tests
+    const payload = (window as any).__LAST_EXPORT_PAYLOAD__;
+    expect(payload).toBeTruthy();
+    expect(payload.name).toBe("Melodex Playlist 2025-10-22");
+  });
+
+  it("re-entering selection mode reseeds default only if blank", async () => {
+    await enterSelectionMode();
+
+    const nameInput = (await screen.findByTestId("playlist-name")) as HTMLInputElement;
+    // Case A: blank -> reseed
+    fireEvent.change(nameInput, { target: { value: "" } });
+    fireEvent.click(await screen.findByTestId("export-cancel"));
+
+    // re-enter
+    await enterSelectionMode();
+    const nameAgain = (await screen.findByTestId("playlist-name")) as HTMLInputElement;
+    expect(nameAgain.value).toBe("Melodex Playlist 2025-10-22");
+
+    // Case B: edited -> do not overwrite user edit during the same session (if desired)
+    fireEvent.change(nameAgain, { target: { value: "Keep My Edit" } });
+    // Toggle a checkbox to simulate activity
+    const boxes = await screen.findAllByRole("checkbox");
+    fireEvent.click(boxes[0]);
+    fireEvent.click(boxes[0]);
+    expect(nameAgain.value).toBe("Keep My Edit");
+  });
+
 });
