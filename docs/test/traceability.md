@@ -24,8 +24,8 @@
 | US-01 | Authenticate with Spotify | AC-01.1 <br>AC-01.2 <br>AC-01.3 <br>AC-01.4 <br>AC-01.5 | UT-001-Auth<br>UT-002-Auth<br>UT-008-Auth | UI-001-AuthGuard | IT-001-Auth<br>IT-002-Auth<br>IT-010-Auth<br>IT-001d | E2E-003-Auth | SMK-00<br>SMK-01 | DEF-001 | R-01<br>R-02 | <span class="pill pass">Passed</span> |
 | US-02 | Export ranked songs by current filter | AC-02.1 <br>AC-02.2 <br>AC-02.3 <br>AC-02.4 | UT-003-Export<br>UT-004-Export<br>UT-009-Export<br>UT-010-Export<br>UT-011-Export | UI-010-SelectionInline<br>UI-011-SelectionInline | IT-003-Export<br>IT-004-Export<br>IT-005-Export<br>IT-013-MappingSearch<br>IT-012-Ranked | E2E-001-Export<br>E2E-002-Export<br>E2E-008-Mobile | SMK-09 | – | R-04<br>R-14 | <span class="pill pass">Passed</span> |
 | US-03 | Review and remove before export | AC-03.1<br>AC-03.2 <br>AC-03.3 | – | UI-010-SelectionInline<br>UI-012-SelectionSummary<br>UI-013-SelectionLifecycle<br>UI-002-ExportModal<br>UI-003-ExportModal | IT-005-Export | – | SMK-09 | – | R-15<br>R-20 | <span class="pill pass">Passed</span> |
-| US-04 | Add playlist name and description | AC-04.1 <br>AC-04.2 | UT-006-Export | UI-014-NameFields<br>UI-004-ExportModal | IT-006-Export | – | SMK-09 | – | R-10<br>R-20 | <span class="pill progress">In Progress</span> |
-| US-05 | Real-time feedback during export | AC-05.1 <br>AC-05.2 <br>AC-05.3 | – | UI-005-Progress | IT-007-Errors | E2E-001-Export<br>E2E-004-Errors | SMK-09 | – | R-10 | <span class="pill planned">Planned</span> |
+| US-04 | Add playlist name and description | AC-04.1 <br>AC-04.2 | UT-006-Export | UI-014-NameFields<br>UI-004-ExportModal | IT-006-Export | – | SMK-09 | – | R-10<br>R-20 | <span class="pill pass">Passed</span> |
+| US-05 | Real-time feedback during export | AC-05.1 <br>AC-05.2 <br>AC-05.3 | – | UI-005-Progress | IT-007-Errors | E2E-001-Export<br>E2E-004-Errors | SMK-09 | – | R-10 | <span class="pill progress">In Progress</span> |
 | US-06 | Error handling | AC-06.1 <br>AC-06.2 <br>AC-06.3 | UT-005-Export<br>UT-007-Export | UI-006-Errors | IT-008-Export<br>IT-011-Errors | E2E-005-RateLimit<br>E2E-009-Errors | SMK-09 | – | R-03<br>R-11 | <span class="pill planned">Planned</span> |
 | US-07 | Confirmation with playlist link | AC-07.1 <br>AC-07.2 | – | UI-007-Confirm<br>UI-008-DeepLink | IT-009-Confirm | E2E-001-Export<br>E2E-006-DeepLink | SMK-09 | – | R-09<br>R-10 | <span class="pill planned">Planned</span> |
 | US-08 | Revoke Spotify access | AC-08.1 <br>AC-08.2 <br>AC-08.3 | UT-002-Auth | UI-001-AuthGuard | IT-010-Auth | E2E-007-Revoke | SMK-00 | – | R-02 | <span class="pill planned">Planned</span> |
@@ -109,8 +109,7 @@
         - UI-014-NameFields — Default name editable; description optional  
         - IT-006-Export — Name/description in Spotify payload  
         - UI-004-ExportModal — Default name “Melodex Playlist [YYYY-MM-DD]”  
-    - **AC-04.2** Default name format  
-        - UT-006-Export — Default name formatting  
+    - **AC-04.2** Default name format   
         - UI-014-NameFields — Default name visible/editable  
         - IT-006-Export — Payload contains final name  
 
