@@ -357,4 +357,38 @@ it('handles overly long inputs (does not break; may truncate or pass-through wit
     expect([401, 403]).toContain(res.status);
   });
 
+  it('forwards the default name format to Spotify when used by the client', async () => {
+    let createBody: any = null;
+
+    nock(SPOTIFY_API)
+      .post('/v1/users/me/playlists')
+      .reply(201, function (_uri, body) {
+        createBody = typeof body === 'string' ? JSON.parse(body) : body;
+        return {
+          id: 'pl_meta_default',
+          external_urls: { spotify: 'https://open.spotify.com/playlist/pl_meta_default' },
+        };
+      });
+
+    nock(SPOTIFY_API)
+      .post('/v1/playlists/pl_meta_default/tracks')
+      .reply(201, { snapshot_id: 'snapD' });
+
+    // Simulate FE sending the default name it generated
+    const defaultName = 'Melodex Playlist 2025-10-22';
+
+    const res = await request(app)
+      .post('/api/playlist/export')
+      .set('Cookie', 'access=test-access-token')
+      .send({
+        name: defaultName,
+        description: '',
+        __testUris: ['spotify:track:DEF001'],
+      });
+
+    expect(res.status).toBe(200);
+    expect(createBody).toBeTruthy();
+    expect(String(createBody.name)).toBe(defaultName);
+  });
+
 });

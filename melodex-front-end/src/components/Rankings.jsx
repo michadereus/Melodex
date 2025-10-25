@@ -446,6 +446,7 @@ const Rankings = () => {
       seedSelectedAll(sortedSongs);
       setExportSuccessUrl('');
       setSelectionMode(true);
+      setPlaylistName((prev) => (String(prev || '').trim() ? prev : formatDefaultPlaylistName()));
       return;
     }
     const decision = await ensureSpotifyConnected(AUTH_ROOT);
@@ -457,6 +458,7 @@ const Rankings = () => {
     seedSelectedAll(sortedSongs);
     setExportSuccessUrl('');
     setSelectionMode(true);
+    setPlaylistName((prev) => (String(prev || '').trim() ? prev : formatDefaultPlaylistName()));
   }
 
   const onCancelSelection = () => {
@@ -499,7 +501,7 @@ const Rankings = () => {
     }));
 
     const payload = {
-      name: (playlistName || '').trim() || defaultName,
+      name: ((playlistName || '').trim()) || formatDefaultPlaylistName(),
       description: (playlistDescription || '').trim(),
       // keep both so tests + future real mapping are happy:
       uris: stubUris,           // legacy/stub consumers
