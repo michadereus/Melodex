@@ -66,6 +66,11 @@ const Rankings = () => {
   const isCypressEnv = typeof window !== 'undefined' && (!!window.Cypress || window.__E2E_REQUIRE_AUTH__ === false);
   const isJsdom = typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
 
+  const hasInjectedRanked = () => {
+    try { return typeof window !== 'undefined' && Array.isArray(window.__TEST_RANKED__); }
+    catch { return false; }
+  };
+
   // ---- API base (handles with/without trailing /api) ----
   const RAW_BASE =
     import.meta.env.VITE_API_BASE_URL ??
@@ -235,6 +240,15 @@ const Rankings = () => {
 
   // ===== “Show immediately, fix in background once” =====
   const enrichAndFilterSongs = useCallback(() => {
+    if (isCypressEnv && hasInjectedRanked()) {
+      try {
+        const injected = window.__TEST_RANKED__ || [];
+        setEnrichedSongs(injected);
+        setFilteredSongs(injected);
+      } catch {}
+      setIsFetching(false);
+      return;
+    }
     if (!applied || !Array.isArray(rankedSongs)) return;
 
     setEnrichedSongs(rankedSongs);
@@ -476,6 +490,10 @@ const Rankings = () => {
     const chosen = sortedSongs.filter((s) => selected.has(stableKey(s)));
     if (chosen.length === 0) return;
 
+    // reset any prior terminal states
+    setExportError(null); 
+    setExportState(ExportState.Validating);
+
     // default name (use your existing genre/subgenre rule; fall back to util if you added it)
     const defaultNameParts = [];
     if (selectedGenre !== 'any') defaultNameParts.push(selectedGenre);
@@ -518,6 +536,7 @@ const Rankings = () => {
 
     try {
       setExporting(true);
+      setExportState(ExportState.Creating);
 
       // ✅ fix endpoint path to match backend/tests
       const res = await fetch(`${API_ROOT}/playlist/export`, {
@@ -527,18 +546,37 @@ const Rankings = () => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error(`Export failed ${res.status}`);
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {}
 
-      const { ok, playlistUrl } = await res.json();
+      if (!res.ok || (data && data.ok === false)) {
+        // Surface shaped error to UI (E2E looks for message + recovery guidance)
+        const msg = data?.message || `Export failed ${res.status}`;
+        const hint = data?.hint || 'Please retry or adjust your selection.';
+        setExportState(ExportState.Error);
+        setExportError(`${msg} — ${hint}`);
+        return;
+      }
 
+      const ok = data?.ok === true;
+      const playlistUrl = data?.playlistUrl;
       if (ok && playlistUrl) {
+        setExportState(ExportState.Success);
         setExportSuccessUrl(playlistUrl);
         try {
           window.open(playlistUrl, '_blank', 'noopener');
         } catch {}
+      } else {
+        // Defensive: treat unexpected shape as an error
+        setExportState(ExportState.Error);
+        setExportError('Unexpected response from server — please try again.');
       }
     } catch (e) {
       console.error('Export error:', e);
+      setExportState(ExportState.Error);
+      setExportError(e?.message || 'Something went wrong — please try again.');
     } finally {
       setExporting(false);
     }
@@ -759,6 +797,33 @@ const Rankings = () => {
               {exportState === ExportState.Adding && 'Adding tracks…'}
               {exportState === ExportState.Success && 'Done!'}
               {exportState === ExportState.Error && `Error: ${exportError || 'Something went wrong'}`}
+            </div>
+          )}
+
+          {/* Error banner + Retry (E2E-004 depends on these test ids) */}
+          {selectionMode && exportState === ExportState.Error && (
+            <div
+              data-testid="export-error"
+              role="alert"
+              aria-live="assertive"
+              style={{
+                textAlign: 'center',
+                marginTop: '-0.25rem',
+                marginBottom: '0.75rem',
+                color: '#e74c3c',
+                background: 'rgba(231, 76, 60, 0.08)',
+                padding: '0.5rem 0.75rem',
+                borderRadius: 8,
+                border: '1px solid rgba(231, 76, 60, 0.35)',
+              }}
+            >
+              <strong style={{ marginRight: 6 }}>Export failed:</strong>
+              <span>{String(exportError || 'Something went wrong — please try again.')}</span>
+              <div style={{ marginTop: '0.5rem' }}>
+                <button data-testid="export-retry" onClick={() => !exporting && !zeroSelected && doExport()} style={{ padding: '0.4rem 0.8rem', borderRadius: 8, border: '1px solid #e74c3c' }}>
+                  Retry
+                </button>
+              </div>
             </div>
           )}
 
