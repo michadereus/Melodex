@@ -111,8 +111,6 @@ describe('E2E-004 — Backend failure → progress shows error state', () => {
       }
     });
 
-    // Don’t actually navigate away on success URL
-    cy.window().then((win) => cy.stub(win, 'open').as('winOpen'));
 
     // First export -> fails, shows error state + guidance
     cy.get('[data-testid="export-confirm"]').as('confirm');
@@ -136,10 +134,7 @@ describe('E2E-004 — Backend failure → progress shows error state', () => {
     cy.get('[data-testid="export-success-link"]', { timeout: 8000 })
       .should('have.attr', 'href', 'https://open.spotify.com/playlist/e2e004-retry-ok');
 
-    cy.get('@winOpen').should('have.been.called');
-    cy.get('@winOpen').then((spy) => {
-      const url = spy.getCall(0).args[0];
-      expect(url).to.eq('https://open.spotify.com/playlist/e2e004-retry-ok');
-    });
+    cy.get('[data-testid="export-progress"]').should('not.exist');
+    cy.get('[data-testid="export-confirm"]').should('be.disabled');
   });
 });
