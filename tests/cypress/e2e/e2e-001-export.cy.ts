@@ -62,7 +62,7 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
     cy.intercept(
       { method: 'POST', url: /\/(api\/)?playlist\/export(?:\?.*)?$/ },
       (req) => {
-        req.reply({ statusCode: 200, body: { ok: true, playlistUrl } });
+        req.reply({ statusCode: 200, body: { ok: true, playlistUrl }, delayMs: 300});
       }
     ).as('exportCall');
 
@@ -84,9 +84,6 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
 
   it('Auth → filter → inline selection → uncheck one → name/desc → export → confirm link', () => {
     cy.location('pathname', { timeout: 10000 }).should('eq', '/rankings');
-
-    // Spy on window.open (some UX paths open the playlist)
-    cy.window().then((win) => cy.spy(win, 'open').as('winOpen'));
 
     // Enter inline selection mode (this triggers GET /auth/session)
     cy.get('[data-testid="export-spotify-cta"]').should('be.visible').click();
@@ -116,6 +113,11 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
     // Export
     cy.get('[data-testid="export-confirm"]').should('be.enabled').click();
 
+    
+    // In-flight: button locked + progress visible
+    cy.get('[data-testid="export-confirm"]').should('be.disabled').and('contain', 'Exporting');
+    cy.get('[data-testid="export-progress"]').should('be.visible');
+
     // Assert payload via network intercept
     cy.wait('@exportCall', { timeout: 15000 }).then(({ request, response }) => {
       const body = parseBody(request.body);
@@ -131,20 +133,14 @@ describe('E2E-001-Export — Happy path (desktop, inline)', () => {
       expect(response?.body?.playlistUrl).to.match(/^https:\/\/open\.spotify\.com\/playlist\//);
     });
 
-    // Success can be shown inline link OR via window.open
-    cy.get('body').then(($body) => {
-      const hasLink = $body.find('a[data-testid="export-success-link"]').length > 0;
-      if (hasLink) {
-        cy.get('a[data-testid="export-success-link"]')
-          .should('have.attr', 'href')
-          .and('match', /^https:\/\/open\.spotify\.com\/playlist\//);
-      } else {
-        cy.get('@winOpen').its('callCount', { timeout: 5000 }).should('be.greaterThan', 0);
-        cy.get('@winOpen').then((spy: any) => {
-          const calledWith = spy.getCall(0).args[0];
-          expect(calledWith).to.match(/^https:\/\/open\.spotify\.com\/playlist\//);
-        });
-      }
-    });
+    // Post-success: progress hidden, inline link present
+    cy.get('[data-testid="export-progress"]').should('not.exist');
+    cy.get('a[data-testid="export-success-link"]')
+      .should('be.visible')
+      .and('have.attr', 'href')
+      .and('match', /^https:\/\/open\.spotify\.com\/playlist\//);
+
+    // Confirm remains locked after success
+    cy.get('[data-testid="export-confirm"]').should('be.disabled');
   });
 });
