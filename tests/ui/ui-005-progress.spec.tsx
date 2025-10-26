@@ -88,6 +88,8 @@ describe("UI-005 — Progress (idle → loading → success/error)", () => {
     // Enter inline selection mode (jsdom fast path)
     enterSelectionMode();
 
+    await screen.findByTestId("selection-mode-root");
+
     // Form present
     const formRoot = await screen.findByTestId("selection-mode-root");
     expect(formRoot).toBeInTheDocument();
@@ -102,7 +104,7 @@ describe("UI-005 — Progress (idle → loading → success/error)", () => {
     expect(confirm).toBeEnabled();
   });
 
-  it("loading → success: disables confirm, shows 'Exporting…', then re-enables and shows success link", async () => {
+  it("loading → success: disables confirm, shows 'Exporting…', then shows success link and stays locked", async () => {
     // Mock success response from backend
     (global.fetch as any).mockResolvedValueOnce({
       ok: true,
@@ -118,8 +120,8 @@ describe("UI-005 — Progress (idle → loading → success/error)", () => {
     // Submit export
     fireEvent.submit(screen.getByTestId("selection-mode-root"));
 
-    // While exporting, button disabled and label updates
     await waitFor(() => {
+      expect(screen.getByTestId("export-progress")).toBeInTheDocument();
       expect(confirm).toBeDisabled();
       expect(confirm).toHaveTextContent(/Exporting…/i);
     });
@@ -129,9 +131,10 @@ describe("UI-005 — Progress (idle → loading → success/error)", () => {
     expect(link).toHaveAttribute("href", "https://open.spotify.com/playlist/xyz");
 
     await waitFor(() => {
-      expect(confirm).toBeEnabled();
-      expect(confirm).toHaveTextContent(/^Export$/);
+      expect(screen.queryByTestId("export-progress")).toBeNull();
     });
+    expect(confirm).toBeDisabled();
+    expect(confirm).toHaveTextContent(/^Export$/); // exporting=false after success → label resets
 
     // Verify payload shape contained uris + __testUris (sanity)
     expect(global.fetch).toHaveBeenCalledTimes(1);

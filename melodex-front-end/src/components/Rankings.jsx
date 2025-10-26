@@ -565,9 +565,6 @@ const Rankings = () => {
       if (ok && playlistUrl) {
         setExportState(ExportState.Success);
         setExportSuccessUrl(playlistUrl);
-        try {
-          window.open(playlistUrl, '_blank', 'noopener');
-        } catch {}
       } else {
         // Defensive: treat unexpected shape as an error
         setExportState(ExportState.Error);
@@ -761,14 +758,14 @@ const Rankings = () => {
                 <button
                   type="submit"
                   data-testid="export-confirm"
-                  disabled={zeroSelected || exporting}
+                  disabled={zeroSelected || exporting || exportState === ExportState.Success}
                   style={{
                     padding: '0.6rem 1rem',
                     fontWeight: 600,
                     borderRadius: 8,
                     border: '1px solid #2ecc71',
-                    opacity: zeroSelected || exporting ? 0.6 : 1,
-                    cursor: zeroSelected || exporting ? 'not-allowed' : 'pointer',
+                    opacity: (zeroSelected || exporting || exportState === ExportState.Success) ? 0.6 : 1,
+                    cursor: (zeroSelected || exporting || exportState === ExportState.Success) ? 'not-allowed' : 'pointer',
                   }}
                 >
                   {exporting ? 'Exporting…' : 'Export'}
@@ -789,14 +786,15 @@ const Rankings = () => {
             )}
           </div>
 
-          {/* Progress readout (UI-005 scaffold) */}
-          {selectionMode && exportState !== ExportState.Idle && (
+          {/* Progress readout — only during in-flight */}
+          {selectionMode &&
+            (exportState === ExportState.Validating ||
+             exportState === ExportState.Creating ||
+             exportState === ExportState.Adding) && (
             <div data-testid="export-progress" style={{ textAlign: 'center', marginTop: '-0.5rem', marginBottom: '0.75rem', color: '#7f8c8d' }}>
               {exportState === ExportState.Validating && 'Validating…'}
               {exportState === ExportState.Creating && 'Creating playlist…'}
               {exportState === ExportState.Adding && 'Adding tracks…'}
-              {exportState === ExportState.Success && 'Done!'}
-              {exportState === ExportState.Error && `Error: ${exportError || 'Something went wrong'}`}
             </div>
           )}
 
