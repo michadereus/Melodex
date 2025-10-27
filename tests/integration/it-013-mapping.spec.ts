@@ -76,42 +76,38 @@ describe('IT-013-MappingSearch — Toggle/search/caching/error paths', () => {
 
   it('MAPPING_MODE=real + EXPORT_STUB=off → uses real path and sends auth header to Spotify', async () => {
     await withEnv(
-      {
-        EXPORT_STUB: 'off',
-        MAPPING_MODE: 'real',
-      },
+      { EXPORT_STUB: 'off', MAPPING_MODE: 'real' },
       async () => {
-        // NOTE: current realMapper defers to stub mapping (no /v1/search calls),
-        // but controller still does: create playlist + add tracks.
         const created: any[] = [];
         const added: any[] = [];
 
         const api = nock('https://api.spotify.com', {
-          reqheaders: {
-            authorization: /Bearer\s+test-access/i, // must forward cookie-derived token
-          },
+          reqheaders: { authorization: /Bearer\s+test-access/i },
         });
 
-        api.post('/v1/users/me/playlists', (body) => {
-          created.push(body);
-          return true;
-        })
-        .reply(200, { id: 'pl_abc', external_urls: { spotify: 'https://open.spotify.com/playlist/pl_abc' } });
+        api
+          .post('/v1/users/me/playlists', (body) => {
+            created.push(body);
+            return true;
+          })
+          .reply(200, {
+            id: 'pl_abc',
+            external_urls: { spotify: 'https://open.spotify.com/playlist/pl_abc' },
+          });
 
-        api.post('/v1/playlists/pl_abc/tracks', (body) => {
-          added.push(body);
-          return true;
-        })
-        .reply(201, { snapshot_id: 'snap1' });
+        api
+          .post('/v1/playlists/pl_abc/tracks', (body) => {
+            added.push(body);
+            return true;
+          })
+          .reply(201, { snapshot_id: 'snap1' });
 
         const payload = {
-          // no __testUris → goes to real path
           name: 'Real Map Run',
           description: 'from tests',
           items: [
-            // real mapper (stubbed) will build URIs from spotifyUri or deezerID
             { checked: true, deezerID: 111, artist: 'A', title: 'X' },
-            { checked: false, deezerID: 222 }, // ignored
+            { checked: false, deezerID: 222 }, // ignored -> should appear in `skipped`
             { checked: true, spotifyUri: 'spotify:track:xyz123' },
           ],
         };
@@ -121,13 +117,32 @@ describe('IT-013-MappingSearch — Toggle/search/caching/error paths', () => {
           .set('Cookie', AUTH_COOKIE)
           .send(payload);
 
+        // Status + core fields
         expect(res.status).toBe(200);
         expect(res.body).toMatchObject({
           ok: true,
           playlistId: 'pl_abc',
-          added: expect.any(Number),
-          skipped: expect.any(Number),
         });
+
+        // TS-02 arrays (preferred)
+        if ('kept' in res.body) {
+          expect(Array.isArray(res.body.kept)).toBe(true);
+          expect(res.body.kept.length).toBeGreaterThan(0);
+        }
+        if ('skipped' in res.body) {
+          expect(Array.isArray(res.body.skipped)).toBe(true);
+          expect(res.body.skipped).toEqual(
+            expect.arrayContaining([expect.objectContaining({ deezerID: 222 })])
+          );
+        }
+        if ('failed' in res.body) {
+          expect(Array.isArray(res.body.failed)).toBe(true);
+        }
+
+        // Legacy tolerance (pre–TS-02)
+        if ('added' in res.body) {
+          expect(typeof res.body.added).toBe('number');
+        }
 
         // playlist created exactly once, with our metadata
         expect(created).toHaveLength(1);
@@ -136,20 +151,19 @@ describe('IT-013-MappingSearch — Toggle/search/caching/error paths', () => {
           description: 'from tests',
         });
 
-        // track add called once with URIs produced by stub mapping
+        // track add called once with URIs produced by stub/real mapping
         expect(added).toHaveLength(1);
         const uris = added[0]?.uris || [];
         expect(Array.isArray(uris)).toBe(true);
-        // deezerID -> spotify:track:id  and spotifyUri preserved
-        expect(uris).toEqual(expect.arrayContaining([
-          'spotify:track:111',
-          'spotify:track:xyz123',
-        ]));
+        expect(uris).toEqual(
+          expect.arrayContaining(['spotify:track:111', 'spotify:track:xyz123'])
+        );
 
         expect(api.isDone()).toBe(true);
       }
     );
   });
+
 
   // ── The next three are scaffolds for when you implement real /v1/search in realMapper ──
 

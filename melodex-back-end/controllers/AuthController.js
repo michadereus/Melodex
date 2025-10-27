@@ -183,12 +183,24 @@ const AuthController = {
 function requireSpotifyAuth(req, res, next) {
   const cookie = req.headers.cookie || "";
   const hasSpotifyAccess = /(?:^|;\s*)access=/.test(cookie);
-  if (!hasSpotifyAccess) return res.status(401).json({ code: "AUTH_SPOTIFY_REQUIRED" });
+  if (!hasSpotifyAccess) {
+    return res
+      .status(401)
+      .json(fail(CODES.AUTH_SPOTIFY_REQUIRED, 'No Spotify session', { hint: 'Sign in and try again.' }));
+  }
   return next();
 }
 
 async function exportPlaylistStub(req, res) {
-  const { name, description, filters, uris, __testUris } = req.body || {};
+  const { name, description, filters, uris, __testUris, __forceFail } = req.body || {};
+
+  // 0) Test-only forced failure for IT-007 / E2E error paths (stub mode)
+  if (__forceFail === true || __forceFail === 'true') {
+    return res
+      .status(502)
+      .json(fail(CODES.SPOTIFY_FAIL, 'Simulated failure for IT-007/E2E-004', { hint: 'Please retry or adjust your selection.' }));
+  }
+
 
   // 1) IT-004 — Empty filter → "no songs available"
   if (filters && filters.type === 'none') {
@@ -221,18 +233,20 @@ async function exportPlaylistStub(req, res) {
       // Add tracks
       await http.post(`/v1/playlists/${playlistId}/tracks`, { uris: __testUris });
 
+      // TS-02 success envelope (keep legacy 'added' for back-compat)
       return res.status(200).json({
         ok: true,
         playlistId,
         playlistUrl,
-        added: __testUris.length,
+        kept: __testUris,      // tracks we attempted/kept (stub = all)
+        skipped: [],           // none in stub path
+        failed: [],            // none in stub path
+        added: __testUris.length, // legacy field used by earlier tests
       });
     } catch (err) {
-      return res.status(502).json({
-        ok: false,
-        code: 'SPOTIFY_FAIL',
-        message: 'Failed to create playlist on Spotify.',
-      });
+      return res
+        .status(502)
+        .json(fail(CODES.SPOTIFY_FAIL, 'Failed to create playlist on Spotify.', { hint: 'Please retry or adjust your selection.' }));
     }
   }
 
@@ -289,9 +303,9 @@ async function exportPlaylistStub(req, res) {
       return res.status(200).json(ok({
         playlistId,
         playlistUrl,
-        added: uris.length,
-        skipped: skipped.length,
-        reasons: reasons || [],
+        kept: uris,                 // successfully mapped & added
+        skipped: skipped ?? [],     // mapper-provided skips
+        failed: [],                 // keep field for future partial failures
       }));
     } catch (err) {
       console.error('[export] mapping/spotify error', err?.message || err);

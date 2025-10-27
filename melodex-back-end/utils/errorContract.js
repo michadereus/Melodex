@@ -13,7 +13,13 @@ function ok(payload = {}) {
 
 function fail(code, message = '', details) {
   const body = { ok: false, code, message };
-  if (details != null) body.details = details;
+  if (details != null) {
+    // If caller passed { hint } we surface it at the top level per TS-02
+    if (typeof details === 'object' && details.hint) {
+      body.hint = details.hint;
+    }
+    body.details = details;
+  }
   return body;
 }
 
