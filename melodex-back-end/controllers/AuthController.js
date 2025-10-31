@@ -4,6 +4,36 @@ const axios = require('axios');
 const { CODES, ok, fail } = require('../utils/errorContract');
 const { chunk, MAX_URIS_PER_ADD } = require('../utils/chunk');
 
+// --- 429 retry helper for "add tracks" ---
+async function postWith429Retry(http, url, data, config = {}) {
+  const max = Number(process.env.EXPORT_ADD_RETRY_MAX || 2);           // retries (on top of the first attempt)
+  const base = Number(process.env.EXPORT_ADD_BASE_BACKOFF_MS || 250);  // ms base backoff
+
+  let attempt = 0;
+  // attempt 0 = first try; then up to `max` retries on 429
+  // total attempts = 1 + max
+  for (;;) {
+    try {
+      return await http.post(url, data, config);
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status !== 429 || attempt >= max) {
+        // not a 429, or we exhausted retries
+        throw err;
+      }
+      // Honor Retry-After if present; otherwise exponential backoff
+      const raHeader =
+        err.response?.headers?.['retry-after'] ??
+        err.response?.headers?.['Retry-After'];
+      const waitMs = raHeader ? Number(raHeader) * 1000 : base * Math.pow(2, attempt);
+
+      await new Promise(r => setTimeout(r, waitMs));
+      attempt += 1;
+    }
+  }
+}
+
+
 /** tiny base64url helper */
 function b64url(buf) {
   return buf.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -294,19 +324,74 @@ async function exportPlaylistStub(req, res) {
         createResp?.data?.external_urls?.spotify ??
         `https://open.spotify.com/playlist/${playlistId}`;
 
-      // 2b.3) Add tracks (chunked ≤100)
+      // --- helpers (inline is fine) ---
+      const MAX_RETRIES = Number(process.env.EXPORT_ADD_RETRY_MAX ?? 2);          // retries (not counting first try)
+      const BASE_BACKOFF_MS = Number(process.env.EXPORT_ADD_BASE_BACKOFF_MS ?? 1); // used only when no Retry-After
+      const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
+
+      // 2b.3) Add tracks (chunked ≤100) with 429 policy
       const chunks = chunk(uris);
+
+      const keptOut = [];
+      const skippedOut = Array.isArray(skipped) ? [...skipped] : [];
+      const failedOut = [];
+
       for (const part of chunks) {
-        await http.post(`/v1/playlists/${playlistId}/tracks`, { uris: part });
+        let attempt = 0;
+        // retry loop for this chunk
+        // eslint-disable-next-line no-constant-condition
+        while (true) {
+          try {
+            await http.post(`/v1/playlists/${playlistId}/tracks`, { uris: part });
+            keptOut.push(...part);
+            break; // this chunk succeeded → next chunk
+          } catch (err) {
+            const status = err && err.response && err.response.status;
+            const hdrs = (err && err.response && err.response.headers) || {};
+            const raRaw = hdrs['retry-after'] ?? hdrs['Retry-After'] ?? hdrs['retry_after'];
+            const retryAfterSec = raRaw != null ? Number(raRaw) : NaN;
+
+            if (status !== 429) {
+              // Non-429: real failure → bubble
+              throw err;
+            }
+
+            // 429 handling
+            if (Number.isFinite(retryAfterSec) && retryAfterSec > 0 && attempt <= MAX_RETRIES) {
+              // Honor Retry-After
+              await sleep(retryAfterSec * 1000);
+              attempt += 1;
+              continue;
+            }
+
+            if (!Number.isFinite(retryAfterSec)) {
+              // No Retry-After: bounded backoff then give up
+              if (attempt < MAX_RETRIES) {
+                const backoff = Math.max(1, BASE_BACKOFF_MS) * Math.pow(2, attempt);
+                await sleep(backoff);
+                attempt += 1;
+                continue;
+              }
+            }
+
+            // Retries exhausted (or bounded w/out header): mark as RATE_LIMIT and stop retrying this chunk
+            skippedOut.push(...part.map((u) => ({ uri: u, reason: 'RATE_LIMIT' })));
+            break;
+          }
+        }
       }
 
-      return res.status(200).json(ok({
+      // Build 200 response even on bounded rate-limit skips
+      const okFlag = skippedOut.length === 0 && failedOut.length === 0;
+      return res.status(200).json({
+        ok: okFlag,
         playlistId,
         playlistUrl,
-        kept: uris,                 // successfully mapped & added
-        skipped: skipped ?? [],     // mapper-provided skips
-        failed: [],                 // keep field for future partial failures
-      }));
+        kept: keptOut,
+        skipped: skippedOut,
+        failed: failedOut,
+      });
+
     } catch (err) {
       console.error('[export] mapping/spotify error', err?.message || err);
       return res.status(502).json(fail(CODES.SPOTIFY_FAIL, 'Failed to create playlist on Spotify.'));
