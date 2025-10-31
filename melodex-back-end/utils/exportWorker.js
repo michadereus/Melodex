@@ -25,9 +25,9 @@ async function maybeBackoff(attempt, resLike, backoffMs = [500, 2000, 5000]) {
 /**
  * exportPlaylistWorker
  * @param {Object} deps
- * @param {Function} deps.httpAdd - async ({ playlistId, uris }) => { status, headers }
+ * @param {Function} deps.httpAdd - async ({ playlistId, uris }) => { status, headers } OR throws axios-style error
  * @param {Function} deps.httpCreate - async ({ name, description }) => { id, external_urls }
- * @param {Object} deps.mapper - object with mapMany(items) => { uris:string[], keptURIs:string[], reasons:Record<index,{id,reason}> }
+ * @param {Object} deps.mapper - object with mapMany(items) => { uris:string[], skipped:Array<{ id|uri|deezerID, reason, index? }> }
  * @param {Array} items - selected items (in UI order). Each should have an id-ish (deezerID or spotifyUri)
  * @param {String} name
  * @param {String} description
@@ -48,7 +48,7 @@ async function exportPlaylistWorker({
   // 1) Map inputs → URIs (+ reasons for pre-skip such as NOT_FOUND/REGION_BLOCKED)
   const mapRes = await mapper.mapMany(items || []);
   const mappedURIs = mapRes.uris || [];
-  const preSkipped = mapRes.skipped || []; // optional: array of { id, reason }
+  const preSkipped = mapRes.skipped || []; // optional: array of { id|uri|deezerID, reason, index? }
   const kept = [];      // successful URIs added
   const failed = [];    // { id, reason }
   const skipped = [...preSkipped]; // start with mapping-time skips
@@ -111,18 +111,40 @@ async function exportPlaylistWorker({
         }
         break;
       } catch (err) {
-        // Network/axios error
-        if (attempt < maxAttempts) {
-          await maybeBackoff(attempt - 1, err?.response);
+        // Normalize axios-style rejections (non-2xx) to our flow
+        const status = err?.response?.status;
+        const headers = err?.response?.headers;
+
+        // Treat like the in-band status cases above
+        if (status === 404 || status === 451) {
+          for (const uri of part) {
+            failed.push({ id: uri, reason: status === 404 ? 'NOT_FOUND' : 'REGION_BLOCKED' });
+          }
+          addedThisChunk = true; // terminal for this chunk
+          break;
+        }
+
+        if (status === 429) {
+          await maybeBackoff(attempt - 1, { headers });
+          // retry loop continues
           continue;
         }
+
+        // Other network/server errors: retry until exhausted
+        if (attempt < maxAttempts) {
+          await maybeBackoff(attempt - 1, { headers });
+          continue;
+        }
+
+        // Exhausted: generic add failure for each uri
         for (const uri of part) {
           failed.push({ id: uri, reason: 'ADD_FAILED' });
         }
+        // do not set addedThisChunk; we want RATE_LIMIT fallback below to decide if applicable
       }
     }
 
-    // If attempts exhausted because of 429s (never added), mark RATE_LIMIT explicitly
+    // If attempts exhausted without success (e.g., repeated 429s), mark RATE_LIMIT explicitly
     if (!addedThisChunk && attempt >= maxAttempts) {
       for (const uri of part) {
         failed.push({ id: uri, reason: 'RATE_LIMIT' });

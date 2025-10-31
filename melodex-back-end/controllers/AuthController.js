@@ -33,7 +33,6 @@ async function postWith429Retry(http, url, data, config = {}) {
   }
 }
 
-
 /** tiny base64url helper */
 function b64url(buf) {
   return buf.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -351,8 +350,19 @@ async function exportPlaylistStub(req, res) {
             const raRaw = hdrs['retry-after'] ?? hdrs['Retry-After'] ?? hdrs['retry_after'];
             const retryAfterSec = raRaw != null ? Number(raRaw) : NaN;
 
+            // Classify common non-429 statuses as per-track partials
+            if (status === 404) {
+              // Add-time NOT_FOUND: mark each attempted URI as failed and stop retrying this chunk
+              failedOut.push(...part.map((u) => ({ id: u, reason: 'NOT_FOUND' })));
+              break;
+            }
+            if (status === 451) {
+              // Region-blocked: treat as skipped (non-retryable), stop retrying this chunk
+              skippedOut.push(...part.map((u) => ({ uri: u, reason: 'REGION_BLOCKED' })));
+              break;
+            }
             if (status !== 429) {
-              // Non-429: real failure → bubble
+              // Other non-429: still bubble as a hard failure
               throw err;
             }
 
