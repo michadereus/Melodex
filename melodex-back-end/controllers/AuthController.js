@@ -384,13 +384,14 @@ async function exportPlaylistStub(req, res) {
       // Build 200 response even on bounded rate-limit skips
       const okFlag = skippedOut.length === 0 && failedOut.length === 0;
       return res.status(200).json({
-        ok: okFlag,
+        ok: true,
         playlistId,
         playlistUrl,
-        kept: keptOut,
-        skipped: skippedOut,
-        failed: failedOut,
+        kept: keptOut,              // what we actually posted successfully
+        skipped: skippedOut,        // includes mapper-provided & RATE_LIMIT reasons
+        failed: failedOut,          // reserved for non-429 per-track failures
       });
+
 
     } catch (err) {
       console.error('[export] mapping/spotify error', err?.message || err);
