@@ -72,7 +72,7 @@ describe('E2E-009 — per-track NOT_FOUND handled; export proceeds', () => {
           const url = typeof input === 'string' ? input : input?.url || '';
           const method = (init?.method || 'GET').toUpperCase();
 
-          // auth/session → connected
+          // /auth/session → connected
           if (/\/auth\/session$/.test(url)) {
             return Promise.resolve(
               new Response(JSON.stringify({ connected: true }), {
@@ -112,8 +112,8 @@ describe('E2E-009 — per-track NOT_FOUND handled; export proceeds', () => {
                 ok: true,
                 playlistId: 'pl_e2e009_final',
                 playlistUrl: 'https://open.spotify.com/playlist/pl_e2e009_final',
-                kept, // unchanged
-                skipped: [], // failed already acknowledged
+                kept,       // unchanged
+                skipped: [],// failed already acknowledged
                 failed: [],
               }), {
                 status: 200,
@@ -135,22 +135,18 @@ describe('E2E-009 — per-track NOT_FOUND handled; export proceeds', () => {
     cy.get('input[name="playlistName"]').clear().type('Per-track failures');
     cy.get('[data-testid="export-confirm"]').should('be.enabled').click();
 
-    // Either a progress indicator briefly appears or UI goes straight to results
-    // We won't strictly require the spinner since ok:true returns fast after the delay.
-
-    // Assert: success link exists even with per-track failures
+    // Success link should exist even with per-track failures
     cy.get('[data-testid="export-success-link"]', { timeout: 8000 })
       .should('have.attr', 'href', 'https://open.spotify.com/playlist/pl_e2e009_partial');
 
-    // Assert: per-track failures are surfaced — require failed item titles.
-    // If an error list container exists, look inside it; otherwise, allow anywhere.
+    // Per-track failures are surfaced — ensure failed titles are shown
     cy.get('body').then(($b) => {
       const hasList = $b.find('[data-testid="export-errors"]').length > 0;
       if (hasList) {
         cy.get('[data-testid="export-errors"]').within(() => {
           cy.contains(/\bGamma\b/i, { timeout: 8000 }).should('be.visible');
           cy.contains(/\bDelta\b/i).should('be.visible');
-          // Optional, tolerant reason text (any common phrasing)
+          // Tolerant reason text (any common phrasing)
           cy.contains(/not\s?found|no match|unmapped|missing|couldn.?t\s+find/i).should('exist');
         });
       } else {
@@ -174,16 +170,13 @@ describe('E2E-009 — per-track NOT_FOUND handled; export proceeds', () => {
         cy.get('[data-testid="export-success-link"]', { timeout: 8000 })
           .should('have.attr', 'href')
           .and('match', /^https:\/\/open\.spotify\.com\/playlist\/pl_e2e009_(partial|final)$/i);
-
-        // Error list may be cleared or minimized; don't strictly assert its absence to avoid brittleness.
       }
     });
 
-    // Confirm button should not trigger another export without user action; stay disabled or absent in result view.
+    // Confirm button should not auto-trigger another export without user action.
     cy.get('[data-testid="export-confirm"]').then(($btn) => {
       if ($btn.length) {
-        // If present, allow either disabled or hidden on reflow; don't hard-fail.
-        // Be lenient: some UIs keep it enabled for "export again"; we won't assert disabled strictly.
+        // If present, allow either disabled or left enabled for "export again"; don't assert either way.
         expect($btn).to.have.length(1);
       }
     });
