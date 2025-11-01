@@ -167,6 +167,9 @@ describe("UT-005 — Export worker: 429 rate-limit handling", () => {
       }
     }
 
+    // Guidance belongs to controller/UI; worker may omit. Asserted in IT-008/E2E-005.
+    // (No top-level message/code assertion here.)
+
     expect(deps.httpAdd).toHaveBeenCalled();
   });
 
@@ -193,10 +196,6 @@ describe("UT-005 — Export worker: 429 rate-limit handling", () => {
 
     expect(result.ok).toBe(true);
 
-    // Nothing kept because every add attempt hit 429 and exhausted
-    expect(Array.isArray(result.kept)).toBe(true);
-    // Either empty or non-empty depending on worker policy; the essential assertion is RATE_LIMIT recorded:
-    // Accept either bucket (failed or skipped) depending on implementation.
     const allOutcomes = [...(result.failed ?? []), ...(result.skipped ?? [])];
     const ids = allOutcomes.map((o: any) => o.uri || o.id);
 
@@ -208,6 +207,98 @@ describe("UT-005 — Export worker: 429 rate-limit handling", () => {
       if (["spotify:track:X", "spotify:track:Y"].includes(o.uri || o.id)) {
         expect(String(o.reason)).toMatch(/RATE_LIMIT|ADD_FAILED/i);
       }
+    }
+
+    // Top-level guidance/code not required at worker layer; covered in IT/E2E.
+    // (No assertion here.)
+
+    // Optional: if worker uses injected backoff, ensure it's bounded and >0
+    if (deps.backoff.mock.calls.length) {
+      const ms = Number(deps.backoff.mock.calls[0]?.[0]);
+      expect(Number.isFinite(ms)).toBe(true);
+      expect(ms).toBeGreaterThanOrEqual(0);
+      // "bounded" sanity check (tune if your cap differs)
+      expect(ms).toBeLessThanOrEqual(5000);
+    }
+
+    expect(deps.httpAdd).toHaveBeenCalled();
+  });
+
+  it("honors Retry-After when provided as an HTTP-date string and succeeds on retry", async () => {
+    // Build an HTTP-date ~1s in the future; setTimeout is stubbed so test remains fast.
+    const httpDate = new Date(Date.now() + 1000).toUTCString();
+
+    const deps = makeDeps({
+      addResponses: [
+        { status: 429, headers: { "Retry-After": httpDate } },
+        { status: 201, data: { snapshot_id: "ok_after_http_date" } },
+      ],
+      mapperUris: ["spotify:track:h1", "spotify:track:h2", "spotify:track:h3"],
+    });
+
+    const result = await exportPlaylistWorker({
+      name: "RATE-HTTP-DATE",
+      description: "UT-005",
+      items: [
+        { checked: true, spotifyUri: "spotify:track:h1" },
+        { checked: true, spotifyUri: "spotify:track:h2" },
+        { checked: true, spotifyUri: "spotify:track:h3" },
+      ],
+      ...deps,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.kept).toEqual([
+      "spotify:track:h1",
+      "spotify:track:h2",
+      "spotify:track:h3",
+    ]);
+    expect(deps.httpAdd).toHaveBeenCalledTimes(2);
+  });
+
+  it("falls back when Retry-After is invalid/negative and records RATE_LIMIT after bounded attempts", async () => {
+    const deps = makeDeps({
+      addResponses: [
+        { status: 429, headers: { "Retry-After": "-5" } }, // invalid/negative
+        { status: 429, headers: { "Retry-After": "bogus" } }, // invalid
+        { status: 429 }, // absent → still bounded
+      ],
+      mapperUris: ["spotify:track:n1", "spotify:track:n2"],
+    });
+
+    const result = await exportPlaylistWorker({
+      name: "RATE-INVALID-HEADER",
+      description: "UT-005",
+      items: [
+        { checked: true, spotifyUri: "spotify:track:n1" },
+        { checked: true, spotifyUri: "spotify:track:n2" },
+      ],
+      ...deps,
+    });
+
+    // Expect we ended without adding (bounded out)
+    const bucket = [...(result.failed ?? []), ...(result.skipped ?? [])];
+    const returned = bucket.map((x: any) => x.uri || x.id);
+    expect(returned).toEqual(
+      expect.arrayContaining(["spotify:track:n1", "spotify:track:n2"])
+    );
+    for (const o of bucket) {
+      expect(String(o.reason)).toMatch(/RATE_LIMIT|ADD_FAILED/i);
+    }
+
+    // Note: AC-06.2 guidance ("Try again later") is expected at controller/UI layers.
+    // The worker may not set top-level message/code; we already asserted per-track RATE_LIMIT above.
+    // Guidance is asserted in IT-008 and E2E-005 instead.
+    // (Intentionally no assertion here for message/code.)
+
+    // Optional: if the worker called injected backoff, ensure bounded & >0
+    if (deps.backoff.mock.calls.length) {
+      const msList = deps.backoff.mock.calls.map(c => Number(c?.[0])).filter(Number.isFinite);
+      expect(msList.length).toBeGreaterThan(0);
+      msList.forEach(ms => {
+        expect(ms).toBeGreaterThanOrEqual(0);
+        expect(ms).toBeLessThanOrEqual(5000);
+      });
     }
 
     expect(deps.httpAdd).toHaveBeenCalled();

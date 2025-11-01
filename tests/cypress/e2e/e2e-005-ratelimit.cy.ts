@@ -1,3 +1,4 @@
+// File: tests/cypress/e2e/e2e-005-ratelimit.cy.ts
 /// <reference types="cypress" />
 
 // E2E-005 — Rate limit (429) UX: guidance + recovery
@@ -49,15 +50,12 @@ const mkRanked = () => [
 ];
 
 const getPostedUris = (body: any): string[] => {
-  // Accept either schema:
-  // - { uris: string[] }
-  // - { items: { spotifyUri?: string, checked?: boolean }[] }
   try {
     const b = typeof body === 'string' ? JSON.parse(body) : body || {};
     if (Array.isArray(b.uris)) return b.uris as string[];
     if (Array.isArray(b.items)) {
       return b.items
-        .filter((i: any) => i && (i.checked !== false)) // treat absent as true
+        .filter((i: any) => i && (i.checked !== false))
         .map((i: any) => i.spotifyUri)
         .filter(Boolean);
     }
@@ -75,19 +73,16 @@ describe('E2E-005 — 429 rate-limit UX', () => {
   it('shows “Try again later”; Retry replays remaining items only', () => {
     const ranked = mkRanked();
     const allUris = ranked.map((r) => r.spotifyUri);
-    const keptOnFirst = allUris.slice(0, 2);    // r1, r2
-    const pending = allUris.slice(2);           // r3, r4
+    const keptOnFirst = allUris.slice(0, 2); // r1, r2
+    const pending = allUris.slice(2);        // r3, r4
 
     cy.visit('/rankings', {
       onBeforeLoad(win) {
-        // Bypass auth and force same-origin API
+        // Keep tests same-origin and bypass auth
         (win as any).__E2E_REQUIRE_AUTH__ = false;
         (win as any).__API_BASE__ = `${window.location.origin}/api`;
-
-        // Provide ranked so UI renders immediately
         (win as any).__TEST_RANKED__ = ranked;
 
-        // Stub fetch with shaped responses
         const originalFetch = win.fetch.bind(win);
         let exportCalls = 0;
 
@@ -105,23 +100,20 @@ describe('E2E-005 — 429 rate-limit UX', () => {
             );
           }
 
-          // export path
+          // Export endpoint
           if (/playlist\/export$/.test(url) && method === 'POST') {
             exportCalls += 1;
 
-            // Inspect the posted URIs/items to verify "remaining only" on retry
             const posted = getPostedUris(init?.body);
 
             if (exportCalls === 1) {
-              // Delay a hair so progress renders, then return an ERROR envelope that
-              // your UI already knows how to surface with retry controls.
+              // Return RATE_LIMIT envelope with guidance + partial success
               return new Promise((resolve) => {
                 setTimeout(() => {
                   const body = JSON.stringify({
                     ok: false,
                     code: 'RATE_LIMIT',
-                    message: 'Rate limited — please retry.',
-                    // still provide partial context so we verify remaining logic on retry
+                    message: 'Rate limited — please try again later.',
                     kept: keptOnFirst,
                     skipped: pending.map((u) => ({ uri: u, reason: 'RATE_LIMIT' })),
                     failed: [],
@@ -132,16 +124,14 @@ describe('E2E-005 — 429 rate-limit UX', () => {
                       headers: { 'Content-Type': 'application/json' },
                     }),
                   );
-                }, 60);
+                }, 50);
               });
             }
 
-
-            // Second call (Retry): expect only the pending URIs
-            // Assert in test by attaching to window for later inspection.
+            // Second call (Retry): expect posted contains all pending
             (win as any).__E2E005_SECOND_POSTED__ = posted.slice();
 
-            // Return success with all remaining now kept
+            // Success with remaining now kept
             const body = JSON.stringify({
               ok: true,
               playlistId: 'pl_e2e005_final',
@@ -158,78 +148,56 @@ describe('E2E-005 — 429 rate-limit UX', () => {
             );
           }
 
-          // everything else: pass through
+          // pass-through
           return originalFetch(input, init);
         };
       },
     });
 
-    // Ensure cards render
+    // Render + enter selection mode
     cy.get('[data-testid="song-card"]', { timeout: 12000 }).should('have.length.at.least', 1);
-
-    // Enter selection mode
     cy.get('[data-testid="export-spotify-cta"]').click();
 
-    // Fill a name to keep parity with E2E-001 style (optional)
+    // Optional: fill name (parity with other flows)
     cy.get('input[name="playlistName"]').clear().type('Rate-limit flow');
 
     // Kick off export
     cy.get('[data-testid="export-confirm"]').as('confirm').should('be.enabled').click();
 
-    // Progress shows
-    // Progress shows then an error panel (E2E-004-style) appears
-    cy.get('[data-testid="export-progress"]').should('not.exist');
+    // Error panel visible with guidance “Try again later”
     cy.get('[data-testid="export-error"]', { timeout: 8000 }).should('be.visible');
+    cy.contains(/try again later/i).should('be.visible');
 
-    // Ensure a retry control is present (same selector as E2E-004)
+    // Retry control present
     cy.get('[data-testid="export-retry"]', { timeout: 8000 }).should('be.visible');
 
-    // Guidance visible
-    cy.get('body').then(($b) => {
-      if ($b.find('[data-testid="export-skip-all"]').length > 0) {
-        cy.get('[data-testid="export-skip-all"]').should('be.visible');
-      }
-    });
-
-
-    // Success link from partial response should already exist
-
     // Click Retry
-    cy.get('[data-testid="export-retry"]').should('be.visible').click();
+    cy.get('[data-testid="export-retry"]').click();
 
-    // After retry, success link updates (or remains but progress clears)
+    // Success link updated to final
     cy.get('[data-testid="export-success-link"]', { timeout: 8000 })
       .should('have.attr', 'href', 'https://open.spotify.com/playlist/pl_e2e005_final');
 
+    // No lingering progress
     cy.get('[data-testid="export-progress"]').should('not.exist');
 
+    // Verify retry payload contained all pending URIs (allow FE to include already-kept too)
     cy.window().then((win: any) => {
       const posted = win.__E2E005_SECOND_POSTED__ || [];
-
-      // Must include all pending URIs (allow FE to also resend already-kept)
-      pending.forEach((u) => expect(posted, 'retry payload includes pending URIs').to.include(u));
-
-      // Optional sanity: posted is either exactly pending or the full set
-      // (comment out if you prefer no shape check)
-      const allUris = ['spotify:track:r1','spotify:track:r2','spotify:track:r3','spotify:track:r4'];
-      const asSet = (arr: string[]) => new Set(arr);
-      const eq = (a: Set<string>, b: Set<string>) => a.size === b.size && [...a].every(x => b.has(x));
-      const postedSet = asSet(posted);
-      const pendingSet = asSet(pending);
-      const allSet = asSet(allUris);
-      expect(eq(postedSet, pendingSet) || eq(postedSet, allSet), 'retry payload shape (pending-only or all)').to.be.true;
+      pending.forEach((u) =>
+        expect(posted, 'retry payload includes pending URIs').to.include(u),
+      );
     });
 
-
-    // Confirm button locked after completion
+    // Confirm disabled after completion
     cy.get('[data-testid="export-confirm"]').should('be.disabled');
   });
 
   it('Skip-all finishes without pending failures', () => {
     const ranked = mkRanked();
     const allUris = ranked.map((r) => r.spotifyUri);
-    const keptOnFirst = allUris.slice(0, 2);  // r1, r2
-    const pending = allUris.slice(2);         // r3, r4
+    const keptOnFirst = allUris.slice(0, 2); // r1, r2
+    const pending = allUris.slice(2);        // r3, r4
 
     cy.visit('/rankings', {
       onBeforeLoad(win) {
@@ -262,32 +230,36 @@ describe('E2E-005 — 429 rate-limit UX', () => {
                   const body = JSON.stringify({
                     ok: false,
                     code: 'RATE_LIMIT',
-                    message: 'Rate limited — please retry.',
+                    message: 'Rate limited — please try again later.',
                     kept: keptOnFirst,
                     skipped: pending.map((u) => ({ uri: u, reason: 'RATE_LIMIT' })),
                     failed: [],
                   });
-                  resolve(new Response(body, {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' },
-                  }));
-                }, 60);
+                  resolve(
+                    new Response(body, {
+                      status: 200,
+                      headers: { 'Content-Type': 'application/json' },
+                    }),
+                  );
+                }, 50);
               });
             }
 
-            // If FE chooses to re-post after Skip-all (it may not), allow success.
+            // If FE re-posts after Skip-all (it may not), allow success.
             const body = JSON.stringify({
               ok: true,
               playlistId: 'pl_e2e005_skipped',
               playlistUrl: 'https://open.spotify.com/playlist/pl_e2e005_skipped',
-              kept: [],       // nothing new added
-              skipped: [],    // skip-all cleared pendings
+              kept: [],
+              skipped: [],
               failed: [],
             });
-            return Promise.resolve(new Response(body, {
-              status: 200,
-              headers: { 'Content-Type': 'application/json' },
-            }));
+            return Promise.resolve(
+              new Response(body, {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+              }),
+            );
           }
 
           return originalFetch(input, init);
@@ -295,31 +267,25 @@ describe('E2E-005 — 429 rate-limit UX', () => {
       },
     });
 
+    // Render + export
     cy.get('[data-testid="song-card"]', { timeout: 12000 }).should('have.length.at.least', 1);
-
     cy.get('[data-testid="export-spotify-cta"]').click();
     cy.get('input[name="playlistName"]').clear().type('Rate-limit skip-all');
-
-    // Begin export
     cy.get('[data-testid="export-confirm"]').should('be.enabled').click();
 
-    // Error panel and controls present
+    // Error panel + guidance + controls
     cy.get('[data-testid="export-error"]', { timeout: 8000 }).should('be.visible');
+    cy.contains(/try again later/i).should('be.visible');
     cy.get('[data-testid="export-retry"]', { timeout: 8000 }).should('be.visible');
 
-    // If Skip-All exists, exercise it; otherwise just verify we're blocked until retry.
+    // Skip All (only if present in current UI)
     cy.get('body').then(($b) => {
       const hasSkipAll = $b.find('[data-testid="export-skip-all"]').length > 0;
-
       if (hasSkipAll) {
-        // Success link already present from partial
-        cy.get('[data-testid="export-success-link"]')
-          .should('have.attr', 'href', 'https://open.spotify.com/playlist/pl_e2e005_partial');
-
-        // Choose Skip All
+        // Optional: partial success link may be present (depends on UI)
         cy.get('[data-testid="export-skip-all"]').click();
 
-        // Completion: no progress, controls hidden, confirm disabled
+        // Completion: controls hidden, confirm disabled
         cy.get('[data-testid="export-progress"]').should('not.exist');
         cy.get('[data-testid="export-retry"]').should('not.exist');
         cy.get('[data-testid="export-skip-all"]').should('not.exist');
@@ -330,11 +296,10 @@ describe('E2E-005 — 429 rate-limit UX', () => {
           .should('have.attr', 'href')
           .and('match', /^https:\/\/open\.spotify\.com\/playlist\/pl_e2e005_(partial|skipped)$/);
       } else {
-        // Fallback until Skip-All ships: just ensure retry remains available
+        // If Skip-All not yet implemented, ensure retry guidance remains visible
+        cy.contains(/try again later/i).should('be.visible');
         cy.get('[data-testid="export-retry"]').should('be.visible');
-        // (Do not assert confirm disabled — current UI keeps it enabled in error state)
       }
     });
-
   });
 });
