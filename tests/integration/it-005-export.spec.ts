@@ -1,6 +1,6 @@
 // IT-005 — Export respects removed/unchecked items (realistic path: no __testUris; server filters items[])
 
-import { describe, it, beforeEach, afterEach, beforeAll, afterAll, expect } from 'vitest';
+import { describe, it, beforeEach, afterEach, beforeAll, afterAll, expect, vi } from 'vitest';
 import request from 'supertest';
 import nock from 'nock';
 import express from 'express';
@@ -10,26 +10,49 @@ import express from 'express';
 const SPOTIFY_API = 'https://api.spotify.com';
 const EXPORT_PATH = '/api/playlist/export';
 const AUTH_COOKIE = 'access=test-access-token';
-
-/** @type {import('express').Express} */
-let app;
+let app: any; 
 
 describe('IT-005 — Export respects unchecked/removed items (no __testUris path)', () => {
   /** @type {string[]} */ let postedUris = [];
   let createdPlaylistBody = null;
 
   beforeAll(() => {
-    // force realistic export path (server should use items[])
+    // Force realistic export path that uses items[]
     process.env.EXPORT_STUB = 'off';
+    process.env.MAPPING_MODE = 'stub';
 
-    // Load router AFTER global mocks are applied by setup file
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { apiRouter } = require('../../melodex-back-end/routes/api');
+    // Block real net except localhost; stub Spotify
+    nock.disableNetConnect();
+    nock.enableNetConnect((host) => /^(127\.0\.0\.1|localhost)(:\d+)?$/.test(host));
 
-    const e = express();
-    e.use(express.json());
-    e.use('/api', apiRouter);
-    app = e;
+    nock('https://api.spotify.com')
+      .persist()
+      .post('/v1/users/me/playlists')
+      .reply(201, {
+        id: 'pl_test',
+        external_urls: { spotify: 'https://open.spotify.com/playlist/pl_test' },
+      })
+      .post(/\/v1\/playlists\/[^/]+\/tracks/)
+      .reply(201, { snapshot_id: 'snap' });
+
+    // Make the app pick up the env toggles; then require it
+    vi.resetModules();
+    vi.resetModules();
+    const tryRequire = (p) => { try { return require(p); } catch { return null; } };
+
+    const mod =
+      tryRequire('../../melodex-back-end/index') ||
+      tryRequire('../../melodex-back-end/server') ||
+      tryRequire('../../melodex-back-end/app') ||
+      tryRequire('../../melodex-back-end/src/index') ||
+      tryRequire('../../melodex-back-end/dist/index') ||
+      tryRequire('../../melodex-back-end');
+
+    const resolved = mod && (mod.app || mod.default || mod);
+    if (!resolved) {
+      throw new Error('Could not load Express app from melodex-back-end. Check export and path.');
+    }
+    app = resolved;
   });
 
   beforeEach(() => {
@@ -70,8 +93,10 @@ describe('IT-005 — Export respects unchecked/removed items (no __testUris path
     nock.enableNetConnect();
   });
 
+  // ADD or REPLACE your afterAll(...) with this block
   afterAll(() => {
-    delete process.env.EXPORT_STUB;
+    nock.cleanAll();
+    nock.enableNetConnect();
   });
 
   it('filters by checked flag and excludes skipped; maps URIs from items when __testUris is omitted', async () => {
