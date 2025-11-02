@@ -37,7 +37,7 @@ function maybeExpectNoErrorsArray(res: any) {
   if ('errors' in res) expect(res.errors).toEqual([]);
 }
 
-describe('UT-007 — Export worker per-item error surfacing (AC-06.1)', () => {
+describe('UT-007 — Export worker per-item error surfacing (AC-06.3)', () => {
   it('aggregates successes and returns empty errors on all-201; preserves ordering', async () => {
     const deps = makeDeps({ addStatusSeq: [201, 201] });
 
@@ -50,7 +50,6 @@ describe('UT-007 — Export worker per-item error surfacing (AC-06.1)', () => {
     });
 
     expect(res.ok).toBe(true);
-    // playlistUrl may or may not be exposed; tolerate either
     if ('playlistUrl' in res) {
       expect(res.playlistUrl).toBe('https://open.spotify.com/playlist/pl_ut007');
     }
@@ -81,14 +80,13 @@ describe('UT-007 — Export worker per-item error surfacing (AC-06.1)', () => {
 
     expect(res.ok).toBe(true); // partial success must remain ok:true
     expect(res.kept).toEqual(['spotify:track:c']);
-    // Your worker emits { id, reason } (not { uri })
+    // Worker emits { id, reason } (not { uri })
     expect(res.failed).toEqual([
       { id: 'spotify:track:a', reason: 'NOT_FOUND' },
       { id: 'spotify:track:b', reason: 'NOT_FOUND' },
     ]);
 
     if ('errors' in res) {
-      // If unified errors[] exists, assert core semantics (not strict shape)
       res.errors.forEach((e: any, i: number) => {
         expect(e.reason).toBe('NOT_FOUND');
         expect(e.stage ?? 'add').toBe('add');
@@ -112,8 +110,8 @@ describe('UT-007 — Export worker per-item error surfacing (AC-06.1)', () => {
       maxAttempts: 3,
     });
 
+    expect(res.ok).toBe(true);
     expect(res.kept).toEqual(['spotify:track:c']);
-    // Expect { id, reason } here too
     expect(res.failed).toEqual([
       { id: 'spotify:track:a', reason: 'RATE_LIMIT' },
       { id: 'spotify:track:b', reason: 'RATE_LIMIT' },
@@ -135,7 +133,6 @@ describe('UT-007 — Export worker per-item error surfacing (AC-06.1)', () => {
     const { httpCreate, httpAdd, mapper } = makeDeps();
     mapper.mapMany.mockResolvedValueOnce({
       uris: [],
-      // Your mapper includes an index; keep it and assert minimally
       skipped: [{ uri: 'spotify:track:z', reason: 'NOT_FOUND', index: 0 }],
     });
 
@@ -168,3 +165,4 @@ describe('UT-007 — Export worker per-item error surfacing (AC-06.1)', () => {
     }
   });
 });
+
