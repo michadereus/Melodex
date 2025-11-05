@@ -28,7 +28,7 @@
 | US-05 | Real-time feedback during export | AC-05.1 <br>AC-05.2 <br>AC-05.3 | – | UI-005-Progress | IT-007-Errors | E2E-001-Export<br>E2E-004-Errors | SMK-09 | – | R-10 | <span class="pill pass">Passed</span> |
 | US-06 | Error handling | AC-06.1 <br>AC-06.2 <br>AC-06.3 | UT-005-Export<br>UT-007-Export | UI-006-Errors | IT-008-Export<br>IT-011-Errors | E2E-005-RateLimit<br>E2E-009-Errors | SMK-09 | – | R-03<br>R-11 | <span class="pill pass">In Passed</span> |
 | US-07 | Confirmation with playlist link | AC-07.1 <br>AC-07.2 | – | UI-007-Confirm<br>UI-008-DeepLink | IT-009-Confirm | E2E-001-Export<br>E2E-006-DeepLink | SMK-09 | – | R-09<br>R-10 | <span class="pill pass">Passed</span> |
-| US-08 | Revoke Spotify access | AC-08.1 <br>AC-08.2 <br>AC-08.3 | UT-002-Auth | UI-001-AuthGuard | IT-010-Auth | E2E-007-Revoke | SMK-00 | – | R-02 | <span class="pill progress">In Progress</span> |
+| US-08 | Revoke Spotify access | AC-08.1 <br>AC-08.2 <br>AC-08.3 | UT-002-Auth | UI-001-AuthGuard | IT-010-Auth | E2E-007-Revoke | SMK-00 | – | R-02 | <span class="pill passed">Passed</span> |
 | TS-01 | Mapping service toggle & rules (Milestone A) | AC-TS2.3.A<br>AC-TS2.3.B<br>AC-TS2.3.C<br>AC-TS2.3.D<br>AC-TS2.3.E<br>AC-TS2.3.F | UT-004-Export | – | IT-013-MappingSearch | – | – | – | R-04 | <span class="pill pass">Passed</span> |
 | TS-02 | Progress & error contract (Milestone B) | AC-TS2.1<br>AC-TS2.2<br>AC-TS2.3<br>AC-TS2.4 | – | UI-005-Progress | IT-007-Errors | E2E-004-Errors | – | – | R-10 | <span class="pill pass">Passed</span> |
 | TS-03 | Per-track pipeline & 429 policy (Milestone C) | AC-TS3.1<br>AC-TS3.2<br>AC-TS3.3<br>AC-TS3.4<br>AC-TS3.5 | UT-005-Export<br>UT-007-Export | UI-006-Errors | IT-008-Export<br>IT-011-Errors | E2E-005-RateLimit<br>E2E-009-Errors | – | – | R-03<br>R-11 | <span class="pill pass">Passed</span> |
@@ -195,10 +195,10 @@
 
 | Layer          | Planned | In Progress | Passed | Notes                                                                                                                                                                      |
 | -------------- | ------: | ----------: | -----: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit           |      12 |           1 |      9 | UT-001, UT-002, UT-008 (auth); UT-003, **UT-004** (mapping), UT-009, UT-010, UT-011; UT-012 (ranking). UT-006 is in progress.                                            |
-| UI (component) |      14 |           1 |      8 | UI-001 (AuthGuard), UI-009 (ExportModal), UI-010/011 (SelectionInline), UI-012 (Summary), UI-013 (Lifecycle), UI-002/003 (ExportModal); UI-014 (NameFields) in progress. |
-| Integration    |      13 |           0 |      9 | IT-001, IT-002, IT-010 (auth); IT-003, IT-004, IT-005, IT-013 (MappingSearch), IT-012 (ranked). (Counting unique IDs; excludes duplicates across rows.)              |
-| E2E            |       9 |           0 |      4 | E2E-001 (export happy path), E2E-002 (export), E2E-003 (unauth redirect), E2E-008 (mobile).                                                                              |
+| Unit           |      12 |           0 |      12 |                                            |
+| UI (component) |      14 |           0 |      14 |  |
+| Integration    |      13 |           0 |      13 |              |
+| E2E            |       9 |           0 |      9 |                                                                              |
 
 
 ---
