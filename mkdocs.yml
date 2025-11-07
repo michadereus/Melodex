@@ -91,6 +91,7 @@ nav:
     - Baseline: reports/baseline.md
     - Execution Summary: reports/execution-summary.md
     - Defect Log: reports/bugs.md
+    - Traceability Appendix: reports/traceability-appendix.md
 
   - How-To:
     - Local Development: how-to/local-dev.md
