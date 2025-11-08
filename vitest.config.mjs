@@ -1,52 +1,54 @@
 // vitest.config.mjs
-import { defineConfig } from 'vitest/config'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig } from "vitest/config";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 
 // UI-only: virtual aws-amplify
 function awsAmplifyVirtualPlugin() {
-  const VIRTUAL_ID = '\0aws-amplify'
+  const VIRTUAL_ID = "\0aws-amplify";
   return {
-    name: 'virtual-aws-amplify',
-    enforce: 'pre',
+    name: "virtual-aws-amplify",
+    enforce: "pre",
     resolveId(id) {
-      if (id === 'aws-amplify' || id.startsWith('aws-amplify/')) return VIRTUAL_ID
-      return null
+      if (id === "aws-amplify" || id.startsWith("aws-amplify/"))
+        return VIRTUAL_ID;
+      return null;
     },
     load(id) {
-      if (id !== VIRTUAL_ID) return null
+      if (id !== VIRTUAL_ID) return null;
       return `
         export const Auth = {
           currentAuthenticatedUser: async () => ({ username: 'test-user' }),
           signOut: async () => {}
         };
         export default { Auth };
-      `
+      `;
     },
-  }
+  };
 }
 
-// NEW: serve mongodb's deep file as a virtual no-op module (no repo file needed)
+// Serve MongoDB deep import as a virtual no-op for tests
 function mongoSearchIndexesVirtualPlugin() {
-  // Target the exact deep import the driver performs
-  const TARGET_ID = 'mongodb/lib/operations/search_indexes/update'
-  const VIRTUAL_ID = '\0mongo-update-search-index'
+  const TARGET_ID = "mongodb/lib/operations/search_indexes/update";
+  const VIRTUAL_ID = "\0mongo-update-search-index";
   return {
-    name: 'virtual-mongo-search-index-update',
-    enforce: 'pre',
+    name: "virtual-mongo-search-index-update",
+    enforce: "pre",
     resolveId(id) {
-      if (id === TARGET_ID) return VIRTUAL_ID
-      return null
+      if (id === TARGET_ID) return VIRTUAL_ID;
+      return null;
     },
     load(id) {
-      if (id !== VIRTUAL_ID) return null
+      if (id !== VIRTUAL_ID) return null;
       // CommonJS export since the driver requires() this file
-      return `module.exports = function updateSearchIndex() {};`
+      return `module.exports = function updateSearchIndex() {};`;
     },
-  }
+  };
 }
 
 export default defineConfig({
@@ -55,33 +57,57 @@ export default defineConfig({
   resolve: {
     alias: {
       // React aliases for UI project
-      react: path.resolve(__dirname, 'node_modules/react'),
-      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
-      'react-router': path.resolve(__dirname, 'node_modules/react-router'),
-      'react-router-dom': path.resolve(__dirname, 'node_modules/react-router-dom'),
-      'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
-      'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
+      react: path.resolve(__dirname, "node_modules/react"),
+      "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
+      "react-router": path.resolve(__dirname, "node_modules/react-router"),
+      "react-router-dom": path.resolve(
+        __dirname,
+        "node_modules/react-router-dom"
+      ),
+      "react/jsx-runtime": path.resolve(
+        __dirname,
+        "node_modules/react/jsx-runtime.js"
+      ),
+      "react/jsx-dev-runtime": path.resolve(
+        __dirname,
+        "node_modules/react/jsx-dev-runtime.js"
+      ),
       // ⛔️ NOTE: no file-based alias for mongodb here anymore—the plugin handles it
     },
-    dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
+    dedupe: ["react", "react-dom", "react-router", "react-router-dom"],
   },
   optimizeDeps: {
-    exclude: ['aws-amplify'],
+    exclude: ["aws-amplify"],
   },
 
   test: {
     globals: true,
 
-    // Root-level (used by projects that `extends: true`)
+    // Single combined coverage config (one HTML site at coverage/index.html)
+    coverage: {
+      provider: "v8",
+      reporter: isCI
+        ? ["text", "text-summary", "lcov"]
+        : ["text", "text-summary", "html", "lcov"],
+      reportsDirectory: "coverage",
+      include: [
+        "melodex-front-end/src/**/*.{ts,tsx,js,jsx}",
+        "melodex-back-end/src/**/*.{ts,tsx,js,jsx}",
+      ],
+      exclude: [
+        "tests/**/*",
+        "**/*.d.ts",
+        "node_modules/**",
+        "coverage/**",
+        "dist/**",
+      ],
+    },
+
+    // Root server deps (used by projects that `extends: true`)
     server: {
       deps: {
         // Keep these inlined so mocks/virtuals apply early
-        inline: [
-          'mongodb',
-          /^mongodb\//,
-          'connect-mongo',
-          'mongoose',
-        ],
+        inline: ["mongodb", /^mongodb\//, "connect-mongo", "mongoose"],
       },
     },
 
@@ -90,24 +116,27 @@ export default defineConfig({
       {
         extends: true,
         test: {
-          name: 'unit-ui',
-          environment: 'jsdom',
-          setupFiles: [path.resolve(__dirname, 'tests/support/vitest.setup.ts')],
+          name: "unit-ui",
+          environment: "jsdom",
+          setupFiles: [
+            path.resolve(__dirname, "tests/support/vitest.setup.ts"),
+          ],
           include: [
-            'tests/unit/**/*.{test,spec}.ts?(x)',
-            'tests/ui/**/*.{test,spec}.ts?(x)',
+            "tests/unit/**/*.{test,spec}.ts?(x)",
+            "tests/ui/**/*.{test,spec}.ts?(x)",
           ],
           exclude: [
-            '**/node_modules/**',
-            '**/dist/**',
-            '**/cypress/**',
-            '**/.{idea,git,cache,output,temp}/**',
-            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/cypress/**",
+            "**/.{idea,git,cache,output,temp}/**",
+            "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*",
           ],
           deps: {
             interopDefault: true,
-            inline: []
+            inline: [],
           },
+          // no per-project coverage: we use the single top-level coverage block
         },
       },
 
@@ -115,31 +144,29 @@ export default defineConfig({
       {
         extends: false, // don’t inherit test options; Vite plugins still apply
         test: {
-          name: 'integration',
-          environment: 'node',
-          setupFiles: [path.resolve(__dirname, 'tests/support/integration.setup.ts')],
-          include: ['tests/integration/**/*.{test,spec}.ts?(x)'],
+          name: "integration",
+          environment: "node",
+          setupFiles: [
+            path.resolve(__dirname, "tests/support/integration.setup.ts"),
+          ],
+          include: ["tests/integration/**/*.{test,spec}.ts?(x)"],
           exclude: [
-            '**/node_modules/**',
-            '**/dist/**',
-            '**/cypress/**',
-            '**/.{idea,git,cache,output,temp}/**',
-            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*',
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/cypress/**",
+            "**/.{idea,git,cache,output,temp}/**",
+            "**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*",
           ],
           server: {
             deps: {
-              inline: [
-                'mongodb',
-                /^mongodb\//,
-                'connect-mongo',
-                'mongoose',
-              ],
+              inline: ["mongodb", /^mongodb\//, "connect-mongo", "mongoose"],
             },
           },
+          // no per-project coverage: we use the single top-level coverage block
           // If you hit bundling quirks in some setups:
           // ssr: { noExternal: ['mongodb'] },
         },
       },
     ],
   },
-})
+});

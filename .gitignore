@@ -29,3 +29,8 @@ temp
 .platform
 melodex-back-end/update-client.json
 melodex-back-end/update-client.json
+
+coverage
+scripts
+.changed-src-files.txt
+.feature-scope.txt

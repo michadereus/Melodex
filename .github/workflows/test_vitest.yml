@@ -55,5 +55,23 @@ jobs:
       - run: |
           npm ci
           npm run install:all:ci
-      - name: Run Vitest (${{ matrix.project }})
-        run: npx vitest run --config ./vitest.config.mjs --project ${{ matrix.project }}
+      - name: Run Vitest (${{ matrix.project }}) + coverage
+        run: |
+          npx vitest run --config ./vitest.config.mjs --project ${{ matrix.project }} --coverage | tee vitest-${{ matrix.project }}.log
+
+      # Optional convenience: show a tiny snippet in the run page
+      - name: Append coverage summary to Job Summary
+        if: always()
+        run: |
+          echo "### Vitest Coverage — ${{ matrix.project }}" >> $GITHUB_STEP_SUMMARY
+          (grep -n -A5 -E "Coverage summary|All files" vitest-${{ matrix.project }}.log || tail -n 50 vitest-${{ matrix.project }}.log) >> $GITHUB_STEP_SUMMARY || true
+
+      # Upload just the LCOV (small)
+      - name: Upload coverage LCOV (${{ matrix.project }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-lcov-${{ matrix.project }}
+          path: coverage/${{ matrix.project }}/lcov.info
+          if-no-files-found: warn
+
