@@ -15,8 +15,9 @@ function awsAmplifyVirtualPlugin() {
     name: "virtual-aws-amplify",
     enforce: "pre",
     resolveId(id) {
-      if (id === "aws-amplify" || id.startsWith("aws-amplify/"))
+      if (id === "aws-amplify" || id.startsWith("aws-amplify/")) {
         return VIRTUAL_ID;
+      }
       return null;
     },
     load(id) {
@@ -45,18 +46,16 @@ function mongoSearchIndexesVirtualPlugin() {
     },
     load(id) {
       if (id !== VIRTUAL_ID) return null;
-      // CommonJS export since the driver requires() this file
       return `module.exports = function updateSearchIndex() {};`;
     },
   };
 }
 
 export default defineConfig({
-  // Vite-level bits
   plugins: [awsAmplifyVirtualPlugin(), mongoSearchIndexesVirtualPlugin()],
+
   resolve: {
     alias: {
-      // React aliases for UI project
       react: path.resolve(__dirname, "node_modules/react"),
       "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
       "react-router": path.resolve(__dirname, "node_modules/react-router"),
@@ -72,10 +71,10 @@ export default defineConfig({
         __dirname,
         "node_modules/react/jsx-dev-runtime.js"
       ),
-      // ⛔️ NOTE: no file-based alias for mongodb here anymore—the plugin handles it
     },
     dedupe: ["react", "react-dom", "react-router", "react-router-dom"],
   },
+
   optimizeDeps: {
     exclude: ["aws-amplify"],
   },
@@ -83,16 +82,17 @@ export default defineConfig({
   test: {
     globals: true,
 
-    // Single combined coverage config (one HTML site at coverage/index.html)
+    // Single authoritative coverage config
     coverage: {
       provider: "v8",
+      // enabled is automatically true when you pass --coverage; this keeps CLI simple.
+      reportsDirectory: "coverage",
       reporter: isCI
         ? ["text", "text-summary", "lcov"]
         : ["text", "text-summary", "html", "lcov"],
-      reportsDirectory: "coverage",
       include: [
-        "melodex-front-end/src/**/*.{ts,tsx,js,jsx}",
-        "melodex-back-end/src/**/*.{ts,tsx,js,jsx}",
+        "melodex-front-end/src/**/*.{js,jsx,ts,tsx}",
+        "melodex-back-end/src/**/*.{js,jsx,ts,tsx}",
       ],
       exclude: [
         "tests/**/*",
@@ -100,13 +100,14 @@ export default defineConfig({
         "node_modules/**",
         "coverage/**",
         "dist/**",
+        "docs/**",
+        "scripts/**",
       ],
+      clean: true,
     },
 
-    // Root server deps (used by projects that `extends: true`)
     server: {
       deps: {
-        // Keep these inlined so mocks/virtuals apply early
         inline: ["mongodb", /^mongodb\//, "connect-mongo", "mongoose"],
       },
     },
@@ -136,13 +137,12 @@ export default defineConfig({
             interopDefault: true,
             inline: [],
           },
-          // no per-project coverage: we use the single top-level coverage block
         },
       },
 
       // ---------- Integration (node) ----------
       {
-        extends: false, // don’t inherit test options; Vite plugins still apply
+        extends: false,
         test: {
           name: "integration",
           environment: "node",
@@ -162,9 +162,7 @@ export default defineConfig({
               inline: ["mongodb", /^mongodb\//, "connect-mongo", "mongoose"],
             },
           },
-          // no per-project coverage: we use the single top-level coverage block
-          // If you hit bundling quirks in some setups:
-          // ssr: { noExternal: ['mongodb'] },
+          // Uses the same top-level coverage config
         },
       },
     ],

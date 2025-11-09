@@ -29,35 +29,33 @@ This report captures the latest full run of the Melodex **Spotify Playlist Expor
 - Test user(s): ephemeral Cognito/Google QA accounts  
 - Seed: ranked items present for export scenarios  
 
-### Config flags (at freeze)  
+### Config flags
 - `MAPPING_MODE=stub` (CI default; test overrides for Integration)  
 - `__E2E_REQUIRE_AUTH__=true`  
 - Mobile viewport E2E enabled for `E2E-008-Mobile`  
 
 ---
 
-## 2) Commands Used (copyable)
+## 2) Commands Used
 
     # install (monorepo)
     npm -C melodex-back-end ci
     npm -C melodex-front-end ci
 
     # unit + ui (Vitest)
-    npx vitest run
+    npx vitest run unit-ui
 
     # integration (Vitest)
-    npx vitest run tests/integration
+    npx vitest run integration
 
     # e2e (Cypress)
-    npx cypress run --browser chrome --spec "tests/cypress/e2e/**/*.cy.ts"
+    npx cypress run --spec "tests/cypress/e2e/**/*.cy.ts"
 
 > If CI uses a combined script (e.g., `npm run test:all`), paste it here as well.
 
 ---
 
 ## 3) Results Summary
-
-Fill the totals from your actual run output. If CI and local both ran, prefer CI.
 
 | Suite | Passed | Failed | Skipped | Duration |
 |---|---:|---:|---:|---:|
@@ -80,34 +78,37 @@ Fill the totals from your actual run output. If CI and local both ran, prefer CI
 
 > We track coverage at three levels. Overall coverage is **informational**; gates are enforced on **changed files** and on the **feature scope**.
 
-### 4.1 Overall Coverage (Vitest — informational)
+### 4.1 Overall Coverage
+> Vitest — informational
+> You can find the full coverage HTML [at this link](./coverage-2025-11/index.html). 
+
 | Metric | Percentage | Value |
 |---|---|---:|
 | **Lines** | `49.44%` | `1568/3171` |
-| **Branches** | `74.34%` | `339/456` |
+| **Branches** | `74.28%` | `338/455` |
 | **Functions** | `61.53%` | `56/91` |
 | **Statements** | `49.44%` | `1568/3171` |
 
-### 4.2 Changed-Files Coverage (gate)
+### 4.2 Changed-Files Coverage
 > Calculated against files modified since baseline `a0dad94`.  
 > **Target:** ≥ **80%** Lines & Branches on changed files.
 
 | Metric | Percentage | Value |
 |---|---|---:|
 | **Lines** | `52.67%` | `1294/2457` |
-| **Branches** | `76.28%` | `328/430` |
+| **Branches** | `76.22%` | `327/429` |
 | **Functions** | `71.64%` | `48/67` |
 
 **Status:** **Not met** (Lines below 80%; Branches met)
 
-### 4.3 Feature-Scope Coverage (gate)
+### 4.3 Feature-Scope Coverage
 > Scope: `melodex-front-end/src/components/Rankings.jsx`, `SongRanker.jsx`, `utils/spotifyExport.js`, `utils/spotifyAuthGuard.js`, `utils/formatDefaultPlaylistName.js`, `utils/deeplink.js`, `contexts/SongContext.jsx`.  
 > **Target:** ≥ **75%** Lines & Branches within feature scope.
 
 | Metric | Percentage | Value |
 |---|---|---:|
 | **Lines** | `60.56%` | `1244/2054` |
-| **Branches** | `76.48%` | `322/421` |
+| **Branches** | `76.43%` | `321/420` |
 | **Functions** | `74.14%` | `43/58` |
 
 **Status:** **Not met** (Lines below 75%; Branches met)
@@ -165,10 +166,11 @@ Snapshot of pass/fail by area. Full mapping is in the [Traceability Appendix](./
 
 ## 6) Evidence & Artifacts
 
-- **Cypress videos:** `tests/cypress/videos/` (CI artifacts)
 - **Cypress screenshots (on fail):** `tests/cypress/screenshots/`
 - **Vitest coverage HTML:** `melodex-front-end/coverage/`
-- **Selected logs:** link CI run → `<Paste CI URL>`
+- **Selected logs:** 
+    - [Vitest run](https://github.com/michadereus/Melodex/actions/runs/19090079929)
+    - [Cypress run](https://github.com/michadereus/Melodex/actions/runs/19197133998)
 
 ---
 
@@ -188,18 +190,39 @@ Snapshot of pass/fail by area. Full mapping is in the [Traceability Appendix](./
 
 ---
 
-## 9) Quality Gates (at freeze)
+## 9) Quality Gates
 
-- **All suites green (UT/UI/IT/E2E)** — met
-- **Coverage ≥ 75% lines/branches** — met (`<paste actual>`)
-- **No open Sev-1/Sev-2 defects** — met
-- **Contract tests (IT-007/IT-013) stable** — met
+- All suites green (UT/UI/IT/E2E) — **met**
+- Changed-files coverage ≥ 7% (Lines & Branches) — **not met**  
+    - Lines: `52.67% (1294/2457)` — **not met**  
+    - Branches: `76.28% (328/430)` — **met**
+- Feature-scope coverage ≥ 75% (Lines & Branches) — **not met**  
+    - Lines: `60.56% (1244/2054)` — **not met**  
+    - Branches: `76.48% (322/421)` — **met**
+- No open Sev-1/Sev-2 defects — **met**
+- Contract tests (IT-007, IT-013) stable — **met**
+
+### Gate Waiver — Coverage
+**Decision:** Proceed with merge despite lines coverage below threshold.
+
+**Rationale:**  
+- This test campaign targeted a single feature set (Spotify export flow), not the entire app.  
+- High-impact paths are covered via E2E and integration (happy path, 429 policy, per-track errors, revoke).  
+- Branch coverage within both scopes are above target (`76.48%`).  
+
+**Compensating controls:**  
+- Contract tests (IT-007/IT-013) enforce the API envelope & error policy.  
+- Cypress E2E asserts critical UX behaviors before release.  
+
+**Follow-ups:**  
+- Convert at least 2–3 UI behaviors in `Rankings.jsx` to unit coverage to raise Lines (deferred).  
+- Revisit changed-files coverage if these files are modified again.  
 
 ---
 
 ## 10) References
 
-- **Traceability Appendix:** `reports/traceability-appendix.md`
-- **Baseline Report:** `reports/baseline.md`
-- **Case Study:** `case-studies/spotify-playlist-export.md`
-
+- [Vitest coverage HTML](./coverage-2025-11/index.html) 
+- [Traceability Appendix](./traceability-appendix.md)
+- [Baseline Report](./baseline.md)
+- [Case Study](../case-studies/spotify-playlist-export.md)

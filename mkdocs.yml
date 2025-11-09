@@ -89,9 +89,9 @@ nav:
 
   - Reports:
     - Baseline: reports/baseline.md
-    - Execution Summary: reports/execution-summary.md
     - Defect Log: reports/bugs.md
     - Traceability Appendix: reports/traceability-appendix.md
+    - Execution Summary: reports/test-execution-2025-09.md
     - Test Execution Summary Nov. 2025: reports/test-execution-2025-11.md
 
   - How-To:

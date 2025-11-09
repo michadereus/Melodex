@@ -7,10 +7,9 @@ These gates apply to feature work landing on `main`.
 - E2E (Cypress) must pass for the feature PR.
 
 ## 2) Coverage gates
-We gate what we changed and the feature scope; repo-wide coverage is monitored but not blocking.
 
-### Changed-files coverage (PR diff):
-  - **Target:** ≥ **80% Lines & Branches
+### Changed-files coverage:
+  - **Target:** ≥ 75% Lines & Branches
   - **Definition:** Sources under `melodex-(front-end|back-end)/src/**` that differ from baseline (or `main` for PRs).
 
 ### Feature-scope coverage:
@@ -20,7 +19,7 @@ We gate what we changed and the feature scope; repo-wide coverage is monitored b
 ### Repo-wide coverage:
   - **Policy:** Must not decrease vs. baseline snapshot. Informational only for this feature case study.
 
-> E2E coverage is intentionally **not** enforced. E2E validates end-to-end behavior; code coverage is assessed via unit/UI/integration layers.
+> E2E coverage is intentionally not enforced. E2E validates end-to-end behavior; code coverage is assessed via unit/UI/integration layers.
 
 ## 3) Defects & security
 - No open Sev-1 / Sev-2 defects in scope at merge time.

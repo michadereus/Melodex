@@ -1,8 +1,10 @@
-# Test Execution Summary
+# Test Execution Summary — September 2025
 
-## Cycle 01 — Baseline Regression (09-18-2025)
-**Build/Env:** `docs/baseline` branch @ commit `fce6f79`, melodx.io (Prod)
-**Scope:** Authentication, Ranking (/rank), Re-Ranking (/rerank), Rankings (/rankings), Filters  
+## Baseline Regression 
+- **Execution date:** `2025-09-18`  
+- **Scope freeze commit:** `fce6f79`  
+- **Repo:** https://github.com/michadereus/Melodex 
+- **Scope:** Authentication, Ranking (/rank), Re-Ranking (/rerank), Rankings (/rankings), Filters  
 
 ---
 
@@ -35,6 +37,3 @@
 
 **Release Readiness:**  
 All high-priority defects resolved; app stable for mainline use.  
-
----
-
