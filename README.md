@@ -15,11 +15,9 @@ The system integrates:
 ---
 
 ## Live Links
-> *The documentation is intentionally scoped to the **Spotify Playlist Export case study** (not the entire product). The landing page explains the scope.*
-
 - Site: [melodx.io](https://www.melodx.io)
 - Docs: [docs.melodx.io](https://docs.melodx.io/)
-
+> *The documentation is intentionally scoped to the **Spotify Playlist Export case study** (not the entire product). The landing page explains the scope.*
 ---
 
 ## Repository Structure
