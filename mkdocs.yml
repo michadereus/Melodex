@@ -89,10 +89,21 @@ nav:
 
   - Reports:
     - Baseline: reports/baseline.md
-    - Defect Log: reports/bugs.md
     - Traceability Appendix: reports/traceability-appendix.md
-    - Execution Summary: reports/test-execution-2025-09.md
-    - Test Execution Summary Nov. 2025: reports/test-execution-2025-11.md
+    - Execution Summaries:
+      - Execution Summary Sept. 2025: reports/test-execution-2025-09.md
+      - (Draft) Execution Summary Nov. 2025: reports/test-execution-2025-11.md
+    - Exploratory:
+      - Session Log: reports/exploratory/_index.md
+      - EXP-00: reports/exploratory/EXP-00.md
+      - EXP-01: reports/exploratory/EXP-01.md
+    - Defects:
+      - Defect Log: reports/defects/defect_log.md
+      - DEF-001: reports/defects/DEF-001.md
+      - DEF-002: reports/defects/DEF-002.md
+      - DEF-003: reports/defects/DEF-003.md
+      - DEF-004: reports/defects/DEF-004.md
+      - DEF-005: reports/defects/DEF-005.md
 
   - How-To:
     - Local Development: how-to/local-dev.md
