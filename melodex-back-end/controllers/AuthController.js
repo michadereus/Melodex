@@ -98,9 +98,17 @@ const AuthController = {
       crypto.createHash("sha256").update(verifier).digest()
     );
 
+    // Optional: accept returnTo for post-consent redirect (falls back to /rankings)
+    const returnTo = typeof req.query.returnTo === 'string' && req.query.returnTo.startsWith('/')
+      ? req.query.returnTo
+      : '/rankings';
+
     res.setHeader("Set-Cookie", [
       serializeCookie("oauth_state", state, { maxAge: 600 }),
       serializeCookie("pkce_verifier", verifier, { maxAge: 600 }),
+      serializeCookie("return_to", encodeURIComponent(returnTo), {
+        maxAge: 600,
+      }),
     ]);
 
     const params = new URLSearchParams({
@@ -197,7 +205,12 @@ const AuthController = {
 
       res.setHeader("Set-Cookie", outCookies);
 
-      return res.redirect(front("/rankings"));
+      const cookies2 = parseCookies(req.headers.cookie || "");
+      const rtn = cookies2["return_to"];
+      res.setHeader("Set-Cookie", [
+        serializeCookie("return_to", "", { maxAge: 0 }),
+      ]);
+      return res.redirect(front(rtn ? decodeURIComponent(rtn) : "/rankings"));
     } catch (err) {
       console.error("[auth/callback] error", err?.response?.data || err);
       return res.redirect(front("/login?error=unexpected"));
