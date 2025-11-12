@@ -1,4 +1,4 @@
-# Test Execution Summary — November 2025
+# Test Execution Summary — November 2025 (draft)
 
 This report captures the latest full run of the Melodex **Spotify Playlist Export** test suites at the time of the **case-study scope freeze**.  
 

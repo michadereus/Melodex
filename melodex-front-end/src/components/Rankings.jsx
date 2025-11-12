@@ -523,7 +523,7 @@ const Rankings = () => {
       description: (playlistDescription || '').trim(),
       // keep both so tests + future real mapping are happy:
       uris: stubUris,           // legacy/stub consumers
-      __testUris: stubUris,     // integration tests use this short-circuit
+      ...(isCypressEnv ? { __testUris: stubUris } : {}), // only in Cypress/jsdom
       items,                    // real mapping path will use this
       // include filters if your backend reads them (optional):
       // filters: { genre: selectedGenre, subgenre: selectedSubgenre }
