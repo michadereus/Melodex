@@ -182,7 +182,11 @@ const AuthController = {
         return res.redirect(front("/login?error=token_exchange_failed"));
       }
 
-      const { access_token, refresh_token, expires_in = 3600 } = tokenResp.data;
+      const {
+        access_token,
+        refresh_token,
+        expires_in = 3600,
+      } = tokenResp.data;
 
       const outCookies = [
         serializeCookie("access", access_token, {
@@ -198,19 +202,26 @@ const AuthController = {
         );
       }
 
+      // Clear transient auth helpers (state/verifier) now that we have tokens
       outCookies.push(
         serializeCookie("oauth_state", "", { maxAge: 0 }),
         serializeCookie("pkce_verifier", "", { maxAge: 0 })
       );
 
-      res.setHeader("Set-Cookie", outCookies);
-
+      // Also clear the return_to cookie if present, but do it in the SAME
+      // Set-Cookie header so we don’t drop access/refresh.
       const cookies2 = parseCookies(req.headers.cookie || "");
       const rtn = cookies2["return_to"];
-      res.setHeader("Set-Cookie", [
-        serializeCookie("return_to", "", { maxAge: 0 }),
-      ]);
-      return res.redirect(front(rtn ? decodeURIComponent(rtn) : "/rankings"));
+      if (typeof rtn === "string") {
+        outCookies.push(serializeCookie("return_to", "", { maxAge: 0 }));
+      }
+
+      res.setHeader("Set-Cookie", outCookies);
+
+      return res.redirect(
+        front(rtn ? decodeURIComponent(rtn) : "/rankings")
+      );
+
     } catch (err) {
       console.error("[auth/callback] error", err?.response?.data || err);
       return res.redirect(front("/login?error=unexpected"));

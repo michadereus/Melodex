@@ -93,14 +93,40 @@ function UserProfile() {
 
   const handleSignOut = async () => {
     try {
+      // Best-effort: clear Spotify auth on the backend so the next Melodex user
+      // doesn’t inherit this browser’s Spotify session.
+      try {
+        const rawBase =
+          import.meta.env.VITE_API_BASE_URL ||
+          import.meta.env.VITE_API_BASE ||
+          (typeof window !== "undefined" && window.__API_BASE__) ||
+          "http://localhost:8080/api";
+
+        const baseNoTrail = String(rawBase).replace(/\/+$/, "");
+        const authRoot = /\/api$/.test(baseNoTrail)
+          ? baseNoTrail.replace(/\/api$/, "")
+          : baseNoTrail;
+
+        await fetch(`${authRoot}/auth/revoke`, {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (revokeErr) {
+        // Non-blocking: logout should still proceed even if revoke fails.
+        console.warn("Spotify revoke failed (non-blocking):", revokeErr);
+      }
+
+      // Now sign out of Melodex (Google/AWS Cognito)
       await Auth.signOut();
-      console.log('Sign out successful');
-      setUserPicture('https://i.imgur.com/uPnNK9Y.png');
+      console.log("Sign out successful");
+
+      // Reset local user avatar and context, then send user back to login.
+      setUserPicture("https://i.imgur.com/uPnNK9Y.png");
       await checkUser();
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Sign out failed:', error);
-      navigate('/login');
+      console.error("Sign out failed:", error);
+      navigate("/login");
     }
   };
 
