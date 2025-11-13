@@ -26,14 +26,14 @@ Investigate default load behavior of `/rank` to confirm whether background song 
 - Screenshots: `reports/screenshots/exp01-autofetch.png`  
 - Logs: `logs/exp01-autofetch.txt`
 
-## Bugs / Issues
+## Bugs  
 - **DEF-003 — Background fetch before filter apply**  
   _Impact:_ Unnecessary network traffic and irrelevant song buffer.  
   _Expected:_ Idle until user applies filters.  
   _Severity:_ Major  
   _Status:_ Resolved  
   _Report:_ [DEF-003](../defects/DEF-003.md)
-  _PR:_ `#4` [fix: DEF-003](https://github.com/michadereus/Melodex/pull/4)
+  _PR:_ *#4* - [fix: DEF-003](https://github.com/michadereus/Melodex/pull/4)
 
 ## Learned
 - `SongProvider` tied to mount lifecycle, not filter submission.  

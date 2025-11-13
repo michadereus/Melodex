@@ -32,7 +32,7 @@ Explore reliability of Deezer preview links in `/rankings`, focusing on expired 
   _Severity:_ Critical  
   _Status:_ Resolved  
   _Report:_ [DEF-002](../defects/DEF-002.md)  
-  _PR:_ [fix: DEF-002](https://github.com/michadereus/Melodex/pull/3)  
+  _PR:_ *#3* - [fix: DEF-002](https://github.com/michadereus/Melodex/pull/3)  
 
 ### Related Finding
 - **DEF-003 — Songs load on `/rank` without filter** (out-of-scope)
