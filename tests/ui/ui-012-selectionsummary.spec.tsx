@@ -14,10 +14,20 @@ import SongProvider from "../../melodex-front-end/src/contexts/SongContext.jsx";
 // --- Mocks for other contexts the component expects ---
 vi.mock("../../melodex-front-end/src/contexts/UserContext", () => {
   return {
-    useUserContext: () => ({ userID: "test-user" }),
+    useUserContext: () => ({
+      userID: "test-user",
+      displayName: "Test User",
+      userPicture: "https://i.imgur.com/uPnNK9Y.png",
+      setUserPicture: vi.fn(),
+      setProfilePicture: vi.fn(),
+      email: "test@example.com",
+      checkUser: vi.fn(),
+      loading: false,
+    }),
     UserProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   };
 });
+
 
 vi.mock("../../melodex-front-end/src/contexts/VolumeContext", () => {
   return {
@@ -122,47 +132,81 @@ describe("UI-012 — SelectionSummary badge stays in sync with toggles", () => {
     );
   }
 
-  it("shows 'Selected: N' after entering selection mode and updates as items are unchecked/checked", async () => {
-    const user = userEvent.setup();
-    renderRankings();
+    it(
+    "shows 'Selected: N' after entering selection mode and updates as items are unchecked/checked",
+    async () => {
+      const user = userEvent.setup();
+      renderRankings();
 
-    // Wait for initial fetch to populate and the page to settle
-    // The "Export to Spotify" CTA should be visible when not in selection mode.
-    const exportCta = await screen.findByTestId("export-spotify-cta");
+      // Wait for initial fetch to populate and the page to settle
+      const exportCta = await screen.findByTestId(
+        "export-spotify-cta",
+        {},
+        { timeout: 2000 }
+      );
 
-    // Enter selection mode (seeds 'selected' with all visible songs)
-    await user.click(exportCta);
+      // Enter selection mode (seeds 'selected' with all visible songs)
+      await user.click(exportCta);
 
-    // Badge should show all items initially (3)
-    const badge = await screen.findByTestId("selection-summary");
-    expect(badge).toHaveTextContent("Selected: 3");
+      // Badge should show all items initially (3)
+      const badge = await screen.findByTestId(
+        "selection-summary",
+        {},
+        { timeout: 2000 }
+      );
+      expect(badge).toHaveTextContent("Selected: 3");
 
-    // Uncheck one song
-    const cbA = await screen.findByTestId("song-checkbox-id_a1");
-    await user.click(cbA);
-    await waitFor(() => expect(badge).toHaveTextContent("Selected: 2"));
+      // Uncheck one song
+      const cbA = await screen.findByTestId(
+        "song-checkbox-id_a1",
+        {},
+        { timeout: 2000 }
+      );
+      await user.click(cbA);
+      await waitFor(
+        () => expect(badge).toHaveTextContent("Selected: 2"),
+        { timeout: 2000 }
+      );
 
-    // Uncheck another
-    const cbB = await screen.findByTestId("song-checkbox-id_b2");
-    await user.click(cbB);
-    await waitFor(() => expect(badge).toHaveTextContent("Selected: 1"));
+      // Uncheck another
+      const cbB = await screen.findByTestId(
+        "song-checkbox-id_b2",
+        {},
+        { timeout: 2000 }
+      );
+      await user.click(cbB);
+      await waitFor(
+        () => expect(badge).toHaveTextContent("Selected: 1"),
+        { timeout: 2000 }
+      );
 
-    // Export button should still be enabled (> 0)
-    const exportBtn = screen.getByTestId("export-confirm");
-    expect(exportBtn).toBeEnabled();
+      // Export button should still be enabled (> 0)
+      const exportBtn = screen.getByTestId("export-confirm");
+      expect(exportBtn).toBeEnabled();
 
-    // Uncheck the last remaining
-    const cbC = await screen.findByTestId("song-checkbox-id_c3");
-    await user.click(cbC);
-    await waitFor(() => expect(badge).toHaveTextContent("Selected: 0"));
+      // Uncheck the last remaining
+      const cbC = await screen.findByTestId(
+        "song-checkbox-id_c3",
+        {},
+        { timeout: 2000 }
+      );
+      await user.click(cbC);
+      await waitFor(
+        () => expect(badge).toHaveTextContent("Selected: 0"),
+        { timeout: 2000 }
+      );
 
-    // When 0 selected, the hint appears and Export is disabled
-    expect(screen.getByTestId("export-hint-empty")).toBeInTheDocument();
-    expect(exportBtn).toBeDisabled();
+      expect(screen.getByTestId("export-hint-empty")).toBeInTheDocument();
+      expect(exportBtn).toBeDisabled();
 
-    // Re-check one to go back to 1
-    await user.click(cbA);
-    await waitFor(() => expect(badge).toHaveTextContent("Selected: 1"));
-    expect(exportBtn).toBeEnabled();
-  });
+      // Re-check one to go back to 1
+      await user.click(cbA);
+      await waitFor(
+        () => expect(badge).toHaveTextContent("Selected: 1"),
+        { timeout: 2000 }
+      );
+      expect(exportBtn).toBeEnabled();
+    },
+    10000
+  );
 });

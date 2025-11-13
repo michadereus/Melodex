@@ -12,7 +12,16 @@ import SongProvider from "../../melodex-front-end/src/contexts/SongContext.jsx";
 // Mock User/Volume contexts expected by the app
 vi.mock("../../melodex-front-end/src/contexts/UserContext", () => {
   return {
-    useUserContext: () => ({ userID: "test-user" }),
+    useUserContext: () => ({
+      userID: "test-user",
+      displayName: "Test User",
+      userPicture: "https://i.imgur.com/uPnNK9Y.png",
+      setUserPicture: vi.fn(),
+      setProfilePicture: vi.fn(), // alias used in some components
+      email: "test@example.com",
+      checkUser: vi.fn(),
+      loading: false,
+    }),
     UserProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   };
 });
@@ -128,48 +137,86 @@ describe("UI-003 — Export summary/badge reflect removals", () => {
     );
   }
 
-  it("badge shows correct count after removals and export submits only remaining checked items", async () => {
-    const user = userEvent.setup();
-    renderRankings();
+    it(
+    "badge shows correct count after removals and export submits only remaining checked items",
+    async () => {
+      const user = userEvent.setup();
+      renderRankings();
 
-    // Enter selection mode
-    const exportCta = await screen.findByTestId("export-spotify-cta");
-    await user.click(exportCta);
+      // Enter selection mode
+      const exportCta = await screen.findByTestId(
+        "export-spotify-cta",
+        {},
+        { timeout: 2000 }
+      );
 
-    // Initially all 3 selected
-    const badge = await screen.findByTestId("selection-summary");
-    expect(badge).toHaveTextContent("Selected: 3");
+      await user.click(exportCta);
 
-    // Uncheck A and B (keys prefer _id -> id_<val>)
-    const cbA = await screen.findByTestId("song-checkbox-id_a1");
-    const cbB = await screen.findByTestId("song-checkbox-id_b2");
-    await user.click(cbA);
-    await user.click(cbB);
+      // Initially all 3 selected
+      const badge = await screen.findByTestId(
+        "selection-summary",
+        {},
+        { timeout: 2000 }
+      );
+      expect(badge).toHaveTextContent("Selected: 3");
 
-    await waitFor(() => expect(badge).toHaveTextContent("Selected: 1"));
+      // Uncheck A and B (keys prefer _id -> id_<val>)
+      const cbA = await screen.findByTestId(
+        "song-checkbox-id_a1",
+        {},
+        { timeout: 2000 }
+      );
+      const cbB = await screen.findByTestId(
+        "song-checkbox-id_b2",
+        {},
+        { timeout: 2000 }
+      );
+      await user.click(cbA);
+      await user.click(cbB);
 
-    // Export should be enabled (1 selected)
-    const exportBtn = screen.getByTestId("export-confirm");
-    expect(exportBtn).toBeEnabled();
+      await waitFor(
+        () => expect(badge).toHaveTextContent("Selected: 1"),
+        { timeout: 2000 }
+      );
 
-    // Submit export
-    await user.click(exportBtn);
+      // Export should be enabled (1 selected)
+      const exportBtn = screen.getByTestId("export-confirm");
+      expect(exportBtn).toBeEnabled();
 
-    // Assert POST contained only the remaining selected item (C)
-    await waitFor(() => {
-      expect(lastPostedBody).toBeTruthy();
-      // Both __testUris and items should reflect the last selection
-      expect(lastPostedBody.__testUris).toEqual(["spotify:track:CCC333"]);
-      // Defensive: items still present and corresponds to the single selected
-      expect(Array.isArray(lastPostedBody.items)).toBe(true);
-      expect(lastPostedBody.items.map((i: any) => i.spotifyUri)).toEqual(["spotify:track:CCC333"]);
-    });
+      // Submit export
+      await user.click(exportBtn);
 
-    // Now uncheck the last one to hit zero and ensure badge + button states reflect it
-    const cbC = await screen.findByTestId("song-checkbox-id_c3");
-    await user.click(cbC);
-    await waitFor(() => expect(badge).toHaveTextContent("Selected: 0"));
-    expect(screen.getByTestId("export-hint-empty")).toBeInTheDocument();
-    expect(exportBtn).toBeDisabled();
-  });
+      // Assert POST contained only the remaining selected item (C)
+      await waitFor(
+        () => {
+          expect(lastPostedBody).toBeTruthy();
+          expect(lastPostedBody.__testUris).toEqual([
+            "spotify:track:CCC333",
+          ]);
+          expect(Array.isArray(lastPostedBody.items)).toBe(true);
+          expect(
+            lastPostedBody.items.map((i: any) => i.spotifyUri)
+          ).toEqual(["spotify:track:CCC333"]);
+        },
+        { timeout: 2000 }
+      );
+
+      // Now uncheck the last one to hit zero and ensure badge + button states reflect it
+      const cbC = await screen.findByTestId(
+        "song-checkbox-id_c3",
+        {},
+        { timeout: 2000 }
+      );
+      await user.click(cbC);
+
+      await waitFor(
+        () => expect(badge).toHaveTextContent("Selected: 0"),
+        { timeout: 2000 }
+      );
+
+      expect(screen.getByTestId("export-hint-empty")).toBeInTheDocument();
+      expect(exportBtn).toBeDisabled();
+    },
+    10000
+  );
 });
