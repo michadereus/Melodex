@@ -1,7 +1,7 @@
 # EXP-02 – Exploratory Session – End-to-End Export (Real Mapping)
 
 **Date:** `2025-11-09`  
-**Build/Commit:** *036b02c* 
+**Build/Commit:** `036b02c` 
 **Environment:** Local (Windows 11), Node 20, Frontend `http://localhost:3001`, Backend `http://localhost:3001`, `MAPPING_MODE=real`, `MARKET=US`  
 
 **Charter:**  

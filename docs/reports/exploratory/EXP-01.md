@@ -1,8 +1,9 @@
 # EXP-01 - Exploratory Session - Background Fetch Before Filter
 
-**Date:** 2025-09-18  
+**Date:** `2025-09-18`  
 **Build/Commit:** `6a951eb` (`docs/baseline` branch)  
-**Environment:** melodx.io (Prod), Firefox (desktop)  
+**Environment:** `melodx.io` (Prod), Firefox (desktop)  
+
 **Charter:**  
 Investigate default load behavior of `/rank` to confirm whether background song fetching starts before user applies filters.
 

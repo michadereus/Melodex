@@ -1,8 +1,9 @@
 # EXP-00 - Exploratory Session - Deezer Preview Expiry 
 
-**Date:** 2025-09-14  
+**Date:** `2025-09-14`  
 **Build/Commit:** `9c876c9` (main branch)  
-**Environment:** melodx.io (Prod), Firefox (desktop)  
+**Environment:** `melodx.io` (Prod), Firefox (desktop) 
+
 **Charter:**  
 Explore reliability of Deezer preview links in `/rankings`, focusing on expired links in older data.
 
