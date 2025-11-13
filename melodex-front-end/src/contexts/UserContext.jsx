@@ -4,6 +4,7 @@ import { Auth } from 'aws-amplify';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const isCypressEnv = typeof window !== 'undefined' && !!(window).Cypress;
+const LAST_UID_KEY = "melodex_last_uid";
 
 const decodeJwt = (token) => {
   try {
@@ -48,11 +49,53 @@ export const UserProvider = ({ children }) => {
 
   const checkUser = async () => {
     try {
-      const user = await Auth.currentAuthenticatedUser({ bypassCache: true });
-      console.log('Authenticated user:', user);
+      const user = await Auth.currentAuthenticatedUser({
+        bypassCache: true,
+      });
+      console.log("Authenticated user:", user);
 
-      const extractedUserID = user.username || user.attributes?.sub || user.id;
-      console.log('Extracted userID:', extractedUserID);
+      const extractedUserID =
+        user.username || user.attributes?.sub || user.id;
+      console.log("Extracted userID:", extractedUserID);
+
+      // If we detect a different Melodex user than last time, clear any
+      // existing Spotify session so tokens can't leak across accounts.
+      try {
+        const lastUid = localStorage.getItem(LAST_UID_KEY);
+
+        if (lastUid && lastUid !== extractedUserID) {
+          const rawBase =
+            import.meta.env.VITE_API_BASE_URL ??
+            import.meta.env.VITE_API_BASE ??
+            (typeof window !== "undefined"
+              ? window.__API_BASE__
+              : null) ??
+            "http://localhost:8080";
+
+          const baseNoTrail = String(rawBase).replace(/\/+$/, "");
+          const hasApiSuffix = /\/api$/.test(baseNoTrail);
+          const authRoot = hasApiSuffix
+            ? baseNoTrail.replace(/\/api$/, "")
+            : baseNoTrail;
+
+          await fetch(`${authRoot}/auth/revoke`, {
+            method: "POST",
+            credentials: "include",
+          });
+
+          console.log(
+            "Revoked Spotify session due to Melodex user switch"
+          );
+        }
+
+        // Always record the current user as the last-seen user
+        localStorage.setItem(LAST_UID_KEY, extractedUserID);
+      } catch (revokeErr) {
+        console.warn(
+          "Failed to revoke Spotify session on user switch:",
+          revokeErr
+        );
+      }
 
       let attributeMap = user.attributes || {};
       if (!user.attributes && user.token) {

@@ -97,13 +97,14 @@ function UserProfile() {
       // doesn’t inherit this browser’s Spotify session.
       try {
         const rawBase =
-          import.meta.env.VITE_API_BASE_URL ||
-          import.meta.env.VITE_API_BASE ||
-          (typeof window !== "undefined" && window.__API_BASE__) ||
+          import.meta.env.VITE_API_BASE_URL ??
+          import.meta.env.VITE_API_BASE ??
+          (typeof window !== "undefined" ? window.__API_BASE__ : null) ??
           "http://localhost:8080/api";
 
         const baseNoTrail = String(rawBase).replace(/\/+$/, "");
-        const authRoot = /\/api$/.test(baseNoTrail)
+        const hasApiSuffix = /\/api$/.test(baseNoTrail);
+        const authRoot = hasApiSuffix
           ? baseNoTrail.replace(/\/api$/, "")
           : baseNoTrail;
 
@@ -112,7 +113,6 @@ function UserProfile() {
           credentials: "include",
         });
       } catch (revokeErr) {
-        // Non-blocking: logout should still proceed even if revoke fails.
         console.warn("Spotify revoke failed (non-blocking):", revokeErr);
       }
 
@@ -120,7 +120,6 @@ function UserProfile() {
       await Auth.signOut();
       console.log("Sign out successful");
 
-      // Reset local user avatar and context, then send user back to login.
       setUserPicture("https://i.imgur.com/uPnNK9Y.png");
       await checkUser();
       navigate("/login");
