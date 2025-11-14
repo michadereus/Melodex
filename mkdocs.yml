@@ -84,8 +84,7 @@ nav:
     - Test Approach: test/test-approach.md
     - Test Plan: test/test-plan.md
     - Traceability Matrix: test/traceability.md
-    - Risk Log: test/risk-log.md
-    - Exploratory Charters: test/exploratory-charters.md
+    - Risk Register: test/risk-register.md
 
   - Reports:
     - Baseline: reports/baseline.md
