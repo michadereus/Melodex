@@ -79,11 +79,30 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 const front = (path) => `${FRONTEND_ORIGIN}${path}`;
 
-// feature flags
-function exportStubEnabled() {
-  // default ON; explicitly set EXPORT_STUB=off to force real path
-  return String(process.env.EXPORT_STUB || "on").toLowerCase() !== "off";
+function playlistMode() {
+  // Primary toggle for TS-04:
+  //   - PLAYLIST_MODE=real → use real playlist behavior
+  //   - PLAYLIST_MODE=stub → force stub behavior
+  //
+  // If PLAYLIST_MODE is not set, fall back to the legacy EXPORT_STUB flag:
+  //   - EXPORT_STUB=off → real
+  //   - (anything else / unset) → stub
+  const raw = String(process.env.PLAYLIST_MODE || "").toLowerCase();
+  if (raw === "real" || raw === "stub") {
+    return raw;
+  }
+
+  const exportStubRaw = String(process.env.EXPORT_STUB || "on").toLowerCase();
+  return exportStubRaw === "off" ? "real" : "stub";
 }
+
+function exportStubEnabled() {
+  // Historically this only looked at EXPORT_STUB.
+  // Keeping behavior identical when PLAYLIST_MODE is unset,
+  // while letting tests set PLAYLIST_MODE=real to force real playlists.
+  return playlistMode() === "stub";
+}
+
 function mappingMode() {
   return String(process.env.MAPPING_MODE || "stub").toLowerCase();
 }
@@ -889,4 +908,8 @@ module.exports = {
   refresh,
   requireSpotifyAuth,
   exportPlaylistStub,
+  // Expose these for TS-04 tests and debugging
+  playlistMode,
+  exportStubEnabled,
 };
+
