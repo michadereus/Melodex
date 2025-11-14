@@ -145,7 +145,7 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 
 ## 9. Schedule & Milestones
 
-# 9.a Technical Milestones (implementation gates)
+# 9.a Technical Milestones
 
 ### Milestone A — Mapping service (after AC-03.3, before US-04/05)
 - **Why:** US-04/05/06 assert real payloads, errors, and retries; requires correct Spotify mapping first.
@@ -171,6 +171,14 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
     - **429 policy:** honors **Retry-After**, bounded backoff; marks unprocessed on exhaustion with `RATE_LIMIT`.
     - **UT-007 / IT-011 / E2E-009** — per-track 404/region-blocked surface & continue.
     - **UT-005 / IT-008 / E2E-005** — rate-limit path (backoff, partial, informative UI).
+
+### Milestone D — Real Spotify playlist export (TS-04)
+- **Why:** Current export uses a stub playlist URL; to fully validate US-02/04/05/06 we need a real playlist created under the user’s Spotify account using canonical track URIs.
+- **Deliverables:**
+    - **TS-04 — Real Spotify playlist creation & track add** (AC-TS4.1–4.6).
+    - Extend **UT-004 / UT-007** to cover canonical URIs used for playlist add and per-track outcomes.
+    - Extend **IT-004 / IT-006 / IT-008 / IT-013** and add **IT-015-ExportPartialFailures** for real-like Spotify flows (create + add, chunking, 429, partial failures).
+    - Add **E2E-010-ExportRealUrl** to confirm the UI surfaces the playlist URL from the export envelope.
 
 # 9.b Schedule
 
@@ -236,7 +244,7 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
   _Selector creates correct filter payload; empty filters handled consistently._  
 
 - **UT-004-Export** — Deezer→Spotify mapping & payload shape  
-  _Deterministic mapping rules and final request schema validation._  
+  _Deterministic mapping rules and final request schema validation (including canonical URIs used for playlist add)._  
 
 - **UT-005-Export** — 429 rate-limit backoff  
   _Backoff/jitter policy applied; surfaces “try again later” on terminal state._  
@@ -245,7 +253,7 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
   _Playlist name/description included and validated._  
 
 - **UT-007-Export** — Per-item error surfacing (partial failures)  
-  _Accumulates per-track errors while continuing the batch._  
+  _Accumulates per-track errors while continuing the batch and producing stable kept/skipped/failed aggregates._  
 
 - **UT-008-Auth** — Token refresh on 401, then retry  
   _Refreshes access token and retries once; bubbles error if still unauthorized._  
@@ -344,6 +352,8 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - **IT-012-Ranked** — Ranked endpoint contract (deezerID, songName, artist, ranking)  
   _Ensures export depends on a stable, documented schema._  
 
+- **IT-015-ExportPartialFailures** — Playlist add partial failure classification  
+  _Simulates mid-batch Spotify errors; verifies `kept`/`skipped`/`failed` aggregation and envelope behavior for partial failures._  
 
 ### End-to-End (Cypress)  
 
@@ -374,7 +384,9 @@ Plan and execute testing for the Spotify Playlist Export feature and a thin guar
 - **E2E-009-Errors** — Per-track “not found” handled; export proceeds  
   _Partial success path with error list and final confirmation._  
 
----
+- **E2E-010-ExportRealUrl** — UI uses playlistUrl from export envelope  
+  _End-to-end export happy path (stubbed Spotify) verifies that the confirmation link matches the `playlistUrl` returned by the backend._
+
 
 ## 13. Execution Process
 

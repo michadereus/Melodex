@@ -119,6 +119,38 @@
 
 ---
 
+## TS-04 — Real Spotify playlist creation & track add (Milestone D)
+
+*Parent:* US-02/US-04/US-05/US-06 — Real playlist export behavior  
+*Non-user-visible:* Backend plumbing; UI already wired to the envelope
+
+- **AC-TS4.1 — Playlist is created on the user’s Spotify account**  
+  Given an export request with a valid Spotify session, when the backend runs in real playlist mode, then it calls Spotify’s playlist creation API under the current Spotify user, using the name/description from US-04, and returns a real `playlistId` and `playlistUrl` in the success envelope.
+
+- **AC-TS4.2 — Tracks are added using real Spotify add-track API**  
+  Given selected items with Deezer metadata and optional `spotifyUri`, when export runs, then the worker builds a canonical URI list by:
+  - Using `spotifyUri` directly when present and trusted, and  
+  - Otherwise invoking the mapping service (ISRC or title+artist) to compute a canonical URI;  
+  and adds these URIs to the playlist in input order, in chunks of ≤100 URIs per call.
+
+- **AC-TS4.3 — Per-track outcomes are accurately reflected**  
+  Given playlist creation/add calls succeed or partially fail, when the worker aggregates results, then:
+  - `kept` contains URIs actually attempted and successfully added,  
+  - `skipped` contains tracks where mapping could not confidently select a URI (e.g., `NOT_FOUND`, `AMBIGUOUS`, `REGION_BLOCKED`), and  
+  - `failed` contains tracks where Spotify playlist operations ultimately error (4xx/5xx) after retries;  
+  and the envelope shape remains compatible with US-06.
+
+- **AC-TS4.4 — 429/backoff policy covers playlist operations**  
+  Given Spotify returns `429 Too Many Requests` during playlist creation or add-track calls, when export continues, then the worker applies the existing backoff policy (honors `Retry-After`, uses bounded backoff, stops after the configured retry limit) and, on exhaustion, marks remaining items with a `RATE_LIMIT`-style reason while preserving partial progress.
+
+- **AC-TS4.5 — CI remains deterministic via stub mode**  
+  Given tests run in CI or local deterministic mode, when `PLAYLIST_MODE=stub` and/or `MAPPING_MODE=stub` is set, then no real Spotify HTTP calls occur; playlist creation and add-track operations are simulated with fixed IDs/URLs, and all UT/IT/E2E tests continue to pass without external network dependency.
+
+- **AC-TS4.6 — UI surfaces the real playlist URL without contract changes**  
+  Given export completes successfully in real or stub mode, when the response is returned to the UI, then the front-end reads `playlistUrl` from the existing envelope and displays a clickable confirmation link, with no new fields or shapes introduced that would break existing US-05/US-07 tests.
+
+---
+
 ## Notes & Constraints
 
 - **Track Matching:** Given exported tracks must be resolved, when matching occurs, then Melodex uses stored metadata (Deezer-backed) and routes any unmatched tracks to the US-06 error path.  

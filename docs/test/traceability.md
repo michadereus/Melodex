@@ -32,6 +32,7 @@
 | TS-01 | Mapping service toggle & rules (Milestone A) | AC-TS2.3.A<br>AC-TS2.3.B<br>AC-TS2.3.C<br>AC-TS2.3.D<br>AC-TS2.3.E<br>AC-TS2.3.F | UT-004-Export | – | IT-013-MappingSearch | – | – | – | R-04 | <span class="pill pass">Passed</span> |
 | TS-02 | Progress & error contract (Milestone B) | AC-TS2.1<br>AC-TS2.2<br>AC-TS2.3<br>AC-TS2.4 | – | UI-005-Progress | IT-007-Errors | E2E-004-Errors | – | – | R-10 | <span class="pill pass">Passed</span> |
 | TS-03 | Per-track pipeline & 429 policy (Milestone C) | AC-TS3.1<br>AC-TS3.2<br>AC-TS3.3<br>AC-TS3.4<br>AC-TS3.5 | UT-005-Export<br>UT-007-Export | UI-006-Errors | IT-008-Export<br>IT-011-Errors | E2E-005-RateLimit<br>E2E-009-Errors | – | – | R-03<br>R-11 | <span class="pill pass">Passed</span> |
+| TS-04 | Real Spotify playlist creation & track add (Milestone D) | AC-TS4.1<br>AC-TS4.2<br>AC-TS4.3<br>AC-TS4.4<br>AC-TS4.5<br>AC-TS4.6 | UT-004-Export<br>UT-007-Export | – | IT-004-Export<br>IT-006-Export<br>IT-008-Export<br>IT-013-MappingSearch<br>IT-015-ExportPartialFailures | E2E-001-Export<br>E2E-010-ExportRealUrl | – | – | R-03<br>R-09<br>R-11 | <span class="pill progress">In Progress</span> |
 | Baseline | Ranking flows and filters | AC-F.1 <br>AC-F.2<br>AC-F.3 | UT-012-Ranking | UI-009-ExportModal | – | – | SMK-02<br>SMK-03<br>SMK-08 | DEF-003 | R-21 | <span class="pill pass">Passed</span> |
 | Baseline | Rankings playback stability | AC-P.1 <br>AC-P.2 | – | – | IT-012-Ranked | – | SMK-06<br>SMK-07 | DEF-002 | R-05 | <span class="pill pass">Passed</span> |
 </div>
@@ -172,6 +173,13 @@
         - E2E-007-Revoke — Blocked until reconnect  
     - **AC-08.3** Removed from Spotify connected apps  
         - IT-010-Auth — Revoke requires reconnect to export  
+
+- **TS-04 — Real Spotify playlist creation & track add (Milestone D)**
+    - **AC-TS4.1–4.6** playlist created under user account; canonical URIs resolved; kept/skipped/failed correctly classified; 429/backoff applied to playlist ops; stub mode in CI; UI uses `playlistUrl` from envelope  
+        - UT-004-Export — Mapping + canonical URIs for playlist add  
+        - UT-007-Export — Aggregation of kept/skipped/failed with real playlist outcomes  
+        - IT-004-Export, IT-006-Export, IT-008-Export, IT-013-MappingSearch, IT-015-ExportPartialFailures — Real-like playlist create/add, chunking, 429, partial failures  
+        - E2E-001-Export, E2E-010-ExportRealUrl — Happy path export + confirmation link wiring
 
 ### Baseline Testing
 

@@ -1,4 +1,4 @@
-# Risk Log — Melodex (Spotify Playlist Export Feature Slice)
+# Risk Register
 
 This is the initial risk register for the Spotify playlist export feature and adjacent areas it touches.  
 Scales: Likelihood (L) and Impact (I) use Low / Medium / High. Exposure is a simple score: Low=1, Med=2, High=3 → L×I.
