@@ -4,6 +4,8 @@ const crypto = require("crypto");
 const axios = require("axios");
 const { CODES, ok, fail } = require("../utils/errorContract");
 const { chunk } = require("../utils/chunk");
+const { exportPlaylistWorker } = require("../utils/exportWorker");
+const { mapperForEnv } = require("../utils/mappingService");
 
 /* ---------- helpers (unchanged) ---------- */
 
@@ -118,9 +120,11 @@ const AuthController = {
     );
 
     // Optional: accept returnTo for post-consent redirect (falls back to /rankings)
-    const returnTo = typeof req.query.returnTo === 'string' && req.query.returnTo.startsWith('/')
-      ? req.query.returnTo
-      : '/rankings';
+    const returnTo =
+      typeof req.query.returnTo === "string" &&
+      req.query.returnTo.startsWith("/")
+        ? req.query.returnTo
+        : "/rankings";
 
     res.setHeader("Set-Cookie", [
       serializeCookie("oauth_state", state, { maxAge: 600 }),
@@ -201,11 +205,7 @@ const AuthController = {
         return res.redirect(front("/login?error=token_exchange_failed"));
       }
 
-      const {
-        access_token,
-        refresh_token,
-        expires_in = 3600,
-      } = tokenResp.data;
+      const { access_token, refresh_token, expires_in = 3600 } = tokenResp.data;
 
       const outCookies = [
         serializeCookie("access", access_token, {
@@ -237,10 +237,7 @@ const AuthController = {
 
       res.setHeader("Set-Cookie", outCookies);
 
-      return res.redirect(
-        front(rtn ? decodeURIComponent(rtn) : "/rankings")
-      );
-
+      return res.redirect(front(rtn ? decodeURIComponent(rtn) : "/rankings"));
     } catch (err) {
       console.error("[auth/callback] error", err?.response?.data || err);
       return res.redirect(front("/login?error=unexpected"));
@@ -271,612 +268,185 @@ function requireSpotifyAuth(req, res, next) {
 
 /* ---------- /playlist/export handler ---------- */
 
-async function exportPlaylistStub(req, res) {
-  const { name, description, filters, uris, __testUris, __forceFail, items } =
-    req.body || {};
+// Stub path: echoes back payload and avoids hitting Spotify at all
+function exportPlaylistStub(req, res) {
+  const payload = req.body || {};
 
-  // 0) Test-only forced failure (IT-007 / E2E-004)
-  if (__forceFail === true || __forceFail === "true") {
-    return res.status(502).json(
-      fail(CODES.SPOTIFY_FAIL, "Simulated failure for IT-007/E2E-004", {
-        hint: "Please retry or adjust your selection.",
-      })
-    );
+  const rawName = typeof payload.name === "string" ? payload.name : "";
+  const name = rawName.trim() ? rawName.trim() : "Melodex Playlist (stub)";
+
+  const count = Array.isArray(payload.uris)
+    ? payload.uris.length
+    : Array.isArray(payload.items)
+    ? payload.items.length
+    : 0;
+
+  const received = {
+    name,
+    count,
+    filters: payload.filters || null,
+  };
+
+  // Special-case "no songs" filters.path
+  if (payload.filters && payload.filters.type === "none") {
+    return res.status(200).json({
+      ok: false,
+      code: "NO_SONGS",
+      message: "No songs found for the selected filters.",
+      received,
+    });
   }
 
-  // 1) IT-004 — Empty filter → "no songs available"
-  if (filters && filters.type === "none") {
-    return res
-      .status(200)
-      .json(
-        fail(CODES.NO_SONGS, "No songs available for the selected filters.")
+  // Generic stub success: echo basic info, no real Spotify calls
+  return res.status(200).json({
+    ok: true,
+    received,
+  });
+}
+
+// Real path: uses exportPlaylistWorker + Spotify API (subject to stub toggle)
+async function exportPlaylist(req, res) {
+  try {
+    // Respect PLAYLIST_MODE / EXPORT_STUB toggle.
+    // If stub is enabled, keep old behavior.
+    if (exportStubEnabled()) {
+      return exportPlaylistStub(req, res);
+    }
+
+    const rawCookie = req.headers.cookie || "";
+    const cookies = parseCookies(rawCookie);
+    const access = cookies["access"];
+
+    // Should usually be caught by requireSpotifyAuth, but keep a guard.
+    if (!access) {
+      return res.status(401).json(
+        fail(CODES.AUTH_SPOTIFY_REQUIRED, "No Spotify session", {
+          hint: "Please reconnect Spotify and try again.",
+        })
       );
-  }
+    }
 
-  // 2) Stub mode with direct URIs (no __testUris):
-  //    - Used for "manual" export.
-  //    - TS-02 style: ok/playlistId/playlistUrl/kept/skipped/failed.
-  //    - NO __testUris / added / received fields (IT-014 expectations).
-  if (
-    exportStubEnabled() &&
-    Array.isArray(uris) &&
-    !Array.isArray(__testUris)
-  ) {
-    const kept = uris.slice();
+    // Spotify HTTP client
+    const http = axios.create({
+      baseURL: "https://api.spotify.com/v1",
+      timeout: Number(process.env.EXPORT_HTTP_TIMEOUT_MS || 10000),
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    });
 
-    const base = {
-      ok: true,
-      playlistId: "pl_stub",
-      playlistUrl: "https://open.spotify.com/playlist/pl_stub",
-      kept,
-      skipped: [],
-      failed: [],
+    const payload = req.body || {};
+    const items = Array.isArray(payload.items) ? payload.items : [];
+    const filters = payload.filters || null;
+
+    // Base input for the worker (TS-02 / TS-04)
+    const workerInput = {
+      filters,
+      items,
+      name: payload.name,
+      description: payload.description,
     };
 
-    // DEF-005 / IT-014 manual export:
-    // No `received` / `added` / __testUris in the envelope.
-    if (name === "Melodex DEF-005 Stub Test") {
-      return res.status(200).json(base);
-    }
+    let mapper;
 
-    // Legacy expectations (IT-010, IT-013):
-    // TS-02 style `received` echo.
-    return res.status(200).json({
-      ...base,
-      received: {
-        name: name ?? null,
-        count: kept.length,
-      },
-    });
-  }
+    // 1) Test harness path (IT-004): __testUris present → use them directly.
+    if (Array.isArray(payload.__testUris)) {
+      const testUris = payload.__testUris
+        .map((u) => (typeof u === "string" ? u.trim() : ""))
+        .filter(Boolean);
 
-  //
-  // 3) IT-003 / IT-006 — __testUris path:
-  //    - Must call /v1/users/me/playlists
-  //    - Then POST /v1/playlists/{id}/tracks with __testUris
-  //    - On Nock mismatch (Nock: No match) → fall back to stub success (never 502).
-  //
-  if (Array.isArray(__testUris)) {
-    const testUris = __testUris.slice();
-
-    try {
-      const cookies = parseCookies(req.headers.cookie || "");
-      const token =
-        cookies["access"] ||
-        (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-
-      const webApiBase =
-        process.env.SPOTIFY_WEB_API ||
-        process.env.SPOTIFY_BASE_URL ||
-        "https://api.spotify.com";
-
-      const http = axios.create({
-        baseURL: webApiBase,
-        headers: { Authorization: `Bearer ${token}` },
-        timeout: 8000,
-      });
-
-      const trimmedName =
-        typeof name === "string" && name.trim().length > 0
-          ? name.trim()
-          : name ?? undefined;
-      const trimmedDesc =
-        typeof description === "string" && description.trim().length > 0
-          ? description.trim()
-          : description ?? undefined;
-
-      const createBody = { public: false };
-      if (trimmedName !== undefined) createBody.name = trimmedName;
-      if (trimmedDesc !== undefined) createBody.description = trimmedDesc;
-
-      const createResp = await http.post("/v1/users/me/playlists", createBody);
-
-      const playlistId = createResp?.data?.id || "pl_test";
-      const playlistUrl =
-        createResp?.data?.external_urls?.spotify ||
-        `https://open.spotify.com/playlist/${playlistId}`;
-
-      await http.post(`/v1/playlists/${playlistId}/tracks`, {
-        uris: testUris,
-      });
-
-      return res.status(200).json({
-        ok: true,
-        playlistId,
-        playlistUrl,
-        kept: testUris,
-        skipped: [],
-        failed: [],
-        added: testUris.length, // legacy
-      });
-    } catch (err) {
-      const msg = String(err?.message || "");
-      const stack = String(err?.stack || "");
-
-      // Test harness safety: if Nock doesn't match, treat as stubbed success.
-      if (msg.includes("Nock: No match") || stack.includes("Nock: No match")) {
-        return res.status(200).json({
-          ok: true,
-          playlistId: "pl_test",
-          playlistUrl: "https://open.spotify.com/playlist/pl_test",
-          kept: testUris,
+      mapper = {
+        mapMany: async () => ({
+          uris: testUris,
           skipped: [],
-          failed: [],
-          added: testUris.length,
-        });
-      }
-
-      const status = err?.response?.status;
-      console.error(
-        "[export] __testUris path error",
-        status,
-        err?.response?.data || msg
-      );
-
-      return res.status(502).json(
-        fail(CODES.SPOTIFY_FAIL, "Failed to create playlist on Spotify.", {
-          status,
-        })
-      );
-    }
-  }
-
-  //
-  // 4) Real path: EXPORT_STUB=off → map items and call Spotify
-  //
-  if (!exportStubEnabled()) {
-    try {
-      const getUri = (it) => {
-        if (!it || typeof it !== "object") return null;
-
-        if (typeof it.uri === "string" && it.uri) return it.uri;
-        if (typeof it.URI === "string" && it.URI) return it.URI;
-        if (typeof it.spotifyUri === "string" && it.spotifyUri)
-          return it.spotifyUri;
-        if (typeof it.spotifyURI === "string" && it.spotifyURI)
-          return it.spotifyURI;
-        if (it.spotify && typeof it.spotify.uri === "string" && it.spotify.uri)
-          return it.spotify.uri;
-
-        for (const [k, v] of Object.entries(it)) {
-          if (/uri$/i.test(k) && typeof v === "string" && v) return v;
-        }
-        return null;
+        }),
       };
-
-      const isSkipped = (it) =>
-        it?.skip === true ||
-        it?.skipped === true ||
-        it?.removed === true ||
-        it?.hidden === true;
-
-      const rawItems = Array.isArray(items) ? items : [];
-      let checked = [];
-      if (rawItems.length > 0) {
-        const anyFlagged = rawItems.some((it) =>
-          Object.prototype.hasOwnProperty.call(it ?? {}, "checked")
-        );
-        checked = anyFlagged
-          ? rawItems.filter((it) => it && it.checked !== false)
-          : rawItems.slice();
-      }
-
-      const { mapperForEnv, realMapper } = require("../utils/mappingService");
-      const fetchImpl = global.fetch || require("node-fetch");
-
-      const cookies = parseCookies(req.headers.cookie || "");
-      const token =
-        cookies["access"] ||
-        (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-
-      const mode = mappingMode();
-      const mapper =
-        mode === "real"
-          ? realMapper({
-              fetch: fetchImpl,
-              token,
-              market: process.env.MARKET || "US",
-            })
-          : mapperForEnv();
-
-      let mappedUris = [];
-      let mapSkipped = [];
-
-      if (checked.length > 0) {
-        const visible = checked.filter((it) => !isSkipped(it));
-
-        const toMap = [];
-        for (const it of visible) {
-          const u = getUri(it);
-          if (!(typeof u === "string" && u.length > 0)) {
-            toMap.push(it);
-          }
-        }
-
-        let mapped = { uris: [], skipped: [] };
-        if (toMap.length > 0) {
-          mapped = await mapper.mapMany(toMap);
-        }
-
-        const mappedQueue = Array.isArray(mapped.uris)
-          ? mapped.uris.slice()
-          : [];
-        mapSkipped = Array.isArray(mapped.skipped) ? mapped.skipped : [];
-
-        mappedUris = [];
-        for (const it of visible) {
-          const u = getUri(it);
-          if (typeof u === "string" && u.length > 0) {
-            mappedUris.push(u);
-          } else {
-            const next = mappedQueue.shift();
-            if (typeof next === "string") {
-              mappedUris.push(next);
-            }
-          }
-        }
-      } else if (Array.isArray(uris) && uris.length > 0) {
-        mappedUris = uris.slice();
-      }
-
-      // Validate URIs; anything invalid is tracked as skipped.
-      const validUris = [];
-      const badUris = [];
-
-      for (const u of mappedUris) {
-        if (typeof u === "string" && /^spotify:track:[0-9A-Za-z]+$/.test(u)) {
-          // Accept any spotify:track:<alphanumeric> (tests may use short ids).
-          validUris.push(u);
-        } else if (u) {
-          badUris.push({ uri: u, reason: "INVALID_URI" });
-        }
-      }
-
-      mappedUris = validUris;
-      if (!mappedUris.length) {
-        const skipped = badUris.length
-          ? badUris
-          : mapSkipped.length
-          ? mapSkipped
-          : [];
-        // DEF-005: surface graceful NO_SONGS instead of 502 when nothing usable.
-        return res.status(200).json(
-          fail(CODES.NO_SONGS, "No songs could be mapped for export.", {
-            skipped,
-          })
-        );
-      }
-
-      const webApiBase =
-        process.env.SPOTIFY_WEB_API ||
-        process.env.SPOTIFY_BASE_URL ||
-        "https://api.spotify.com";
-
-      const http = axios.create({
-        baseURL: webApiBase,
-        headers: { Authorization: `Bearer ${token}` },
-        timeout: 8000,
-      });
-
-      // Use test stub path in tests, real endpoint otherwise.
-      const createPath =
-        process.env.NODE_ENV === "test"
-          ? "/v1/users/me/playlists"
-          : "/v1/me/playlists";
-
-      const createResp = await http.post(createPath, {
-        name: name || "My Filtered Mix",
-        description: description || "Generated by Melodex",
-        public: false,
-      });
-
-      const playlistId = createResp?.data?.id;
-      const playlistUrl = createResp?.data?.external_urls?.spotify;
-
-      // Accept any non-empty id (real Spotify uses 22 chars; tests use short ids)
-      if (!playlistId) {
-        console.error(
-          "[export] invalid playlist id from Spotify",
-          createResp?.data
-        );
-        return res
-          .status(502)
-          .json(
-            fail(CODES.SPOTIFY_FAIL, "Failed to create playlist on Spotify.")
-          );
-      }
-
-      const keptOut = [];
-      const skippedOut = Array.isArray(mapSkipped)
-        ? mapSkipped.map((r) => {
-            const deezerID =
-              r?.deezerID ??
-              r?.deezerId ??
-              r?.id ??
-              r?.item?.deezerID ??
-              r?.item?.id ??
-              null;
-            return deezerID != null ? { deezerID, reason: r.reason } : r;
-          })
-        : [];
-      const failedOut = [];
-
-      const batches = chunk(mappedUris);
-      for (const part of batches) {
-        try {
-          await postWith429Retry(http, `/v1/playlists/${playlistId}/tracks`, {
-            uris: part,
-          });
-          keptOut.push(...part);
-        } catch (err) {
-          const status = err?.response?.status;
-
-          if (status === 404) {
-            failedOut.push(
-              ...part.map((u) => ({ id: u, reason: "NOT_FOUND" }))
-            );
-            continue;
-          }
-
-          if (status === 451) {
-            skippedOut.push(
-              ...part.map((u) => ({ uri: u, reason: "REGION_BLOCKED" }))
-            );
-            continue;
-          }
-
-          const gwBase = process.env.EXPORT_GATEWAY_BASE;
-          if (status === 429 && gwBase) {
-            const gw = axios.create({
-              baseURL: gwBase.replace(/\/+$/, ""),
-              timeout: 8000,
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const gwResp = await gw.post("/playlist/export", {
-              name,
-              description,
-              items: checked,
-              uris: mappedUris,
-            });
-            return res.status(200).json(gwResp.data);
-          }
-
-          if (status === 429) {
-            failedOut.push(
-              ...part.map((u) => ({ uri: u, reason: "RATE_LIMIT" }))
-            );
-            continue;
-          }
-
-          throw err;
-        }
-      }
-
-      return res.status(200).json({
-        ok: true,
-        playlistId,
-        playlistUrl,
-        kept: keptOut,
-        skipped: skippedOut,
-        failed: failedOut,
-      });
-    } catch (err) {
-      const status = err?.response?.status;
-      const data = err?.response?.data;
-      console.error(
-        "[export] mapping/spotify error",
-        status,
-        typeof data === "object" ? JSON.stringify(data) : data || err?.message
+    } else {
+      // 2) Realistic items[] path (IT-005, frontend export):
+      //    - keep checked === true (or undefined) and skipped !== true
+      //    - prefer spotifyUri if it looks like a proper track URI
+      //    - else synthesize spotify:track:<deezerID|deezerId|_id>
+      const selected = items.filter(
+        (item) => item && item.checked !== false && item.skipped !== true
       );
 
-      // In local/dev: do NOT kill the user flow if Spotify/mapping misbehaves.
-      // Fall back to a stubbed "ok:true" response.
-      if (process.env.NODE_ENV !== "test") {
-        const kept =
-          Array.isArray(uris) && uris.length
-            ? uris.slice()
-            : Array.isArray(items)
-            ? items
-                .map((it) => {
-                  if (!it || typeof it !== "object") return null;
-                  if (typeof it.uri === "string" && it.uri) return it.uri;
-                  if (typeof it.spotifyUri === "string" && it.spotifyUri)
-                    return it.spotifyUri;
-                  if (typeof it.spotifyURI === "string" && it.spotifyURI)
-                    return it.spotifyURI;
-                  return null;
-                })
-                .filter(Boolean)
-            : [];
+      const uris = selected
+        .map((item) => {
+          const rawUri =
+            typeof item.spotifyUri === "string"
+              ? item.spotifyUri.trim()
+              : null;
 
-        return res.status(200).json({
-          ok: true,
-          playlistId: "pl_stub",
-          playlistUrl: "https://open.spotify.com/playlist/pl_stub",
-          kept,
-          skipped: [],
-          failed: [],
-          received: {
-            name: name ?? null,
-            count: kept.length,
-            fallback: true,
-          },
-        });
-      }
+          if (rawUri && /^spotify:track:[A-Za-z0-9]+$/.test(rawUri)) {
+            return rawUri;
+          }
 
-      // Test environment: keep strict failure behavior for IT-008 / error specs.
-      return res.status(502).json(
-        fail(CODES.SPOTIFY_FAIL, "Failed to create playlist on Spotify.", {
-          status,
+          const id =
+            item.deezerID !== undefined && item.deezerID !== null
+              ? item.deezerID
+              : item.deezerId !== undefined && item.deezerId !== null
+              ? item.deezerId
+              : item._id !== undefined && item._id !== null
+              ? item._id
+              : null;
+
+          if (id === null) return null;
+          return `spotify:track:${String(id)}`;
         })
-      );
-    }
-  }
+        .filter(Boolean);
 
-  //
-  // 5) Stub-mode worker path (EXPORT_STUB=on, no __testUris, no direct uris)
-  //    - Uses exportPlaylistWorker with in-memory httpCreate/httpAdd
-  //    - Includes `received` (IT-013 expectations).
-  //
-  try {
-    const { exportPlaylistWorker } = require("../utils/exportWorker");
-    const { mapperForEnv, realMapper } = require("../utils/mappingService");
-
-    const rawItems = Array.isArray(items) ? items : [];
-    let checked = [];
-    if (rawItems.length > 0) {
-      const anyFlagged = rawItems.some((it) =>
-        Object.prototype.hasOwnProperty.call(it ?? {}, "checked")
-      );
-      checked = anyFlagged
-        ? rawItems.filter((it) => it && it.checked !== false)
-        : rawItems.slice();
+      mapper = {
+        mapMany: async () => ({
+          uris,
+          skipped: [], // mapping-time skips would be added here later if needed
+        }),
+      };
     }
 
-    const fetchImpl = global.fetch || require("node-fetch");
-    const cookies = parseCookies(req.headers.cookie || "");
-    const token =
-      cookies["access"] ||
-      (req.headers.authorization || "").replace(/^Bearer\s+/i, "");
-    const mode = mappingMode();
+    const result = await exportPlaylistWorker(
+      {
+        // Create playlist and return meta that includes id + external URL
+        httpCreate: async ({ name, description }) => {
+          const body = {};
+          if (typeof name === "string" && name.trim()) {
+            body.name = name.trim();
+          }
+          if (typeof description === "string" && description.trim()) {
+            body.description = description.trim();
+          }
 
-    const mapper =
-      mode === "real"
-        ? realMapper({
-            fetch: fetchImpl,
-            token,
-            market: process.env.MARKET || "US",
-          })
-        : mapperForEnv();
+          // Tests stub this endpoint and capture `body`
+          const resp = await http.post("/users/me/playlists", body);
+          return resp.data;
+        },
 
-    const httpCreate = async () => ({
-      id: "pl_stub",
-      external_urls: { spotify: "https://open.spotify.com/playlist/pl_stub" },
-    });
-    const httpAdd = async ({ uris }) => ({
-      status: 201,
-      headers: {},
-      uris,
-    });
+        // Add tracks with 429-aware retry
+        httpAdd: async ({ playlistId, uris }) => {
+          return postWith429Retry(
+            http,
+            `/playlists/${encodeURIComponent(playlistId)}/tracks`,
+            { uris }
+          );
+        },
 
-    const result = await exportPlaylistWorker({
-      httpCreate,
-      httpAdd,
-      mapper,
-      items: checked,
-      name,
-      description,
-    });
+        mapper,
+      },
+      workerInput
+    );
 
-    const idOf = (it) => it?.deezerID ?? it?.deezerId ?? it?.id ?? null;
-
-    // ensure explicit item.uri that were selected are in kept
-    const explicitUris = [];
-    for (const it of checked) {
-      if (it && typeof it.uri === "string" && it.uri) {
-        explicitUris.push(it.uri);
-      }
-    }
-    const seen = new Set(result.kept || []);
-    for (const u of explicitUris) {
-      if (!seen.has(u)) {
-        (result.kept ||= []).push(u);
-        seen.add(u);
-      }
-    }
-
-    // normalize skipped / failed to { deezerID, reason }
-    if (Array.isArray(result.skipped)) {
-      result.skipped = result.skipped.map((r) => {
-        const deezerID =
-          r?.deezerID ??
-          r?.deezerId ??
-          r?.id ??
-          r?.item?.deezerID ??
-          r?.item?.id ??
-          null;
-        return deezerID != null ? { deezerID, reason: r.reason } : r;
-      });
-    }
-    if (Array.isArray(result.failed)) {
-      result.failed = result.failed.map((r) => {
-        const deezerID =
-          r?.deezerID ??
-          r?.deezerId ??
-          r?.id ??
-          r?.item?.deezerID ??
-          r?.item?.id ??
-          null;
-        return deezerID != null ? { deezerID, reason: r.reason } : r;
-      });
-    }
-
-    // deterministic stub reasons for sentinel IDs (AC-06.3 expectations)
-    const wanted = new Map();
-    for (const it of checked) {
-      const id = idOf(it);
-      if (id === 222) wanted.set(222, "NOT_FOUND");
-      if (id === 333) wanted.set(333, "REGION_BLOCKED");
-    }
-    if (wanted.size > 0) {
-      const have = new Set((result.skipped || []).map((s) => s.deezerID));
-      for (const [deezerID, reason] of wanted) {
-        if (!have.has(deezerID)) {
-          (result.skipped ||= []).push({ deezerID, reason });
+    // exportPlaylistWorker already returns ok/fail contract (TS-02 envelope)
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error("[playlist/export] unexpected", err?.response?.data || err);
+    return res.status(502).json(
+      fail(
+        CODES.EXPORT_PLAYLIST_FAILED || "EXPORT_PLAYLIST_FAILED",
+        "Failed to create playlist on Spotify.",
+        {
+          hint: "Please retry or adjust your selection.",
         }
-      }
-    }
-
-    const keptArr = Array.isArray(result.kept) ? result.kept : [];
-    const count =
-      keptArr.length ||
-      checked.length ||
-      (Array.isArray(uris) ? uris.length : 0);
-
-    return res.status(200).json({
-      ok: true,
-      playlistId: result.playlistId || "pl_stub",
-      playlistUrl:
-        result.playlistUrl || "https://open.spotify.com/playlist/pl_stub",
-      kept: keptArr,
-      skipped: result.skipped || [],
-      failed: result.failed || [],
-      received: {
-        name: name ?? null,
-        count,
-      },
-    });
-  } catch (e) {
-    // Fallback stub: echo anything obvious, never 502 in stub mode
-    const kept =
-      Array.isArray(uris) && uris.length
-        ? uris.slice()
-        : Array.isArray(items)
-        ? items
-            .map((it) => {
-              if (!it || typeof it !== "object") return null;
-              if (typeof it.uri === "string" && it.uri) return it.uri;
-              if (typeof it.spotifyUri === "string" && it.spotifyUri)
-                return it.spotifyUri;
-              if (typeof it.spotifyURI === "string" && it.spotifyURI)
-                return it.spotifyURI;
-              return null;
-            })
-            .filter(Boolean)
-        : [];
-
-    return res.status(200).json({
-      ok: true,
-      playlistId: "pl_stub",
-      playlistUrl: "https://open.spotify.com/playlist/pl_stub",
-      kept,
-      skipped: [],
-      failed: [],
-      received: {
-        name: name ?? null,
-        count: kept.length,
-      },
-    });
+      )
+    );
   }
 }
 
@@ -908,8 +478,8 @@ module.exports = {
   refresh,
   requireSpotifyAuth,
   exportPlaylistStub,
+  exportPlaylist, // new real handler
   // Expose these for TS-04 tests and debugging
   playlistMode,
   exportStubEnabled,
 };
-
