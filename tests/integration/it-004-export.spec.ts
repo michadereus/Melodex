@@ -9,6 +9,7 @@ describe("IT-004 — Basic export (single batch) — real worker", () => {
   beforeEach(() => {
     process.env.PLAYLIST_MODE = "real";
     process.env.MAPPING_MODE = "stub";
+
     nock.cleanAll();
   });
 
@@ -30,7 +31,7 @@ describe("IT-004 — Basic export (single batch) — real worker", () => {
       .reply(201, { snapshot_id: "snap_1" });
 
     // 3) Call our API with a fake Spotify token so requireSpotifyAuth passes.
-    //    Items include spotifyUri so the stub mapper can operate if needed.
+    //    Items include spotifyUri so the inline mapper can operate.
     const res = await request(app)
       .post("/api/playlist/export")
       .set("Cookie", "access=fake-access")
@@ -61,15 +62,11 @@ describe("IT-004 — Basic export (single batch) — real worker", () => {
     expect(res.body.playlistId).toBe("pl_004");
     expect(typeof res.body.playlistUrl).toBe("string");
 
-    // For now, assert shape of kept/skipped/failed. Deeper per-track semantics
-    // are validated in UT-005 / IT-006 / IT-008.
-    expect(Array.isArray(res.body.kept)).toBe(true);
+    // The current real-worker path returns `kept` as the URIs that were sent
+    // to Spotify. Lock that in as the contract for this basic happy-path IT.
+    expect(res.body.kept).toEqual(["spotify:track:A", "spotify:track:B"]);
     expect(Array.isArray(res.body.skipped)).toBe(true);
     expect(Array.isArray(res.body.failed)).toBe(true);
-
-    // Current real-worker path returns an empty kept array here; lock that in
-    // so we have a stable contract for this integration test.
-    expect(res.body.kept).toEqual([]);
     expect(res.body.skipped).toEqual([]);
     expect(res.body.failed).toEqual([]);
   });
