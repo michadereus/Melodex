@@ -26,6 +26,7 @@ describe("IT-006 — Name and description in Spotify payload", () => {
     process.env.EXPORT_STUB = "off";
     process.env.PLAYLIST_MODE = "real";
     process.env.MAPPING_MODE = "stub";
+    process.env.SPOTIFY_WEB_API = SPOTIFY_API;
 
     nock.disableNetConnect();
     nock.enableNetConnect((host) =>
@@ -40,15 +41,15 @@ describe("IT-006 — Name and description in Spotify payload", () => {
     nock.disableNetConnect();
     nock.enableNetConnect(/(127\.0\.0\.1|localhost)/);
 
-    // Capture the playlist create body so we can assert on name/description
+    // 0) Resolve current user for createPlaylist
+    nock(SPOTIFY_API).get("/v1/me").reply(200, { id: "it006_user" });
+
+    // 1) Capture the playlist create body so we can assert on name/description
     nock(SPOTIFY_API)
-      .post(
-        /\/v1\/(?:users\/me\/playlists|me\/playlists|playlists)$/,
-        (body) => {
-          createdBody = body;
-          return true;
-        }
-      )
+      .post(/\/v1\/users\/[^/]+\/playlists$/, (body) => {
+        createdBody = body;
+        return true;
+      })
       .reply(201, {
         id: "pl_006",
         external_urls: {
@@ -56,7 +57,7 @@ describe("IT-006 — Name and description in Spotify payload", () => {
         },
       });
 
-    // Add-tracks stub — per-track stuff is covered by other tests
+    // 2) Add-tracks stub — per-track stuff is covered by other tests
     nock(SPOTIFY_API)
       .post("/v1/playlists/pl_006/tracks")
       .reply(201, { snapshot_id: "snap_006" });
@@ -68,6 +69,11 @@ describe("IT-006 — Name and description in Spotify payload", () => {
   });
 
   afterAll(() => {
+    delete process.env.EXPORT_STUB;
+    delete process.env.PLAYLIST_MODE;
+    delete process.env.MAPPING_MODE;
+    delete process.env.SPOTIFY_WEB_API;
+
     nock.cleanAll();
     nock.enableNetConnect();
   });
@@ -96,19 +102,12 @@ describe("IT-006 — Name and description in Spotify payload", () => {
 
     // We should have actually created a playlist via Spotify API stub
     expect(createdBody).toBeTruthy();
-    expect(res.status).toBe(200);
-    expect(res.body.ok).toBe(true);
-
-    // We should have actually created a playlist via Spotify API stub
-    expect(createdBody).toBeTruthy();
     expect(typeof createdBody).toBe("object");
-
-    // TS-04 guarantees that we call Spotify with some body.
-    // Exact name/description forwarding is validated in US-04 tests.
-    // If backend starts forwarding them, this will still be a valid shape check.
+    expect(createdBody.name).toBe(payload.name);
+    expect(createdBody.description).toBe(payload.description);
   });
 
-  it("omitted name/description → still creates playlist (defaults handled in FE path)", async () => {
+  it("omitted name/description → backend rejects (FE must supply defaults)", async () => {
     const payload = {
       // no name/description here; frontend defaulting is out-of-scope for IT-006
       items: [
@@ -126,12 +125,13 @@ describe("IT-006 — Name and description in Spotify payload", () => {
       .set("Cookie", AUTH_COOKIE)
       .send(payload);
 
-    expect(res.status).toBe(200);
-    expect(res.body.ok).toBe(true);
+    // Backend now requires a non-empty name; missing → 502 wrapper
+    expect(res.status).toBe(502);
+    expect(res.body.ok).toBe(false);
+    expect(res.body.code).toBe("EXPORT_PLAYLIST_FAILED");
 
-    // Backend must still call Spotify with *some* body object
-    expect(createdBody).toBeTruthy();
-    expect(typeof createdBody).toBe("object");
+    // createPlaylist validates and bails before hitting Spotify
+    expect(createdBody).toBeNull();
   });
 
   it("supports unicode/emoji in name and description (no mangling)", async () => {
@@ -158,12 +158,11 @@ describe("IT-006 — Name and description in Spotify payload", () => {
 
     expect(createdBody).toBeTruthy();
     expect(typeof createdBody).toBe("object");
-
-    // We only assert that sending unicode/emoji does not cause errors.
-    // Exact string fidelity is covered at the US-04 UI/E2E layer.
+    expect(createdBody.name).toBe(payload.name);
+    expect(createdBody.description).toBe(payload.description);
   });
 
-  it("whitespace-only name/description are treated as omitted after trimming", async () => {
+  it("whitespace-only name/description are treated as invalid (backend rejects; FE must trim/default)", async () => {
     const payload = {
       name: "   ",
       description: "   ",
@@ -182,21 +181,13 @@ describe("IT-006 — Name and description in Spotify payload", () => {
       .set("Cookie", AUTH_COOKIE)
       .send(payload);
 
-    expect(res.status).toBe(200);
-    expect(res.body.ok).toBe(true);
+    // Backend only sets name if trim() is non-empty; whitespace-only → error
+    expect(res.status).toBe(502);
+    expect(res.body.ok).toBe(false);
+    expect(res.body.code).toBe("EXPORT_PLAYLIST_FAILED");
 
-    expect(createdBody).toBeTruthy();
-
-    // Backend only sets name/description if trim() is non-empty.
-    const hasName =
-      typeof createdBody.name === "string" &&
-      createdBody.name.trim().length > 0;
-    const hasDescription =
-      typeof createdBody.description === "string" &&
-      createdBody.description.trim().length > 0;
-
-    expect(hasName).toBe(false);
-    expect(hasDescription).toBe(false);
+    // Validation fails before we ever call Spotify
+    expect(createdBody).toBeNull();
   });
 
   it("handles overly long inputs (does not break; may truncate or pass-through within limits)", async () => {
@@ -226,10 +217,7 @@ describe("IT-006 — Name and description in Spotify payload", () => {
 
     expect(createdBody).toBeTruthy();
     expect(typeof createdBody).toBe("object");
-
-    // TS-04 only guarantees we tolerate long inputs and still call Spotify.
-    // Whether we truncate or pass-through is an implementation detail and
-    // can be asserted in US-04 UI/E2E tests instead.
+    // We just assert that long inputs don't break the call; exact truncation behavior is a UI concern.
   });
 
   it("requires auth cookie (no access token → 401/403)", async () => {

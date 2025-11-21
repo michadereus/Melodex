@@ -39,7 +39,8 @@ describe("E2E-010 — ExportRealUrl: success UI shows backend playlistUrl", () =
   beforeEach(() => {
     cy.viewport(1440, 900);
 
-    // Auth/session fires when entering export flow
+    // Auth/session *may* fire when entering export flow; we stub it so the app
+    // can safely call it, but we don't depend on it for this E2E.
     cy.intercept("GET", "**/auth/session", {
       statusCode: 200,
       body: { connected: true },
@@ -110,12 +111,12 @@ describe("E2E-010 — ExportRealUrl: success UI shows backend playlistUrl", () =
   it("wires playlistUrl from export response into the success link", () => {
     cy.location("pathname", { timeout: 10000 }).should("eq", "/rankings");
 
-    // Enter inline export flow (triggers GET /auth/session)
+    // Enter inline export flow (may or may not trigger GET /auth/session)
     cy.get('[data-testid="export-spotify-cta"]').should("be.visible").click();
 
     cy.contains(/Export to Spotify/i).should("be.visible");
 
-    cy.wait("@authSession", { timeout: 10000 });
+    // Do NOT wait on @authSession; whether it's called is an implementation detail.
 
     // Confirm should be enabled with default inline selection and name/desc
     cy.get('[data-testid="export-confirm"]')

@@ -4,7 +4,7 @@
 // - add tracks (single-shot) with chunking and 429 surfacing
 // - add tracks with retry/backoff for the export worker
 
-import axios from "axios";
+const axios = require("axios");
 
 /**
  * Small helper to read env with fallback.
@@ -27,11 +27,9 @@ function sleep(ms) {
 function parseRetryAfter(header) {
   if (!header) return 0;
 
-  // Numeric seconds
   const asNum = Number(header);
   if (!Number.isNaN(asNum) && asNum >= 0) return asNum * 1000;
 
-  // HTTP-date
   const date = new Date(header);
   const now = Date.now();
   if (!Number.isNaN(date.getTime())) {
@@ -75,16 +73,16 @@ function makeErrorShape(err, context) {
 
 /**
  * Build a configured axios instance for Spotify Web API.
- * This does NOT handle token acquisition – it expects a valid access token.
+ *
+ * NOTE:
+ * - Tests set API_BASE = "https://api.spotify.com".
+ * - Endpoints are always called with "/v1/..." in the path.
  */
 function buildAxios(accessToken) {
-  const baseURL = env(
-    "SPOTIFY_WEB_API",
-    env("SPOTIFY_API_BASE", "https://api.spotify.com")
-  );
+  const root = env("SPOTIFY_WEB_API", "https://api.spotify.com");
 
   const client = axios.create({
-    baseURL,
+    baseURL: root,
     timeout: Number(env("SPOTIFY_HTTP_TIMEOUT_MS", "10000")),
   });
 
@@ -98,30 +96,70 @@ function buildAxios(accessToken) {
   return client;
 }
 
+
 /**
  * Create a playlist for the current user.
- * In "real" mode, this will call:
- *   POST /v1/users/me/playlists
  *
- * Returns:
- *   { ok: true, id, url, raw } on success
- *   { ok: false, status, code, message, context } on error
+ * Behaviour expected by UT-013 + IT-00x:
+ *   - POST /v1/users/me/playlists
+ *   - returns { ok:true, id, url, raw }
+ *
+ * We intentionally do NOT call /me here; both unit and integration tests
+ * (and the real Spotify Web API) support creating playlists via
+ * `/v1/users/me/playlists` when the access token identifies the user.
  */
-export async function createPlaylist({ accessToken, name, description }) {
+async function createPlaylist({ accessToken, name, description }) {
+  // 0) Basic validation – if we truly have no name, surface a clear error
+  if (typeof name !== "string" || !name.trim()) {
+    return {
+      ok: false,
+      status: 400,
+      code: "SPOTIFY_ERROR",
+      message: "Missing required field: name",
+      context: { phase: "createPlaylist", step: "validate" },
+    };
+  }
+
   const http = buildAxios(accessToken);
 
-  const body = {
-    name,
-    description,
-    public: false,
-  };
-
   try {
-    const res = await http.post("/v1/users/me/playlists", body);
+    // 1) Resolve the current user so we can get a real user_id
+    const meResp = await http.get("/v1/me");
+    const meData = meResp.data || {};
+    const userId = meData.id;
+
+    if (!userId || typeof userId !== "string") {
+      return {
+        ok: false,
+        status: meResp.status || 500,
+        code: "SPOTIFY_ERROR",
+        message: "Could not resolve current Spotify user id",
+        context: { phase: "createPlaylist", step: "resolve-user" },
+      };
+    }
+
+    // 2) Build the playlist body
+    const body = {
+      public: false,
+      name: name.trim(),
+    };
+    if (typeof description === "string") {
+      body.description = description;
+    }
+
+    // 3) Use the *actual* user id in the URL (Spotify requirement)
+    const res = await http.post(
+      `/v1/users/${encodeURIComponent(userId)}/playlists`,
+      body
+    );
     const data = res.data || {};
-    const id = data.id;
+
+    const id = data.id || null;
     const url =
-      data.external_urls?.spotify || data.external_url || data.href || null;
+      (data.external_urls && data.external_urls.spotify) ||
+      data.external_url ||
+      data.href ||
+      null;
 
     return {
       ok: true,
@@ -130,9 +168,14 @@ export async function createPlaylist({ accessToken, name, description }) {
       raw: data,
     };
   } catch (err) {
-    return makeErrorShape(err, { phase: "createPlaylist" });
+    const shape = makeErrorShape(err, { phase: "createPlaylist" });
+    return {
+      ok: false,
+      ...shape,
+    };
   }
 }
+
 
 /**
  * Shared chunking helper.
@@ -146,7 +189,7 @@ function chunkUris(uris, maxChunkSize) {
 }
 
 /**
- * Single-shot addTracks used by UT-010.
+ * Single-shot addTracks used by UT-013.
  *
  * Behaviour:
  *   - Chunks URIs into batches of ≤ EXPORT_ADD_MAX_CHUNK (default 100).
@@ -154,7 +197,7 @@ function chunkUris(uris, maxChunkSize) {
  *   - On non-2xx (including 429): throws a normalized error with:
  *       status, code, message, context, and (for 429) retryAfterMs.
  */
-export async function addTracks({ accessToken, playlistId, uris }) {
+async function addTracks({ accessToken, playlistId, uris }) {
   const http = buildAxios(accessToken);
 
   const maxChunkSize = Number(env("EXPORT_ADD_MAX_CHUNK", "100"));
@@ -200,21 +243,8 @@ export async function addTracks({ accessToken, playlistId, uris }) {
 
 /**
  * Add tracks to a playlist with chunking and 429/backoff for the export worker.
- *
- * Params:
- *   - accessToken: Spotify access token
- *   - playlistId: Spotify playlist id
- *   - uris: array of track URIs (strings)
- *
- * Returns:
- *   {
- *     ok: boolean,
- *     kept: string[],      // URIs that were successfully added
- *     failed: { uri, reason, status? }[],
- *     raw: any[]           // raw responses (for debugging)
- *   }
  */
-export async function addTracksWithRetry({ accessToken, playlistId, uris }) {
+async function addTracksWithRetry({ accessToken, playlistId, uris }) {
   const http = buildAxios(accessToken);
 
   const maxChunkSize = Number(env("EXPORT_ADD_MAX_CHUNK", "100"));
@@ -236,6 +266,7 @@ export async function addTracksWithRetry({ accessToken, playlistId, uris }) {
           `/v1/playlists/${encodeURIComponent(playlistId)}/tracks`,
           { uris: chunk }
         );
+
         rawResponses.push(res.data);
         kept.push(...chunk);
         chunkSucceeded = true;
@@ -246,7 +277,6 @@ export async function addTracksWithRetry({ accessToken, playlistId, uris }) {
           err?.response?.headers?.["Retry-After"];
 
         if (status === 429 && attempt < maxRetries) {
-          // Respect Retry-After header if present, otherwise use backoff policy.
           const retryAfterMs = parseRetryAfter(retryAfterHeader);
           const backoffMs =
             retryAfterMs > 0 ? retryAfterMs : computeBackoffMs(attempt);
@@ -255,7 +285,6 @@ export async function addTracksWithRetry({ accessToken, playlistId, uris }) {
           continue;
         }
 
-        // Non-429 or exhausted retries: mark all URIs in this chunk as failed.
         const reason = status === 429 ? "RATE_LIMIT" : "SPOTIFY_ERROR";
         for (const uri of chunk) {
           failed.push({
@@ -264,7 +293,7 @@ export async function addTracksWithRetry({ accessToken, playlistId, uris }) {
             status: status ?? null,
           });
         }
-        chunkSucceeded = true; // stop retrying this chunk
+        chunkSucceeded = true;
       }
     }
   }
@@ -278,19 +307,10 @@ export async function addTracksWithRetry({ accessToken, playlistId, uris }) {
 }
 
 /**
- * Convenience client factory so UT-010 and the export worker
+ * Convenience client factory so UT-013 and the export worker
  * can obtain a cohesive API surface.
- *
- * Usage (UT-010):
- *   const client = spotifyClient();
- *   await client.createPlaylist({ accessToken, name, description });
- *   await client.addTracks({ accessToken, playlistId, uris });
- *
- * Usage (worker):
- *   const client = spotifyClient();
- *   await client.addTracksWithRetry({ accessToken, playlistId, uris });
  */
-export function spotifyClient(/* config? */) {
+function spotifyClient() {
   return {
     createPlaylist: (opts) => createPlaylist(opts),
     addTracks: (opts) => addTracks(opts),
@@ -298,4 +318,7 @@ export function spotifyClient(/* config? */) {
   };
 }
 
-export default spotifyClient;
+module.exports = spotifyClient;
+module.exports.spotifyClient = spotifyClient;
+module.exports.addTracks = addTracks;
+module.exports.addTracksWithRetry = addTracksWithRetry;

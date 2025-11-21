@@ -6,6 +6,8 @@ const { CODES, ok, fail } = require("../utils/errorContract");
 const { chunk } = require("../utils/chunk");
 const { exportPlaylistWorker } = require("../utils/exportWorker");
 const { mapperForEnv } = require("../utils/mappingService");
+// Use the CommonJS spotifyClient wrapper (default export)
+const spotifyClient = require("../utils/spotifyClient");
 
 /* ---------- helpers (unchanged) ---------- */
 
@@ -61,7 +63,13 @@ function parseCookies(header) {
 function serializeCookie(
   name,
   value,
-  { maxAge, httpOnly = true, secure = true, sameSite = "lax", path = "/" } = {}
+  {
+    maxAge,
+    httpOnly = true,
+    secure = !IS_LOCAL, // <- Secure=false for http://localhost
+    sameSite = "lax",
+    path = "/",
+  } = {}
 ) {
   const parts = [`${name}=${encodeURIComponent(value)}`, `Path=${path}`];
   if (typeof maxAge === "number")
@@ -75,11 +83,14 @@ function serializeCookie(
   return parts.join("; ");
 }
 
+
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 const front = (path) => `${FRONTEND_ORIGIN}${path}`;
+const IS_LOCAL =
+  FRONTEND_ORIGIN && /^http:\/\/localhost(?::\d+)?$/i.test(FRONTEND_ORIGIN);
 
 function playlistMode() {
   // Primary toggle for TS-04:
@@ -108,6 +119,90 @@ function exportStubEnabled() {
 function mappingMode() {
   return String(process.env.MAPPING_MODE || "stub").toLowerCase();
 }
+
+function normalizeName(value) {
+  if (!value || typeof value !== "string") return "";
+  return value
+    .toLowerCase()
+    .replace(/[\u2018\u2019]/g, "'") // smart quotes → normal apostrophe
+    .replace(/[()[\]{}]/g, " ") // strip brackets
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isRemixishTitle(title) {
+  if (!title || typeof title !== "string") return false;
+  const lower = title.toLowerCase();
+  const badTokens = [
+    "slowed",
+    "reverb",
+    "nightcore",
+    "sped up",
+    "speed up",
+    "8d",
+    "remix",
+    "edit",
+    "mashup",
+    "cover",
+    "parody",
+    "tiktok",
+    "tik tok",
+  ];
+  return badTokens.some((token) => lower.includes(token));
+}
+
+/**
+ * Score a Spotify track candidate against the expected title/artist.
+ * Higher is better.
+ */
+function scoreTrackCandidate(track, expectedTitle, expectedArtist) {
+  const trackTitle = track?.name || "";
+  const trackArtist = track?.artists?.[0]?.name || "";
+  const popularity =
+    typeof track?.popularity === "number" ? track.popularity : 0;
+
+  const normExpectedTitle = normalizeName(expectedTitle);
+  const normExpectedArtist = normalizeName(expectedArtist);
+  const normTitle = normalizeName(trackTitle);
+  const normArtist = normalizeName(trackArtist);
+
+  let score = 0;
+
+  // Artist match
+  if (normArtist && normExpectedArtist) {
+    if (normArtist === normExpectedArtist) {
+      score += 5;
+    } else if (
+      normArtist.includes(normExpectedArtist) ||
+      normExpectedArtist.includes(normArtist)
+    ) {
+      score += 3;
+    }
+  }
+
+  // Title match
+  if (normTitle && normExpectedTitle) {
+    if (normTitle === normExpectedTitle) {
+      score += 5;
+    } else if (
+      normTitle.includes(normExpectedTitle) ||
+      normExpectedTitle.includes(normTitle)
+    ) {
+      score += 3;
+    }
+  }
+
+  // Penalize obvious remix / slowed variants
+  if (isRemixishTitle(trackTitle)) {
+    score -= 4;
+  }
+
+  // Popularity as a soft tie-breaker
+  score += popularity / 20; // 0–5 range roughly
+
+  return score;
+}
+
 
 /* ---------- AuthController (unchanged) ---------- */
 
@@ -268,47 +363,93 @@ function requireSpotifyAuth(req, res, next) {
 
 /* ---------- /playlist/export handler ---------- */
 
-// Stub path: echoes back payload and avoids hitting Spotify at all
+// Stub path: echoes back payload but in TS-02/TS-04 envelope shape
 function exportPlaylistStub(req, res) {
   const payload = req.body || {};
 
   const rawName = typeof payload.name === "string" ? payload.name : "";
   const name = rawName.trim() ? rawName.trim() : "Melodex Playlist (stub)";
 
-  const count = Array.isArray(payload.uris)
-    ? payload.uris.length
-    : Array.isArray(payload.items)
-    ? payload.items.length
-    : 0;
+  const filters = payload.filters || null;
+
+  // 1) If explicit payload.uris is present, trust it.
+  // 2) Otherwise, synthesize from items[] (respecting checked/skipped).
+  let uris = Array.isArray(payload.uris)
+    ? payload.uris
+        .map((u) => (typeof u === "string" ? u.trim() : ""))
+        .filter(Boolean)
+    : null;
+
+  if (!uris) {
+    const items = Array.isArray(payload.items) ? payload.items : [];
+    const selected = items.filter(
+      (item) => item && item.checked !== false && item.skipped !== true
+    );
+
+    uris = selected
+      .map((item) => {
+        const rawUri =
+          typeof item.spotifyUri === "string" ? item.spotifyUri.trim() : null;
+
+        if (rawUri && /^spotify:track:[A-Za-z0-9]+$/.test(rawUri)) {
+          return rawUri;
+        }
+
+        const id =
+          item.deezerID !== undefined && item.deezerID !== null
+            ? item.deezerID
+            : item.deezerId !== undefined && item.deezerId !== null
+            ? item.deezerId
+            : item._id !== undefined && item._id !== null
+            ? item._id
+            : null;
+
+        if (id === null) return null;
+        return `spotify:track:${String(id)}`;
+      })
+      .filter(Boolean);
+  }
+
+  const count = Array.isArray(uris) ? uris.length : 0;
 
   const received = {
     name,
     count,
-    filters: payload.filters || null,
+    filters,
   };
 
-  // Special-case "no songs" filters.path
-  if (payload.filters && payload.filters.type === "none") {
+  // Special-case "no songs" filters.path — still return a TS-02-style envelope.
+  if (filters && filters.type === "none") {
     return res.status(200).json({
       ok: false,
       code: "NO_SONGS",
       message: "No songs found for the selected filters.",
+      kept: [],
+      skipped: [],
+      failed: [],
       received,
     });
   }
 
-  // Generic stub success: echo basic info, no real Spotify calls
+  // Generic stub success: TS-02 / TS-04 envelope with a fake playlist URL.
+  const playlistId = "stub-playlist";
+  const playlistUrl =
+    process.env.EXPORT_STUB_URL ||
+    "https://open.spotify.com/playlist/melodex-stub-playlist";
+
   return res.status(200).json({
     ok: true,
+    playlistId,
+    playlistUrl,
+    kept: uris || [],
+    skipped: [],
+    failed: [],
     received,
   });
 }
 
-// Real path: uses exportPlaylistWorker + Spotify API (subject to stub toggle)
 async function exportPlaylist(req, res) {
   try {
-    // Respect PLAYLIST_MODE / EXPORT_STUB toggle.
-    // If stub is enabled, keep old behavior.
     if (exportStubEnabled()) {
       return exportPlaylistStub(req, res);
     }
@@ -317,7 +458,6 @@ async function exportPlaylist(req, res) {
     const cookies = parseCookies(rawCookie);
     const access = cookies["access"];
 
-    // Should usually be caught by requireSpotifyAuth, but keep a guard.
     if (!access) {
       return res.status(401).json(
         fail(CODES.AUTH_SPOTIFY_REQUIRED, "No Spotify session", {
@@ -326,7 +466,7 @@ async function exportPlaylist(req, res) {
       );
     }
 
-    // Spotify HTTP client
+    // Spotify HTTP client used for addTracks (and possibly others)
     const http = axios.create({
       baseURL: "https://api.spotify.com/v1",
       timeout: Number(process.env.EXPORT_HTTP_TIMEOUT_MS || 10000),
@@ -337,104 +477,179 @@ async function exportPlaylist(req, res) {
 
     const payload = req.body || {};
     const items = Array.isArray(payload.items) ? payload.items : [];
-    const filters = payload.filters || null;
-
-    // Base input for the worker (TS-02 / TS-04)
-    const workerInput = {
-      filters,
-      items,
-      name: payload.name,
-      description: payload.description,
-    };
+    const filters = payload.filters || null; // currently unused, but keep for future
 
     let mapper;
 
-    // 1) Test harness path (IT-004): __testUris present → use them directly.
+    // 1) Test-integration override: IT-004/005/013 inject their own URIs
     if (Array.isArray(payload.__testUris)) {
       const testUris = payload.__testUris
         .map((u) => (typeof u === "string" ? u.trim() : ""))
         .filter(Boolean);
 
       mapper = {
+        // exportPlaylistWorker calls mapMany(itemsArray); we ignore items here
         mapMany: async () => ({
           uris: testUris,
           skipped: [],
         }),
       };
-    } else {
-      // 2) Realistic items[] path (IT-005, frontend export):
-      //    - keep checked === true (or undefined) and skipped !== true
-      //    - prefer spotifyUri if it looks like a proper track URI
-      //    - else synthesize spotify:track:<deezerID|deezerId|_id>
-      const selected = items.filter(
-        (item) => item && item.checked !== false && item.skipped !== true
-      );
+    }
+    // 2) UI path: payload.uris + items → decide whether they’re real or stub
+    else if (Array.isArray(payload.uris) && payload.uris.length > 0) {
+      const rawUris = payload.uris
+        .map((u) => (typeof u === "string" ? u.trim() : ""))
+        .filter(Boolean);
 
-      const uris = selected
-        .map((item) => {
-          const rawUri =
-            typeof item.spotifyUri === "string"
-              ? item.spotifyUri.trim()
-              : null;
-
-          if (rawUri && /^spotify:track:[A-Za-z0-9]+$/.test(rawUri)) {
-            return rawUri;
-          }
-
-          const id =
-            item.deezerID !== undefined && item.deezerID !== null
-              ? item.deezerID
-              : item.deezerId !== undefined && item.deezerId !== null
-              ? item.deezerId
-              : item._id !== undefined && item._id !== null
-              ? item._id
-              : null;
-
-          if (id === null) return null;
-          return `spotify:track:${String(id)}`;
+      // Extract the track id segment from spotify:track:XYZ
+      const ids = rawUris
+        .map((u) => {
+          const m = /^spotify:track:([A-Za-z0-9]+)$/.exec(u);
+          return m ? m[1] : null;
         })
         .filter(Boolean);
 
+      const allNumeric =
+        ids.length > 0 && ids.every((id) => /^[0-9]+$/.test(id));
+
+      if (!allNumeric) {
+        // Looks like real Spotify IDs → trust them as-is
+        mapper = {
+          mapMany: async () => ({
+            uris: rawUris,
+            skipped: [],
+          }),
+        };
+      } else {
+        // Numeric-only → this is the old Deezer-based stub; do REAL mapping via /search
+        mapper = {
+          mapMany: async (itemsArray) => {
+            const outUris = [];
+            const skipped = [];
+
+            for (const item of itemsArray || []) {
+              const name = item.songName || item.title;
+              const artist = item.artist;
+
+              const id = item.deezerID ?? item.deezerId ?? item._id ?? null;
+
+              if (!name || !artist) {
+                skipped.push({
+                  id,
+                  reason: "MISSING_METADATA",
+                });
+                continue;
+              }
+
+              const q = `${name} ${artist}`;
+
+              try {
+                const resp = await http.get("/search", {
+                  params: {
+                    q,
+                    type: "track",
+                    limit: 10, // look at top 10 instead of just 1
+                  },
+                });
+
+                const tracks = resp.data?.tracks?.items || [];
+                if (!tracks.length) {
+                  skipped.push({
+                    id,
+                    reason: "NOT_FOUND",
+                  });
+                  continue;
+                }
+
+                // Score the candidates and pick the best match
+                let bestTrack = null;
+                let bestScore = -Infinity;
+
+                for (const t of tracks) {
+                  const score = scoreTrackCandidate(t, name, artist);
+                  if (score > bestScore) {
+                    bestScore = score;
+                    bestTrack = t;
+                  }
+                }
+
+                if (!bestTrack || !bestTrack.uri) {
+                  skipped.push({
+                    id,
+                    reason: "NOT_FOUND",
+                  });
+                  continue;
+                }
+
+                outUris.push(bestTrack.uri);
+              } catch (err) {
+                console.error("[mapping] search error for", q, err?.message);
+                skipped.push({
+                  id,
+                  reason: "SEARCH_FAILED",
+                });
+              }
+            }
+
+            return { uris: outUris, skipped };
+          },
+        };
+      }
+    }
+    // 3) Fallback: items[].spotifyUri (future real mapping / rehydrate path)
+    else {
       mapper = {
-        mapMany: async () => ({
-          uris,
-          skipped: [], // mapping-time skips would be added here later if needed
-        }),
+        mapMany: async (itemsArray) => {
+          const uris = (itemsArray || [])
+            .map((i) =>
+              typeof i.spotifyUri === "string" ? i.spotifyUri.trim() : null
+            )
+            .filter(Boolean);
+
+          return { uris, skipped: [] };
+        },
       };
     }
 
-    const result = await exportPlaylistWorker(
-      {
-        // Create playlist and return meta that includes id + external URL
-        httpCreate: async ({ name, description }) => {
-          const body = {};
-          if (typeof name === "string" && name.trim()) {
-            body.name = name.trim();
-          }
-          if (typeof description === "string" && description.trim()) {
-            body.description = description.trim();
-          }
+    const client = spotifyClient();
 
-          // Tests stub this endpoint and capture `body`
-          const resp = await http.post("/users/me/playlists", body);
-          return resp.data;
-        },
+    const result = await exportPlaylistWorker({
+      httpCreate: async ({ name, description }) => {
+        const created = await client.createPlaylist({
+          accessToken: access,
+          // Prefer worker-provided name, fall back to payload.name defensively
+          name: name ?? payload.name,
+          description,
+          useV1: true, // keep consistent with tests and /auth/debug/spotify-create
+        });
 
-        // Add tracks with 429-aware retry
-        httpAdd: async ({ playlistId, uris }) => {
-          return postWith429Retry(
-            http,
-            `/playlists/${encodeURIComponent(playlistId)}/tracks`,
-            { uris }
-          );
-        },
+        if (!created || created.ok !== true) {
+          const error =
+            created && created.message
+              ? new Error(created.message)
+              : new Error("Failed to create playlist via Spotify client");
+          error._spotify = created;
+          throw error;
+        }
 
-        mapper,
+        return created.raw;
       },
-      workerInput
-    );
 
-    // exportPlaylistWorker already returns ok/fail contract (TS-02 envelope)
+      httpAdd: async ({ playlistId, uris }) => {
+        return postWith429Retry(
+          http,
+          `/playlists/${encodeURIComponent(playlistId)}/tracks`,
+          { uris }
+        );
+      },
+
+      mapper,
+      items,
+      name: payload.name,
+      description: payload.description,
+      // filters not used by worker yet, so we don't pass it
+    });
+
     return res.status(200).json(result);
   } catch (err) {
     console.error("[playlist/export] unexpected", err?.response?.data || err);
@@ -449,6 +664,7 @@ async function exportPlaylist(req, res) {
     );
   }
 }
+
 
 /* ---------- revoke / refresh / exports ---------- */
 
@@ -472,6 +688,68 @@ async function refresh(req, res) {
   return res.status(200).json({ ok: true });
 }
 
+async function debugSpotifyCreate(req, res) {
+  try {
+    const rawCookie = req.headers.cookie || "";
+    const cookies = parseCookies(rawCookie);
+    const access = cookies["access"];
+
+    if (!access) {
+      return res.status(401).json(
+        fail(CODES.AUTH_SPOTIFY_REQUIRED, "No Spotify session", {
+          hint: "Please reconnect Spotify and try again.",
+        })
+      );
+    }
+
+    const client = spotifyClient();
+
+    const created = await client.createPlaylist({
+      accessToken: access,
+      name: "Melodex Debug Playlist",
+      description: "Created via /auth/debug/spotify-create",
+      useV1: true, // keep consistent with exportPlaylist
+    });
+
+    if (!created || created.ok !== true) {
+      console.error("[debugSpotifyCreate] Spotify error", created);
+      return res
+        .status(502)
+        .json(
+          fail(
+            CODES.EXPORT_PLAYLIST_FAILED || "SPOTIFY_CREATE_FAILED",
+            created?.message || "Failed to create playlist on Spotify.",
+            { _spotify: created }
+          )
+        );
+    }
+
+    console.log("[debugSpotifyCreate] Created playlist", {
+      id: created.id,
+      url: created.url,
+    });
+
+    return res.status(200).json({
+      ok: true,
+      playlistId: created.id,
+      playlistUrl: created.url,
+    });
+  } catch (err) {
+    console.error(
+      "[debugSpotifyCreate] unexpected",
+      err?.response?.data || err
+    );
+    return res
+      .status(502)
+      .json(
+        fail(
+          CODES.EXPORT_PLAYLIST_FAILED || "DEBUG_SPOTIFY_UNEXPECTED",
+          err?.message || "Unexpected error calling Spotify"
+        )
+      );
+  }
+}
+
 module.exports = {
   ...AuthController,
   revoke,
@@ -482,4 +760,5 @@ module.exports = {
   // Expose these for TS-04 tests and debugging
   playlistMode,
   exportStubEnabled,
+  debugSpotifyCreate,
 };

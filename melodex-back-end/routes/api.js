@@ -28,5 +28,9 @@ authRouter.get('/auth/callback', AuthController.callback);
 authRouter.get('/auth/session',  AuthController.session);
 authRouter.post('/auth/revoke',  AuthController.revoke); 
 authRouter.post('/auth/refresh', AuthController.refresh);
+authRouter.post(
+  "/auth/debug/spotify-create",
+  AuthController.debugSpotifyCreate
+);
 
 module.exports = { apiRouter, authRouter };

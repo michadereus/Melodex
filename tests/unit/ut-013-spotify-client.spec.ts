@@ -1,25 +1,21 @@
-// tests/unit/ut-010-spotify-client.spec.ts
-// UT-010 — Spotify client: URLs, auth header, chunking, and 429 surfacing
+// tests/unit/ut-013-spotify-client.spec.ts
+// UT-013 — Spotify client: URLs, auth header, chunking, and 429 surfacing
 
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import nock from "nock";
 
-// This is the unit under test you will implement:
-//   melodex-back-end/clients/spotifyClient.ts
-// It should export a SpotifyClient class with the methods used below.
+// Unit under test:
+//   melodex-back-end/utils/spotifyClient.js
 //
-// Minimal expected surface:
+// Expected surface:
 //
-//   class SpotifyClient {
-//     constructor(config?: { baseUrl?: string });
-//
+//   function SpotifyClient(config?: { baseUrl?: string }): {
 //     createPlaylist(params: {
 //       accessToken: string;
 //       name: string;
 //       description?: string;
 //       public?: boolean;
-//     }): Promise<{ id: string; url: string }>;
-//
+//     }): Promise<{ ok: boolean; id?: string; url?: string }>;
 //     addTracks(params: {
 //       accessToken: string;
 //       playlistId: string;
@@ -28,17 +24,17 @@ import nock from "nock";
 //       kept: string[];
 //       failed: { uri: string; reason: string }[];
 //     }>;
-//
-//     // When addTracks sees a 429, it should reject with an error that has:
-//     //   status === 429
-//     //   retryAfterMs: number | undefined
 //   }
+//
+//   - addTracks must throw on 429 with:
+//       err.status === 429
+//       err.retryAfterMs: number | undefined
 
 import SpotifyClient from "../../melodex-back-end/utils/spotifyClient";
 
 const API_BASE = "https://api.spotify.com";
 
-describe("UT-010 — SpotifyClient", () => {
+describe("UT-013 — SpotifyClient", () => {
   beforeEach(() => {
     nock.cleanAll();
     nock.disableNetConnect();
@@ -56,16 +52,27 @@ describe("UT-010 — SpotifyClient", () => {
     nock.enableNetConnect();
   });
 
-  it("builds correct create/add URLs and sends Authorization header", async () => {
+  it("UT-013.1: resolves /me, creates playlist for that user, and sends Authorization header", async () => {
     const client = SpotifyClient();
 
-    const token = "ut010-token";
-    const name = "UT-010 Playlist";
+    const token = "ut013-token";
+    const name = "UT-013 Playlist";
     const description = "Verifies SpotifyClient wiring";
 
-    // Assert create playlist call
+    // 1) /v1/me — resolve current user id
+    const meScope = nock(API_BASE)
+      .get("/v1/me")
+      .matchHeader("authorization", (value) => {
+        expect(value).toBe(`Bearer ${token}`);
+        return true;
+      })
+      .reply(200, {
+        id: "ut013-user",
+      });
+
+    // 2) /v1/users/{userId}/playlists — create playlist
     const createScope = nock(API_BASE)
-      .post("/v1/users/me/playlists", (body) => {
+      .post("/v1/users/ut013-user/playlists", (body) => {
         expect(body).toMatchObject({
           name,
           description,
@@ -77,15 +84,30 @@ describe("UT-010 — SpotifyClient", () => {
         return true;
       })
       .reply(201, {
-        id: "pl_ut010",
+        id: "pl_ut013",
         external_urls: {
-          spotify: "https://open.spotify.com/playlist/pl_ut010",
+          spotify: "https://open.spotify.com/playlist/pl_ut013",
         },
       });
 
-    // Assert add-tracks call
+    const created = await client.createPlaylist({
+      accessToken: token,
+      name,
+      description,
+    });
+
+    // Shape returned by spotifyClient: { ok, id, url, raw }
+    expect(created.ok).toBe(true);
+    expect(created.id).toBe("pl_ut013");
+    expect(created.url).toBe("https://open.spotify.com/playlist/pl_ut013");
+
+    // Both calls were made.
+    expect(meScope.isDone()).toBe(true);
+    expect(createScope.isDone()).toBe(true);
+
+    // Sanity: addTracks wiring still uses the same Authorization header.
     const addScope = nock(API_BASE)
-      .post("/v1/playlists/pl_ut010/tracks", (body) => {
+      .post("/v1/playlists/pl_ut013/tracks", (body) => {
         expect(Array.isArray(body?.uris)).toBe(true);
         expect(body.uris).toEqual([
           "spotify:track:aaa",
@@ -98,21 +120,11 @@ describe("UT-010 — SpotifyClient", () => {
         expect(value).toBe(`Bearer ${token}`);
         return true;
       })
-      .reply(201, { snapshot_id: "snap_ut010" });
-
-    const created = await client.createPlaylist({
-      accessToken: token,
-      name,
-      description,
-    });
-
-    expect(created.id).toBe("pl_ut010");
-    expect(created.url).toBe("https://open.spotify.com/playlist/pl_ut010");
-    expect(createScope.isDone()).toBe(true);
+      .reply(201, { snapshot_id: "snap_ut013" });
 
     const result = await client.addTracks({
       accessToken: token,
-      playlistId: created.id,
+      playlistId: "pl_ut013",
       uris: ["spotify:track:aaa", "spotify:track:bbb", "spotify:track:ccc"],
     });
 
@@ -126,10 +138,10 @@ describe("UT-010 — SpotifyClient", () => {
     expect(addScope.isDone()).toBe(true);
   });
 
-  it("chunks addTracks URIs into batches of ≤100 per call", async () => {
+  it("UT-013.2: chunks addTracks URIs into batches of ≤100 per call", async () => {
     const client = SpotifyClient();
 
-    const token = "ut010-token";
+    const token = "ut013-token";
     const playlistId = "pl_chunk";
 
     // 250 URIs → expect 3 calls: 100, 100, 50
@@ -137,15 +149,6 @@ describe("UT-010 — SpotifyClient", () => {
     for (let i = 0; i < 250; i++) {
       uris.push(`spotify:track:${i.toString().padStart(3, "0")}`);
     }
-
-    const createScope = nock(API_BASE)
-      .post("/v1/users/me/playlists")
-      .reply(201, {
-        id: playlistId,
-        external_urls: {
-          spotify: `https://open.spotify.com/playlist/${playlistId}`,
-        },
-      });
 
     const batchSizes: number[] = [];
 
@@ -158,15 +161,6 @@ describe("UT-010 — SpotifyClient", () => {
         // Always 201 for this test.
         return [201, { snapshot_id: `snap_${batchSizes.length}` }];
       });
-
-    // createPlaylist is optional for chunking, but it is how the worker will actually use it;
-    // we re-use the same client interface here.
-    const created = await client.createPlaylist({
-      accessToken: token,
-      name: "Chunking test",
-    });
-    expect(created.id).toBe(playlistId);
-    expect(createScope.isDone()).toBe(true);
 
     const result = await client.addTracks({
       accessToken: token,
@@ -181,20 +175,11 @@ describe("UT-010 — SpotifyClient", () => {
     expect(result.failed.length).toBe(0);
   });
 
-  it("surfaces 429 with retryAfterMs in the thrown error", async () => {
+  it("UT-013.3: surfaces 429 with retryAfterMs in the thrown error", async () => {
     const client = SpotifyClient();
 
-    const token = "ut010-token";
+    const token = "ut013-token";
     const playlistId = "pl_429";
-
-    const createScope = nock(API_BASE)
-      .post("/v1/users/me/playlists")
-      .reply(201, {
-        id: playlistId,
-        external_urls: {
-          spotify: `https://open.spotify.com/playlist/${playlistId}`,
-        },
-      });
 
     const addScope = nock(API_BASE)
       .post(`/v1/playlists/${playlistId}/tracks`)
@@ -205,13 +190,6 @@ describe("UT-010 — SpotifyClient", () => {
           "Retry-After": "1",
         }
       );
-
-    const created = await client.createPlaylist({
-      accessToken: token,
-      name: "429 test",
-    });
-    expect(created.id).toBe(playlistId);
-    expect(createScope.isDone()).toBe(true);
 
     let caught: any;
     try {
