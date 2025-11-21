@@ -112,7 +112,9 @@ const Rankings = () => {
   const RECENTLY_DONE_WINDOW_MS = 5 * 60 * 1000;
   const isCypressEnv =
     typeof window !== "undefined" &&
-    (!!window.Cypress || window.__E2E_REQUIRE_AUTH__ === false);
+    !!window.Cypress &&
+    window.__E2E_REQUIRE_AUTH__ === false;
+
   const isJsdom =
     typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent);
 
@@ -617,6 +619,9 @@ const Rankings = () => {
 
   // Auto-open Export after OAuth if we detect intent or ?export=1
   useEffect(() => {
+    // IMPORTANT: don't consume the intent until we actually have songs
+    if (!sortedSongs || sortedSongs.length === 0) return;
+
     const params = new URLSearchParams(window.location.search || "");
     const wantsExport = params.get("export") === "1" || consumeExportIntent();
     if (!wantsExport) return;
@@ -631,6 +636,7 @@ const Rankings = () => {
         window.location.href = decision.to;
         return;
       }
+
       // Connected → open selection mode with all visible songs
       seedSelectedAll(sortedSongs);
       setExportSuccessUrl("");
@@ -649,43 +655,39 @@ const Rankings = () => {
   }, [sortedSongs.length]);
 
   async function onExportClick() {
-    // Test-only fast path (jsdom / Vitest). You already compute isCypressEnv above:
-    if (isJsdom) {
+    // Cypress/jsdom fast path (tests can bypass auth)
+    if (isCypressEnv) {
       seedSelectedAll(sortedSongs);
       setExportSuccessUrl("");
+      setExportError(null);
+      setExportState(ExportState.Idle); // reset when opening fresh
       setSelectionMode(true);
       setPlaylistName((prev) =>
         String(prev || "").trim() ? prev : formatDefaultPlaylistName()
       );
       return;
     }
+
+    // Real browser path: ensure we have a Spotify session first
     const decision = await ensureSpotifyConnected(AUTH_ROOT, {
       aggressive: true,
     });
+
     if (decision.shouldRedirect) {
+      // Remember that the user clicked Export so we can resume after OAuth
       markExportIntent();
-
-      // carry current filters through the round-trip
-      const params = new URLSearchParams();
-      params.set("export", "1");
-      if (selectedGenre && selectedGenre !== "any") {
-        params.set("genre", selectedGenre);
-      }
-      if (selectedSubgenre && selectedSubgenre !== "any") {
-        params.set("subgenre", selectedSubgenre);
-      }
-
-      const returnTo = encodeURIComponent(`/rankings?${params.toString()}`);
-      const url = `${decision.to}${
-        decision.to.includes("?") ? "&" : "?"
-      }returnTo=${returnTo}`;
-      window.location.href = url;
+      window.location.href = decision.to;
       return;
     }
 
-    // Connected → inline selection mode
+    if (!sortedSongs || sortedSongs.length === 0) {
+      return;
+    }
+
     seedSelectedAll(sortedSongs);
     setExportSuccessUrl("");
+    setExportError(null);
+    setExportState(ExportState.Idle); // reset when opening from UI
     setSelectionMode(true);
     setPlaylistName((prev) =>
       String(prev || "").trim() ? prev : formatDefaultPlaylistName()
@@ -699,6 +701,8 @@ const Rankings = () => {
     setPlaylistDescription("");
     setExporting(false);
     setExportSuccessUrl("");
+    setExportError(null);
+    setExportState(ExportState.Idle); // <- reset so next session starts clean
   };
 
   const doExport = async () => {

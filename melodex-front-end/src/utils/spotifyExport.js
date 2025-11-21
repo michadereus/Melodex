@@ -17,7 +17,7 @@ export async function postUrisInChunks(uris = [], chunkSize = 100, postFn = asyn
   const size = Number(chunkSize);
 
   if (!Number.isFinite(size) || size <= 0) {
-    throw new Error('chunkSize must be a positive integer');
+    throw new Error("chunkSize must be a positive integer");
   }
   if (list.length === 0) return { batches: 0, total: 0 };
 
@@ -35,8 +35,7 @@ export async function postUrisInChunks(uris = [], chunkSize = 100, postFn = asyn
 
 /** ---------- Filters ---------- **/
 export function buildFilters(selection = {}) {
-  const norm = (v) =>
-    typeof v === "string" ? v.trim().toLowerCase() : v;
+  const norm = (v) => (typeof v === "string" ? v.trim().toLowerCase() : v);
 
   const genre = norm(selection.genre);
   const subgenre = norm(selection.subgenre);
@@ -57,9 +56,9 @@ export function buildFilters(selection = {}) {
 
 // local normalize (trim → collapse spaces → lowercase)
 function _norm(s) {
-  return String(s ?? '')
+  return String(s ?? "")
     .trim()
-    .replace(/\s+/g, ' ')
+    .replace(/\s+/g, " ")
     .toLowerCase();
 }
 
@@ -69,7 +68,7 @@ function _norm(s) {
 function _parseDecadeWindow(decadeRaw) {
   if (decadeRaw == null) return null;
   const d = _norm(decadeRaw);
-  if (!d || d === 'all decades') return null;
+  if (!d || d === "all decades") return null;
 
   const mLabel = d.match(/^(\d{4})s$/); // "1990s"
   if (mLabel) {
@@ -90,7 +89,7 @@ function _parseDecadeWindow(decadeRaw) {
 // Accepts number (1995) or strings like "1990s", "1995", "1990-1999".
 function _extractYear(decadeVal) {
   if (decadeVal == null) return null;
-  if (typeof decadeVal === 'number') return decadeVal;
+  if (typeof decadeVal === "number") return decadeVal;
   const s = String(decadeVal).trim();
   const mYear = s.match(/(\d{4})/);
   return mYear ? parseInt(mYear[1], 10) : null;
@@ -106,31 +105,34 @@ function _extractYear(decadeVal) {
 export function selectRankedByRules(songs, rules = {}) {
   if (!Array.isArray(songs)) return [];
 
-  const genre = _norm(rules.genre ?? 'any');
-  const subgenre = _norm(rules.subgenre ?? 'any');
+  const genre = _norm(rules.genre ?? "any");
+  const subgenre = _norm(rules.subgenre ?? "any");
 
-  const decadeNorm = _norm(rules.decade ?? 'all decades');
-  const decadeIsAll = (decadeNorm === 'all decades');
+  const decadeNorm = _norm(rules.decade ?? "all decades");
+  const decadeIsAll = decadeNorm === "all decades";
 
   // Window if the decade is a label ("1990s") or a range ("1990-1999")
   const decadeWindow = _parseDecadeWindow(decadeNorm);
 
-  const wantGenre = genre !== 'any';
-  const wantSub   = subgenre !== 'any';
+  const wantGenre = genre !== "any";
+  const wantSub = subgenre !== "any";
 
   function matchesDecade(songDecade) {
     // If user didn’t set a decade, everything passes decade check.
     if (decadeIsAll) return true;
 
     // Numeric year like 1995
-    if (typeof songDecade === 'number') {
+    if (typeof songDecade === "number") {
       if (!Number.isFinite(songDecade)) return false;
       if (decadeWindow) {
-        return songDecade >= decadeWindow.start && songDecade <= decadeWindow.end;
+        return (
+          songDecade >= decadeWindow.start && songDecade <= decadeWindow.end
+        );
       }
       const mRange = decadeNorm.match(/^(\d{4})\s*-\s*(\d{4})$/);
       if (mRange) {
-        const a = parseInt(mRange[1], 10), b = parseInt(mRange[2], 10);
+        const a = parseInt(mRange[1], 10),
+          b = parseInt(mRange[2], 10);
         if (a > b) return false;
         return songDecade >= a && songDecade <= b;
       }
@@ -139,7 +141,7 @@ export function selectRankedByRules(songs, rules = {}) {
     }
 
     // String decade like "1990s" or "1995"
-    if (typeof songDecade === 'string') {
+    if (typeof songDecade === "string") {
       const sNorm = _norm(songDecade);
 
       if (decadeWindow) {
@@ -154,7 +156,8 @@ export function selectRankedByRules(songs, rules = {}) {
       // range fallback
       const mRange = decadeNorm.match(/^(\d{4})\s*-\s*(\d{4})$/);
       if (mRange) {
-        const a = parseInt(mRange[1], 10), b = parseInt(mRange[2], 10);
+        const a = parseInt(mRange[1], 10),
+          b = parseInt(mRange[2], 10);
         if (a > b) return false;
         const y = _extractYear(songDecade);
         if (y == null) return false;
@@ -184,7 +187,7 @@ export function selectRankedByRules(songs, rules = {}) {
     // exclude items with null/empty decade immediately.
     if (!decadeIsAll) {
       const d = song?.decade;
-      if (d == null || String(d).trim() === '') return false;
+      if (d == null || String(d).trim() === "") return false;
     }
 
     // decade matching proper
@@ -195,6 +198,118 @@ export function selectRankedByRules(songs, rules = {}) {
 }
 
 /** ---------- Mapping ---------- **/
+
+function normalizeWhitespace(str) {
+  return String(str || "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeArtist(artist) {
+  return normalizeWhitespace(artist).toLowerCase();
+}
+
+/**
+ * Aggressive scrubbing for titles:
+ * - lowercases
+ * - strips parentheses content `(feat. X)` etc.
+ * - removes common variant suffixes (Remaster, Live, Commentary, Karaoke, Short Film)
+ * - removes "feat./ft./featuring/with ..." tails
+ */
+function normalizeTitleForSearch(title) {
+  let s = String(title || "").toLowerCase();
+
+  // Normalize fancy dashes to a simple hyphen
+  s = s.replace(/[–—]/g, "-");
+
+  // Drop parentheses and their content: (feat. X), (Live), etc.
+  s = s.replace(/\(.*?\)/g, " ");
+
+  // Drop "feat/ft/featuring/with ..." tails
+  s = s.replace(/\b(feat\.?|ft\.?|featuring|with)\b.*$/g, " ");
+
+  // Drop common variant suffixes like "- Remastered 2011", "- Live at …"
+  s = s
+    .replace(
+      /-?\s*(remaster(ed)?(\s*\d{4})?|live.*|commentary.*|short film.*|karaoke.*)$/g,
+      " "
+    )
+    // Also catch "... 2011 remaster" style endings
+    .replace(/\s+\d{4}\s+remaster(ed)?$/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return s;
+}
+
+function isVariantName(name) {
+  const n = String(name || "").toLowerCase();
+  return /\b(remaster(ed)?|live|commentary|short film|karaoke)\b/.test(n);
+}
+
+/**
+ * Pick a single Spotify URI from a search result.
+ * - supports { uri: string } or { items: [{ uri, name, duration_ms }, ...] }
+ * - uses duration ±3000ms when provided
+ * - prefers non-variant names (no "Remaster"/"Live"/etc.)
+ * - if still ambiguous and we have duration, picks closest by duration
+ */
+function pickUriFromSearchResult(result, item) {
+  if (!result) return null;
+
+  // Simple shape: { uri: "spotify:track:..." }
+  if (typeof result.uri === "string") {
+    return result.uri;
+  }
+
+  const candidates = Array.isArray(result.items) ? result.items : [];
+  if (!candidates.length) return null;
+
+  const durationTarget =
+    item && typeof item.durationMs === "number" ? item.durationMs : null;
+
+  let pool = candidates;
+
+  // 1) Use duration ±3000ms if we have a target
+  if (durationTarget != null) {
+    const within = candidates.filter(
+      (c) =>
+        typeof c.duration_ms === "number" &&
+        Math.abs(c.duration_ms - durationTarget) <= 3000
+    );
+    if (within.length) {
+      pool = within;
+    }
+  }
+
+  // 2) Prefer non-variant names when possible (no “Remaster”, “Live”, etc.)
+  const nonVariant = pool.filter((c) => !isVariantName(c.name));
+  if (nonVariant.length) {
+    pool = nonVariant;
+  }
+
+  // 3) If still multiple and we have duration, choose the closest by duration
+  if (durationTarget != null && pool.length > 1) {
+    let best = null;
+    let bestDiff = Infinity;
+    for (const c of pool) {
+      if (typeof c.duration_ms !== "number") continue;
+      const diff = Math.abs(c.duration_ms - durationTarget);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = c;
+      }
+    }
+    if (best && typeof best.uri === "string") {
+      return best.uri;
+    }
+  }
+
+  // 4) Fallback: first candidate in the remaining pool, then first overall
+  const chosen = pool[0] || candidates[0];
+  return chosen && typeof chosen.uri === "string" ? chosen.uri : null;
+}
+
 /**
  * Map a list of ranked items (possibly Deezer-origin) to Spotify URIs.
  * Rules:
@@ -206,111 +321,65 @@ export function selectRankedByRules(songs, rules = {}) {
  *  - Deduplicate by URI, preserving first occurrence (rank order)
  *  - Return shape: { uris: string[] }
  *
- * The `search` function may return either:
+ * The `searchFn` function may return either:
  *  - `{ uri }`  OR
  *  - `{ items: [{ uri, name, duration_ms }, ...] }`
  */
-export async function mapDeezerToSpotifyUris(items = [], search = async () => null) {
-  const uris = [];
+export async function mapDeezerToSpotifyUris(items, searchFn) {
+  if (!Array.isArray(items) || typeof searchFn !== "function") {
+    return { uris: [] };
+  }
+
   const seen = new Set();
+  const uris = [];
 
-  const normText = (s) =>
-    (s ?? "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, " ");
+  // Filter out null/undefined and removed/skipped up front; preserve ordering.
+  const cleanItems = items.filter(
+    (raw) => raw && !raw.removed && !raw.skipped
+  );
 
-  // inside spotifyExport.js (Mapping section helpers)
-  const scrubTitle = (s) => {
-    // normalize, drop anything in parentheses, normalize dashes to spaces
-    let base = normText(s)
-      .replace(/\([^)]*\)/g, " ")  // remove (feat. …), (Live), etc
-      .replace(/[–—-]/g, " ")      // em/en dashes → space
-      .replace(/\s+/g, " ")
-      .trim();
+  for (const raw of cleanItems) {
+    const item = raw || {};
 
-    // Strip common variant suffixes at the end (e.g., "Remastered 2011", "Live", "Remix", "Radio Edit")
-    // Handles forms like: " - Remastered", " – Remastered 2011", " — Radio Edit"
-    base = base
-      .replace(
-        /\b(remaster(?:ed)?(?:\s+\d{4})?|live|remix|acoustic|instrumental|edit|single version|radio edit)\b.*$/i,
-        ""
-      )
-      // Also catch "... 2011 Remaster" style endings
-      .replace(/\s+\d{4}\s+remaster(?:ed)?$/i, "")
-      .replace(/\s+/g, " ")
-      .trim();
-
-    return base;
-  };
-
-
-  const isVariant = (name) => /\b(remaster|live|remix|acoustic|instrumental|edit)\b/i.test(name || "");
-
-  const pickBest = (candidates = [], wantMs) => {
-    // Prefer canonical (non-variant) if present
-    const canon = candidates.filter((c) => !isVariant(c.name));
-    const pool = canon.length ? canon : candidates;
-    if (!pool.length) return null;
-    if (!Number.isFinite(wantMs)) return pool[0];
-    // Duration tie-break within ±3s
-    const within = pool
-      .map((c) => ({ c, diff: Math.abs((c.duration_ms ?? Infinity) - wantMs) }))
-      .filter((x) => x.diff <= 3000)
-      .sort((a, b) => a.diff - b.diff);
-    return (within[0]?.c) ?? pool[0];
-  };
-
-  for (const it of items) {
-    if (!it || it.removed || it.skipped) continue;
-
-    // Short-circuit if item already has a valid uri
-    const rawUri = it.spotifyUri || it.spotify_uri || it.uri;
-    if (typeof rawUri === "string" && /^spotify:track:[A-Za-z0-9]+$/.test(rawUri.trim())) {
-      const uri = rawUri.trim();
-      if (!seen.has(uri)) {
-        seen.add(uri);
-        uris.push(uri);
+    const spotifyUri = item.spotifyUri;
+    if (spotifyUri && typeof spotifyUri === "string") {
+      if (!seen.has(spotifyUri)) {
+        seen.add(spotifyUri);
+        uris.push(spotifyUri);
       }
       continue;
     }
 
-    const wantMs = Number(it.durationMs);
-    let foundUri = null;
+    const isrc = item.isrc;
+    const titleRaw = item.title ?? item.songName ?? "";
+    const artistRaw = item.artist ?? "";
 
-    // Prefer ISRC
-    const isrc = typeof it.isrc === "string" ? it.isrc.trim() : null;
+    const normalizedTitle = normalizeTitleForSearch(titleRaw);
+    const normalizedArtist = normalizeArtist(artistRaw);
+
+    let result = null;
+
+    // ISRC path preferred when available
     if (isrc) {
-      const r = await search({ isrc });
-      if (r?.uri) {
-        foundUri = r.uri;
-      } else if (Array.isArray(r?.items)) {
-        const best = pickBest(r.items, wantMs);
-        foundUri = best?.uri ?? null;
-      }
+      result = await searchFn({ isrc });
+    } else if (normalizedTitle || normalizedArtist) {
+      // Fallback: normalized title + artist
+      result = await searchFn({
+        title: normalizedTitle,
+        artist: normalizedArtist,
+      });
+    } else {
+      // Nothing meaningful to search with
+      continue;
     }
 
-    // Fallback to title + artist
-    if (!foundUri) {
-      const title = scrubTitle(it.title ?? it.songName);
-      const artist = normText(it.artist);
-      if (title && artist) {
-        const r = await search({ title, artist });
-        if (r?.uri) {
-          foundUri = r.uri;
-        } else if (Array.isArray(r?.items)) {
-          const best = pickBest(r.items, wantMs);
-          foundUri = best?.uri ?? null;
-        }
-      }
-    }
+    const uri = pickUriFromSearchResult(result, {
+      durationMs: item.durationMs,
+    });
 
-    if (foundUri && /^spotify:track:[A-Za-z0-9]+$/.test(foundUri)) {
-      if (!seen.has(foundUri)) {
-        seen.add(foundUri);
-        uris.push(foundUri);
-      }
+    if (uri && !seen.has(uri)) {
+      seen.add(uri);
+      uris.push(uri);
     }
   }
 
@@ -323,21 +392,29 @@ export async function mapDeezerToSpotifyUris(items = [], search = async () => nu
  * Defaults:
  *  - name: "Melodex Playlist YYYY-MM-DD"
  *  - description: "Generated by Melodex"
- * If `uris` provided, carry through as-is (don’t remap here).
+ * - defensively filters URIs to non-empty strings
  */
-export function buildCreatePayload({ name, description, uris = [] } = {}) {
-  const today = new Date();
-  const yyyy = String(today.getFullYear());
-  const mm = String(today.getMonth() + 1).padStart(2, "0");
-  const dd = String(today.getDate()).padStart(2, "0");
+export function buildCreatePayload(input = {}) {
+  const nameRaw = normalizeWhitespace(input.name ?? "");
+  const descRaw = normalizeWhitespace(input.description ?? "");
+  const rawUris = Array.isArray(input.uris) ? input.uris : [];
+
+  // Keep only non-empty strings; tests only assert that valid ones survive.
+  const safeUris = rawUris.filter(
+    (u) => typeof u === "string" && u.trim().length > 0
+  );
+
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const dd = String(now.getDate()).padStart(2, "0");
 
   const defaultName = `Melodex Playlist ${yyyy}-${mm}-${dd}`;
-  const safeName = (name ?? "").toString().trim() || defaultName;
-  const safeDesc = (description ?? "").toString().trim() || "Generated by Melodex";
+  const defaultDescription = "Generated by Melodex";
 
   return {
-    name: safeName,
-    description: safeDesc,
-    uris: Array.isArray(uris) ? uris : [],
+    name: nameRaw || defaultName,
+    description: descRaw || defaultDescription,
+    uris: safeUris,
   };
 }

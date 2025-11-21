@@ -6,6 +6,13 @@ const { chunk, MAX_URIS_PER_ADD = 100 } = require('./chunk'); // MAX_URIS_PER_AD
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function defaultPlaylistName(d = new Date()) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `Melodex Playlist ${yyyy}-${mm}-${dd}`;
+}
+
 /**
  * backoff policy helper (bounded). If Retry-After present, use it; else 500ms → 2000ms → 5000ms (default).
  */

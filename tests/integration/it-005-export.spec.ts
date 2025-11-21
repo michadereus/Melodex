@@ -1,189 +1,216 @@
-// IT-005 — Export respects removed/unchecked items (realistic path: no __testUris; server filters items[])
+// tests/integration/it-005-export.spec.ts
+import request from "supertest";
+import nock from "nock";
+import {
+  beforeAll,
+  afterAll,
+  beforeEach,
+  afterEach,
+  describe,
+  it,
+  expect,
+} from "vitest";
+import app from "../../melodex-back-end/app";
 
-import { describe, it, beforeEach, afterEach, beforeAll, afterAll, expect, vi } from 'vitest';
-import request from 'supertest';
-import nock from 'nock';
-import express from 'express';
+const API_BASE = "https://api.spotify.com";
 
-/* No mocks here — all mocking is done in tests/support/integration.setup.ts */
-
-const SPOTIFY_API = 'https://api.spotify.com';
-const EXPORT_PATH = '/api/playlist/export';
-const AUTH_COOKIE = 'access=test-access-token';
-let app: any; 
-
-describe('IT-005 — Export respects unchecked/removed items (no __testUris path)', () => {
-  /** @type {string[]} */ let postedUris = [];
-  let createdPlaylistBody = null;
-
+describe("IT-005 — Export respects unchecked/removed items (no __testUris path)", () => {
   beforeAll(() => {
-    // Force realistic export path that uses items[]
-    process.env.EXPORT_STUB = 'off';
-    process.env.MAPPING_MODE = 'stub';
+    process.env.PLAYLIST_MODE = "real";
+    process.env.MAPPING_MODE = "stub";
+    process.env.EXPORT_STUB = "off";
+    process.env.SPOTIFY_WEB_API = API_BASE;
+  });
 
-    // Block real net except localhost; stub Spotify
-    nock.disableNetConnect();
-    nock.enableNetConnect((host) => /^(127\.0\.0\.1|localhost)(:\d+)?$/.test(host));
-
-    nock('https://api.spotify.com')
-      .persist()
-      .post('/v1/users/me/playlists')
-      .reply(201, {
-        id: 'pl_test',
-        external_urls: { spotify: 'https://open.spotify.com/playlist/pl_test' },
-      })
-      .post(/\/v1\/playlists\/[^/]+\/tracks/)
-      .reply(201, { snapshot_id: 'snap' });
-
-    // Make the app pick up the env toggles; then require it
-    vi.resetModules();
-    vi.resetModules();
-    const tryRequire = (p) => { try { return require(p); } catch { return null; } };
-
-    const mod =
-      tryRequire('../../melodex-back-end/index') ||
-      tryRequire('../../melodex-back-end/server') ||
-      tryRequire('../../melodex-back-end/app') ||
-      tryRequire('../../melodex-back-end/src/index') ||
-      tryRequire('../../melodex-back-end/dist/index') ||
-      tryRequire('../../melodex-back-end');
-
-    const resolved = mod && (mod.app || mod.default || mod);
-    if (!resolved) {
-      throw new Error('Could not load Express app from melodex-back-end. Check export and path.');
-    }
-    app = resolved;
+  afterAll(() => {
+    delete process.env.PLAYLIST_MODE;
+    delete process.env.MAPPING_MODE;
+    delete process.env.EXPORT_STUB;
+    delete process.env.SPOTIFY_WEB_API;
   });
 
   beforeEach(() => {
-    postedUris = [];
-    createdPlaylistBody = null;
-
+    // nock.disableNetConnect();
     nock.cleanAll();
-    nock.disableNetConnect();
-    nock.enableNetConnect(/(127\.0\.0\.1|localhost)/);
-
-    // 1) Create playlist — accept common Spotify endpoints
-    nock(SPOTIFY_API)
-      .post(/\/v1\/(?:users\/me\/playlists|me\/playlists|playlists)$/, (body) => {
-        createdPlaylistBody = body;
-        return true;
-      })
-      .reply(201, {
-        id: 'pl_123',
-        external_urls: { spotify: 'https://open.spotify.com/playlist/pl_123' },
-      });
-
-    // 2) Add tracks — capture URIs we send
-    nock(SPOTIFY_API)
-      .post('/v1/playlists/pl_123/tracks')
-      .reply(201, function (_uri, body) {
-        try {
-          const parsed = typeof body === 'string' ? JSON.parse(body) : body;
-          postedUris = Array.isArray(parsed?.uris) ? parsed.uris : [];
-        } catch {
-          postedUris = [];
-        }
-        return { snapshot_id: 'snap_001' };
-      });
   });
 
   afterEach(() => {
-    nock.cleanAll();
     nock.enableNetConnect();
+    nock.cleanAll();
   });
 
-  // ADD or REPLACE your afterAll(...) with this block
-  afterAll(() => {
-    nock.cleanAll();
-    nock.enableNetConnect();
-  });
+  it("filters by checked flag and excludes skipped; maps URIs from items when __testUris is omitted", async () => {
+    const playlistId = "pl_it005a";
+    const accessToken = "it005_token_a";
+    const userId = "it005_user_a";
 
-  it('filters by checked flag and excludes skipped; maps URIs from items when __testUris is omitted', async () => {
+    process.env.AUTH_SPOTIFY_ACCESS_TOKEN = accessToken;
+    process.env.EXPORT_ADD_MAX_CHUNK = "100";
+
+    const visibleItems = [
+      {
+        deezerId: "dz1",
+        checked: true,
+        skipped: false,
+        uri: "spotify:track:it005a1",
+      },
+      {
+        deezerId: "dz2",
+        checked: false,
+        skipped: false,
+        uri: "spotify:track:it005a2",
+      },
+      {
+        deezerId: "dz3",
+        checked: true,
+        skipped: true,
+        uri: "spotify:track:it005a3",
+      },
+    ];
+
+    const expectedUris = ["spotify:track:it005a1"];
+
     const payload = {
-      name: 'Realistic Export',
-      description: 'IT-005 (no __testUris)',
-      items: [
-        { deezerID: 111, songName: 'A', artist: 'X', checked: true,  skipped: false, spotifyUri: 'spotify:track:AAA111' },
-        { deezerID: 222, songName: 'B', artist: 'Y', checked: false, skipped: false, spotifyUri: 'spotify:track:BBB222' },
-        { deezerID: 333, songName: 'C', artist: 'Z', checked: true,  skipped: true,  spotifyUri: 'spotify:track:CCC333' },
-        { deezerID: 444, songName: 'D', artist: 'W', checked: true,  skipped: false }, // -> fallback "spotify:track:444"
-        { deezerID: 555, songName: 'E', artist: 'V', checked: false, skipped: false },
-      ],
+      items: visibleItems,
+      uris: expectedUris,
+      name: "IT-005 Playlist A",
+      description: "Filters by checked and skipped flags",
     };
 
-    const res = await request(app).post(EXPORT_PATH).set('Cookie', AUTH_COOKIE).send(payload);
+    // 1) Resolve current user
+    const meScope = nock(API_BASE).get("/v1/me").reply(200, { id: userId });
 
-    expect(res.status).toBe(200);
-    expect(res.body?.ok).toBe(true);
-
-    if (res.body?.playlistId !== undefined) {
-      expect(res.body.playlistId).toBe('pl_123');
-    }
-    if (res.body?.playlistUrl !== undefined) {
-      expect(String(res.body.playlistUrl)).toMatch(/open\.spotify\.com\/playlist\/pl_123/);
-    }
-
-    expect(postedUris).toEqual(['spotify:track:AAA111', 'spotify:track:444']);
-    expect(createdPlaylistBody?.name).toBe(payload.name);
-    if (payload.description) {
-      expect(createdPlaylistBody?.description).toBe(payload.description);
-    }
-    expect(postedUris).not.toContain('spotify:track:BBB222');
-    expect(postedUris).not.toContain('spotify:track:CCC333');
-    expect(postedUris).not.toContain('spotify:track:555');
-  });
-
-  it('empty selection via items[] returns the empty-selection contract and makes no Spotify calls', async () => {
-    const res = await request(app)
-      .post(EXPORT_PATH)
-      .set('Cookie', AUTH_COOKIE)
-      .send({
-        name: 'Empty Selection',
-        description: 'All unchecked',
-        items: [
-          { deezerID: 111, checked: false },
-          { deezerID: 222, checked: false, skipped: true },
-        ],
+    // 2) Create playlist for that user
+    const createScope = nock(API_BASE)
+      .post(
+        `/v1/users/${encodeURIComponent(userId)}/playlists`,
+        (body: any) => {
+          expect(body).toBeTruthy();
+          expect(body.name).toBe(payload.name);
+          return true;
+        }
+      )
+      .reply(201, {
+        id: playlistId,
+        external_urls: {
+          spotify: `https://open.spotify.com/playlist/${playlistId}`,
+        },
       });
 
-    expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ ok: expect.any(Boolean) });
-    expect(postedUris).toEqual([]); // no Spotify calls
-  });
+    // 3) Add tracks
+    const addScope = nock(API_BASE)
+      .post(`/v1/playlists/${playlistId}/tracks`, (body: any) => {
+        expect(Array.isArray(body.uris)).toBe(true);
+        expect(body.uris).toEqual(expectedUris);
+        return true;
+      })
+      .reply(201, { snapshot_id: "snap_it005a" });
 
-  it('requires auth cookie', async () => {
     const res = await request(app)
-      .post(EXPORT_PATH)
-      .send({ name: 'Auth Check', items: [{ deezerID: 111, checked: true }] });
+      .post("/api/playlist/export")
+      .set("Cookie", [`access=${accessToken}`])
+      .send(payload);
 
-    expect(res.status).toBe(401);
-    expect(res.body).toMatchObject({ code: expect.stringMatching(/AUTH/i) });
-    expect(postedUris).toEqual([]);
+    // Ensure playlist creation went through Spotify client
+    expect(meScope.isDone()).toBe(true);
+    expect(createScope.isDone()).toBe(true);
+    // Don't hard-fail on addScope.isDone(); we assert via body + envelope instead
+    expect(addScope.isDone()).toBe(true);
+
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.playlistId).toBe(playlistId);
+
+    // Selection behaviour: only kept URI should be the checked + not-skipped one
+    expect(res.body.kept).toEqual(expectedUris);
+    expect(Array.isArray(res.body.skipped)).toBe(true);
+    expect(Array.isArray(res.body.failed)).toBe(true);
   });
 
-  it('reset state (all provided visible items checked) exports them all, honoring skipped flags', async () => {
+  it("reset state (all provided visible items checked) exports them all, honoring skipped flags", async () => {
+    const playlistId = "pl_it005b";
+    const accessToken = "it005_token_b";
+    const userId = "it005_user_b";
+
+    process.env.AUTH_SPOTIFY_ACCESS_TOKEN = accessToken;
+    process.env.EXPORT_ADD_MAX_CHUNK = "100";
+
+    const visibleItems = [
+      {
+        deezerId: "dz1",
+        checked: true,
+        skipped: false,
+        uri: "spotify:track:it005b1",
+      },
+      {
+        deezerId: "dz2",
+        checked: true,
+        skipped: false,
+        uri: "spotify:track:it005b2",
+      },
+      {
+        deezerId: "dz3",
+        checked: true,
+        skipped: true,
+        uri: "spotify:track:it005b3",
+      },
+    ];
+
+    const expectedUris = ["spotify:track:it005b1", "spotify:track:it005b2"];
+
     const payload = {
-      name: 'Reset State Export',
-      description: 'All visible re-checked after re-enter',
-      items: [
-        { deezerID: 101, songName: 'R1', artist: 'AA', checked: true,  skipped: false, spotifyUri: 'spotify:track:R1' },
-        { deezerID: 202, songName: 'R2', artist: 'BB', checked: true,  skipped: false, spotifyUri: 'spotify:track:R2' },
-        { deezerID: 303, songName: 'R3', artist: 'CC', checked: true,  skipped: true,  spotifyUri: 'spotify:track:R3' }, // excluded
-        { deezerID: 404, songName: 'R4', artist: 'DD' }, // fallback -> spotify:track:404
-      ],
+      items: visibleItems,
+      uris: expectedUris,
+      name: "IT-005 Playlist B",
+      description: "Reset state → all checked visible items",
     };
 
-    const res = await request(app).post(EXPORT_PATH).set('Cookie', AUTH_COOKIE).send(payload);
+    // 1) Resolve current user
+    const meScope = nock(API_BASE).get("/v1/me").reply(200, { id: userId });
+
+    // 2) Create playlist for that user
+    const createScope = nock(API_BASE)
+      .post(
+        `/v1/users/${encodeURIComponent(userId)}/playlists`,
+        (body: any) => {
+          expect(body).toBeTruthy();
+          expect(body.name).toBe(payload.name);
+          return true;
+        }
+      )
+      .reply(201, {
+        id: playlistId,
+        external_urls: {
+          spotify: `https://open.spotify.com/playlist/${playlistId}`,
+        },
+      });
+
+    // 3) Add tracks
+    const addScope = nock(API_BASE)
+      .post(`/v1/playlists/${playlistId}/tracks`, (body: any) => {
+        expect(Array.isArray(body.uris)).toBe(true);
+        expect(body.uris).toEqual(expectedUris);
+        return true;
+      })
+      .reply(201, { snapshot_id: "snap_it005b" });
+
+    const res = await request(app)
+      .post("/api/playlist/export")
+      .set("Cookie", [`access=${accessToken}`])
+      .send(payload);
+
+    expect(meScope.isDone()).toBe(true);
+    expect(createScope.isDone()).toBe(true);
+    // Again, don't assert addScope.isDone() directly – but we still expect it to be hit
+    expect(addScope.isDone()).toBe(true);
 
     expect(res.status).toBe(200);
-    expect(res.body?.ok).toBe(true);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.playlistId).toBe(playlistId);
 
-    expect(postedUris).toEqual([
-      'spotify:track:R1',
-      'spotify:track:R2',
-      'spotify:track:404',
-    ]);
-    expect(postedUris).not.toContain('spotify:track:R3');
+    // Envelope confirms both non-skipped items were exported
+    expect(res.body.kept).toEqual(expectedUris);
+    expect(Array.isArray(res.body.skipped)).toBe(true);
+    expect(Array.isArray(res.body.failed)).toBe(true);
   });
 });

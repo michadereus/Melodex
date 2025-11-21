@@ -1,45 +1,60 @@
-// melodex-back-end/auth/cookies.js
+// melodex-back-end/utils/cookies.js
+
+const isProd =
+  process.env.FRONTEND_ORIGIN &&
+  process.env.FRONTEND_ORIGIN.startsWith("https://");
 
 function serializeCookie(name, value, opts = {}) {
   const {
     maxAge,
     httpOnly = true,
-    secure = true,
+    secure = isProd, // <-- use env-based default
     sameSite = "lax",
     path = "/",
   } = opts;
 
   const parts = [`${name}=${encodeURIComponent(value)}`, `Path=${path}`];
-  if (typeof maxAge === "number") parts.push(`Max-Age=${Math.max(0, Math.floor(maxAge))}`);
+  if (typeof maxAge === "number") {
+    parts.push(`Max-Age=${Math.max(0, Math.floor(maxAge))}`);
+  }
   if (httpOnly) parts.push("HttpOnly");
   if (secure) parts.push("Secure");
-  if (sameSite) parts.push(`SameSite=${String(sameSite)[0].toUpperCase()}${String(sameSite).slice(1)}`);
+  if (sameSite) {
+    const s = String(sameSite);
+    parts.push(`SameSite=${s[0].toUpperCase()}${s.slice(1)}`);
+  }
 
   return parts.join("; ");
 }
 
-function buildAuthCookies({ accessToken, refreshToken, accessTtlSec, refreshTtlSec }) {
+// wherever buildAuthCookies is:
+function buildAuthCookies(tokens, ttlSec, refreshTtlSec) {
   const out = [];
-  out.push(
-    serializeCookie("access", accessToken, {
-      maxAge: accessTtlSec,
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-    })
-  );
-  if (refreshToken && refreshTtlSec) {
+
+  if (tokens?.access_token && ttlSec) {
     out.push(
-      serializeCookie("refresh", refreshToken, {
-        maxAge: refreshTtlSec,
+      serializeCookie("access", tokens.access_token, {
+        maxAge: ttlSec,
         httpOnly: true,
-        secure: true,
+        // secure defaults to isProd
         sameSite: "lax",
         path: "/",
       })
     );
   }
+
+  if (tokens?.refresh_token && refreshTtlSec) {
+    out.push(
+      serializeCookie("refresh", tokens.refresh_token, {
+        maxAge: refreshTtlSec,
+        httpOnly: true,
+        secure: isProd, // <-- was true
+        sameSite: "lax",
+        path: "/",
+      })
+    );
+  }
+
   return out;
 }
 
