@@ -116,5 +116,12 @@ nav:
     - Coding Standards: ci-cd-quality/coding-standards.md
     - Quality Gates: ci-cd-quality/quality-gates.md
 
-  - Case Studies:
-    - Spotify Playlist Export: case-studies/spotify-playlist-export.md
+  - Case Study:
+    - Case Study Index: case-studies/index.md
+    - Requirements and Scope: case-studies/requirements.md
+    - Architecture Overview: case-studies/architecture.md
+    - Test Strategy: case-studies/test-strategy.md
+    - Test Design and Key Cases: case-studies/test-design.md
+    - Defects and Fixes: case-studies/defects.md
+    - Results and Coverage: case-studies/results.md
+    - Challenges and Lessons Learned: case-studies/lessons.md

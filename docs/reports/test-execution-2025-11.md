@@ -93,8 +93,8 @@ genhtml coverage/feature-lcov.info -o coverage/feature-lcov-report
 
 ### 4.1 Overall Coverage
 > Vitest — informational  
-> Scope: all lines instrumented by Vitest across the project
-> Note: Coverage is collected only from Vitest. Cypress E2E does not contribute coverage.
+> **Scope:** all lines instrumented by Vitest across the project  
+> **Note:** Coverage is collected only from Vitest. Cypress E2E does not contribute coverage.
 
 | Metric | Percentage | Value |
 |---|---|---:|
@@ -106,7 +106,7 @@ genhtml coverage/feature-lcov.info -o coverage/feature-lcov-report
 ### 4.2 Changed-Files Coverage
 > Calculated against files modified since baseline `a0dad94`.    
 > **Target:** ≥ **80%** Lines & Branches on changed files.  
-> Scope: [changed-files scope files](./coverage-2025-11/changed-files.txt)  
+> **Scope:** [changed-files scope files](./coverage-2025-11/changed-files.txt)  
 
 
 | Metric | Percentage | Value |
@@ -117,7 +117,7 @@ genhtml coverage/feature-lcov.info -o coverage/feature-lcov-report
 
 ### 4.3 Feature-Scope Coverage
 > **Target:** ≥ **75%** Lines & Branches within feature scope.  
-> Scope: [feature scope files](./coverage-2025-11/feature-scope.txt)  
+> **Scope:** [feature scope files](./coverage-2025-11/feature-scope.txt)  
 
 | Metric | Percentage | Value |
 |---|---|---:|
