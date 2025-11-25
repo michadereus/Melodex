@@ -1,84 +1,100 @@
 # Melodex
-> *This repository currently features a **case study** focused on a new portfolio-oriented feature: **Spotify Playlist Export**.*
 
-Melodex is a full-stack music discovery and ranking platform. Users select genres or subgenres, compare pairs of well-known tracks, and build personalized leaderboards using an ELO-based ranking algorithm. 
+> _This repository currently features a **case study** focused on the new portfolio-oriented feature: **Spotify Playlist Export**._
+
+Melodex is a full-stack music discovery and ranking platform. Users compare pairs of well-known tracks, build personalized leaderboards using an ELO-based ranking algorithm, and explore curated lists by genre or subgenre.
 
 The system integrates:
 
-- **Frontend:** React (Vite) hosted via AWS Amplify, wired to AWS Cognito for authentication and AWS S3 for profile image storage  
-- **Backend:** Node.js/Express deployed on AWS Elastic Beanstalk (EC2), connected to MongoDB Atlas for persistence  
-- **APIs:** OpenAI (generates candidate song lists) and Deezer (enriches tracks with IDs, album art, and preview URLs)  
-- **Auth:** Cognito User Pools with email/password and Google federation
-- **Docs:** MkDocs (Material) published via GitHub Pages at docs.melodx.io
-- **Tests:** Vitest (unit/integration/ui), Cypress (E2E), GitHub Actions CI pipelines
+- **Frontend:** React (Vite) hosted via AWS Amplify, wired to AWS Cognito and S3  
+- **Backend:** Node.js/Express deployed on AWS Elastic Beanstalk (EC2) with MongoDB Atlas  
+- **APIs:** OpenAI (song generation), Deezer (track metadata), and Spotify (playlist creation & track search)
+- **Auth:** Cognito User Pools with username/password and Google federation  
+- **Docs:** MkDocs (Material) at https://docs.melodx.io  
+- **Tests:** Vitest (unit/integration/UI), Cypress (E2E), GitHub Actions  
 
----
+> The documentation is intentionally scoped to the **Spotify Playlist Export case study**.  
+> Additional product documentation may be expanded in the future.
 
-## Live Links
-- Site: [melodx.io](https://www.melodx.io)
-- Docs: [docs.melodx.io](https://docs.melodx.io/)
-> *The documentation is intentionally scoped to the **Spotify Playlist Export case study** (not the entire product). The landing page explains the scope.*
+- **Site:** https://www.melodx.io
+- **Docs:** https://docs.melodx.io/
+
 ---
 
 ## Repository Structure
 
-Melodex/
-
-├─ melodex-back-end/ # Node.js/Express API (Elastic Beanstalk)  
-├─ melodex-front-end/ # React app (Amplify)  
-├─ tests/ # Centralized test suites  
-│ ├─ unit/ # Vitest unit tests  
-│ ├─ integration/ # Supertest integration tests  
-│ ├─ cypress/ # Cypress end-to-end specs  
-│ └─ fixtures/ # Shared test data/mocks  
-├─ docs/ # MkDocs site (case study docs)  
-│ ├─ overview/ # Case study overview & architecture  
-│ ├─ requirements/ # User stories & acceptance criteria  
-│ ├─ test/ # Test approach, plan, traceability, risks  
-│ ├─ reports/ # Baseline, execution summary, defects  
-│ ├─ how-to/ # Local dev, running tests, etc.  
-│ ├─ ci-cd-quality/ # Coding standards, quality gates  
-│ ├─ case-studies/ # Case study narrative  
-│ └─ index.md # Landing page for docs  
-├─ .github/workflows/ # GitHub Actions workflows  
-│ ├─ docs.yml # Build & publish docs  
-│ ├─ test.yml # CI for unit/integration tests  
-│ └─ e2e.yml # Cypress E2E pipeline  
-├─ mkdocs.yml # MkDocs configuration  
-├─ package.json # Root scripts & dependencies  
-└─ README.md # Project overview  
-
----
+Melodex/  
+├─ melodex-back-end/           → Express API (AWS Elastic Beanstalk)  
+├─ melodex-front-end/          → React app (Amplify)  
+├─ tests/                      → All test suites  
+│  ├─ unit/                    → Vitest unit  
+│  ├─ integration/             → Supertest/Nock integration  
+│  ├─ ui/                      → Component tests (React Testing Library)  
+│  ├─ cypress/                 → Cypress E2E  
+│  └─ fixtures/                → Shared test data  
+├─ scripts/                    → Coverage & CI helper scripts  
+├─ docs/                       → MkDocs site  
+│  ├─ overview/  
+│  ├─ requirements/  
+│  ├─ test/  
+│  ├─ reports/  
+│  ├─ how-to/  
+│  ├─ ci-cd-quality/  
+│  ├─ case-studies/  
+│  └─ index.md  
+├─ .github/workflows/          → GitHub Actions  
+├─ mkdocs.yml                  → MkDocs configuration  
+├─ package.json                → Root scripts    
 
 ## Local Development
 
-### Start Front and Back
-    # root dir
+### Start frontend and backend together
+
     npm run dev
 
-### Frontend Only
+### Frontend only
+
     cd melodex-front-end
     npm install
-    npm run dev             # → http://localhost:3001
+    npm run dev     # → http://localhost:3001
 
-### Backend Only
+### Backend only
+
     cd melodex-back-end
     npm install
-    npm start               # → http://localhost:8080
+    npm start       # → http://localhost:8080
 
-### Tests
-```
-# Run unit tests
-npx vitest run unit
+---
 
-# Run integration tests
-npx vitest run integration
+## Tests
 
-# Run UI tests
-npx vitest run ui
+Automated tests are centralized under `/tests` and use **Vitest** (unit, integration, UI) and **Cypress** (E2E).
 
-# Run Cypress E2E (headless)
-npx cypress run
+### Vitest
+- Unit: `npx vitest run unit`
+- Integration: `npx vitest run integration`
+- UI (React Testing Library): `npx vitest run ui`
 
-# Run Cypress E2E (interactive)
-npx cypress open
+### Cypress (E2E)
+- Headless: `npx cypress run`
+- Interactive: `npx cypress open`
+
+## Documentation
+
+The project uses **MkDocs (Material)**, deployed automatically at `https://docs.melodx.io/`.
+
+- Preview locally: `mkdocs serve`
+- Build static site: `mkdocs build` 
+
+---
+
+## Status
+
+This repository emphasizes:
+
+- A complete QA/test architecture for the **Spotify Playlist Export** feature  
+- A docs-as-code approach with replicable evidence  
+- A portfolio-ready case study reflecting real QA engineering workflows  
+- A stable CI pipeline validating unit, integration, UI, and E2E layers
+
+Future expansions may integrate additional Melodex features into the documentation.
