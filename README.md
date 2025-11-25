@@ -45,6 +45,7 @@ Melodex/
 ├─ .github/workflows/          → GitHub Actions  
 ├─ mkdocs.yml                  → MkDocs configuration  
 ├─ package.json                → Root scripts    
+└─ README.md
 
 ## Local Development
 
