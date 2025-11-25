@@ -97,6 +97,7 @@ nav:
       - EXP-00: reports/exploratory/EXP-00.md
       - EXP-01: reports/exploratory/EXP-01.md
       - EXP-02: reports/exploratory/EXP-02.md
+      - EXP-03: reports/exploratory/EXP-03.md
     - Defects:
       - Defect Log: reports/defects/defect_log.md
       - DEF-001: reports/defects/DEF-001.md
