@@ -2,13 +2,13 @@
 
 # Defects and Fixes
 
-This page summarizes the most significant defects discovered during the Spotify Playlist Export campaign and how they were resolved. Full defect write-ups are in `docs/reports/defects/*.md`; here, the focus is on impact and lessons.
+This page summarizes the most significant defects discovered during the Spotify Playlist Export campaign and how they were resolved. Full reports are linked in the [defect log](../reports/defects/defect_log.md).
 
 ## DEF-004 — Cross-account Spotify session leak
 
 - **ID:** `DEF-004`
 - **Title:** `Spotify session not reset between Melodex users`
-- **Location:** `docs/reports/defects/DEF-004.md`
+- **Link:** [DEF-004](../reports/defects/DEF-004.md)
 
 ### Summary
 
@@ -17,9 +17,9 @@ Under certain conditions, logging out of Melodex and back in as a different user
 ### Environment
 
 - **App:** `Melodex` (local dev during feature branch)
-- **Commit:** as per defect report
+- **Commit:** `333d6ca`
 - **Browser:** `Firefox` (desktop)
-- **Date:** as per defect report
+- **Date:** `2025-11-10`
 
 ### Expected vs actual
 
@@ -55,7 +55,7 @@ These tests collectively assert the expected behavior around OAuth, reconnect re
 
 - **ID:** `DEF-005`
 - **Title:** `502 on /api/playlist/export with no recovery`
-- **Location:** `docs/reports/defects/DEF-005.md`
+- **Link:** [DEF-005](../reports/defects/DEF-005.md)
 
 ### Summary
 
@@ -64,7 +64,7 @@ Export attempts from `/rankings` consistently failed with a `502` error on `POST
 ### Environment
 
 - **App:** `Melodex` (local dev)
-- **Commit:** as per defect report
+- **Commit:** `0877461`
 - **Browser:** `Firefox` (desktop)
 - **Date:** `2025-11-10` (execution window)
 

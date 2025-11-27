@@ -55,7 +55,11 @@ markdown_extensions:
       permalink: true
       toc_depth: 3
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.critic
@@ -89,9 +93,6 @@ nav:
   - Reports:
     - Baseline: reports/baseline.md
     - Traceability Appendix: reports/traceability-appendix.md
-    - Execution Summaries:
-      - Execution Summary Sept. 2025: reports/test-execution-2025-09.md
-      - Execution Summary Nov. 2025: reports/test-execution-2025-11.md
     - Exploratory:
       - Session Log: reports/exploratory/_index.md
       - EXP-00: reports/exploratory/EXP-00.md
@@ -106,11 +107,9 @@ nav:
       - DEF-004: reports/defects/DEF-004.md
       - DEF-005: reports/defects/DEF-005.md
       - DEF-006: reports/defects/DEF-006.md
-
-  - How-To:
-    - Local Development: how-to/local-dev.md
-    - Run Tests: how-to/run-tests.md
-    - Contributing Docs: how-to/contributing-docs.md
+    - Execution Summaries:
+      - Execution Summary Sept. 2025: reports/test-execution-2025-09.md
+      - Execution Summary Nov. 2025: reports/test-execution-2025-11.md
 
   - CI/CD and Quality:
     - Coding Standards: ci-cd-quality/coding-standards.md

@@ -88,13 +88,12 @@ genhtml coverage/feature-lcov.info -o coverage/feature-lcov-report
 ---
 
 ## 4) Coverage Summary
-
-> We track coverage at three levels. Overall coverage is **informational**; gates are enforced on **changed files** and on the **feature scope**.  
+> We track coverage at three levels. Overall coverage is **informational**; gates are enforced on **changed files** and on the **feature scope**. 
+> **Note:** Coverage is collected only from Vitest. Cypress E2E does not contribute coverage. 
 
 ### 4.1 Overall Coverage
 > Vitest — informational  
 > **Scope:** all lines instrumented by Vitest across the project  
-> **Note:** Coverage is collected only from Vitest. Cypress E2E does not contribute coverage.
 
 | Metric | Percentage | Value |
 |---|---|---:|
@@ -106,8 +105,7 @@ genhtml coverage/feature-lcov.info -o coverage/feature-lcov-report
 ### 4.2 Changed-Files Coverage
 > Calculated against files modified since baseline `a0dad94`.    
 > **Target:** ≥ **80%** Lines & Branches on changed files.  
-> **Scope:** [changed-files scope files](./coverage-2025-11/changed-files.txt)  
-
+> **Scope:** [changed-files scope files](./coverage-2025-11/.changed-files)  
 
 | Metric | Percentage | Value |
 |---|---|---:|
@@ -117,7 +115,7 @@ genhtml coverage/feature-lcov.info -o coverage/feature-lcov-report
 
 ### 4.3 Feature-Scope Coverage
 > **Target:** ≥ **75%** Lines & Branches within feature scope.  
-> **Scope:** [feature scope files](./coverage-2025-11/feature-scope.txt)  
+> **Scope:** [feature scope files](./coverage-2025-11/.feature-scope)  
 
 | Metric | Percentage | Value |
 |---|---|---:|
@@ -179,9 +177,9 @@ Snapshot of pass/fail by area. Full mapping is in the [Traceability Appendix](./
 ## 6) Evidence & Artifacts
 
 - **Coverage report HTMLs**
+    - [Vitest overall coverage report HTML](./coverage-2025-11/changed-lcov-report/index.html)
     - [Vitest feature-scope coverage report HTML](./coverage-2025-11/feature-lcov-report/index.html)
     - [Vitest changed file coverage report HTML](./coverage-2025-11/changed-lcov-report/index.html)
-    - [Vitest overall coverage report HTML](./coverage-2025-11/changed-lcov-report/index.html)
 
 - **Logs at scope freeze:** 
     - [Vitest run](https://github.com/michadereus/Melodex/actions/runs/19557132949)

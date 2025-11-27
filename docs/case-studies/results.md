@@ -44,13 +44,24 @@ The workflows:
     - `.feature-scope.txt` for export-feature coverage.
 - Used a small `calc-coverage` script to summarize line, branch, and function coverage.
 
-The quality gates defined in `docs/ci-cd-quality/quality-gates.md` set expectations for minimum coverage on new or changed code. At the time of the scope freeze:
+The quality gates defined in the [quality gates section](../ci-cd-quality/quality-gates.md) set expectations for minimum coverage on new or changed code. At the time of the scope freeze:
 
 - Export-related modules met or exceeded the coverage thresholds for changed files.
 - Feature-scoped coverage for export logic and associated UI components was above the target level.
 - Branch coverage for critical paths (rate limiting, per-track errors, revoke flows) was specifically called out as being above target in the execution report.
 
 While the precise percentages are tracked in the coverage outputs referenced from the execution summary, the important takeaway is that the export feature was not treated as a “one-off”; it received structured coverage analysis, and gaps were addressed rather than ignored.
+
+### Test distribution chart
+
+```mermaid
+pie showData
+  "Unit" : 40
+  "Integration" : 25
+  "UI" : 10
+  "E2E" : 15
+  "Manual" : 10
+```
 
 ## Functional outcomes
 
@@ -73,13 +84,12 @@ From a functional perspective, the export feature achieved the following at scop
 
 As a QA effort, this campaign resulted in:
 
+- Documented baseline behavior prior to the feature ([baseline](../reports/baseline.md)).
 - A layered test suite:
     - Unit tests for pipeline and client logic.
     - Integration tests for contracts and envelopes.
     - UI tests for export modal behavior.
     - E2E tests for realistic user journeys.
-
-- Documented baseline behavior prior to the feature (`baseline.md`).
 - A clear traceability matrix mapping requirements to tests and defects.
 - A defect log capturing critical issues and their resolutions.
 - A repeatable process for re-running the entire suite locally and in CI.

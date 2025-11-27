@@ -64,7 +64,7 @@ The non-functional requirements document (`nfrs.md`) sets broader goals, but thi
 
 ## Traceability
 
-Cross-references between requirements (`user-stories.md`, `acceptance-criteria.md`), test artifacts (`test-plan.md`, `test-approach.md`, `traceability.md`), defect reports (`docs/reports/defects/*.md`) are maintained in `docs/test/traceability.md`. 
+Cross-references between requirements (`user-stories.md`, `acceptance-criteria.md`), test artifacts (`test-plan.md`, `test-approach.md`, `traceability.md`), defect reports (`docs/reports/defects/*.md`) are maintained in the [traceability matrix](../test/traceability.md). 
 
 The export feature entries in that matrix map:
 

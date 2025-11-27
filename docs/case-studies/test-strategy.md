@@ -8,9 +8,7 @@ This page summarizes the test strategy used for the Spotify Playlist Export feat
 ## Objectives
 
 - Validate the core export flows end to end:
-    - From ranked songs and filters
-    - Through the export worker pipeline
-    - To a real playlist URL surfaced in the UI
+    - From ranked songs and filters -> through the export worker pipeline -> to a real playlist URL surfaced in the UI
 - Cover high-risk areas:
     - OAuth and session handling
     - Rate limiting and Retry-After behavior
@@ -42,9 +40,13 @@ The feature was validated using multiple test levels.
     - Included real navigation, OAuth flows, revocation scenarios, and full export journeys.
     - Example: `E2E-001` to `E2E-010`.
 
-- **Manual exploratory testing**
-    - Documented in `docs/reports/exploratory/*.md`.
-    - Focused on UX details, edge cases not covered by automation, and exploratory scenarios around connectivity and timing.
+- **Manual testing**
+    - Exploratory testing:
+        - Documented in `docs/reports/exploratory/*.md` ([session log](../reports/exploratory/_index.md))
+        - Focused on UX details, edge cases not covered by automation, and exploratory scenarios around connectivity and timing.
+    - Baseline testing:
+        - Manual baseline checks were run prior to implementing the export feature, as documented in `reports/baseline.md` ([baseline report](../reports/baseline.md))
+        - Served as a reference point to confirm that new export work did not introduce regressions in core ranking and navigation flows.
 
 Each level had a clear remit: unit tests for correctness of the pipeline logic, integration tests for backend contracts, UI tests for visual and interaction correctness, and E2E tests for holistic user journeys.
 

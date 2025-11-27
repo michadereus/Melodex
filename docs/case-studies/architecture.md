@@ -6,17 +6,15 @@ This page describes the parts of the Melodex architecture that are most relevant
 
 ## System context
 
-At a high level:
-
 - Frontend: React (`Vite`) app that renders rankings, export UI, and progress/error states.
 - Backend: Express application (`app.js`) deployed on Elastic Beanstalk.
 - Data: `MongoDB Atlas` with `user_songs` and ranking metadata.
-- External services:
-  - `Spotify Web API` for playlist creation and track addition.
-  - `Deezer` for song metadata, preview URLs, and album art.
-- Auth:
-  - `Cognito` for Melodex user accounts.
-  - Spotify OAuth (handled by `AuthController`) for playlist permissions.
+- External services:  
+    - `Spotify Web API` for playlist creation and track addition.
+    - `Deezer` for song metadata, preview URLs, and album art.
+- Auth:  
+    - `Cognito` for Melodex user accounts.
+    - Spotify OAuth (handled by `AuthController`) for playlist permissions.
 
 The export feature sits at the intersection of all of these.
 
@@ -57,6 +55,22 @@ The export envelope used in tests looked like this:
     }
 
 The frontend does not need to know how mapping or chunking is implemented; it only needs to render based on this contract.
+
+
+### Export pipeline diagram
+
+```mermaid
+flowchart LR
+  User["User (Browser)"] --> Frontend["React App (AWS Amplify)"]
+  Frontend --> API["Express API (Elastic Beanstalk)"]
+  API --> Mongo["MongoDB Atlas"]
+  Frontend --> Cognito["Cognito User Pools"]
+  API --> Cognito
+  API --> ExportWorker["exportWorker / scripts helpers"]
+  ExportWorker --> Spotify["Spotify Web API"]
+  ExportWorker --> Deezer["Deezer API"]
+  Frontend --> S3["S3 (Profile Images)"]
+```
 
 ## Mapping layer
 
@@ -104,6 +118,25 @@ Key points:
 
 The export route `/api/playlist/export` is guarded by `requireSpotifyAuth`, which relies on this session model. This interplay between OAuth endpoints and the export route is exercised in `IT-001`, `IT-002`, `IT-010`, and E2E tests such as `E2E-003` and `E2E-007`.
 
+### OAuth / session flow diagram
+
+```mermaid
+flowchart TD
+  Start["User on /rankings"] --> ClickConnect["Click 'Connect Spotify'"]
+  ClickConnect --> AuthStart["GET /auth/start"]
+  AuthStart --> SpotifyAuth["Spotify login and consent"]
+  SpotifyAuth --> Callback["GET /auth/callback"]
+  Callback --> StoreTokens["Store tokens in httpOnly cookies"]
+  StoreTokens --> RedirectBack["Redirect to /rankings?export=1"]
+  RedirectBack --> SessionCheck["GET /auth/session"]
+  SessionCheck --> Connected["{ connected: true }"]
+  Connected --> ExportAttempt["POST /api/playlist/export (requireSpotifyAuth)"]
+
+  ExportAttempt -.-> Revoke["/auth/revoke or external revoke"]
+  Revoke -.-> Invalid["Next /auth/session shows { connected: false }"]
+  Invalid -.-> Reconnect["User must reconnect before exporting again"]
+```
+
 ## Impact on testing
 
 This architecture led to several design decisions in the test suite:
@@ -114,3 +147,4 @@ This architecture led to several design decisions in the test suite:
 - Clear separation between stubbed and real-worker modes, with tests ensuring the environment flags `PLAYLIST_MODE` and `EXPORT_STUB` are respected.
 
 The next pages describe how this architecture was exercised using unit, integration, UI, and E2E tests.
+
