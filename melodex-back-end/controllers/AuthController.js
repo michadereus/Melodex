@@ -90,7 +90,9 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI;
 const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN;
 const front = (path) => `${FRONTEND_ORIGIN}${path}`;
 const IS_LOCAL =
-  FRONTEND_ORIGIN && /^http:\/\/localhost(?::\d+)?$/i.test(FRONTEND_ORIGIN);
+  !!process.env.FRONTEND_ORIGIN &&
+  (process.env.FRONTEND_ORIGIN.startsWith("http://localhost:") ||
+    process.env.FRONTEND_ORIGIN.startsWith("http://127.0.0.1:"));
 
 function playlistMode() {
   // Primary toggle for TS-04:

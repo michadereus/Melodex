@@ -2,7 +2,6 @@
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
@@ -66,7 +65,7 @@ const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
   const { volume, setVolume, playingAudioRef, setPlayingAudioRef } =
     useVolumeContext();
-
+  const [loadedPreviewKey, setLoadedPreviewKey] = useState(null);
   const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
   const [filteredSongs, setFilteredSongs] = useState([]);
@@ -78,6 +77,8 @@ const Rankings = () => {
     genre: "any",
     subgenre: "any",
   });
+  const filterRef = useRef(null);
+  const rankingsWrapperRef = useRef(null);
 
   // Inline export selection mode
   const [selectionMode, setSelectionMode] = useState(false);
@@ -617,6 +618,27 @@ const Rankings = () => {
 
   const sortedSongs = [...filteredSongs].sort((a, b) => b.ranking - a.ranking);
 
+  useEffect(() => {
+    const updateTranslate = () => {
+      const filterEl = filterRef.current;
+      const wrapperEl = rankingsWrapperRef.current;
+      if (!wrapperEl || !filterEl) return;
+
+      // Use 20% of the filter height to move the wrapper (less movement)
+      const filterHeight = showFilter
+        ? filterEl.getBoundingClientRect().height
+        : 0;
+      const movePx = Math.round(filterHeight * 0.2);
+      wrapperEl.style.transition = "transform 600ms cubic-bezier(.2,.8,.2,1)";
+      wrapperEl.style.transform = `translateY(${movePx}px)`;
+    };
+
+    // Update immediately and again shortly after to account for layout changes
+    updateTranslate();
+    const t = setTimeout(updateTranslate, 80);
+    return () => clearTimeout(t);
+  }, [showFilter]);
+
   // Auto-open Export after OAuth if we detect intent or ?export=1
   useEffect(() => {
     // IMPORTANT: don't consume the intent until we actually have songs
@@ -839,9 +861,11 @@ const Rankings = () => {
       className="rankings-container"
       style={{ maxWidth: "1200px", width: "100%" }}
     >
+      {/* FILTER */}
       <div
+        ref={filterRef}
         className={`filter-container ${showFilter ? "visible" : "hidden"}`}
-        style={{ width: "550px", margin: "0 auto" }}
+        style={{ width: "550px", margin: "0 auto", zIndex: 820 }}
       >
         <SongFilter
           onApply={handleApply}
@@ -850,13 +874,12 @@ const Rankings = () => {
         />
       </div>
 
+      {/* FILTER TOGGLE (ensure clickable above everything) */}
       <div
         style={{
           display: "flex",
           justifyContent: "center",
           margin: "0",
-          transition: "transform 0.3s ease",
-          transform: showFilter ? "translateY(0.5rem)" : "translateY(0)",
         }}
       >
         <button
@@ -864,6 +887,7 @@ const Rankings = () => {
           data-testid="filter-toggle"
           aria-label="Toggle filters"
           onClick={toggleFilter}
+          style={{ zIndex: 900 }} // keep above filter pane
         >
           <svg
             width="20"
@@ -900,522 +924,610 @@ const Rankings = () => {
         </button>
       </div>
 
-      {loading || isFetching ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "50vh",
-          }}
-        >
-          <div
-            style={{
-              border: "4px solid #ecf0f1",
-              borderTop: "4px solid #3498db",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              animation: "spin 1s linear infinite",
-            }}
-          ></div>
-          <p
-            style={{
-              marginTop: "1rem",
-              fontSize: "1.2em",
-              color: "#7f8c8d",
-              fontWeight: "600",
-            }}
-          ></p>
-        </div>
-      ) : applied ? (
-        <div style={{ width: "100%", maxWidth: "1200px", margin: "0 auto" }}>
-          <h2
-            style={{
-              textAlign: "center",
-              color: "#141820",
-              marginBottom: "1.0rem",
-              marginTop: "4rem",
-            }}
-          >
-            {selectionMode
-              ? "Export to Spotify"
-              : (selectedSubgenre !== "any"
-                  ? selectedSubgenre
-                  : selectedGenre !== "any"
-                  ? selectedGenre
-                  : "") + " Rankings"}
-          </h2>
-
-          {/* Live selection summary (AC-03.2) */}
-          {selectionMode && (
-            <div
-              data-testid="selection-summary"
-              /* also expose a stable 'selected-count' node the tests can read directly */
-              aria-live="polite"
-              data-count={selected?.size ?? 0}
-              style={{
-                textAlign: "center",
-                fontSize: "0.95rem",
-                color: "#7f8c8d",
-                marginTop: "-0.5rem",
-                marginBottom: "0.75rem",
-              }}
-            >
-              Selected: {selected?.size ?? 0}
-            </div>
-          )}
-
-          {/* Inline selection controls / CTA */}
+      {/* MAIN CONTENT — wrapper that will be translated half-rate when filter opens */}
+      <div
+        ref={rankingsWrapperRef}
+        style={{
+          transition: "transform 0.36s ease",
+          transform: showFilter ? "translateY(0)" : "translateY(0)",
+          width: "100%",
+          maxWidth: "1200px",
+          margin: "0 auto",
+        }}
+      >
+        {loading || isFetching ? (
           <div
             style={{
               display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
               justifyContent: "center",
-              marginBottom: "1.25rem",
-              gap: "0.75rem",
+              minHeight: "50vh",
             }}
           >
-            {!selectionMode ? (
-              <button
-                onClick={onExportClick}
-                data-testid="export-spotify-cta"
-                /* alias for tests that expect 'enter-selection' */
-                aria-describedby="enter-selection"
-                aria-label="Export ranked songs to Spotify"
-                style={{
-                  padding: "0.6rem 1rem",
-                  fontWeight: 600,
-                  borderRadius: 8,
-                  border: "1px solid #3498db",
-                }}
-              >
-                Export to Spotify
-              </button>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!zeroSelected) doExport();
-                }}
-                data-testid="selection-mode-root"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr auto auto",
-                  gap: "0.5rem",
-                  alignItems: "center",
-                  width: "100%",
-                  maxWidth: 900,
-                }}
-              >
-                <input
-                  type="text"
-                  name="playlistName"
-                  placeholder="Playlist name"
-                  value={playlistName}
-                  onChange={(e) => setPlaylistName(e.target.value)}
-                  aria-label="Playlist name"
-                  data-testid="playlist-name"
-                  style={{
-                    padding: "0.5rem",
-                    borderRadius: 8,
-                    border: "1px solid #ddd",
-                  }}
-                />
-                <textarea
-                  name="playlistDescription"
-                  placeholder="Description (optional)"
-                  value={playlistDescription}
-                  onChange={(e) => setPlaylistDescription(e.target.value)}
-                  aria-label="Description"
-                  rows={1}
-                  data-testid="playlist-description"
-                  style={{
-                    padding: "0.5rem",
-                    borderRadius: 8,
-                    border: "1px solid #ddd",
-                    resize: "vertical",
-                  }}
-                />
-
-                {/* Empty-selection hint */}
-                {zeroSelected && (
-                  <p
-                    data-testid="export-hint-empty"
-                    role="alert"
-                    aria-live="polite"
-                    style={{
-                      margin: 0,
-                      fontSize: "0.9rem",
-                      opacity: 0.8,
-                      justifySelf: "end",
-                    }}
-                  >
-                    Select at least one song to export.
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  data-testid="export-confirm"
-                  disabled={
-                    zeroSelected ||
-                    exporting ||
-                    exportState === ExportState.Success
-                  }
-                  style={{
-                    padding: "0.6rem 1rem",
-                    fontWeight: 600,
-                    borderRadius: 8,
-                    border: "1px solid #2ecc71",
-                    opacity:
-                      zeroSelected ||
-                      exporting ||
-                      exportState === ExportState.Success
-                        ? 0.6
-                        : 1,
-                    cursor:
-                      zeroSelected ||
-                      exporting ||
-                      exportState === ExportState.Success
-                        ? "not-allowed"
-                        : "pointer",
-                  }}
-                >
-                  {exporting ? "Exporting…" : "Export"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={onCancelSelection}
-                  data-testid="export-cancel"
-                  /* alias for tests that expect 'exit-selection' */
-                  aria-describedby="exit-selection"
-                  aria-label="Cancel selection mode"
-                  style={{
-                    padding: "0.6rem 1rem",
-                    borderRadius: 8,
-                    border: "1px solid #aaa",
-                  }}
-                >
-                  Cancel
-                </button>
-              </form>
-            )}
+            <div
+              style={{
+                border: "4px solid #ecf0f1",
+                borderTop: "4px solid #3498db",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                animation: "spin 1s linear infinite",
+              }}
+            ></div>
+            <p
+              style={{
+                marginTop: "1rem",
+                fontSize: "1.2em",
+                color: "#7f8c8d",
+                fontWeight: "600",
+              }}
+            ></p>
           </div>
+        ) : applied ? (
+          <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto" }}>
+            <h2
+              style={{
+                textAlign: "center",
+                color: "#141820",
+                marginBottom: "1.0rem",
+                marginTop: "3rem",
+              }}
+            >
+              {selectionMode
+                ? "Export to Spotify"
+                : (selectedSubgenre !== "any"
+                    ? selectedSubgenre
+                    : selectedGenre !== "any"
+                    ? selectedGenre
+                    : "") + " Rankings"}
+            </h2>
 
-          {/* Progress readout — only during in-flight */}
-          {selectionMode &&
-            (exportState === ExportState.Validating ||
-              exportState === ExportState.Creating ||
-              exportState === ExportState.Adding) && (
+            {/* Live selection summary (AC-03.2) */}
+            {selectionMode && (
               <div
-                data-testid="export-progress"
+                data-testid="selection-summary"
+                aria-live="polite"
+                data-count={selected?.size ?? 0}
                 style={{
                   textAlign: "center",
+                  fontSize: "0.95rem",
+                  color: "#7f8c8d",
                   marginTop: "-0.5rem",
                   marginBottom: "0.75rem",
+                }}
+              >
+                Selected: {selected?.size ?? 0}
+              </div>
+            )}
+
+            {/* Inline selection controls / CTA */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "1.25rem",
+                gap: "0.75rem",
+              }}
+            >
+              {!selectionMode ? (
+                <button
+                  onClick={onExportClick}
+                  data-testid="export-spotify-cta"
+                  aria-describedby="enter-selection"
+                  aria-label="Create Spotify playlist from rankings"
+                  style={{
+                    padding: "0.6rem 1rem",
+                    borderRadius: 8,
+                    border: "1px solid #3498db",
+                    fontWeight: 400, // normal weight
+                  }}
+                >
+                  Create Spotify playlist
+                </button>
+              ) : (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!zeroSelected) doExport();
+                  }}
+                  data-testid="selection-mode-root"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.75rem",
+                    width: "100%",
+                    maxWidth: 900,
+                  }}
+                >
+                  {/* ROW 1: Name + Description, same y-plane */}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "0.75rem",
+                      alignItems: "center",
+                    }}
+                  >
+                    <input
+                      type="text"
+                      name="playlistName"
+                      placeholder="Playlist name"
+                      value={playlistName}
+                      onChange={(e) => setPlaylistName(e.target.value)}
+                      aria-label="Playlist name"
+                      data-testid="playlist-name"
+                      style={{
+                        padding: "0.5rem",
+                        borderRadius: 8,
+                        border: "1px solid #ddd",
+                        width: "100%",
+                      }}
+                    />
+                    <textarea
+                      name="playlistDescription"
+                      placeholder="Description (optional)"
+                      value={playlistDescription}
+                      onChange={(e) => setPlaylistDescription(e.target.value)}
+                      aria-label="Description"
+                      rows={1}
+                      data-testid="playlist-description"
+                      style={{
+                        padding: "0.5rem",
+                        borderRadius: 8,
+                        border: "1px solid #ddd",
+                        resize: "vertical",
+                        width: "100%",
+                      }}
+                    />
+                  </div>
+
+                  {/* ROW 2: Select all + Export + Cancel all on same line */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "1rem",
+                    }}
+                  >
+                    {/* Select all (left) */}
+                    <label
+                      htmlFor="master-select-all"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        fontSize: "0.95rem",
+                        color: "#141820",
+                      }}
+                    >
+                      <input
+                        id="master-select-all"
+                        type="checkbox"
+                        checked={
+                          selected &&
+                          selected.size > 0 &&
+                          selected.size === filteredSongs.length
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            const all = new Set(
+                              filteredSongs.map((s) => stableKey(s))
+                            );
+                            setSelected(all);
+                          } else {
+                            setSelected(new Set());
+                          }
+                        }}
+                        aria-label="Select / Deselect all"
+                        style={{ transform: "scale(1.05)" }}
+                        data-testid="master-select-all"
+                      />
+                      <span>Select all</span>
+                    </label>
+
+                    {/* Export + Cancel (right) */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                      }}
+                    >
+                      <button
+                        type="submit"
+                        data-testid="export-confirm"
+                        disabled={
+                          zeroSelected ||
+                          exporting ||
+                          exportState === ExportState.Success
+                        }
+                        style={{
+                          padding: "0.6rem 1rem",
+                          borderRadius: 8,
+                          border: "1px solid #2ecc71",
+                          opacity:
+                            zeroSelected ||
+                            exporting ||
+                            exportState === ExportState.Success
+                              ? 0.6
+                              : 1,
+                          cursor:
+                            zeroSelected ||
+                            exporting ||
+                            exportState === ExportState.Success
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
+                      >
+                        {exporting ? "Exporting…" : "Export"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={onCancelSelection}
+                        data-testid="export-cancel"
+                        aria-describedby="exit-selection"
+                        aria-label="Cancel selection mode"
+                        style={{
+                          padding: "0.6rem 1rem",
+                          borderRadius: 8,
+                          border: "1px solid #aaa",
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Hint goes under the buttons so it doesn't push layout sideways */}
+                  {zeroSelected && (
+                    <p
+                      data-testid="export-hint-empty"
+                      role="alert"
+                      aria-live="polite"
+                      style={{
+                        margin: 0,
+                        marginTop: "0.25rem",
+                        fontSize: "0.9rem",
+                        opacity: 0.8,
+                        textAlign: "right",
+                      }}
+                    >
+                      Select at least one song to export.
+                    </p>
+                  )}
+                </form>
+              )}
+            </div>
+
+            {/* Progress readout — only during in-flight */}
+            {selectionMode &&
+              (exportState === ExportState.Validating ||
+                exportState === ExportState.Creating ||
+                exportState === ExportState.Adding) && (
+                <div
+                  data-testid="export-progress"
+                  style={{
+                    textAlign: "center",
+                    marginTop: "-0.5rem",
+                    marginBottom: "0.75rem",
+                    color: "#7f8c8d",
+                  }}
+                >
+                  {exportState === ExportState.Validating && "Validating…"}
+                  {exportState === ExportState.Creating && "Creating playlist…"}
+                  {exportState === ExportState.Adding && "Adding tracks…"}
+                </div>
+              )}
+
+            {/* Error banner + Retry (E2E-004 depends on these test ids) */}
+            {selectionMode && exportState === ExportState.Error && (
+              <div
+                data-testid="export-error"
+                role="alert"
+                aria-live="assertive"
+                style={{
+                  textAlign: "center",
+                  marginTop: "-0.25rem",
+                  marginBottom: "0.75rem",
+                  color: "#e74c3c",
+                  background: "rgba(231, 76, 60, 0.08)",
+                  padding: "0.5rem 0.75rem",
+                  borderRadius: 8,
+                  border: "1px solid rgba(231, 76, 60, 0.35)",
+                }}
+              >
+                <strong style={{ marginRight: 6 }}>Export failed:</strong>
+                <span>
+                  {String(
+                    exportError || "Something went wrong — please try again."
+                  )}
+                </span>
+                <div style={{ marginTop: "0.5rem" }}>
+                  <button
+                    data-testid="export-retry"
+                    onClick={() => !exporting && !zeroSelected && doExport()}
+                    style={{
+                      padding: "0.4rem 0.8rem",
+                      borderRadius: 8,
+                      border: "1px solid #e74c3c",
+                    }}
+                  >
+                    Retry
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {exportSuccessUrl && (
+              <p style={{ textAlign: "center", marginBottom: "1rem" }}>
+                Playlist created:{" "}
+                {(() => {
+                  const links = buildDeepLink(null, exportSuccessUrl);
+                  return (
+                    <a
+                      href={links.web}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-testid="export-success-link"
+                    >
+                      Open in Spotify
+                    </a>
+                  );
+                })()}
+              </p>
+            )}
+
+            {filteredSongs.length === 0 ? (
+              <p
+                style={{
+                  textAlign: "center",
+                  fontSize: "1.2em",
                   color: "#7f8c8d",
                 }}
               >
-                {exportState === ExportState.Validating && "Validating…"}
-                {exportState === ExportState.Creating && "Creating playlist…"}
-                {exportState === ExportState.Adding && "Adding tracks…"}
-              </div>
-            )}
-
-          {/* Error banner + Retry (E2E-004 depends on these test ids) */}
-          {selectionMode && exportState === ExportState.Error && (
-            <div
-              data-testid="export-error"
-              role="alert"
-              aria-live="assertive"
-              style={{
-                textAlign: "center",
-                marginTop: "-0.25rem",
-                marginBottom: "0.75rem",
-                color: "#e74c3c",
-                background: "rgba(231, 76, 60, 0.08)",
-                padding: "0.5rem 0.75rem",
-                borderRadius: 8,
-                border: "1px solid rgba(231, 76, 60, 0.35)",
-              }}
-            >
-              <strong style={{ marginRight: 6 }}>Export failed:</strong>
-              <span>
-                {String(
-                  exportError || "Something went wrong — please try again."
-                )}
-              </span>
-              <div style={{ marginTop: "0.5rem" }}>
-                <button
-                  data-testid="export-retry"
-                  onClick={() => !exporting && !zeroSelected && doExport()}
-                  style={{
-                    padding: "0.4rem 0.8rem",
-                    borderRadius: 8,
-                    border: "1px solid #e74c3c",
-                  }}
-                >
-                  Retry
-                </button>
-              </div>
-            </div>
-          )}
-
-          {exportSuccessUrl && (
-            <p style={{ textAlign: "center", marginBottom: "1rem" }}>
-              Playlist created:{" "}
-              {(() => {
-                const links = buildDeepLink(null, exportSuccessUrl);
-                return (
-                  <a
-                    href={links.web}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-testid="export-success-link"
-                  >
-                    Open in Spotify
-                  </a>
-                );
-              })()}
-            </p>
-          )}
-
-          {filteredSongs.length === 0 ? (
-            <p
-              style={{
-                textAlign: "center",
-                fontSize: "1.2em",
-                color: "#7f8c8d",
-              }}
-            >
-              No ranked songs yet for this filter.
-            </p>
-          ) : (
-            <ul
-              style={{
-                listStyle: "none",
-                padding: 0,
-                display: "grid",
-                gap: "1.5rem",
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-                width: "100%",
-              }}
-            >
-              {sortedSongs.map((song, index) => {
-                const k = stableKey(song);
-                const isChecked = selected.has(k);
-                return (
-                  <li
-                    data-testid="song-card"
-                    key={k}
-                    className="song-box"
-                    style={{
-                      background: "white",
-                      borderRadius: "12px",
-                      padding: "1.5rem",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "1rem",
-                      position: "relative",
-                    }}
-                  >
-                    {/* Inline selection checkbox (left side) */}
-                    {selectionMode && (
-                      <input
-                        type="checkbox"
-                        data-testid={`song-checkbox-${k}`}
-                        checked={isChecked}
-                        onChange={(e) => {
-                          const next = new Set(selected);
-                          if (e.target.checked) next.add(k);
-                          else next.delete(k);
-                          setSelected(next);
-                        }}
-                        aria-label={`Select ${song.songName} by ${song.artist}`}
-                        style={{ transform: "scale(1.2)" }}
-                      />
-                    )}
-                    <span
+                No ranked songs yet for this filter.
+              </p>
+            ) : (
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  display: "grid",
+                  gap: "1.5rem",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                  width: "100%",
+                }}
+              >
+                {sortedSongs.map((song, index) => {
+                  const k = stableKey(song);
+                  const isChecked = selected.has(k);
+                  return (
+                    <li
+                      data-testid="song-card"
+                      key={k}
+                      className="song-box"
                       style={{
-                        fontSize: "1.5rem",
-                        fontWeight: "700",
-                        color: "#3498db",
-                        minWidth: "2rem",
-                        textAlign: "center",
+                        background: "white",
+                        borderRadius: "12px",
+                        padding: "1.5rem",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                        position: "relative",
                       }}
                     >
-                      {rankPositions[index]}
-                    </span>
-
-                    <img
-                      src={song.albumCover || "/placeholder-cover.png"}
-                      alt="Album Cover"
-                      style={{
-                        width: "80px",
-                        height: "80px",
-                        borderRadius: "8px",
-                      }}
-                    />
-
-                    <div style={{ flex: 1 }}>
-                      <p
+                      {/* Inline selection checkbox (left side) */}
+                      {selectionMode && (
+                        <input
+                          type="checkbox"
+                          data-testid={`song-checkbox-${k}`}
+                          checked={isChecked}
+                          onChange={(e) => {
+                            const next = new Set(selected);
+                            if (e.target.checked) next.add(k);
+                            else next.delete(k);
+                            setSelected(next);
+                          }}
+                          aria-label={`Select ${song.songName} by ${song.artist}`}
+                          style={{ transform: "scale(1.2)" }}
+                        />
+                      )}
+                      <span
                         style={{
-                          fontSize: "1.1rem",
-                          fontWeight: "600",
-                          color: "#141820",
-                          margin: "0",
-                        }}
-                      >
-                        {song.songName}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "1rem",
-                          color: "#7f8c8d",
-                          margin: "0.25rem 0",
-                        }}
-                      >
-                        {song.artist}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: "0.9rem",
+                          fontSize: "1.5rem",
+                          fontWeight: "700",
                           color: "#3498db",
-                          margin: "0",
+                          minWidth: "2rem",
+                          textAlign: "center",
                         }}
                       >
-                        Score: {song.ranking}
-                      </p>
+                        {rankPositions[index]}
+                      </span>
 
-                      {song.previewURL && isPreviewValid(song.previewURL) ? (
-                        <>
-                          <audio
-                            ref={(el) => {
-                              if (el) audioRefs.current.set(k, el);
-                              else audioRefs.current.delete(k);
-                            }}
-                            controls
-                            src={song.previewURL}
-                            className="custom-audio-player"
-                            style={{ marginTop: "0.5rem" }}
-                            onVolumeChange={(e) => setVolume(e.target.volume)}
-                            onPlay={(e) => {
-                              if (
-                                playingAudioRef &&
-                                playingAudioRef !== e.target
-                              ) {
-                                playingAudioRef.pause();
-                              }
-                              setPlayingAudioRef(e.target);
-                            }}
-                            onError={(e) => {
-                              const { ttl, exp, now } = parsePreviewExpiry(
-                                song.previewURL
-                              );
-                              console.log(
-                                "[Rankings] <audio> onError → rehydrate (likely expired / fetch fail)",
-                                {
-                                  name: song.songName,
-                                  artist: song.artist,
-                                  deezerID: song.deezerID,
-                                  ttl,
-                                  exp,
-                                  now,
-                                }
-                              );
-                              e.currentTarget.style.display = "none";
-                              const overlay =
-                                e.currentTarget.nextElementSibling;
-                              if (overlay) overlay.style.display = "block";
-                              rehydrateSong(song);
-                            }}
-                            onCanPlay={(e) => {
-                              console.log("[Rankings] <audio> onCanPlay", {
-                                name: song.songName,
-                                artist: song.artist,
-                                ttl: parsePreviewExpiry(song.previewURL),
-                              });
-                              e.currentTarget.style.display = "block";
-                              const overlay =
-                                e.currentTarget.nextElementSibling;
-                              if (overlay) overlay.style.display = "none";
-                            }}
-                          />
-                          {/* overlay during rehydrate */}
-                          <span
-                            style={{
-                              display: "none",
-                              color: "#e74c3c",
-                              background: "rgba(255,255,255,0.9)",
-                              padding: "0.25rem 0.5rem",
-                              borderRadius: "6px",
-                              fontSize: "0.9rem",
-                              position: "absolute",
-                              top: "50%",
-                              left: "50%",
-                              transform: "translate(-50%, -50%)",
-                              boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-                            }}
-                          >
-                            Refreshing preview…
-                          </span>
-                        </>
-                      ) : (
-                        <span
+                      <img
+                        src={song.albumCover || "/placeholder-cover.png"}
+                        alt="Album Cover"
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          borderRadius: "8px",
+                        }}
+                      />
+
+                      <div style={{ flex: 1 }}>
+                        <p
                           style={{
-                            display: "block",
-                            color: "#e74c3c",
-                            fontSize: "0.9rem",
-                            marginTop: "0.5rem",
+                            fontSize: "1.1rem",
+                            fontWeight: "600",
+                            color: "#141820",
+                            margin: "0",
                           }}
                         >
-                          {/* No preview available */}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
-      ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            minHeight: "50vh",
-          }}
-        >
+                          {song.songName}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "1rem",
+                            color: "#7f8c8d",
+                            margin: "0.25rem 0",
+                          }}
+                        >
+                          {song.artist}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: "0.9rem",
+                            color: "#3498db",
+                            margin: "0",
+                          }}
+                        >
+                          Score: {song.ranking}
+                        </p>
+
+                        {loadedPreviewKey === k &&
+                        song.previewURL &&
+                        isPreviewValid(song.previewURL) ? (
+                          <>
+                            <audio
+                              ref={(el) => {
+                                if (el) audioRefs.current.set(k, el);
+                                else audioRefs.current.delete(k);
+                              }}
+                              controls
+                              src={song.previewURL}
+                              className="custom-audio-player"
+                              style={{ marginTop: "0.5rem" }}
+                              onVolumeChange={(e) => setVolume(e.target.volume)}
+                              onPlay={(e) => {
+                                if (
+                                  playingAudioRef &&
+                                  playingAudioRef !== e.target
+                                ) {
+                                  playingAudioRef.pause();
+                                }
+                                setPlayingAudioRef(e.target);
+                              }}
+                              onError={(e) => {
+                                const { ttl, exp, now } = parsePreviewExpiry(
+                                  song.previewURL
+                                );
+                                console.log(
+                                  "[Rankings] <audio> onError → rehydrate (likely expired / fetch fail)",
+                                  {
+                                    name: song.songName,
+                                    artist: song.artist,
+                                    deezerID: song.deezerID,
+                                    ttl,
+                                    exp,
+                                    now,
+                                  }
+                                );
+                                e.currentTarget.style.display = "none";
+                                const overlay =
+                                  e.currentTarget.nextElementSibling;
+                                if (overlay) overlay.style.display = "block";
+                                rehydrateSong(song);
+                              }}
+                              onCanPlay={(e) => {
+                                console.log("[Rankings] <audio> onCanPlay", {
+                                  name: song.songName,
+                                  artist: song.artist,
+                                  ttl: parsePreviewExpiry(song.previewURL),
+                                });
+                                e.currentTarget.style.display = "block";
+                                const overlay =
+                                  e.currentTarget.nextElementSibling;
+                                if (overlay) overlay.style.display = "none";
+                              }}
+                            />
+                            <span
+                              style={{
+                                display: "none",
+                                color: "#e74c3c",
+                                background: "rgba(255,255,255,0.9)",
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: "6px",
+                                fontSize: "0.9rem",
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                              }}
+                            >
+                              Refreshing preview…
+                            </span>
+                          </>
+                        ) : (
+                          <div style={{ marginTop: "0.5rem" }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setLoadedPreviewKey(k);
+                                rehydrateSong(song);
+                              }}
+                              style={{
+                                padding: "0.35rem 0.6rem",
+                                borderRadius: 6,
+                                border: "1px solid #3498db",
+                                background: "white",
+                                color: "#3498db",
+                                cursor: "pointer",
+                                fontSize: "0.9rem",
+                              }}
+                              data-testid={`load-preview-${k}`}
+                            >
+                              Load preview
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        ) : (
           <div
             style={{
-              border: "4px solid #ecf0f1",
-              borderTop: "4px solid #3498db",
-              borderRadius: "50%",
-              width: "40px",
-              height: "40px",
-              animation: "spin 1s linear infinite",
-            }}
-          ></div>
-          <p
-            style={{
-              marginTop: "1rem",
-              fontSize: "1.2em",
-              color: "#7f8c8d",
-              fontWeight: "600",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "50vh",
             }}
           >
-            Loading user data...
-          </p>
-        </div>
-      )}
+            <div
+              style={{
+                border: "4px solid #ecf0f1",
+                borderTop: "4px solid #3498db",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                animation: "spin 1s linear infinite",
+              }}
+            ></div>
+            <p
+              style={{
+                marginTop: "1rem",
+                fontSize: "1.2em",
+                color: "#7f8c8d",
+                fontWeight: "600",
+              }}
+            >
+              Loading user data...
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
+
 };
 
 export default Rankings;

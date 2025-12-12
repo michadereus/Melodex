@@ -90,47 +90,46 @@ h2 {
   font-family: 'Inter', sans-serif;
   font-size: 1.5em;
   font-weight: 700;
+  .rankings-container h2,
+    .song-ranker-container h2 {
+      margin-top: 4.5rem;
+      /* a tad more space */
+    }
 }
 
 .filter-container {
   background: #fff;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 1rem;
   transition: max-height 0.3s ease, opacity 0.2s ease;
   margin: 0 auto;
   width: 100%;
-  overflow: hidden; /* keep for collapse */
+  overflow: hidden;
+  /* keep for collapse animation */
 }
 
-/* Let content show when open so dropdowns / button aren’t clipped */
-.filter-container.visible {
-  overflow: visible;
-}
-
-/* Per-mode max widths (tweak these as you like) */
-.filter-container.rank-mode {
-  width: 100%;
-  max-width: 700px;
-  /* <- set this to your preferred medium width */
-  margin: 0 auto;
-  overflow: visible;
-}
-
+/* Per-mode max widths (used on /rank, /rerank, /rankings) */
+.filter-container.rank-mode,
 .filter-container.rerank-mode {
-  max-width: 700px;   /* /rerank */
+  max-width: 550px;
+  /* match /rankings */
 }
 
+/* Collapsed state */
 .filter-container.hidden {
   max-height: 0;
   opacity: 0;
   padding: 0 1rem;
+  pointer-events: none;
 }
 
+/* Expanded state */
 .filter-container.visible {
   max-height: 200px;
   opacity: 1;
   overflow: visible;
+  /* so dropdowns / button aren’t clipped */
 }
 
 select {
@@ -175,24 +174,33 @@ button[style*="background: #e74c3c"]:hover {
   background: #c0392b !important;
 }
 
+.rankings-wrapper,
+.song-ranker-wrapper {
+  transition: transform 600ms cubic-bezier(.2, .8, .2, 1);
+  will-change: transform;
+}
+
 .filter-toggle {
   background: transparent;
   border: none;
   padding: 0.3rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  z-index: 900;
+  margin-top: 0.25rem;
+  /* reduce gap under the button */
 }
 
 .filter-toggle:hover .filter-line {
   fill: #3498db;
 }
 
-/* Song Ranker Page */
 .song-ranker-container,
 .rankings-container {
   padding: 0.1rem;
   width: 100%;
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -610,22 +618,29 @@ footer {
   }
 
   .filter-container {
-    max-width: 700px;
+    max-width: 1100px;
   }
 
-  .song-ranker-container .filter-container {
-    background: #fff;
-    border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
-    transition: max-height 0.3s ease, opacity 0.2s ease;
-    margin: 0 auto;
-    width: 100% !important;
-    max-width: 1100px !important;
-    /* <— remove this whole block */
-    box-sizing: border-box;
-    overflow: visible;
-  }
+/* Song Ranker filter panel container (shared /rank + /rerank) */
+.song-ranker-container .filter-container {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* /rank (/rank page, mode === "new") — wide for 3 controls */
+.song-ranker-container .filter-container.rank-mode {
+  max-width: 1100px;
+}
+
+/* /rerank — match /rankings width */
+.song-ranker-container .filter-container.rerank-mode {
+  max-width: 550px;
+}
 
   .song-ranker-container .filter-rerank {
     max-width: 500px;
@@ -780,3 +795,11 @@ footer {
     transform: rotate(360deg);
   }
 }
+
+/* wrapper used for half-rate translate motion */
+.rankings-wrapper,
+.song-ranker-wrapper {
+  transition: transform 360ms ease;
+  will-change: transform;
+}
+

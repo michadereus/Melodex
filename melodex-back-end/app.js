@@ -13,12 +13,13 @@ app.get('/api/health', (req, res) => {
 
 // --- CORS ---
 const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
   : [
-      'https://main.dw9xqt12hzzbu.amplifyapp.com',
-      'http://main.dw9xqt12hzzbu.amplifyapp.com',
-      'http://localhost:3000',
-      'http://localhost:3001'
+      "https://main.dw9xqt12hzzbu.amplifyapp.com",
+      "http://main.dw9xqt12hzzbu.amplifyapp.com",
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://127.0.0.1:3001"
     ];
 
 const corsOptions = {

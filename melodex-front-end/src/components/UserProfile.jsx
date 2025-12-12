@@ -130,85 +130,148 @@ function UserProfile() {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: "2rem", maxWidth: "800px", margin: "0 auto" }}>
       <div
         style={{
-          background: '#fff',
-          borderRadius: '8px',
-          padding: '1.5rem',
-          boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-          maxWidth: '400px',
-          margin: '0 auto',
+          background: "#fff",
+          borderRadius: "8px",
+          padding: "1.5rem",
+          boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+          maxWidth: "400px",
+          margin: "0 auto",
         }}
       >
-        <h2 style={{ textAlign: 'center', fontSize: '1.75rem', fontWeight: 400, marginBottom: '1.5rem', color: '#141820' }}>
-          {displayName || 'User Profile'}
+        <h2
+          style={{
+            textAlign: "center",
+            fontSize: "1.75rem",
+            fontWeight: 400,
+            marginBottom: "1.5rem",
+            color: "#141820",
+          }}
+        >
+          {displayName || "User Profile"}
         </h2>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2rem' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "2rem",
+          }}
+        >
           <div
             style={{
-              width: '100px',
-              height: '100px',
-              borderRadius: '50%',
-              backgroundImage: `url(${userPicture})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.05)',
-              position: 'relative',
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease, opacity 0.2s ease',
+              width: "100px",
+              height: "100px",
+              borderRadius: "50%",
+              overflow: "hidden" /* clip the img into a circle */,
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+              position: "relative",
+              cursor: "pointer",
+              transition: "transform 0.2s ease, opacity 0.2s ease",
               opacity: isHovered ? 0.7 : 1,
+              backgroundColor:
+                "#f0f0f0" /* shows while image loads / fallback */,
             }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={triggerFileInput}
           >
+            {/* Real <img> so we can set referrerPolicy & crossOrigin */}
+            <img
+              src={userPicture}
+              alt="User avatar"
+              referrerPolicy="no-referrer"
+              crossOrigin="anonymous"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                display: "block",
+              }}
+              onError={(e) => {
+                // fallback to local default (keeps it local and avoids hotlinking)
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "/images/default-avatar.png";
+                // also update context so other places pick up fallback
+                try {
+                  setUserPicture("/images/default-avatar.png");
+                } catch (err) {
+                  /* ignore */
+                }
+              }}
+            />
+
             {isHovered && (
               <span
                 style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  color: '#fff',
-                  fontSize: '1rem',
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  color: "#fff",
+                  fontSize: "1rem",
                   fontWeight: 500,
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '4px',
+                  backgroundColor: "rgba(0, 0, 0, 0.6)",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "4px",
                 }}
               >
                 Upload
               </span>
             )}
+
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
               onChange={handleFileUpload}
             />
           </div>
         </div>
-        <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>{email}</p>
-        <p style={{ textAlign: 'center', fontSize: '1.1rem', color: '#666' }}>{rankedSongs.length} ranked songs</p>
-        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: 400, marginBottom: '1rem', color: '#141820' }}>Stats</h3>
+
+        <p style={{ textAlign: "center", fontSize: "1.1rem", color: "#666" }}>
+          {email}
+        </p>
+        <p style={{ textAlign: "center", fontSize: "1.1rem", color: "#666" }}>
+          {rankedSongs.length} ranked songs
+        </p>
+        <div style={{ marginTop: "2rem", textAlign: "center" }}>
+          <h3
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: 400,
+              marginBottom: "1rem",
+              color: "#141820",
+            }}
+          >
+            Stats
+          </h3>
           {Object.keys(stats).length > 0 ? (
-            <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'left' }}>
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "left",
+              }}
+            >
               {Object.entries(stats).map(([key, value]) => (
                 <li
                   key={key}
                   style={{
-                    marginBottom: '0.5rem',
-                    color: '#141820',
-                    fontSize: '1rem',
-                    background: '#fff',
-                    padding: '0.5rem 1rem',
-                    borderRadius: '6px',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-                    border: '1px solid #e0e0e0',
-                    width: '300px',
+                    marginBottom: "0.5rem",
+                    color: "#141820",
+                    fontSize: "1rem",
+                    background: "#fff",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+                    border: "1px solid #e0e0e0",
+                    width: "300px",
                   }}
                 >
                   {key}: {value} ranked songs
@@ -216,19 +279,21 @@ function UserProfile() {
               ))}
             </ul>
           ) : (
-            <p style={{ color: '#666', fontSize: '1rem' }}>No ranking statistics available yet.</p>
+            <p style={{ color: "#666", fontSize: "1rem" }}>
+              No ranking statistics available yet.
+            </p>
           )}
         </div>
-        <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <div style={{ textAlign: "center", marginTop: "2rem" }}>
           <button
             onClick={handleSignOut}
             style={{
-              background: '#e74c3c',
-              padding: '0.5rem 1rem',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
+              background: "#e74c3c",
+              padding: "0.5rem 1rem",
+              color: "#fff",
+              border: "none",
+              borderRadius: "0.5rem",
+              cursor: "pointer",
             }}
           >
             Sign Out
