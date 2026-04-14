@@ -614,7 +614,7 @@ async function exportPlaylist(req, res) {
     }
 
     const client = spotifyClient();
-
+    console.log("EXPORT START");
     const result = await exportPlaylistWorker({
       httpCreate: async ({ name, description }) => {
         const created = await client.createPlaylist({
@@ -651,6 +651,8 @@ async function exportPlaylist(req, res) {
       description: payload.description,
       // filters not used by worker yet, so we don't pass it
     });
+
+    console.log("EXPORT END", result);
 
     return res.status(200).json(result);
   } catch (err) {

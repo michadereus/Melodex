@@ -33,11 +33,14 @@ export async function ensureSpotifyConnected(
     }
 
     if (r.status === 200) {
+      const text = await res.text();
+      console.log("RAW RESPONSE:", text);
+
       let data = null;
       try {
-        data = await r.json();
-      } catch {
-        // If body is weird but 200, assume "probably fine" to avoid loops.
+        data = JSON.parse(text);
+      } catch (e) {
+        console.error("JSON PARSE FAILED:", e);
       }
 
       if (data && data.connected === true) {

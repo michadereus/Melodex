@@ -23,14 +23,8 @@ const allowedOrigins = process.env.CORS_ORIGIN
     ];
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-    else callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: true, // 👈 allow all origins dynamically
   credentials: true,
-  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
@@ -93,11 +87,8 @@ process.on('SIGINT', async () => {
 
 // --- Error handling ---
 app.use((err, _req, res, _next) => {
-  if (err && err.message === 'Not allowed by CORS') {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.status(403).json({ error: 'CORS error', message: err.message });
-  } else {
-    res.status(500).json({ error: 'Server error', message: err?.message || 'unknown' });
+  if (err && err.message === "Not allowed by CORS") {
+    return res.status(403).json({ error: "CORS error", message: err.message });
   }
 });
 
