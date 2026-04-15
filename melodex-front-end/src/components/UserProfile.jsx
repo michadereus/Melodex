@@ -109,8 +109,7 @@ function UserProfile() {
           : baseNoTrail;
 
         await fetch(`${authRoot}/auth/revoke`, {
-          method: "POST",
-          credentials: "include",
+          method: "POST"
         });
       } catch (revokeErr) {
         console.warn("Spotify revoke failed (non-blocking):", revokeErr);

@@ -21,8 +21,7 @@ export async function ensureSpotifyConnected(
 
   try {
     const r = await fetch(`${base}/auth/session`, {
-      credentials: "include",
-      cache: "no-store",
+      cache: "no-store"
     });
 
     // Hard auth failures: only redirect in aggressive mode (user explicitly clicked).

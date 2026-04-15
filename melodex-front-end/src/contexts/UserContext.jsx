@@ -79,8 +79,7 @@ export const UserProvider = ({ children }) => {
             : baseNoTrail;
 
           await fetch(`${authRoot}/auth/revoke`, {
-            method: "POST",
-            credentials: "include",
+            method: "POST"
           });
 
           console.log(
