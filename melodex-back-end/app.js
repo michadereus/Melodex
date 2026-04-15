@@ -12,23 +12,25 @@ app.get('/api/health', (req, res) => {
 });
 
 // --- CORS ---
-const allowedOrigins = process.env.CORS_ORIGIN
-  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
-  : [
-      "https://main.dw9xqt12hzzbu.amplifyapp.com",
-      "http://main.dw9xqt12hzzbu.amplifyapp.com",
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://127.0.0.1:3001"
-    ];
+const allowedOrigins = [
+  "https://www.melodx.io",
+  "http://localhost:3000",
+  "http://127.0.0.1:3001",
+  "https://api.melodx.io",
+];
 
 const corsOptions = {
-  origin: true, // 👈 allow all origins dynamically
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions), (_req, res) => res.sendStatus(204));
 
 // --- Logging ---
 app.use((req, res, next) => {
