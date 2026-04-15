@@ -32,7 +32,7 @@ export async function ensureSpotifyConnected(
     }
 
     if (r.status === 200) {
-      const text = await res.text();
+      const text = await r.text();
       console.log("RAW RESPONSE:", text);
 
       let data = null;
@@ -340,6 +340,7 @@ const Rankings = () => {
 
   // ===== Initial fetch =====
   useEffect(() => {
+    console.log("USER ID:", userID);
     if ((userID || isCypressEnv) && !applied) {
       const params = new URLSearchParams(window.location.search || "");
       const initialGenre = params.get("genre") || "any";
