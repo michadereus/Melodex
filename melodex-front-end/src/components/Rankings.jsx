@@ -759,9 +759,7 @@ const Rankings = () => {
       deezerID: s.deezerID ?? s._id ?? null,
       songName: s.songName,
       artist: s.artist,
-      isrc: s.isrc ?? null,
-      spotifyUri: s.spotifyUri ?? null, // cached hit if you have it
-      ranking: s.ranking ?? null,
+      spotifyUri: s.spotifyUri ?? null,
     }));
 
     const payload = {

@@ -93,8 +93,8 @@ export const SongRanker = ({ mode }) => {
       }, 10000);
 
       const url = `${
-        import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api"
-      }/user-songs/deezer-info`;
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
+      }/api/user-songs/deezer-info`;
       fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
