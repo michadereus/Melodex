@@ -287,7 +287,9 @@ export const SongProvider = ({ children }) => {
     }
     setLoading(true);
     console.log('Loading set to true');
-    const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/ranked`;
+    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').replace(/\/+$/, '');
+
+    const url = `${API_BASE}/user-songs/ranked`;
     console.log('Fetching ranked songs from:', url);
 
     try {
