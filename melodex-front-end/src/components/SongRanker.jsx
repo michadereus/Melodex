@@ -45,8 +45,8 @@ export const SongRanker = ({ mode }) => {
     setFetchError(null);
     setSelectedGenreState("");
     // Only auto-activate for rerank. Rank becomes active AFTER Apply.
-    setIsRankPageActive(mode === "rerank");
-    setFiltersApplied(false);
+    setIsRankPageActive(mode === "new" || mode === "rerank");
+    setFiltersApplied(mode === "new");
   }, [mode, setMode, setCurrentPair, setIsRankPageActive, setFiltersApplied]);
 
   useEffect(() => {
@@ -143,10 +143,9 @@ export const SongRanker = ({ mode }) => {
     setIsProcessing(true);
     setFetchError(null);
     setSelectedGenreState(filters.genre === "any" ? "" : filters.genre);
-
-    setIsRankPageActive(mode === "new");
+    setIsRankPageActive(true);
+    setFiltersApplied(true);
     setLastFilters(filters);
-    setFiltersApplied(mode === "new"); // only true for /rank
 
     try {
       if (mode === "new") {
