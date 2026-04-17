@@ -11,6 +11,9 @@ export const useSongContext = () => {
 };
 
 export const SongProvider = ({ children }) => {
+  const BASE = (
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080"
+  ).replace(/\/+$/, "");
   const { userID } = useUserContext();
   console.log('SongProvider: userID from UserContext:', userID);
 
@@ -210,7 +213,7 @@ export const SongProvider = ({ children }) => {
         console.log('generateNewSongs fetch timed out');
       }, 30000);
 
-      const url = `${BASE}/user-songs/new`;
+      const url = `${BASE}/api/user-songs/new`;
       console.log('generateNewSongs filters:', filters);
       const response = await fetch(url, {
         method: 'POST',
@@ -254,7 +257,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = `${BASE}/user-songs/rerank`;
+      const url = `${BASE}/api/user-songs/rerank`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -362,7 +365,7 @@ export const SongProvider = ({ children }) => {
         loserPreviewURL: loserSong.previewURL,
       };
 
-      const url = `${BASE}/user-songs/upsert`;
+      const url = `${BASE}/api/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
