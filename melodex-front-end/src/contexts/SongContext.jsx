@@ -210,7 +210,7 @@ export const SongProvider = ({ children }) => {
         console.log('generateNewSongs fetch timed out');
       }, 30000);
 
-      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/new`;
+      const url = `${BASE}/user-songs/new`;
       console.log('generateNewSongs filters:', filters);
       const response = await fetch(url, {
         method: 'POST',
@@ -254,7 +254,7 @@ export const SongProvider = ({ children }) => {
         payload.genre = genre;
       }
       console.log('fetchReRankingData payload:', payload);
-      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/rerank`;
+      const url = `${BASE}/user-songs/rerank`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -287,9 +287,9 @@ export const SongProvider = ({ children }) => {
     }
     setLoading(true);
     console.log('Loading set to true');
-    const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').replace(/\/+$/, '');
+    const BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/+$/, '');
 
-    const url = `${API_BASE}/user-songs/ranked`;
+    const url = `${BASE}/api/user-songs/ranked`;
     console.log('Fetching ranked songs from:', url);
 
     try {
@@ -362,7 +362,7 @@ export const SongProvider = ({ children }) => {
         loserPreviewURL: loserSong.previewURL,
       };
 
-      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/upsert`;
+      const url = `${BASE}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -431,7 +431,7 @@ export const SongProvider = ({ children }) => {
         previewURL: skippedSong.previewURL || '',
       };
 
-      const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/user-songs/upsert`;
+      const url = `${BASE}/user-songs/upsert`;
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
