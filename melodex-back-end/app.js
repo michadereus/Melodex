@@ -30,7 +30,47 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  const allowedOrigins = [
+    "https://www.melodx.io",
+    "http://localhost:3000",
+    "http://127.0.0.1:3001",
+  ];
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+
+  next();
+});
+
+res.setHeader("Vary", "Origin");
+
+app.options("*", (req, res) => {
+  const origin = req.headers.origin;
+
+  const allowedOrigins = [
+    "https://www.melodx.io",
+    "http://localhost:3000",
+    "http://127.0.0.1:3001",
+  ];
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+
+  return res.sendStatus(204);
+});
 
 // --- Logging ---
 app.use((req, res, next) => {
