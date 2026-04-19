@@ -760,8 +760,6 @@ const Rankings = () => {
     // MINIMAL payload (prevents CloudFront blocking)
     const items = chosen.map((s) => ({
       deezerID: s.deezerID ?? s._id ?? null,
-      songName: s.songName,
-      artist: s.artist,
     }));
 
     const payload = {
