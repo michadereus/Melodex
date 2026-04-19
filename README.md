@@ -26,22 +26,9 @@ The system integrates:
 Melodex/  
 ├─ melodex-back-end/           → Express API (AWS Elastic Beanstalk)  
 ├─ melodex-front-end/          → React app (Amplify)  
-├─ tests/                      → All test suites  
-│  ├─ unit/                    → Vitest unit  
-│  ├─ integration/             → Supertest/Nock integration  
-│  ├─ ui/                      → Component tests (React Testing Library)  
-│  ├─ cypress/                 → Cypress E2E  
-│  └─ fixtures/                → Shared test data  
+├─ tests/                      → All test suites (UT, IT, UI, E2E)
 ├─ scripts/                    → Coverage & CI helper scripts  
 ├─ docs/                       → MkDocs site  
-│  ├─ overview/  
-│  ├─ requirements/  
-│  ├─ test/  
-│  ├─ reports/  
-│  ├─ how-to/  
-│  ├─ ci-cd-quality/  
-│  ├─ case-studies/  
-│  └─ index.md  
 ├─ .github/workflows/          → GitHub Actions  
 ├─ mkdocs.yml                  → MkDocs configuration  
 ├─ package.json                → Root scripts    
