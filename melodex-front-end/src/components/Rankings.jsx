@@ -749,25 +749,27 @@ const Rankings = () => {
         ? `${defaultNameParts.join(" ")} Playlist`
         : "Melodex Playlist";
 
-    // Build URIs for the current stub path (uses cached spotifyUri if present; otherwise dz/_id fallback)
-    const stubUris = chosen
-      .filter((s) => s && (s.spotifyUri || s.deezerID || s._id))
-      .map((s) => s.spotifyUri || `spotify:track:${s.deezerID || s._id}`);
+    // ALWAYS force numeric Deezer-based URIs (keeps backend in mapping mode)
+    const exportUris = chosen
+      .map((s) => {
+        const id = s?.deezerID ?? s?._id ?? null;
+        return id ? `spotify:track:${id}` : null;
+      })
+      .filter(Boolean);
 
-    // Also include a rich items array to support the real mapping path later
+    // MINIMAL payload (prevents CloudFront blocking)
     const items = chosen.map((s) => ({
       deezerID: s.deezerID ?? s._id ?? null,
       songName: s.songName,
       artist: s.artist,
-      spotifyUri: s.spotifyUri ?? null,
     }));
 
     const payload = {
       name: (playlistName || "").trim() || formatDefaultPlaylistName(),
       description: (playlistDescription || "").trim(),
       // keep both so tests + future real mapping are happy:
-      uris: stubUris, // legacy/stub consumers
-      ...(isCypressEnv ? { __testUris: stubUris } : {}), // only in Cypress/jsdom
+      uris: exportUris,
+      ...(isCypressEnv ? { __testUris: exportUris } : {}),
       items, // real mapping path will use this
       // include filters if your backend reads them (optional):
       // filters: { genre: selectedGenre, subgenre: selectedSubgenre }
@@ -821,7 +823,7 @@ const Rankings = () => {
     } finally {
       setExporting(false);
     }
-  };
+  };;
 
   const toggleFilter = () => setShowFilter((prev) => !prev);
 
@@ -1273,7 +1275,7 @@ const Rankings = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       data-testid="export-success-link"
-                    >
+                    >const exportUris = chosen
                       Open in Spotify
                     </a>
                   );
