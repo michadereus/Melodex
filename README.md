@@ -1,6 +1,5 @@
 # Melodex
 
-> _This repository currently features a **case study** focused on the new portfolio-oriented feature: **Spotify Playlist Export**._
 
 Melodex is a full-stack music discovery and ranking platform. Users compare pairs of well-known tracks, build personalized leaderboards using an ELO-based ranking algorithm, and explore curated lists by genre or subgenre.
 
@@ -13,8 +12,8 @@ The system integrates:
 - **Docs:** MkDocs (Material) at https://docs.melodx.io  
 - **Tests:** Vitest (unit/integration/UI), Cypress (E2E), GitHub Actions  
 
+> _This repository currently features a **case study** focused on the new portfolio-oriented feature: **Spotify Playlist Export**._
 > The documentation is intentionally scoped to the **Spotify Playlist Export case study**.  
-> Additional product documentation may be expanded in the future.
 
 - **Site:** https://www.melodx.io
 - **Docs:** https://docs.melodx.io/
