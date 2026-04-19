@@ -731,98 +731,65 @@ const Rankings = () => {
   };
 
   const doExport = async () => {
-    if (exporting) return;
-
-    const chosen = sortedSongs.filter((s) => selected.has(stableKey(s)));
-    if (chosen.length === 0) return;
-
-    // reset any prior terminal states
-    setExportError(null);
-    setExportState(ExportState.Validating);
-
-    // default name (use your existing genre/subgenre rule; fall back to util if you added it)
-    const defaultNameParts = [];
-    if (selectedGenre !== "any") defaultNameParts.push(selectedGenre);
-    if (selectedSubgenre !== "any") defaultNameParts.push(selectedSubgenre);
-    const defaultName =
-      defaultNameParts.length > 0
-        ? `${defaultNameParts.join(" ")} Playlist`
-        : "Melodex Playlist";
-
-    // ALWAYS force numeric Deezer-based URIs (keeps backend in mapping mode)
-    const exportUris = chosen
-      .map((s) => {
-        const id = s?.deezerID ?? s?._id ?? null;
-        return id ? `spotify:track:${id}` : null;
-      })
-      .filter(Boolean);
-
-    // MINIMAL payload (prevents CloudFront blocking)
-    const items = chosen.map((s) => ({
-      deezerID: s.deezerID ?? s._id ?? null,
-    }));
-
-    const payload = {
-      name: (playlistName || "").trim() || formatDefaultPlaylistName(),
-      description: (playlistDescription || "").trim(),
-      // keep both so tests + future real mapping are happy:
-      uris: exportUris,
-      ...(isCypressEnv ? { __testUris: exportUris } : {}),
-      items, // real mapping path will use this
-      // include filters if your backend reads them (optional):
-      // filters: { genre: selectedGenre, subgenre: selectedSubgenre }
-    };
-
-    // expose for Cypress when present
-    if (isCypressEnv && typeof window !== "undefined") {
-      window.__LAST_EXPORT_PAYLOAD__ = payload;
-    }
-
     try {
-      setExporting(true);
-      setExportState(ExportState.Creating);
+      setExportMsg("Creating playlist...");
+      setPlaylistUrl("");
 
-      // fix endpoint path to match backend/tests
-      const res = await fetch(`${API_ROOT}/playlist/export`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+      const allSelected = sortedSongs.filter((s) => selected.has(stableKey(s)));
 
-      let data = null;
-      try {
-        data = await res.json();
-      } catch {}
-
-      if (!res.ok || (data && data.ok === false)) {
-        // Surface shaped error to UI (E2E looks for message + recovery guidance)
-        const msg = data?.message || `Export failed ${res.status}`;
-        const hint = data?.hint || "Please retry or adjust your selection.";
-        setExportState(ExportState.Error);
-        setExportError(`${msg} — ${hint}`);
+      if (!allSelected.length) {
+        setExportMsg("Select at least one song.");
         return;
       }
 
-      const ok = data?.ok === true;
-      const playlistUrl = data?.playlistUrl;
-      if (ok && playlistUrl) {
-        setExportState(ExportState.Success);
-        setExportSuccessUrl(playlistUrl);
-      } else {
-        // Defensive: treat unexpected shape as an error
-        setExportState(ExportState.Error);
-        setExportError("Unexpected response from server — please try again.");
-      }
-    } catch (e) {
-      console.error("Export error:", e);
-      setExportState(ExportState.Error);
-      setExportError(e?.message || "Something went wrong — please try again.");
-    } finally {
-      setExporting(false);
-    }
-  };;
+      const chunkSize = 25;
 
+      let playlistId = null;
+      let playlistUrl = null;
+
+      for (let i = 0; i < allSelected.length; i += chunkSize) {
+        const chunk = allSelected.slice(i, i + chunkSize);
+
+        const items = chunk.map((s) => ({
+          deezerID: s.deezerID ?? s._id ?? null,
+          songName: s.songName,
+          artist: s.artist,
+        }));
+
+        const payload = {
+          name: (playlistName || "").trim() || formatDefaultPlaylistName(),
+          description: (playlistDescription || "").trim(),
+          items,
+          ...(playlistId ? { playlistId } : {}),
+        };
+
+        const res = await fetch(`${API_ROOT}/playlist/export`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          throw new Error(data.error || "Export failed");
+        }
+
+        // Capture playlist info from first successful call
+        if (!playlistId && data.playlistId) {
+          playlistId = data.playlistId;
+          playlistUrl = data.playlistUrl;
+        }
+      }
+
+      setExportMsg("Playlist created successfully!");
+      if (playlistUrl) setPlaylistUrl(playlistUrl);
+    } catch (err) {
+      console.error("Export error:", err);
+      setExportMsg("Failed to create playlist.");
+    }
+  };
   const toggleFilter = () => setShowFilter((prev) => !prev);
 
   const getRankPositions = (songs) => {
