@@ -26,7 +26,7 @@ The system integrates:
 Melodex/  
 ├─ melodex-back-end/           → Express API (AWS Elastic Beanstalk)  
 ├─ melodex-front-end/          → React app (Amplify)  
-├─ tests/                      → All test suites (UT, IT, UI, E2E)
+├─ tests/                      → All test suites (UT, IT, UI, E2E)  
 ├─ scripts/                    → Coverage & CI helper scripts  
 ├─ docs/                       → MkDocs site  
 ├─ .github/workflows/          → GitHub Actions  
