@@ -732,6 +732,12 @@ const Rankings = () => {
 
   const doExport = async () => {
     if (exporting) return;
+    console.log("selected size:", selected.size);
+    console.log("total songs:", sortedSongs.length);
+
+    // optional but very useful
+    console.log("first 5 selected keys:", [...selected].slice(0, 5));
+    console.log("first 5 song keys:", sortedSongs.slice(0, 5).map(stableKey));
 
     const chosen = sortedSongs.filter((s) => selected.has(stableKey(s)));
     if (chosen.length === 0) return;
