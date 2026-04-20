@@ -228,7 +228,7 @@ const AuthController = {
     );
     const verifier = b64url(crypto.randomBytes(32));
     const challenge = b64url(
-      crypto.createHash("sha256").update(verifier).digest()
+      crypto.createHash("sha256").update(verifier).digest(),
     );
 
     // Optional: accept returnTo for post-consent redirect (falls back to /rankings)
@@ -258,7 +258,7 @@ const AuthController = {
     });
 
     return res.redirect(
-      `https://accounts.spotify.com/authorize?${params.toString()}`
+      `https://accounts.spotify.com/authorize?${params.toString()}`,
     );
   },
 
@@ -386,9 +386,23 @@ const AuthController = {
   },
 
   async session(req, res) {
-    const cookie = req.headers.cookie || "";
-    const connected = /(?:^|;\s*)access=/.test(cookie);
-    return res.json({ connected });
+    try {
+      const db = req.app.locals.db;
+      const userID = req.query.userID;
+
+      if (!userID) {
+        return res.json({ connected: false });
+      }
+
+      const user = await db.collection("users").findOne({ userID });
+
+      const connected = !!user?.spotify?.refreshToken;
+
+      return res.json({ connected });
+    } catch (err) {
+      console.error("session error:", err);
+      return res.json({ connected: false });
+    }
   },
 };
 

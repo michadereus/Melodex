@@ -15,13 +15,14 @@ import { buildDeepLink } from "../utils/deeplink";
 // ===== Exportable helper so UI tests can import it =====
 export async function ensureSpotifyConnected(
   authRoot = "",
-  { aggressive = true } = {}
+  userID,
+  { aggressive = true } = {},
 ) {
   const base = String(authRoot || "").replace(/\/+$/, "");
 
   try {
-    const r = await fetch(`${base}/auth/session`, {
-      cache: "no-store"
+    fetch(`${base}/auth/session?userID=${encodeURIComponent(userID)}`, {
+      cache: "no-store",
     });
 
     // Hard auth failures: only redirect in aggressive mode (user explicitly clicked).
