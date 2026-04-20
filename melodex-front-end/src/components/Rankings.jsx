@@ -731,65 +731,75 @@ const Rankings = () => {
   };
 
   const doExport = async () => {
+    if (exporting) return;
+
+    const chosen = sortedSongs.filter((s) => selected.has(stableKey(s)));
+    if (chosen.length === 0) return;
+
+    setExportError(null);
+    setExportSuccessUrl("");
+    setExportState(ExportState.Validating);
+    setExporting(true);
+
     try {
-      setExportMsg("Creating playlist...");
-      setPlaylistUrl("");
+      // Keep numeric placeholder URIs so the backend uses the mapping path.
+      const uris = chosen
+        .map((s) => {
+          const id = s.deezerID ?? s._id ?? null;
+          return id == null ? null : `spotify:track:${id}`;
+        })
+        .filter(Boolean);
 
-      const allSelected = sortedSongs.filter((s) => selected.has(stableKey(s)));
+      // Keep the metadata the backend needs to search Spotify.
+      const items = chosen.map((s) => ({
+        deezerID: s.deezerID ?? s._id ?? null,
+        songName: s.songName ?? "",
+        artist: s.artist ?? "",
+      }));
 
-      if (!allSelected.length) {
-        setExportMsg("Select at least one song.");
-        return;
+      const payload = {
+        name: (playlistName || "").trim() || formatDefaultPlaylistName(),
+        ...(playlistDescription.trim()
+          ? { description: playlistDescription.trim() }
+          : {}),
+        items,
+      };
+
+      setExportState(ExportState.Creating);
+
+      const res = await fetch(`${API_ROOT}/playlist/export`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        data = null;
       }
 
-      const chunkSize = 25;
-
-      let playlistId = null;
-      let playlistUrl = null;
-
-      for (let i = 0; i < allSelected.length; i += chunkSize) {
-        const chunk = allSelected.slice(i, i + chunkSize);
-
-        const items = chunk.map((s) => ({
-          deezerID: s.deezerID ?? s._id ?? null,
-          songName: s.songName,
-          artist: s.artist,
-        }));
-
-        const payload = {
-          name: (playlistName || "").trim() || formatDefaultPlaylistName(),
-          description: (playlistDescription || "").trim(),
-          items,
-          ...(playlistId ? { playlistId } : {}),
-        };
-
-        const res = await fetch(`${API_ROOT}/playlist/export`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload),
-        });
-
-        const data = await res.json();
-
-        if (!data.ok) {
-          throw new Error(data.error || "Export failed");
-        }
-
-        // Capture playlist info from first successful call
-        if (!playlistId && data.playlistId) {
-          playlistId = data.playlistId;
-          playlistUrl = data.playlistUrl;
-        }
+      if (!res.ok || !data?.ok) {
+        throw new Error(
+          data?.message || data?.error || `Export failed ${res.status}`,
+        );
       }
 
-      setExportMsg("Playlist created successfully!");
-      if (playlistUrl) setPlaylistUrl(playlistUrl);
+      setExportSuccessUrl(data.playlistUrl || "");
+      setExportState(ExportState.Success);
     } catch (err) {
       console.error("Export error:", err);
-      setExportMsg("Failed to create playlist.");
+      setExportError(
+        err?.message || "Something went wrong — please try again.",
+      );
+      setExportState(ExportState.Error);
+    } finally {
+      setExporting(false);
     }
   };
+
   const toggleFilter = () => setShowFilter((prev) => !prev);
 
   const getRankPositions = (songs) => {
@@ -1240,7 +1250,7 @@ const Rankings = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       data-testid="export-success-link"
-                    >const exportUris = chosen
+                    >
                       Open in Spotify
                     </a>
                   );
