@@ -743,12 +743,12 @@ const Rankings = () => {
 
     try {
       // Keep numeric placeholder URIs so the backend uses the mapping path.
-      const uris = chosen
-        .map((s) => {
-          const id = s.deezerID ?? s._id ?? null;
-          return id == null ? null : `spotify:track:${id}`;
-        })
-        .filter(Boolean);
+      // const uris = chosen
+      //   .map((s) => {
+      //     const id = s.deezerID ?? s._id ?? null;
+      //     return id == null ? null : `spotify:track:${id}`;
+      //   })
+      //   .filter(Boolean);
 
       // Keep the metadata the backend needs to search Spotify.
       const items = chosen.map((s) => ({
@@ -756,6 +756,7 @@ const Rankings = () => {
         songName: s.songName ?? "",
         artist: s.artist ?? "",
       }));
+
 
       const payload = {
         name: (playlistName || "").trim() || formatDefaultPlaylistName(),
@@ -765,6 +766,7 @@ const Rankings = () => {
         items,
       };
 
+      const effectiveUserID = userID;
       setExportState(ExportState.Creating);
 
       const res = await fetch(`${API_ROOT}/playlist/export`, {
@@ -772,11 +774,9 @@ const Rankings = () => {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          userID: effectiveUserID, 
-          name,
-          description,
-          items
-        })
+          userID: effectiveUserID,
+          ...payload,
+        }),
       });
 
       let data = null;
