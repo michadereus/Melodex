@@ -767,10 +767,8 @@ async function exportPlaylist(req, res) {
       httpCreate: async ({ name, description }) => {
         const created = await client.createPlaylist({
           accessToken: access,
-          // Prefer worker-provided name, fall back to payload.name defensively
           name: name ?? payload.name,
           description,
-          useV1: false, // keep consistent with tests and /auth/debug/spotify-create
         });
 
         console.log("SPOTIFY CREATE RESULT:", created);

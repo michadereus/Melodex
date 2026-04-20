@@ -109,7 +109,6 @@ function buildAxios(accessToken) {
  * `/v1/users/me/playlists` when the access token identifies the user.
  */
 async function createPlaylist({ accessToken, name, description }) {
-  // 0) Basic validation – if we truly have no name, surface a clear error
   if (typeof name !== "string" || !name.trim()) {
     return {
       ok: false,
@@ -123,32 +122,16 @@ async function createPlaylist({ accessToken, name, description }) {
   const http = buildAxios(accessToken);
 
   try {
-    // 1) Resolve the current user so we can get a real user_id
-
-    if (!userId || typeof userId !== "string") {
-      return {
-        ok: false,
-        status: meResp.status || 500,
-        code: "SPOTIFY_ERROR",
-        message: "Could not resolve current Spotify user id",
-        context: { phase: "createPlaylist", step: "resolve-user" },
-      };
-    }
-
-    // 2) Build the playlist body
     const body = {
       public: false,
       name: name.trim(),
     };
-    if (typeof description === "string") {
+
+    if (typeof description === "string" && description.trim() !== "") {
       body.description = description;
     }
 
-    // 3) Use the *actual* user id in the URL (Spotify requirement)
-    const res = await http.post(
-      `/v1/me/playlists`,
-      body
-    );
+    const res = await http.post("/v1/me/playlists", body);
     const data = res.data || {};
 
     const id = data.id || null;
@@ -162,7 +145,7 @@ async function createPlaylist({ accessToken, name, description }) {
       ok: true,
       id,
       url,
-      raw: res.data,
+      raw: data,
     };
   } catch (err) {
     const shape = makeErrorShape(err, { phase: "createPlaylist" });
@@ -172,7 +155,6 @@ async function createPlaylist({ accessToken, name, description }) {
     };
   }
 }
-
 
 /**
  * Shared chunking helper.
