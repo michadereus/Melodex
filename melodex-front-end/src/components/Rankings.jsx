@@ -757,7 +757,7 @@ const Rankings = () => {
       //   .filter(Boolean);
 
       // Keep the metadata the backend needs to search Spotify.
-      const items = chosen.slice(0, 3).map((s) => ({
+      const items = chosen.map((s) => ({
         deezerID: s.deezerID ?? s._id ?? null,
         songName: s.songName ?? "",
         artist: s.artist ?? "",
