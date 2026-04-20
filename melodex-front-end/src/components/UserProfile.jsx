@@ -91,6 +91,31 @@ function UserProfile() {
     }
   };
 
+  const handleDisconnectSpotify = async () => {
+    try {
+      const rawBase =
+        import.meta.env.VITE_API_BASE_URL ??
+        import.meta.env.VITE_API_BASE ??
+        (typeof window !== "undefined" ? window.__API_BASE__ : null) ??
+        "http://localhost:8080/api";
+
+      const baseNoTrail = String(rawBase).replace(/\/+$/, "");
+      const hasApiSuffix = /\/api$/.test(baseNoTrail);
+      const authRoot = hasApiSuffix
+        ? baseNoTrail.replace(/\/api$/, "")
+        : baseNoTrail;
+
+      await fetch(`${authRoot}/auth/revoke`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      console.log("Spotify disconnected");
+    } catch (err) {
+      console.error("Failed to disconnect Spotify", err);
+    }
+  };
+
   const handleSignOut = async () => {
     try {
       // Best-effort: clear Spotify auth on the backend so the next Melodex user
@@ -281,6 +306,21 @@ function UserProfile() {
           )}
         </div>
         <div style={{ textAlign: "center", marginTop: "2rem" }}>
+          <button
+            onClick={handleDisconnectSpotify}
+            style={{
+              background: "#e74c3c",
+              padding: "0.5rem 1rem",
+              color: "#fff",
+              border: "none",
+              borderRadius: "0.5rem",
+              cursor: "pointer",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Disconnect Spotify
+          </button>
+
           <button
             onClick={handleSignOut}
             style={{

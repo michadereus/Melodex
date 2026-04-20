@@ -124,9 +124,6 @@ async function createPlaylist({ accessToken, name, description }) {
 
   try {
     // 1) Resolve the current user so we can get a real user_id
-    const meResp = await http.get("/v1/me");
-    const meData = meResp.data || {};
-    const userId = meData.id;
 
     if (!userId || typeof userId !== "string") {
       return {
@@ -149,7 +146,7 @@ async function createPlaylist({ accessToken, name, description }) {
 
     // 3) Use the *actual* user id in the URL (Spotify requirement)
     const res = await http.post(
-      `/v1/users/${encodeURIComponent(userId)}/playlists`,
+      `/v1/me/playlists`,
       body
     );
     const data = res.data || {};
