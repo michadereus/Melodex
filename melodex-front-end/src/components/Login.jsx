@@ -16,17 +16,24 @@ const Login = () => {
   const GOOGLE_CLIENT_ID = '178829211245-19gec6v6qatnj74rbpb2st97c3hr1p8i.apps.googleusercontent.com';
 
   // Check if user is already authenticated on mount
+  const hasRedirectedRef = React.useRef(false);
+
   useEffect(() => {
     const verifyUser = async () => {
       try {
         await Auth.currentAuthenticatedUser();
-        console.log('User already authenticated, redirecting to /rank');
-        await checkUser();
-        navigate('/rank');
+
+        if (!hasRedirectedRef.current) {
+          hasRedirectedRef.current = true;
+          console.log("User already authenticated, redirecting to /rank");
+          await checkUser();
+          navigate("/rank");
+        }
       } catch (error) {
-        console.log('No user authenticated, proceeding with login');
+        console.log("No user authenticated, proceeding with login");
       }
     };
+
     verifyUser();
   }, [checkUser, navigate]);
 

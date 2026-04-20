@@ -63,24 +63,6 @@ export const UserProvider = ({ children }) => {
       try {
         const lastUid = localStorage.getItem(LAST_UID_KEY);
 
-        if (lastUid && lastUid !== extractedUserID) {
-          const rawBase =
-            import.meta.env.VITE_API_BASE_URL ??
-            import.meta.env.VITE_API_BASE ??
-            (typeof window !== "undefined"
-              ? window.__API_BASE__
-              : null) ??
-            "http://localhost:8080";
-
-          const baseNoTrail = String(rawBase).replace(/\/+$/, "");
-          const hasApiSuffix = /\/api$/.test(baseNoTrail);
-          const authRoot = hasApiSuffix
-            ? baseNoTrail.replace(/\/api$/, "")
-            : baseNoTrail;
-
-          
-        }
-
         // Always record the current user as the last-seen user
         localStorage.setItem(LAST_UID_KEY, extractedUserID);
       } catch (revokeErr) {
