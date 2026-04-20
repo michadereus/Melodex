@@ -776,7 +776,7 @@ const Rankings = () => {
         return;
       }
 
-      const res = await fetch(`${AUTH_ROOT}/playlist/export`, {
+      const res = await fetch(`${API_ROOT}/playlist/export`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
