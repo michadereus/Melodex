@@ -210,7 +210,22 @@ function scoreTrackCandidate(track, expectedTitle, expectedArtist) {
 
 const AuthController = {
   start(req, res) {
-    const state = b64url(crypto.randomBytes(16));
+    const userID =
+      typeof req.query.userID === "string" ? req.query.userID : null;
+
+    if (!userID) {
+      return res.redirect(front("/login?error=missing_user"));
+    }
+
+    // encode userID into state
+    const statePayload = {
+      userID,
+      nonce: b64url(crypto.randomBytes(16)),
+    };
+
+    const state = Buffer.from(JSON.stringify(statePayload)).toString(
+      "base64url",
+    );
     const verifier = b64url(crypto.randomBytes(32));
     const challenge = b64url(
       crypto.createHash("sha256").update(verifier).digest()
@@ -251,6 +266,17 @@ const AuthController = {
     try {
       const code = req.query.code;
       const state = req.query.state;
+      let parsedState = null;
+
+      try {
+        parsedState = JSON.parse(
+          Buffer.from(state, "base64url").toString("utf-8"),
+        );
+      } catch {
+        return res.redirect(front("/login?error=bad_state"));
+      }
+
+      const userID = parsedState?.userID;
       const err = req.query.error;
 
       if (err === "access_denied") {
@@ -291,7 +317,7 @@ const AuthController = {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           timeout: 8000,
           validateStatus: () => true,
-        }
+        },
       );
 
       if (tokenResp.status !== 200) {
@@ -303,6 +329,24 @@ const AuthController = {
       }
 
       const { access_token, refresh_token, expires_in = 3600 } = tokenResp.data;
+      if (userID && refresh_token) {
+        const db = req.app.locals.db;
+
+        await db.collection("users").updateOne(
+          { userID },
+          {
+            $set: {
+              spotify: {
+                refreshToken: refresh_token,
+                updatedAt: new Date(),
+              },
+            },
+          },
+          { upsert: true },
+        );
+
+        console.log("[auth] Stored Spotify refresh token for user:", userID);
+      }
 
       const outCookies = [
         serializeCookie("access", access_token, {
@@ -314,14 +358,14 @@ const AuthController = {
         outCookies.push(
           serializeCookie("refresh", refresh_token, {
             maxAge: 60 * 60 * 24 * 14,
-          })
+          }),
         );
       }
 
       // Clear transient auth helpers (state/verifier) now that we have tokens
       outCookies.push(
         serializeCookie("oauth_state", "", { maxAge: 0 }),
-        serializeCookie("pkce_verifier", "", { maxAge: 0 })
+        serializeCookie("pkce_verifier", "", { maxAge: 0 }),
       );
 
       // Also clear the return_to cookie if present, but do it in the SAME
@@ -350,18 +394,44 @@ const AuthController = {
 
 /* ---------- middleware ---------- */
 
-function requireSpotifyAuth(req, res, next) {
-  const rawCookie = req.headers.cookie || "";
-  const cookies = parseCookies(rawCookie);
+async function requireSpotifyAuth(req, res, next) {
+  try {
+    const db = req.app.locals.db;
 
-  if (!cookies.access && !cookies.refresh) {
-    return res.status(401).json(
-      fail(CODES.AUTH_SPOTIFY_REQUIRED, "No Spotify session", {
-        hint: "Sign in and try again.",
-      }),
-    );
+    // you are already sending userID in the body
+    const { userID } = req.body;
+
+    if (!userID) {
+      return res.status(401).json({
+        ok: false,
+        code: "AUTH_SPOTIFY_REQUIRED",
+        message: "Missing userID",
+      });
+    }
+
+    const user = await db.collection("users").findOne({ userID });
+
+    if (!user?.spotify?.refreshToken) {
+      return res.status(401).json({
+        ok: false,
+        code: "AUTH_SPOTIFY_REQUIRED",
+        message: "No Spotify session",
+      });
+    }
+
+    // attach for later use in export
+    req.spotify = {
+      refreshToken: user.spotify.refreshToken,
+    };
+
+    return next();
+  } catch (err) {
+    console.error("requireSpotifyAuth error:", err);
+    return res.status(500).json({
+      ok: false,
+      error: "Auth check failed",
+    });
   }
-  return next();
 }
 
 /* ---------- /playlist/export handler ---------- */
@@ -457,17 +527,22 @@ async function exportPlaylist(req, res) {
       return exportPlaylistStub(req, res);
     }
 
-    const rawCookie = req.headers.cookie || "";
-    const cookies = parseCookies(rawCookie);
-    const access = cookies["access"];
+    const refreshToken = req.spotify.refreshToken;
 
-    if (!access) {
-      return res.status(401).json(
-        fail(CODES.AUTH_SPOTIFY_REQUIRED, "No Spotify session", {
-          hint: "Please reconnect Spotify and try again.",
-        })
-      );
-    }
+    const tokenResp = await axios.post(
+      "https://accounts.spotify.com/api/token",
+      new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        client_id: SPOTIFY_CLIENT_ID,
+        client_secret: SPOTIFY_CLIENT_SECRET,
+      }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      },
+    );
+
+    const access = tokenResp.data.access_token;
 
     // Spotify HTTP client used for addTracks (and possibly others)
     const http = axios.create({
@@ -707,8 +782,7 @@ async function exportPlaylist(req, res) {
       mapper,
       items,
       name: payload.name,
-      description: payload.description,
-      // filters not used by worker yet, so we don't pass it
+      description: payload.description || ""
     });
 
     console.log("EXPORT END", result);

@@ -27,7 +27,10 @@ export async function ensureSpotifyConnected(
     // Hard auth failures: only redirect in aggressive mode (user explicitly clicked).
     if (r.status === 401 || r.status === 403) {
       return aggressive
-        ? { shouldRedirect: true, to: `${base}/auth/start` }
+        ? {
+            shouldRedirect: true,
+            to: `${base}/auth/start?returnTo=/rankings&userID=${encodeURIComponent(userID)}`,
+          }
         : { shouldRedirect: false };
     }
 
@@ -51,7 +54,10 @@ export async function ensureSpotifyConnected(
       // - In aggressive mode (CTA click) → start OAuth.
       // - In non-aggressive mode (auto-resume) → DO NOT redirect (prevents loops).
       return aggressive
-        ? { shouldRedirect: true, to: `${base}/auth/start` }
+        ? {
+            shouldRedirect: true,
+            to: `${base}/auth/start?returnTo=/rankings&userID=${encodeURIComponent(userID)}`,
+          }
         : { shouldRedirect: false };
     }
 
@@ -652,9 +658,10 @@ const Rankings = () => {
     if (!wantsExport) return;
 
     (async () => {
-      const decision = await ensureSpotifyConnected(AUTH_ROOT, {
+      const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
         aggressive: false,
       });
+      
       if (decision.shouldRedirect) {
         // Still not connected? Kick off OAuth again and keep intent
         markExportIntent();
@@ -694,8 +701,8 @@ const Rankings = () => {
     }
 
     // Real browser path: ensure we have a Spotify session first
-    const decision = await ensureSpotifyConnected(AUTH_ROOT, {
-      aggressive: true,
+    const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
+      aggressive: false,
     });
 
     if (decision.shouldRedirect) {
