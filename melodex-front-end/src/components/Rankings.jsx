@@ -677,22 +677,25 @@ const Rankings = () => {
       setExportState(ExportState.Idle); // reset when opening fresh
       setSelectionMode(true);
       setPlaylistName((prev) =>
-        String(prev || "").trim() ? prev : formatDefaultPlaylistName()
+        String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
       );
       return;
     }
 
     // Real browser path: ensure we have a Spotify session first
-    const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
-      aggressive: false,
-    });
-
-    if (decision.shouldRedirect) {
-      // Remember that the user clicked Export so we can resume after OAuth
-      markExportIntent();
-      window.location.href = decision.to;
+    // Do NOT check Spotify yet — just open selection UI
+    if (!sortedSongs || sortedSongs.length === 0) {
       return;
     }
+
+    seedSelectedAll(sortedSongs);
+    setExportSuccessUrl("");
+    setExportError(null);
+    setExportState(ExportState.Idle);
+    setSelectionMode(true);
+    setPlaylistName((prev) =>
+      String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
+    );
 
     if (!sortedSongs || sortedSongs.length === 0) {
       return;
@@ -704,7 +707,7 @@ const Rankings = () => {
     setExportState(ExportState.Idle); // reset when opening from UI
     setSelectionMode(true);
     setPlaylistName((prev) =>
-      String(prev || "").trim() ? prev : formatDefaultPlaylistName()
+      String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
     );
   }
 
