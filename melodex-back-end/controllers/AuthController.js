@@ -598,17 +598,76 @@ async function exportPlaylist(req, res) {
         };
       }
     }
-    // 3) Fallback: items[].spotifyUri (future real mapping / rehydrate path)
+    // 3) Fallback: metadata-only items (frontend now sends songName + artist)
     else {
       mapper = {
         mapMany: async (itemsArray) => {
-          const uris = (itemsArray || [])
-            .map((i) =>
-              typeof i.spotifyUri === "string" ? i.spotifyUri.trim() : null
-            )
-            .filter(Boolean);
+          const outUris = [];
+          const skipped = [];
 
-          return { uris, skipped: [] };
+          for (const item of itemsArray || []) {
+            const name = item.songName || item.title;
+            const artist = item.artist;
+            const id = item.deezerID ?? item.deezerId ?? item._id ?? null;
+
+            if (!name || !artist) {
+              skipped.push({
+                id,
+                reason: "MISSING_METADATA",
+              });
+              continue;
+            }
+
+            const q = `${name} ${artist}`;
+
+            try {
+              const resp = await http.get("/search", {
+                params: {
+                  q,
+                  type: "track",
+                  limit: 10,
+                },
+              });
+
+              const tracks = resp.data?.tracks?.items || [];
+              if (!tracks.length) {
+                skipped.push({
+                  id,
+                  reason: "NOT_FOUND",
+                });
+                continue;
+              }
+
+              let bestTrack = null;
+              let bestScore = -Infinity;
+
+              for (const t of tracks) {
+                const score = scoreTrackCandidate(t, name, artist);
+                if (score > bestScore) {
+                  bestScore = score;
+                  bestTrack = t;
+                }
+              }
+
+              if (!bestTrack || !bestTrack.uri) {
+                skipped.push({
+                  id,
+                  reason: "NOT_FOUND",
+                });
+                continue;
+              }
+
+              outUris.push(bestTrack.uri);
+            } catch (err) {
+              console.error("[mapping] search error for", q, err?.message);
+              skipped.push({
+                id,
+                reason: "SEARCH_FAILED",
+              });
+            }
+          }
+
+          return { uris: outUris, skipped };
         },
       };
     }

@@ -771,7 +771,12 @@ const Rankings = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          userID: effectiveUserID, 
+          name,
+          description,
+          items
+        })
       });
 
       let data = null;
