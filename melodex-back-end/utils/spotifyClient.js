@@ -162,7 +162,7 @@ async function createPlaylist({ accessToken, name, description }) {
       ok: true,
       id,
       url,
-      raw: data,
+      raw: res.data,
     };
   } catch (err) {
     const shape = makeErrorShape(err, { phase: "createPlaylist" });

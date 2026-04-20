@@ -821,12 +821,34 @@ async function exportPlaylist(req, res) {
 
 /* ---------- revoke / refresh / exports ---------- */
 
-function revoke(req, res) {
-  res.setHeader("Set-Cookie", [
-    serializeCookie("access", "", { maxAge: 0 }),
-    serializeCookie("refresh", "", { maxAge: 0 }),
-  ]);
-  res.json({ ok: true });
+async function revoke(req, res) {
+  try {
+    const userID =
+      req.body?.userID || req.query?.userID || req.headers["x-user-id"];
+
+    if (!userID) {
+      return res.status(400).json({ error: "Missing userID" });
+    }
+
+    const db = req.app.locals.db;
+
+    await db.collection("users").updateOne(
+      { userID },
+      {
+        $unset: {
+          "spotify.refreshToken": "",
+        },
+      },
+    );
+
+    res.clearCookie("spotify_access");
+    res.clearCookie("spotify_refresh");
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[auth/revoke] failed:", err);
+    return res.status(500).json({ error: "Failed to revoke" });
+  }
 }
 
 async function refresh(req, res) {

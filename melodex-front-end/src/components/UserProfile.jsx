@@ -108,6 +108,10 @@ function UserProfile() {
       await fetch(`${authRoot}/auth/revoke`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userID }),
       });
 
       console.log("Spotify disconnected");
