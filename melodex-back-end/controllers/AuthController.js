@@ -253,7 +253,7 @@ const AuthController = {
       state,
       code_challenge_method: "S256",
       code_challenge: challenge,
-      scope: "playlist-modify-private",
+      scope: "playlist-modify-private playlist-modify-public",
       show_dialog: "true",
     });
 
@@ -770,8 +770,10 @@ async function exportPlaylist(req, res) {
           // Prefer worker-provided name, fall back to payload.name defensively
           name: name ?? payload.name,
           description,
-          useV1: true, // keep consistent with tests and /auth/debug/spotify-create
+          useV1: false, // keep consistent with tests and /auth/debug/spotify-create
         });
+
+        console.log("SPOTIFY CREATE RESULT:", created);
 
         if (!created || created.ok !== true) {
           const error =
