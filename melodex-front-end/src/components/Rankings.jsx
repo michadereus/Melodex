@@ -636,7 +636,7 @@ const Rankings = () => {
     if (!sortedSongs || sortedSongs.length === 0) return;
 
     const params = new URLSearchParams(window.location.search || "");
-    const wantsExport = params.get("export") === "1" || consumeExportIntent();
+    const wantsExport = params.get("export") === "1";
     if (!wantsExport) return;
 
     (async () => {
