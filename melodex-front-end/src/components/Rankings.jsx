@@ -768,7 +768,7 @@ const Rankings = () => {
 
       // ENSURE SPOTIFY CONNECTED BEFORE EXPORT
       const guard = await ensureSpotifyConnected(AUTH_ROOT, userID, {
-        aggressive: false,
+        aggressive: true,
       });
 
       if (guard.shouldRedirect) {

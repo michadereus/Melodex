@@ -78,13 +78,7 @@ export const UserProvider = ({ children }) => {
             ? baseNoTrail.replace(/\/api$/, "")
             : baseNoTrail;
 
-          await fetch(`${authRoot}/auth/revoke`, {
-            method: "POST"
-          });
-
-          console.log(
-            "Revoked Spotify session due to Melodex user switch"
-          );
+          
         }
 
         // Always record the current user as the last-seen user
