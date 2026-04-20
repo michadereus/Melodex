@@ -764,7 +764,7 @@ const Rankings = () => {
       setExportState(ExportState.Creating);
 
       // ENSURE SPOTIFY CONNECTED BEFORE EXPORT
-      const guard = await ensureSpotifyConnected(API_ROOT, userID, {
+      const guard = await ensureSpotifyConnected(AUTH_ROOT, userID, {
         aggressive: true,
       });
 
