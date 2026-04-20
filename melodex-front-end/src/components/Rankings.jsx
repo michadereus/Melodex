@@ -18,54 +18,35 @@ export async function ensureSpotifyConnected(
   userID,
   { aggressive = true } = {},
 ) {
-  const base = String(authRoot || "").replace(/\/+$/, "");
+  const base = authRoot || "";
+
+  if (!userID) {
+    console.error("Spotify auth check failed: missing userID");
+    return { shouldRedirect: false };
+  }
 
   try {
-    fetch(`${base}/auth/session?userID=${encodeURIComponent(userID)}`, {
-      cache: "no-store",
-    });
+    const r = await fetch(
+      `${base}/auth/session?userID=${encodeURIComponent(userID)}`,
+      { cache: "no-store" },
+    );
 
-    // Hard auth failures: only redirect in aggressive mode (user explicitly clicked).
-    if (r.status === 401 || r.status === 403) {
-      return aggressive
-        ? {
-            shouldRedirect: true,
-            to: `${base}/auth/start?returnTo=/rankings&userID=${encodeURIComponent(userID)}`,
-          }
-        : { shouldRedirect: false };
-    }
+    const data = await r.json();
 
-    if (r.status === 200) {
-      const text = await r.text();
-      console.log("RAW RESPONSE:", text);
-
-      let data = null;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        console.error("JSON PARSE FAILED:", e);
-      }
-
-      if (data && data.connected === true) {
-        // Definitely connected.
+    if (!data.connected) {
+      if (!aggressive) {
         return { shouldRedirect: false };
       }
 
-      // 200 but not explicitly connected:
-      // - In aggressive mode (CTA click) → start OAuth.
-      // - In non-aggressive mode (auto-resume) → DO NOT redirect (prevents loops).
-      return aggressive
-        ? {
-            shouldRedirect: true,
-            to: `${base}/auth/start?returnTo=/rankings&userID=${encodeURIComponent(userID)}`,
-          }
-        : { shouldRedirect: false };
+      return {
+        shouldRedirect: true,
+        to: `${base}/auth/start?returnTo=/rankings&userID=${encodeURIComponent(userID)}`,
+      };
     }
 
-    // Any other status (304/5xx/etc): never auto-redirect; avoids infinite loops.
     return { shouldRedirect: false };
-  } catch {
-    // Network or other error → don't spin.
+  } catch (err) {
+    console.error("Spotify auth check failed:", err);
     return { shouldRedirect: false };
   }
 }
@@ -771,7 +752,6 @@ const Rankings = () => {
         artist: s.artist ?? "",
       }));
 
-
       const payload = {
         name: (playlistName || "").trim() || formatDefaultPlaylistName(),
         ...(playlistDescription.trim()
@@ -782,6 +762,16 @@ const Rankings = () => {
 
       const effectiveUserID = userID;
       setExportState(ExportState.Creating);
+
+      // ENSURE SPOTIFY CONNECTED BEFORE EXPORT
+      const guard = await ensureSpotifyConnected(API_ROOT, userID, {
+        aggressive: true,
+      });
+
+      if (guard.shouldRedirect) {
+        window.location.href = guard.to;
+        return;
+      }
 
       const res = await fetch(`${API_ROOT}/playlist/export`, {
         method: "POST",
