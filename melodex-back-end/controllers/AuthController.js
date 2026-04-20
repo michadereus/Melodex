@@ -351,13 +351,14 @@ const AuthController = {
 /* ---------- middleware ---------- */
 
 function requireSpotifyAuth(req, res, next) {
-  const cookie = req.headers.cookie || "";
-  const hasSpotifyAccess = /(?:^|;\s*)access=/.test(cookie);
-  if (!hasSpotifyAccess) {
+  const rawCookie = req.headers.cookie || "";
+  const cookies = parseCookies(rawCookie);
+
+  if (!cookies.access && !cookies.refresh) {
     return res.status(401).json(
       fail(CODES.AUTH_SPOTIFY_REQUIRED, "No Spotify session", {
         hint: "Sign in and try again.",
-      })
+      }),
     );
   }
   return next();

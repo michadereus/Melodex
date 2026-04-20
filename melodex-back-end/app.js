@@ -4,7 +4,7 @@ let MongoClient; // lazy-loaded
 require('dotenv').config();
 const cors = require('cors');
 
-const app = express(); // ✅ MUST come before app.use
+const app = express(); 
 
 // --- CORS (single clean setup) ---
 app.use(
