@@ -431,10 +431,9 @@ class UserSongsController {
             genre,
             subgenre: subgenre || null,
             decade: decade || null,
-            albumCover: '',
-            previewURL: '',
-            ranking: initialRanking,
-            skipped: false,
+            albumCover: "",
+            previewURL: "",
+            deezerID: null,
           };
         });
 
@@ -471,6 +470,7 @@ class UserSongsController {
       // Treat "no skipped field" the same as skipped:false
       const query = {
         userID,
+        deezerID: { $exists: true, $ne: null },
         $or: [{ skipped: { $exists: false } }, { skipped: false }],
       };
 
@@ -779,7 +779,20 @@ class UserSongsController {
         };
 
         if (filter) {
-          bulk.find(filter).upsert().updateOne({ $set: setFields });
+          const existing = await db.collection("user_songs").findOne(filter);
+
+          if (existing) {
+            bulk.find(filter).updateOne({ $set: setFields });
+          } else {
+            console.log(
+              "[deezer-info] SKIP persist (doc does not already exist):",
+              {
+                songName: s.songName,
+                artist: s.artist,
+                deezerID: s.deezerID,
+              },
+            );
+          }
         } else {
           console.log("[deezer-info] SKIP persist (no filter):", {
             songName: s.songName,
@@ -939,8 +952,7 @@ class UserSongsController {
 
     const query = {
       userID,
-      ranking: { $ne: null },
-      // Treat missing skipped as "not skipped"
+      deezerID: { $exists: true, $ne: null },
       $or: [{ skipped: { $exists: false } }, { skipped: false }],
     };
 
