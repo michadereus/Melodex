@@ -54,8 +54,7 @@ export const UserProvider = ({ children }) => {
       });
       console.log("Authenticated user:", user);
 
-      const extractedUserID =
-        user.username || user.attributes?.sub || user.id;
+      const extractedUserID = user.username || user.attributes?.sub || user.id;
       console.log("Extracted userID:", extractedUserID);
 
       // If we detect a different Melodex user than last time, clear any
@@ -68,35 +67,43 @@ export const UserProvider = ({ children }) => {
       } catch (revokeErr) {
         console.warn(
           "Failed to revoke Spotify session on user switch:",
-          revokeErr
+          revokeErr,
         );
       }
 
       let attributeMap = user.attributes || {};
       if (!user.attributes && user.token) {
-        console.log('No attributes available, decoding ID token');
+        console.log("No attributes available, decoding ID token");
         attributeMap = decodeJwt(user.token);
-        console.log('Decoded ID token attributes:', attributeMap);
+        console.log("Decoded ID token attributes:", attributeMap);
       } else if (!user.attributes) {
-        console.log('No attributes or token available in user object, skipping attribute fetch');
+        console.log(
+          "No attributes or token available in user object, skipping attribute fetch",
+        );
       }
 
-      // Fetch user attributes from Cognito if not already present
+      // Fetch user attributes from Cognito if key profile fields are missing
       if (
-        !attributeMap['custom:uploadedPicture'] &&
-        !attributeMap['custom:picture'] &&
-        !attributeMap.picture
+        !attributeMap["custom:username"] &&
+        !attributeMap.name &&
+        !attributeMap["given_name"]
       ) {
         try {
           const attributes = await Auth.userAttributes(user);
-          console.log('Fetched Cognito user attributes:', attributes);
-          attributeMap = attributes.reduce((acc, attr) => {
+          console.log("Fetched Cognito user attributes:", attributes);
+          const fetchedMap = attributes.reduce((acc, attr) => {
             acc[attr.Name] = attr.Value;
             return acc;
           }, {});
-          console.log('Converted Cognito attributes to map:', attributeMap);
+          console.log("Converted Cognito attributes to map:", fetchedMap);
+
+          // Merge fetched attrs into any existing decoded/token attrs
+          attributeMap = {
+            ...attributeMap,
+            ...fetchedMap,
+          };
         } catch (attrError) {
-          console.error('Failed to fetch Cognito user attributes:', attrError);
+          console.error("Failed to fetch Cognito user attributes:", attrError);
         }
       }
 
@@ -108,17 +115,17 @@ export const UserProvider = ({ children }) => {
       setDisplayName(name);
 
       let picture =
-        attributeMap['custom:uploadedPicture'] ||
-        attributeMap['custom:picture'] ||
+        attributeMap["custom:uploadedPicture"] ||
+        attributeMap["custom:picture"] ||
         attributeMap.picture ||
-        'https://i.imgur.com/uPnNK9Y.png';
+        "https://i.imgur.com/uPnNK9Y.png";
       const isPictureValid = await testImageUrl(picture);
       if (!isPictureValid) {
-        picture = 'https://i.imgur.com/uPnNK9Y.png';
+        picture = "https://i.imgur.com/uPnNK9Y.png";
       }
       setUserPicture(picture);
 
-      const userEmail = attributeMap.email || 'N/A';
+      const userEmail = attributeMap.email || "N/A";
       setEmail(userEmail);
 
       setUserID(extractedUserID);
@@ -127,10 +134,10 @@ export const UserProvider = ({ children }) => {
       // ✅ Only auto-redirect to /rank if we're on login/root, and only when not bypassing
       if (
         (!isCypressEnv || requireAuth) &&
-        (location.pathname === '/login' || location.pathname === '/')
+        (location.pathname === "/login" || location.pathname === "/")
       ) {
-        console.log('User authenticated, redirecting to /rank');
-        navigate('/rank');
+        console.log("User authenticated, redirecting to /rank");
+        navigate("/rank");
       }
     } catch (error) {
       console.log('No user authenticated, setting defaults:', error);
