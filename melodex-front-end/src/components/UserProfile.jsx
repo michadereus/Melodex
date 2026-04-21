@@ -323,8 +323,8 @@ function UserProfile() {
               background: "#1DB954", // Spotify green (or use your rankings blue if different)
               padding: "0.5rem 1rem",
               color: "#fff",
-              border: "#0f5728ff",
-              borderRadius: "4rem",
+              border: "1px solid #0f5728ff",
+              borderRadius: "0.5rem",
               cursor: "pointer",
               marginBottom: "0.75rem",
               width: "200px",
@@ -339,8 +339,8 @@ function UserProfile() {
               background: "#3498db",
               padding: "0.5rem 1rem",
               color: "#fff",
-              border: "#1b4c6dff",
-              borderRadius: "4rem",
+              border: "1px solid #1b4c6dff",
+              borderRadius: "0.5rem",
               cursor: "pointer",
               width: "200px",
             }}
