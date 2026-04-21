@@ -687,6 +687,7 @@ class UserSongsController {
       // Same skipped semantics as ranked: missing skipped = not skipped
       const query = {
         userID,
+        deezerID: { $exists: true, $ne: null },
         $or: [{ skipped: { $exists: false } }, { skipped: false }],
       };
 
