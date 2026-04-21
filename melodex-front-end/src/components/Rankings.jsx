@@ -674,7 +674,7 @@ const Rankings = () => {
       seedSelectedAll(sortedSongs);
       setExportSuccessUrl("");
       setExportError(null);
-      setExportState(ExportState.Idle); // reset when opening fresh
+      setExportState(ExportState.Idle);
       setSelectionMode(true);
       setPlaylistName((prev) =>
         String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
@@ -682,9 +682,19 @@ const Rankings = () => {
       return;
     }
 
-    // Real browser path: ensure we have a Spotify session first
-    // Do NOT check Spotify yet — just open selection UI
     if (!sortedSongs || sortedSongs.length === 0) {
+      return;
+    }
+
+    // Real browser path: auth should happen HERE, before entering selection mode
+    const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
+      aggressive: true,
+    });
+
+    if (decision.shouldRedirect) {
+      // Remember that the user clicked Export so we can resume after OAuth
+      markExportIntent();
+      window.location.href = decision.to;
       return;
     }
 
@@ -692,19 +702,6 @@ const Rankings = () => {
     setExportSuccessUrl("");
     setExportError(null);
     setExportState(ExportState.Idle);
-    setSelectionMode(true);
-    setPlaylistName((prev) =>
-      String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
-    );
-
-    if (!sortedSongs || sortedSongs.length === 0) {
-      return;
-    }
-
-    seedSelectedAll(sortedSongs);
-    setExportSuccessUrl("");
-    setExportError(null);
-    setExportState(ExportState.Idle); // reset when opening from UI
     setSelectionMode(true);
     setPlaylistName((prev) =>
       String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
@@ -768,11 +765,14 @@ const Rankings = () => {
 
       // ENSURE SPOTIFY CONNECTED BEFORE EXPORT
       const guard = await ensureSpotifyConnected(AUTH_ROOT, userID, {
-        aggressive: true,
+        aggressive: false,
       });
 
       if (guard.shouldRedirect) {
-        window.location.href = guard.to;
+        setExportError(
+          "Spotify is not connected. Please click Create Spotify playlist again.",
+        );
+        setExportState(ExportState.Error);
         return;
       }
 
