@@ -738,7 +738,10 @@ const Rankings = () => {
         deezerID: s.deezerID ?? s._id ?? null,
         songName: s.songName ?? "",
         artist: s.artist ?? "",
+        spotifyUri: s.spotifyUri ?? null,
       }));
+
+      const uris = chosen.map((s) => s.spotifyUri).filter(Boolean);
 
       const payload = {
         name: (playlistName || "").trim() || formatDefaultPlaylistName(),
@@ -746,6 +749,7 @@ const Rankings = () => {
           ? { description: playlistDescription.trim() }
           : {}),
         items,
+        uris,
       };
 
       const effectiveUserID = userID;
@@ -781,9 +785,11 @@ const Rankings = () => {
       }
 
       if (!res.ok || !data?.ok) {
-        throw new Error(
-          data?.message || data?.error || `Export failed ${res.status}`,
-        );
+        const composedMessage = [data?.message || data?.error, data?.hint]
+          .filter(Boolean)
+          .join(" ");
+
+        throw new Error(composedMessage || `Export failed ${res.status}`);
       }
 
       setExportSuccessUrl(data.playlistUrl || "");
