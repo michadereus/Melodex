@@ -738,11 +738,27 @@ const Rankings = () => {
         deezerID: s.deezerID ?? s._id ?? null,
         songName: s.songName ?? "",
         artist: s.artist ?? "",
-        spotifyUri: s.spotifyUri ?? null,
+        spotifyUri:
+          s.spotifyUri ??
+          (s.deezerID != null
+            ? `spotify:track:${s.deezerID}`
+            : s._id != null
+              ? `spotify:track:${s._id}`
+              : null),
       }));
 
-      const uris = chosen.map((s) => s.spotifyUri).filter(Boolean);
-
+      const uris = chosen
+        .map(
+          (s) =>
+            s.spotifyUri ??
+            (s.deezerID != null
+              ? `spotify:track:${s.deezerID}`
+              : s._id != null
+                ? `spotify:track:${s._id}`
+                : null),
+        )
+        .filter(Boolean);
+        
       const payload = {
         name: (playlistName || "").trim() || formatDefaultPlaylistName(),
         ...(playlistDescription.trim()
