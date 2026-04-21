@@ -84,20 +84,29 @@ export const UserProvider = ({ children }) => {
       }
 
       try {
-        const attributes = await Auth.userAttributes(user);
-        console.log("Fetched Cognito user attributes:", attributes);
+        const isFederatedUser =
+          !!user?.token &&
+          !user?.getSignInUserSession &&
+          !user?.signInUserSession;
 
-        const fetchedMap = attributes.reduce((acc, attr) => {
-          acc[attr.Name] = attr.Value;
-          return acc;
-        }, {});
+        if (!isFederatedUser) {
+          const attributes = await Auth.userAttributes(user);
+          console.log("Fetched Cognito user attributes:", attributes);
 
-        console.log("Converted Cognito attributes to map:", fetchedMap);
+          const fetchedMap = attributes.reduce((acc, attr) => {
+            acc[attr.Name] = attr.Value;
+            return acc;
+          }, {});
 
-        attributeMap = {
-          ...attributeMap,
-          ...fetchedMap,
-        };
+          console.log("Converted Cognito attributes to map:", fetchedMap);
+
+          attributeMap = {
+            ...attributeMap,
+            ...fetchedMap,
+          };
+        } else {
+          console.log("Skipping Auth.userAttributes for federated user");
+        }
       } catch (attrError) {
         console.error("Failed to fetch Cognito user attributes:", attrError);
       }
