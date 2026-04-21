@@ -758,7 +758,7 @@ const Rankings = () => {
                 : null),
         )
         .filter(Boolean);
-        
+
       const payload = {
         name: (playlistName || "").trim() || formatDefaultPlaylistName(),
         ...(playlistDescription.trim()
@@ -1015,7 +1015,7 @@ const Rankings = () => {
                   style={{
                     padding: "0.6rem 1rem",
                     background: "#1DB954",
-                    borderRadius: 4,
+                    borderRadius: '0.5rem',
                     border: "1px solid #0a3f1dff",
                     fontWeight: 700,
                   }}
