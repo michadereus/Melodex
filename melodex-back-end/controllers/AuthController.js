@@ -283,8 +283,9 @@ const AuthController = {
         res.setHeader("Set-Cookie", [
           serializeCookie("oauth_state", "", { maxAge: 0 }),
           serializeCookie("pkce_verifier", "", { maxAge: 0 }),
+          serializeCookie("return_to", "", { maxAge: 0 }),
         ]);
-        return res.redirect(front("/login?error=access_denied"));
+        return res.redirect(front("/rankings"));
       }
 
       if (!code || !state) {
