@@ -100,7 +100,11 @@ export const UserProvider = ({ children }) => {
         }
       }
 
-      const name = attributeMap.name || attributeMap['given_name'] || 'User';
+      const name =
+        attributeMap["custom:username"] ||
+        attributeMap.name ||
+        attributeMap["given_name"] ||
+        "User";
       setDisplayName(name);
 
       let picture =

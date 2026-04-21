@@ -993,8 +993,8 @@ const Rankings = () => {
                   style={{
                     padding: "0.6rem 1rem",
                     borderRadius: 8,
-                    border: "1px solid #3498db",
-                    fontWeight: 400, // normal weight
+                    border: "1px solid #1DB954",
+                    fontWeight: 700, // normal weight
                   }}
                 >
                   Create Spotify playlist
