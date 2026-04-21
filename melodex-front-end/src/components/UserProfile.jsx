@@ -309,17 +309,25 @@ function UserProfile() {
             </p>
           )}
         </div>
-        <div style={{ textAlign: "center", marginTop: "2rem" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginTop: "2rem",
+          }}
+        >
           <button
             onClick={handleDisconnectSpotify}
             style={{
-              background: "#e74c3c",
+              background: "#1DB954", // Spotify green (or use your rankings blue if different)
               padding: "0.5rem 1rem",
               color: "#fff",
               border: "none",
               borderRadius: "0.5rem",
               cursor: "pointer",
-              marginBottom: "0.5rem",
+              marginBottom: "0.75rem",
+              width: "200px",
             }}
           >
             Disconnect Spotify
@@ -328,12 +336,13 @@ function UserProfile() {
           <button
             onClick={handleSignOut}
             style={{
-              background: "#e74c3c",
+              background: "#3498db",
               padding: "0.5rem 1rem",
               color: "#fff",
               border: "none",
               borderRadius: "0.5rem",
               cursor: "pointer",
+              width: "200px",
             }}
           >
             Sign Out
