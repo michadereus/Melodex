@@ -55,6 +55,16 @@ const Rankings = () => {
   const { rankedSongs, fetchRankedSongs, loading, userID } = useSongContext();
   const { volume, setVolume, playingAudioRef, setPlayingAudioRef } =
     useVolumeContext();
+
+  const hasExportResumeParam = () => {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      return params.get("export") === "1";
+    } catch {
+      return false;
+    }
+  };
+
   const [loadedPreviewKey, setLoadedPreviewKey] = useState(null);
   const [applied, setApplied] = useState(false);
   const [enrichedSongs, setEnrichedSongs] = useState([]);
@@ -79,15 +89,9 @@ const Rankings = () => {
   const [playlistDescription, setPlaylistDescription] = useState("");
   const [exporting, setExporting] = useState(false);
   const [exportSuccessUrl, setExportSuccessUrl] = useState("");
-
-  const [resumeExportAfterAuth, setResumeExportAfterAuth] = useState(() => {
-    try {
-      const params = new URLSearchParams(window.location.search || "");
-      return params.get("export") === "1";
-    } catch {
-      return false;
-    }
-  });
+  const [resumeExportAfterAuth, setResumeExportAfterAuth] = useState(
+    hasExportResumeParam(),
+  );
 
   // Export progress states (idle → loading → success|error)
   const ExportState = {
@@ -182,8 +186,9 @@ const Rankings = () => {
 
   // Parse Deezer preview expiry for logging + validation
   function parsePreviewExpiry(url) {
-    if (!url || typeof url !== "string")
+    if (!url || typeof url !== "string") {
       return { exp: null, now: Math.floor(Date.now() / 1000), ttl: null };
+    }
     try {
       const qs = url.split("?")[1] || "";
       const params = new URLSearchParams(qs);
@@ -354,20 +359,22 @@ const Rankings = () => {
     setIsFetching(false);
 
     try {
-      let valid = 0,
-        expired = 0,
-        missing = 0;
+      let valid = 0;
+      let expired = 0;
+      let missing = 0;
       const samples = [];
+
       rankedSongs.forEach((s, i) => {
         if (!s.previewURL) {
           missing++;
-          if (samples.length < 5)
+          if (samples.length < 5) {
             samples.push({
               i,
               name: s.songName,
               artist: s.artist,
               reason: "no previewURL",
             });
+          }
         } else if (isPreviewValid(s.previewURL)) {
           valid++;
         } else {
@@ -386,6 +393,7 @@ const Rankings = () => {
           }
         }
       });
+
       console.log("[Rankings] Snapshot after fetch:", {
         valid,
         expired,
@@ -404,6 +412,7 @@ const Rankings = () => {
     const candidates = rankedSongs.filter(
       (s) => !s.deezerID || !s.albumCover || !s.previewURL,
     );
+
     console.log("[Rankings] Background fix pass: candidates", {
       total: rankedSongs.length,
       candidates: candidates.length,
@@ -460,6 +469,7 @@ const Rankings = () => {
                 return repl ? { ...s, ...repl } : s;
               }),
             );
+
             setFilteredSongs((prev) =>
               prev.map((s) => {
                 const repl = list.find(
@@ -579,8 +589,8 @@ const Rankings = () => {
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(() => reject(new Error("Fetch timeout")), 60000),
       );
+
       await Promise.race([
-        // ⬆️ Respect current filters passed from SongFilter
         fetchRankedSongs({
           userID: effectiveUserID,
           genre: filters?.genre ?? "any",
@@ -588,6 +598,7 @@ const Rankings = () => {
         }),
         timeoutPromise,
       ]);
+
       setApplied(true);
     } catch (error) {
       console.error("handleApply error:", error);
@@ -604,7 +615,6 @@ const Rankings = () => {
       const wrapperEl = rankingsWrapperRef.current;
       if (!wrapperEl || !filterEl) return;
 
-      // Use 20% of the filter height to move the wrapper (less movement)
       const filterHeight = showFilter
         ? filterEl.getBoundingClientRect().height
         : 0;
@@ -613,7 +623,6 @@ const Rankings = () => {
       wrapperEl.style.transform = `translateY(${movePx}px)`;
     };
 
-    // Update immediately and again shortly after to account for layout changes
     updateTranslate();
     const t = setTimeout(updateTranslate, 80);
     return () => clearTimeout(t);
@@ -625,32 +634,36 @@ const Rankings = () => {
     if (!userID) return;
     if (!sortedSongs || sortedSongs.length === 0) return;
 
+    let cancelled = false;
+
     (async () => {
       const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
         aggressive: false,
       });
 
-      if (decision.shouldRedirect) {
-        return;
-      }
+      if (cancelled) return;
+      if (decision.shouldRedirect) return;
 
-      seedSelectedAll(sortedSongs);
       setExportSuccessUrl("");
       setExportError(null);
       setExportState(ExportState.Idle);
+      seedSelectedAll(sortedSongs);
       setSelectionMode(true);
       setPlaylistName((prev) =>
         String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
       );
 
-      const params = new URLSearchParams(window.location.search || "");
-      if (params.get("export") === "1") {
+      if (hasExportResumeParam()) {
         const clean = window.location.pathname + window.location.hash;
         window.history.replaceState({}, "", clean);
       }
 
       setResumeExportAfterAuth(false);
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [resumeExportAfterAuth, userID, sortedSongs, seedSelectedAll, AUTH_ROOT]);
 
   async function onExportClick() {
@@ -671,6 +684,10 @@ const Rankings = () => {
       return;
     }
 
+    setExportSuccessUrl("");
+    setExportError(null);
+    setExportState(ExportState.Idle);
+
     // Real browser path: auth should happen HERE, before entering selection mode
     const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
       aggressive: true,
@@ -683,9 +700,6 @@ const Rankings = () => {
     }
 
     seedSelectedAll(sortedSongs);
-    setExportSuccessUrl("");
-    setExportError(null);
-    setExportState(ExportState.Idle);
     setSelectionMode(true);
     setPlaylistName((prev) =>
       String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
@@ -700,15 +714,14 @@ const Rankings = () => {
     setExporting(false);
     setExportSuccessUrl("");
     setExportError(null);
-    setExportState(ExportState.Idle); // <- reset so next session starts clean
+    setExportState(ExportState.Idle);
   };
 
   const doExport = async () => {
     if (exporting) return;
+
     console.log("selected size:", selected.size);
     console.log("total songs:", sortedSongs.length);
-
-    // optional but very useful
     console.log("first 5 selected keys:", [...selected].slice(0, 5));
     console.log("first 5 song keys:", sortedSongs.slice(0, 5).map(stableKey));
 
@@ -721,15 +734,6 @@ const Rankings = () => {
     setExporting(true);
 
     try {
-      // Keep numeric placeholder URIs so the backend uses the mapping path.
-      // const uris = chosen
-      //   .map((s) => {
-      //     const id = s.deezerID ?? s._id ?? null;
-      //     return id == null ? null : `spotify:track:${id}`;
-      //   })
-      //   .filter(Boolean);
-
-      // Keep the metadata the backend needs to search Spotify.
       const items = chosen.map((s) => ({
         deezerID: s.deezerID ?? s._id ?? null,
         songName: s.songName ?? "",
@@ -747,7 +751,6 @@ const Rankings = () => {
       const effectiveUserID = userID;
       setExportState(ExportState.Creating);
 
-      // ENSURE SPOTIFY CONNECTED BEFORE EXPORT
       const guard = await ensureSpotifyConnected(AUTH_ROOT, userID, {
         aggressive: false,
       });
@@ -803,18 +806,20 @@ const Rankings = () => {
       console.error("getRankPositions: songs is not an array", songs);
       return [];
     }
-    const sortedSongs = [...songs].sort((a, b) => {
+
+    const sorted = [...songs].sort((a, b) => {
       if (typeof a.ranking !== "number" || typeof b.ranking !== "number") {
         console.error("Invalid ranking value", a, b);
         return 0;
       }
       return b.ranking - a.ranking;
     });
+
     const positions = [];
     let currentRank = 1;
     let previousRanking = null;
 
-    sortedSongs.forEach((song) => {
+    sorted.forEach((song) => {
       if (previousRanking === null || song.ranking !== previousRanking) {
         positions.push(currentRank);
         currentRank += 1;
@@ -835,7 +840,6 @@ const Rankings = () => {
       className="rankings-container"
       style={{ maxWidth: "1200px", width: "100%" }}
     >
-      {/* FILTER */}
       <div
         ref={filterRef}
         className={`filter-container ${showFilter ? "visible" : "hidden"}`}
@@ -848,7 +852,6 @@ const Rankings = () => {
         />
       </div>
 
-      {/* FILTER TOGGLE (ensure clickable above everything) */}
       <div
         style={{
           display: "flex",
@@ -861,7 +864,7 @@ const Rankings = () => {
           data-testid="filter-toggle"
           aria-label="Toggle filters"
           onClick={toggleFilter}
-          style={{ zIndex: 900 }} // keep above filter pane
+          style={{ zIndex: 900 }}
         >
           <svg
             width="20"
@@ -898,7 +901,6 @@ const Rankings = () => {
         </button>
       </div>
 
-      {/* MAIN CONTENT — wrapper that will be translated half-rate when filter opens */}
       <div
         ref={rankingsWrapperRef}
         style={{
@@ -928,7 +930,7 @@ const Rankings = () => {
                 height: "40px",
                 animation: "spin 1s linear infinite",
               }}
-            ></div>
+            />
             <p
               style={{
                 marginTop: "1rem",
@@ -936,7 +938,7 @@ const Rankings = () => {
                 color: "#7f8c8d",
                 fontWeight: "600",
               }}
-            ></p>
+            />
           </div>
         ) : applied ? (
           <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto" }}>
@@ -957,7 +959,6 @@ const Rankings = () => {
                       : "") + " Rankings"}
             </h2>
 
-            {/* Live selection summary (AC-03.2) */}
             {selectionMode && (
               <div
                 data-testid="selection-summary"
@@ -975,7 +976,6 @@ const Rankings = () => {
               </div>
             )}
 
-            {/* Inline selection controls / CTA */}
             <div
               style={{
                 display: "flex",
@@ -994,7 +994,7 @@ const Rankings = () => {
                     padding: "0.6rem 1rem",
                     borderRadius: 8,
                     border: "1px solid #1DB954",
-                    fontWeight: 700, // normal weight
+                    fontWeight: 700,
                   }}
                 >
                   Create Spotify playlist
@@ -1014,7 +1014,6 @@ const Rankings = () => {
                     maxWidth: 900,
                   }}
                 >
-                  {/* ROW 1: Name + Description, same y-plane */}
                   <div
                     style={{
                       display: "grid",
@@ -1056,7 +1055,6 @@ const Rankings = () => {
                     />
                   </div>
 
-                  {/* ROW 2: Select all + Export + Cancel all on same line */}
                   <div
                     style={{
                       display: "flex",
@@ -1065,7 +1063,6 @@ const Rankings = () => {
                       gap: "1rem",
                     }}
                   >
-                    {/* Select all (left) */}
                     <label
                       htmlFor="master-select-all"
                       style={{
@@ -1101,7 +1098,6 @@ const Rankings = () => {
                       <span>Select all</span>
                     </label>
 
-                    {/* Export + Cancel (right) */}
                     <div
                       style={{
                         display: "flex",
@@ -1155,7 +1151,6 @@ const Rankings = () => {
                     </div>
                   </div>
 
-                  {/* Hint goes under the buttons so it doesn't push layout sideways */}
                   {zeroSelected && (
                     <p
                       data-testid="export-hint-empty"
@@ -1176,7 +1171,6 @@ const Rankings = () => {
               )}
             </div>
 
-            {/* Progress readout — only during in-flight */}
             {selectionMode &&
               (exportState === ExportState.Validating ||
                 exportState === ExportState.Creating ||
@@ -1196,7 +1190,6 @@ const Rankings = () => {
                 </div>
               )}
 
-            {/* Error banner + Retry (E2E-004 depends on these test ids) */}
             {selectionMode && exportState === ExportState.Error && (
               <div
                 data-testid="export-error"
@@ -1278,6 +1271,7 @@ const Rankings = () => {
                 {sortedSongs.map((song, index) => {
                   const k = stableKey(song);
                   const isChecked = selected.has(k);
+
                   return (
                     <li
                       data-testid="song-card"
@@ -1294,7 +1288,6 @@ const Rankings = () => {
                         position: "relative",
                       }}
                     >
-                      {/* Inline selection checkbox (left side) */}
                       {selectionMode && (
                         <input
                           type="checkbox"
@@ -1310,6 +1303,7 @@ const Rankings = () => {
                           style={{ transform: "scale(1.2)" }}
                         />
                       )}
+
                       <span
                         style={{
                           fontSize: "1.5rem",
@@ -1485,7 +1479,7 @@ const Rankings = () => {
                 height: "40px",
                 animation: "spin 1s linear infinite",
               }}
-            ></div>
+            />
             <p
               style={{
                 marginTop: "1rem",
@@ -1501,6 +1495,6 @@ const Rankings = () => {
       </div>
     </div>
   );
-};;
+};
 
 export default Rankings;

@@ -72,46 +72,43 @@ export const UserProvider = ({ children }) => {
       }
 
       let attributeMap = user.attributes || {};
+
       if (!user.attributes && user.token) {
         console.log("No attributes available, decoding ID token");
         attributeMap = decodeJwt(user.token);
         console.log("Decoded ID token attributes:", attributeMap);
       } else if (!user.attributes) {
         console.log(
-          "No attributes or token available in user object, skipping attribute fetch",
+          "No attributes or token available in user object, starting with empty attribute map",
         );
       }
 
-      // Fetch user attributes from Cognito if key profile fields are missing
-      if (
-        !attributeMap["custom:username"] &&
-        !attributeMap.name &&
-        !attributeMap["given_name"]
-      ) {
-        try {
-          const attributes = await Auth.userAttributes(user);
-          console.log("Fetched Cognito user attributes:", attributes);
-          const fetchedMap = attributes.reduce((acc, attr) => {
-            acc[attr.Name] = attr.Value;
-            return acc;
-          }, {});
-          console.log("Converted Cognito attributes to map:", fetchedMap);
+      try {
+        const attributes = await Auth.userAttributes(user);
+        console.log("Fetched Cognito user attributes:", attributes);
 
-          // Merge fetched attrs into any existing decoded/token attrs
-          attributeMap = {
-            ...attributeMap,
-            ...fetchedMap,
-          };
-        } catch (attrError) {
-          console.error("Failed to fetch Cognito user attributes:", attrError);
-        }
+        const fetchedMap = attributes.reduce((acc, attr) => {
+          acc[attr.Name] = attr.Value;
+          return acc;
+        }, {});
+
+        console.log("Converted Cognito attributes to map:", fetchedMap);
+
+        attributeMap = {
+          ...attributeMap,
+          ...fetchedMap,
+        };
+      } catch (attrError) {
+        console.error("Failed to fetch Cognito user attributes:", attrError);
       }
 
       const name =
         attributeMap["custom:username"] ||
         attributeMap.name ||
         attributeMap["given_name"] ||
+        (attributeMap.email ? attributeMap.email.split("@")[0] : null) ||
         "User";
+
       setDisplayName(name);
 
       let picture =
