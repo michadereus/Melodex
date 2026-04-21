@@ -992,9 +992,9 @@ const Rankings = () => {
                   aria-label="Create Spotify playlist from rankings"
                   style={{
                     padding: "0.6rem 1rem",
-                    background: "#000000ff",
+                    background: "#1DB954",
                     borderRadius: 8,
-                    border: "1px solid #1DB954",
+                    border: "1px solid #222e26ff",
                     fontWeight: 700,
                   }}
                 >
