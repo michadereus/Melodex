@@ -74,11 +74,20 @@ const Rankings = () => {
   const [selectionMode, setSelectionMode] = useState(false);
   const [selected, setSelected] = useState(new Set());
   const [playlistName, setPlaylistName] = useState(() =>
-    formatDefaultPlaylistName()
+    formatDefaultPlaylistName(),
   );
   const [playlistDescription, setPlaylistDescription] = useState("");
   const [exporting, setExporting] = useState(false);
   const [exportSuccessUrl, setExportSuccessUrl] = useState("");
+
+  const [resumeExportAfterAuth, setResumeExportAfterAuth] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      return params.get("export") === "1";
+    } catch {
+      return false;
+    }
+  });
 
   // Export progress states (idle → loading → success|error)
   const ExportState = {
@@ -141,7 +150,7 @@ const Rankings = () => {
       .map((p, i) =>
         i === 0
           ? String(p).replace(/\/+$/, "")
-          : String(p).replace(/^\/+|\/+$/g, "")
+          : String(p).replace(/^\/+|\/+$/g, ""),
       )
       .filter(Boolean)
       .join("/");
@@ -150,14 +159,6 @@ const Rankings = () => {
     const ts = recentlyDoneRef.current.get(key) || 0;
     return Date.now() - ts < RECENTLY_DONE_WINDOW_MS;
   }
-
-  // --- OAuth resume helpers ---
-  const EXPORT_INTENT_KEY = "melodex.intent";
-
-  // No-op now — URL param drives OAuth resume
-  const markExportIntent = () => {};
-
-  const consumeExportIntent = () => false;
 
   // ===== Helpers =====
   const stableKey = (s) => {
@@ -287,10 +288,10 @@ const Rankings = () => {
         (s.songName === song.songName && s.artist === song.artist);
 
       setEnrichedSongs((prev) =>
-        prev.map((s) => (matches(s) ? { ...s, ...updated } : s))
+        prev.map((s) => (matches(s) ? { ...s, ...updated } : s)),
       );
       setFilteredSongs((prev) =>
-        prev.map((s) => (matches(s) ? { ...s, ...updated } : s))
+        prev.map((s) => (matches(s) ? { ...s, ...updated } : s)),
       );
 
       const audioEl = audioRefs.current.get(key);
@@ -401,7 +402,7 @@ const Rankings = () => {
     const url = joinUrl(API_ROOT, "user-songs", "deezer-info");
 
     const candidates = rankedSongs.filter(
-      (s) => !s.deezerID || !s.albumCover || !s.previewURL
+      (s) => !s.deezerID || !s.albumCover || !s.previewURL,
     );
     console.log("[Rankings] Background fix pass: candidates", {
       total: rankedSongs.length,
@@ -454,10 +455,10 @@ const Rankings = () => {
                     (b._id && s._id && String(b._id) === String(s._id)) ||
                     (!!b.deezerID &&
                       String(b.deezerID) === String(s.deezerID)) ||
-                    (b.songName === s.songName && b.artist === s.artist)
+                    (b.songName === s.songName && b.artist === s.artist),
                 );
                 return repl ? { ...s, ...repl } : s;
-              })
+              }),
             );
             setFilteredSongs((prev) =>
               prev.map((s) => {
@@ -466,16 +467,16 @@ const Rankings = () => {
                     (b._id && s._id && String(b._id) === String(s._id)) ||
                     (!!b.deezerID &&
                       String(b.deezerID) === String(s.deezerID)) ||
-                    (b.songName === s.songName && b.artist === s.artist)
+                    (b.songName === s.songName && b.artist === s.artist),
                 );
                 return repl ? { ...s, ...repl } : s;
-              })
+              }),
             );
           })
           .catch((err) => {
             console.log(
               "[Rankings] deezer-info error (ignored, UI will self-heal on play)",
-              err?.message || err
+              err?.message || err,
             );
           })
           .finally(() => {
@@ -576,7 +577,7 @@ const Rankings = () => {
       }
 
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Fetch timeout")), 60000)
+        setTimeout(() => reject(new Error("Fetch timeout")), 60000),
       );
       await Promise.race([
         // ⬆️ Respect current filters passed from SongFilter
@@ -618,43 +619,39 @@ const Rankings = () => {
     return () => clearTimeout(t);
   }, [showFilter]);
 
-  // Auto-open Export after OAuth if we detect intent or ?export=1
+  // Auto-open Export after successful OAuth return
   useEffect(() => {
-    // IMPORTANT: don't consume the intent until we actually have songs
+    if (!resumeExportAfterAuth) return;
+    if (!userID) return;
     if (!sortedSongs || sortedSongs.length === 0) return;
-
-    const params = new URLSearchParams(window.location.search || "");
-    const wantsExport = params.get("export") === "1";
-    if (!wantsExport) return;
 
     (async () => {
       const decision = await ensureSpotifyConnected(AUTH_ROOT, userID, {
         aggressive: false,
       });
-      
+
       if (decision.shouldRedirect) {
-        // Still not connected? Kick off OAuth again and keep intent
-        markExportIntent();
-        window.location.href = decision.to;
         return;
       }
 
-      // Connected → open selection mode with all visible songs
       seedSelectedAll(sortedSongs);
       setExportSuccessUrl("");
+      setExportError(null);
+      setExportState(ExportState.Idle);
       setSelectionMode(true);
       setPlaylistName((prev) =>
-        String(prev || "").trim() ? prev : formatDefaultPlaylistName()
+        String(prev || "").trim() ? prev : formatDefaultPlaylistName(),
       );
 
-      // Clean the URL (drop ?export=1) to avoid sticky behavior on refresh
+      const params = new URLSearchParams(window.location.search || "");
       if (params.get("export") === "1") {
         const clean = window.location.pathname + window.location.hash;
         window.history.replaceState({}, "", clean);
       }
+
+      setResumeExportAfterAuth(false);
     })();
-    // When songs list changes (initial load), this runs once
-  }, [sortedSongs.length]);
+  }, [resumeExportAfterAuth, userID, sortedSongs, seedSelectedAll, AUTH_ROOT]);
 
   async function onExportClick() {
     // Cypress/jsdom fast path (tests can bypass auth)
@@ -680,8 +677,7 @@ const Rankings = () => {
     });
 
     if (decision.shouldRedirect) {
-      // Remember that the user clicked Export so we can resume after OAuth
-      markExportIntent();
+      setResumeExportAfterAuth(true);
       window.location.href = decision.to;
       return;
     }
@@ -957,8 +953,8 @@ const Rankings = () => {
                 : (selectedSubgenre !== "any"
                     ? selectedSubgenre
                     : selectedGenre !== "any"
-                    ? selectedGenre
-                    : "") + " Rankings"}
+                      ? selectedGenre
+                      : "") + " Rankings"}
             </h2>
 
             {/* Live selection summary (AC-03.2) */}
@@ -1091,7 +1087,7 @@ const Rankings = () => {
                         onChange={(e) => {
                           if (e.target.checked) {
                             const all = new Set(
-                              filteredSongs.map((s) => stableKey(s))
+                              filteredSongs.map((s) => stableKey(s)),
                             );
                             setSelected(all);
                           } else {
@@ -1220,7 +1216,7 @@ const Rankings = () => {
                 <strong style={{ marginRight: 6 }}>Export failed:</strong>
                 <span>
                   {String(
-                    exportError || "Something went wrong — please try again."
+                    exportError || "Something went wrong — please try again.",
                   )}
                 </span>
                 <div style={{ marginTop: "0.5rem" }}>
@@ -1391,7 +1387,7 @@ const Rankings = () => {
                               }}
                               onError={(e) => {
                                 const { ttl, exp, now } = parsePreviewExpiry(
-                                  song.previewURL
+                                  song.previewURL,
                                 );
                                 console.log(
                                   "[Rankings] <audio> onError → rehydrate (likely expired / fetch fail)",
@@ -1402,7 +1398,7 @@ const Rankings = () => {
                                     ttl,
                                     exp,
                                     now,
-                                  }
+                                  },
                                 );
                                 e.currentTarget.style.display = "none";
                                 const overlay =
@@ -1505,7 +1501,6 @@ const Rankings = () => {
       </div>
     </div>
   );
-
-};
+};;
 
 export default Rankings;
