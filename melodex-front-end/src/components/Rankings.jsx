@@ -993,8 +993,8 @@ const Rankings = () => {
                   style={{
                     padding: "0.6rem 1rem",
                     background: "#1DB954",
-                    borderRadius: 8,
-                    border: "1px solid #222e26ff",
+                    borderRadius: 4,
+                    border: "1px solid #0a3f1dff",
                     fontWeight: 700,
                   }}
                 >

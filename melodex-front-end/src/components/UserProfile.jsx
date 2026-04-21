@@ -324,7 +324,7 @@ function UserProfile() {
               padding: "0.5rem 1rem",
               color: "#fff",
               border: "#0f5728ff",
-              borderRadius: "0.5rem",
+              borderRadius: "4rem",
               cursor: "pointer",
               marginBottom: "0.75rem",
               width: "200px",
@@ -340,7 +340,7 @@ function UserProfile() {
               padding: "0.5rem 1rem",
               color: "#fff",
               border: "#1b4c6dff",
-              borderRadius: "0.5rem",
+              borderRadius: "4rem",
               cursor: "pointer",
               width: "200px",
             }}
