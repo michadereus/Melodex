@@ -40,7 +40,7 @@ export async function ensureSpotifyConnected(
 
       return {
         shouldRedirect: true,
-        to: `${base}/auth/start?returnTo=/rankings&userID=${encodeURIComponent(userID)}`,
+        to: `${base}/auth/start?returnTo=${encodeURIComponent("/rankings?export=1")}&userID=${encodeURIComponent(userID)}`,
       };
     }
 
@@ -154,22 +154,10 @@ const Rankings = () => {
   // --- OAuth resume helpers ---
   const EXPORT_INTENT_KEY = "melodex.intent";
 
-  const markExportIntent = () => {
-    try {
-      sessionStorage.setItem(EXPORT_INTENT_KEY, "export");
-    } catch {}
-  };
+  // No-op now — URL param drives OAuth resume
+  const markExportIntent = () => {};
 
-  const consumeExportIntent = () => {
-    try {
-      const v = sessionStorage.getItem(EXPORT_INTENT_KEY);
-      if (v === "export") {
-        sessionStorage.removeItem(EXPORT_INTENT_KEY);
-        return true;
-      }
-    } catch {}
-    return false;
-  };
+  const consumeExportIntent = () => false;
 
   // ===== Helpers =====
   const stableKey = (s) => {
