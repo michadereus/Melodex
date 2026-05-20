@@ -34,8 +34,50 @@ export const SongRanker = ({ mode }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [fetchError, setFetchError] = useState(null);
   const [selectedGenre, setSelectedGenreState] = useState("");
+  const [hasLoadedIntroPreference, setHasLoadedIntroPreference] = useState(
+    mode !== "new",
+  );
+  const [showRankIntro, setShowRankIntro] = useState(false);
   const audioRefs = useRef([]);
   const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    if (mode !== "new") {
+      setShowRankIntro(false);
+      setHasLoadedIntroPreference(true);
+      return;
+    }
+
+    if (!contextUserID) {
+      return;
+    }
+
+    try {
+      const introKey = `melodex_rank_intro_seen_${contextUserID}`;
+      const hasSeenIntro = localStorage.getItem(introKey) === "true";
+
+      setShowRankIntro(!hasSeenIntro);
+    } catch (error) {
+      console.warn("Unable to read rank intro preference:", error);
+      setShowRankIntro(true);
+    } finally {
+      setHasLoadedIntroPreference(true);
+    }
+  }, [mode, contextUserID]);
+
+  const handleContinueFromIntro = () => {
+    try {
+      if (contextUserID) {
+        const introKey = `melodex_rank_intro_seen_${contextUserID}`;
+        localStorage.setItem(introKey, "true");
+      }
+    } catch (error) {
+      console.warn("Unable to save rank intro preference:", error);
+    }
+
+    setShowRankIntro(false);
+    setShowFilter(true);
+  };
 
   useEffect(() => {
     setMode(mode);
@@ -200,6 +242,70 @@ export const SongRanker = ({ mode }) => {
     setIsProcessing(true);
     await refreshPair(() => setIsProcessing(false));
   };
+
+  if (mode === "new" && !hasLoadedIntroPreference) {
+    return (
+      <div className="song-ranker-container">
+        <div className="portfolio-info-card rank-intro-card">
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "new" && showRankIntro) {
+    return (
+      <div className="song-ranker-container">
+        <div className="portfolio-info-card rank-intro-card">
+          <h2>Welcome to Melodex</h2>
+          <p>
+            Melodex is a music ranking app where you compare songs head-to-head
+            and build a personalized leaderboard.
+          </p>
+          <br></br>
+          <ol>
+            <li>Start on the Rank page by choosing a genre or subgenre.</li>
+            <li>
+              Compare song pairs head-to-head. Songs you vote on are added to
+              your library.
+            </li>
+            <li>
+              Use the refresh button to skip songs you do not want to rank.
+            </li>
+            <li>
+              After adding songs, go to Re-rank to compare your saved songs
+              against each other and build more accurate rankings.
+            </li>
+            <li>
+              Visit Rankings to view your leaderboard once your songs have been
+              re-ranked.
+            </li>
+            <li>
+              Connect with Spotify on the Rankings page to create a playlist
+              from your ranked songs.
+            </li>
+          </ol>
+          <br></br>
+          <p>
+            View the QA case study:{" "}
+            <a
+              href="https://docs.melodx.io"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              docs.melodx.io
+            </a>
+          </p>
+          <button
+            className="intro-continue-button"
+            onClick={handleContinueFromIntro}
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="song-ranker-container">

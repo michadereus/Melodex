@@ -1,6 +1,6 @@
 // Filepath: Melodex/melodex-front-end/src/components/Navbar.jsx
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useUserContext } from "../contexts/UserContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,6 +13,9 @@ import defaultImage from "../images/default-avatar.png";
 
 function Navbar() {
   const { userPicture, userID, loading } = useUserContext();
+  const location = useLocation();
+  const hideProfileBubble =
+    location.pathname === "/login" || location.pathname === "/register";
 
   // Debug: Log userPicture to confirm its value
   console.log(
@@ -31,7 +34,7 @@ function Navbar() {
   const ProfileBubble = ({ src }) => (
     <div
       className="profile-bubble-wrapper"
-      style={{ width: 40, height: 40, borderRadius: "50%", overflow: "hidden" }}
+      style={{ width: 36, height: 36, borderRadius: "50%", overflow: "hidden" }}
     >
       <img
         src={src || defaultImage}
@@ -77,9 +80,11 @@ function Navbar() {
           </div>
         </div>
         <div className="nav-right">
-          <Link to="/profile" className="profile-link" aria-label="Profile">
-            <ProfileBubble src={defaultImage} />
-          </Link>
+          {!hideProfileBubble && (
+            <Link to="/profile" className="profile-link" aria-label="Profile">
+              <ProfileBubble src={defaultImage} />
+            </Link>
+          )}
         </div>
       </nav>
     );
@@ -107,9 +112,11 @@ function Navbar() {
         </div>
       </div>
       <div className="nav-right">
-        <Link to="/profile" className="profile-link" aria-label="Profile">
-          <ProfileBubble src={profileImage} />
-        </Link>
+        {!hideProfileBubble && (
+          <Link to="/profile" className="profile-link" aria-label="Profile">
+            <ProfileBubble src={profileImage} />
+          </Link>
+        )}
       </div>
     </nav>
   );

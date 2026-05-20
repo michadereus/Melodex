@@ -805,3 +805,77 @@ footer {
   will-change: transform;
 }
 
+
+.portfolio-info-card {
+  background: #f8fbff;
+  border: 1px solid rgba(52, 152, 219, 0.22);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(20, 24, 32, 0.08);
+  color: #141820;
+}
+
+.portfolio-info-card p {
+  line-height: 1.5;
+}
+
+.portfolio-info-card a {
+  color: #3498db;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.portfolio-info-card a:hover {
+  text-decoration: underline;
+}
+
+.login-info-card {
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.login-info-card p {
+  margin: 0 0 0.75rem;
+}
+
+.login-info-card p:last-child {
+  margin-bottom: 0;
+}
+
+.rank-intro-card {
+  max-width: 620px;
+  margin: 4rem auto;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.rank-intro-card h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: #141820;
+  text-align: center;
+}
+
+.rank-intro-card ol {
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.intro-continue-button {
+  display: block;
+  margin: 1.25rem auto 0;
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.intro-continue-button:hover {
+  background: #2980b9;
+}

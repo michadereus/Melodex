@@ -100,26 +100,45 @@ const Login = () => {
     <div className="auth-container">
       <h2
         style={{
-          textAlign: 'center',
+          textAlign: "center",
           fontFamily: "'Inter', sans-serif",
-          fontSize: '2rem',
+          fontSize: "2rem",
           fontWeight: 600,
-          color: '#141820',
-          marginBottom: '0.5rem',
+          color: "#141820",
+          marginBottom: "0.5rem",
         }}
       >
         Melodx.io
       </h2>
       <p
         style={{
-          textAlign: 'center',
-          fontSize: '1rem',
-          color: '#666',
-          marginBottom: '1.5rem',
+          textAlign: "center",
+          fontSize: "1rem",
+          color: "#666",
+          marginBottom: "1rem",
         }}
       >
         Sign in to rank your favorite music
       </p>
+
+      <div className="portfolio-info-card login-info-card">
+        <p>
+          Melodex is a portfolio music-ranking app used for a QA automation case
+          study.
+        </p>
+        <p>
+          Sign in to try the app, or view the QA case study here:
+          <br />
+          <a
+            href="https://docs.melodx.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            docs.melodx.io
+          </a>
+        </p>
+      </div>
+
       <div className="auth-form">
         <input
           className="auth-input"
@@ -138,15 +157,15 @@ const Login = () => {
         <button
           className="auth-button auth-button-primary"
           onClick={handleLogin}
-          style={{ borderRadius: '0.5rem' }}
+          style={{ borderRadius: "0.5rem" }}
           disabled={isSigningIn} // Disable button while signing in
         >
-          {isSigningIn ? 'Signing In...' : 'Sign In'}
+          {isSigningIn ? "Signing In..." : "Sign In"}
         </button>
         <button
           className="auth-button auth-button-secondary"
           onClick={handleRegisterRedirect}
-          style={{ borderRadius: '0.5rem' }}
+          style={{ borderRadius: "0.5rem" }}
         >
           Register
         </button>
@@ -159,12 +178,12 @@ const Login = () => {
                 className="auth-button auth-button-google"
                 onClick={renderProps.onClick}
                 disabled={renderProps.disabled}
-                style={{ borderRadius: '0.5rem' }}
+                style={{ borderRadius: "0.5rem" }}
               >
                 <img
                   src="https://developers.google.com/identity/images/g-logo.png"
                   alt="Google Logo"
-                  style={{ width: '20px', marginRight: '8px' }}
+                  style={{ width: "20px", marginRight: "8px" }}
                 />
                 Sign in with Google
               </button>
